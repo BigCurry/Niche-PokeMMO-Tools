@@ -20,11 +20,13 @@
     <main class="content">
       <section id="colorTool" class="toolSection">
         <h1>Text Color Generator</h1>
-        <label>Color:</label>
-        <input type="color" id="colorPicker">
         <label>Text:</label>
-        <textarea id="inputText"></textarea>
-        <button onclick="generateColorText()">Generate</button>
+        <textarea id="inputText" placeholder="Enter your text here, use multiple lines for multiple segments"></textarea>
+        <label>Hex Colors (comma separated, match lines):</label>
+        <input type="text" id="hexInput" placeholder="#ff0000,#00ff00,#0000ff">
+        <label>Character Limit (including hex codes):</label>
+        <input type="number" id="charLimit" placeholder="Optional">
+        <button onclick="generateMultiColorText()">Generate</button>
         <pre id="output"></pre>
 
         <h3>Live Preview</h3>

@@ -3,17 +3,46 @@ function switchTool(id) {
   document.getElementById(id).style.display='block';
 }
 
-function generateColorText() {
-  const color = document.getElementById("colorPicker").value.replace('#','');
-  const text = document.getElementById("inputText").value;
-  const formatted = `%${color} ${text}%`;
-  document.getElementById("output").textContent = formatted;
+function generateMultiColorText() {
+  const text = document.getElementById('inputText').value.trim().split('\n');
+  const hexes = document.getElementById('hexInput').value.trim().split(',');
+  const charLimitInput = document.getElementById('charLimit').value;
+  const charLimit = charLimitInput ? parseInt(charLimitInput) : null;
 
-  const preview = document.getElementById("preview");
-  preview.style.color = "#" + color;
-  preview.textContent = text;
+  if(text.length !== hexes.length) {
+    alert('Number of lines and hex codes must match.');
+    return;
+  }
+
+  let output = '';
+  for(let i = 0; i < text.length; i++) {
+    const segment = `[${hexes[i]}] ${text[i]}`;
+    output += segment + ' ';
+  }
+
+  if(charLimit && output.length > charLimit) {
+    output = output.slice(0, charLimit) + '...';
+  }
+
+  document.getElementById('output').textContent = output.trim();
+
+  const previewDiv = document.getElementById('preview');
+  previewDiv.innerHTML = ''; // clear previous preview
+  for(let i = 0; i < text.length; i++) {
+    const span = document.createElement('span');
+    span.style.color = hexes[i];
+    span.textContent = text[i] + ' ';
+    previewDiv.appendChild(span);
+  }
 }
 
-document.getElementById("darkToggle").onclick = () => {
-  document.body.classList.toggle("dark");
+// Dark mode / Light mode
+const darkToggle = document.getElementById('darkToggle');
+const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+if(prefersDark) document.body.classList.add('dark');
+darkToggle.textContent = document.body.classList.contains('dark') ? '☀️ Light Mode' : '🌙 Dark Mode';
+
+darkToggle.onclick = () => {
+  document.body.classList.toggle('dark');
+  darkToggle.textContent = document.body.classList.contains('dark') ? '☀️ Light Mode' : '🌙 Dark Mode';
 };
