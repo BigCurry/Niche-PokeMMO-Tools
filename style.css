@@ -29,6 +29,7 @@ body {
   flex: 1;
   padding: 20px;
   background: #d1d1d1;
+  overflow-y: auto;   /* enable vertical scroll inside content */
   min-height: 100vh;  /* make sure it always fills the viewport */
   box-sizing: border-box;
 }
