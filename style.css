@@ -1,109 +1,109 @@
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
+:root{
+  /* Color tokens */
+  --bg: #ffffff;
+  --panel: #e0e0e080;
+  --muted: #6b6b6b;
+  --text: #111;
+  --accent: #2b7cff;
+  --danger: #c24;
+  --success: #0a0;
+  --panelgrad: var(--bg);
+
+  /* sizing */
+  --sidebar-w: 250px;
+  --radius: 8px;
+
+  /* spacing */
+  --gap: 12px;
+  --pad: 16px;
 }
 
-#app {
-  display: flex;
-  height: 100vh;
+/* Dark theme overrides (added/removed by .dark on <body>) */
+body.dark{
+  --bg: #0f1113;
+  --panel: #23282d;
+  --muted: #9a9a9a;
+  --text: #e9eef6;
+  --accent: #488eff;
+  --panelgrad: var(--bg);
 }
 
-.sidebar {
-  width: 250px;
-  background: #1e1e1e;
-  color: white;
-  padding: 20px;
+/* Reset & base */
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
+body{background:var(--bg);color:var(--text);}
+
+/* App layout */
+.app{display:flex;height:100vh;min-height:600px;overflow:hidden}
+
+/* Sidebar */
+.sidebar{
+  width:var(--sidebar-w);
+  background:linear-gradient(180deg,var(--panel),var(--panelgrad));
+  border-right:1px solid rgba(0,0,0,0.06);
+  padding:var(--pad);
+  display:flex;
+  flex-direction:column;
+  gap:var(--gap);
+}
+.brand{margin:0 0 6px 0;font-size:1.1rem}
+.tool-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px}
+.tool-list__item{
+  padding:10px;border-radius:6px;cursor:pointer;
+}
+.tool-list__item.active{background:rgba(0,0,0,0.06)}
+.sidebar__footer{margin-top:auto}
+
+/* Buttons */
+.btn{background:var(--accent);border:none;color:white;padding:8px 10px;border-radius:6px;cursor:pointer}
+.btn--secondary{background:transparent;border:1px solid rgba(0,0,0,0.08);color:var(--text)}
+.btn:focus{outline:3px solid rgba(43,124,255,0.18)}
+
+/* Content */
+.content{
+  flex:1;padding:20px;overflow:auto;
+  display:flex;flex-direction:column;gap:14px;
 }
 
-.sidebar ul {
-  list-style: none;
-  padding: 0;
+/* Tool header */
+.toolHeader .muted{color:var(--muted);font-size:0.9rem;margin-top:4px;margin-bottom:12px}
+
+/* Controls & line list */
+.controls{display:flex;flex-direction:column;gap:10px}
+.line-list{display:flex;flex-direction:column;gap:8px;max-width:900px}
+.lineRow{
+  display:flex;align-items:center;gap:8px;padding:8px;border-radius:6px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);
+  border:1px solid rgba(0,0,0,0.03);
+}
+.lineRow .dragHandle{cursor:grab;font-size:18px;user-select:none;padding:4px}
+.lineRow .dragHandle:active{cursor:grabbing}
+.lineText{flex:1;padding:8px;border-radius:6px;border:1px solid rgba(0,0,0,0.06);background:transparent;color:var(--text)}
+.pickrButton, .removeBtn{border:none;background:transparent;cursor:pointer;padding:6px;font-size:16px}
+.removeBtn{color:var(--danger)}
+
+/* Live preview */
+.preview{
+  padding:12px;border-radius:var(--radius);min-height:56px;
+  background:var(--panel);border:1px solid rgba(0,0,0,0.06);display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+  /* ensure preview background follows theme */
 }
 
-.sidebar li {
-  padding: 10px 0;
-  cursor: pointer;
-}
+/* Formatted output */
+.formatted{display:flex;flex-direction:row;gap:12px;align-items:flex-start}
+.formatted__pre{white-space:pre-wrap;padding:12px;border-radius:8px;background:var(--panel);border:1px solid rgba(0,0,0,0.06);min-height:56px;flex:1;overflow:auto}
+.formatted__actions{display:flex;align-items:center;gap:8px}
 
-.content {
-  flex: 1;
-  padding: 20px;
-  background: #d1d1d1;
-  overflow-y: auto;   /* enable vertical scroll inside content */
-  min-height: 100vh;  /* make sure it always fills the viewport */
-  box-sizing: border-box;
-}
+/* Copy status (injected) */
+.copyStatus{font-weight:600;font-size:0.9rem;margin-left:6px;transition:opacity .3s}
+.copyStatus--ok{color:var(--success)}
+.copyStatus--fail{color:var(--danger)}
 
-.toolSection textarea {
-  width: 100%;
-  height: 80px;
-}
+/* Accessibility tweaks */
+.lineText:focus{outline:3px solid rgba(43,124,255,0.12)}
 
-#preview {
-  padding: 15px;
-  border-radius: 6px;
-  margin-top: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  white-space: pre-wrap;
-}
-
-.lineRow {
-  display: flex;
-  align-items: center;
-  margin-bottom: 4px;
-}
-
-.dragHandle {
-  cursor: grab;
-  margin-right: 8px;
-  font-size: 18px;
-}
-
-.lineText {
-  flex: 1;
-  margin-right: 8px;
-}
-
-.lineColor {
-  margin-right: 8px;
-}
-
-button {
-  margin-right: 4px;
-}
-
-.dark body, .dark .content { 
-  background: #121212; 
-  color: white; 
-}
-
-.dark .sidebar { 
-  background: #000; 
-}
-
-.dragHandle {
-  cursor: grab;       /* Normal grab cursor */
-  user-select: none;  /* Prevent selecting the handle text itself */
-}
-
-.lineRow.dragging .dragHandle {
-  cursor: grabbing;   /* Show grabbing cursor while dragging */
-}
-
-/* Prevent text selection on entire line while dragging */
-.lineRow.dragging {
-  user-select: none;
-}
-
-.copyStatus {
-  margin-left: 10px;
-  font-size: 0.9em;
-  font-weight: bold;
-  color: #0a0; /* green */
-  opacity: 1;
-}
-
-.copyStatus.failed {
-  color: #a00; /* red */
+/* Responsive */
+@media (max-width:800px){
+  .app{flex-direction:column}
+  .sidebar{width:100%;flex-direction:row;align-items:center;gap:10px;padding:8px}
+  .content{padding:12px}
 }

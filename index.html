@@ -1,54 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Niche PokeMMO Tools</title>
-  <link rel="stylesheet" href="style.css">
-  <script defer src="script.js"></script>
-  <!-- Pickr CSS -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Niche PokeMMO Tools — Color Text Generator</title>
+
+  <!-- Local stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Pickr CSS (classic theme) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css"/>
-  <!-- Pickr JS -->
+
+  <!-- Pickr JS (deferred) -->
   <script defer src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
 
+  <!-- App script (deferred) -->
+  <script defer src="script.js"></script>
 </head>
 <body>
-  <div id="app">
-    <aside class="sidebar">
-      <h2>Tools</h2>
-      <ul id="toolList">
-        <li data-tool="colorTool">Color Text Generator</li>
-        <li data-tool="placeholder">Another Tool</li>
-      </ul>
-      <button id="darkToggle">🌙 Dark Mode</button>
+  <div id="app" class="app">
+    <aside class="sidebar" aria-label="Tools sidebar">
+      <h2 class="brand">Niche PokeMMO Tools</h2>
+
+      <nav>
+        <ul id="toolList" class="tool-list" role="tablist">
+          <li role="tab" data-tool="colorTool" class="tool-list__item active">Color Text Generator</li>
+          <li role="tab" data-tool="placeholder" class="tool-list__item">Placeholder</li>
+        </ul>
+      </nav>
+
+      <div class="sidebar__footer">
+        <button id="darkToggle" class="btn">🌙 Dark Mode</button>
+      </div>
     </aside>
 
-    <main class="content">
-      <section id="colorTool" class="toolSection">
-        <h1>Text Color Generator</h1>
-        <p style="color: gray; font-size: 80%;">Note: Coloring text is only supported in team chat</p>
+    <main class="content" role="main">
+      <!-- ========== Color Tool ========== -->
+      <section id="colorTool" class="toolSection" aria-labelledby="colorToolTitle">
+        <header class="toolHeader">
+          <h1 id="colorToolTitle">Text Color Generator</h1>
+          <p class="muted">Note: Coloring text is only supported in team chat</p>
+        </header>
 
-        <div id="lineContainer"></div>
-        <div class="buttons">
-          <button id="addLineBtn">➕ Add Line</button>
-          <button id="resetBtn">Reset</button>
+        <div class="controls">
+          <div id="lineContainer" class="line-list" aria-live="polite"></div>
+
+          <div class="control-actions">
+            <button id="addLineBtn" class="btn">➕ Add Line</button>
+            <button id="resetBtn" class="btn btn--secondary">Reset</button>
+          </div>
         </div>
 
         <h3>Live Preview</h3>
-        <div id="preview"></div>
-        <pre id="output"></pre>
-        
-        <h3>Formatted Output</h3>
-        <div id="formattedOutputContainer">
-          <pre id="formattedOutput"></pre>
-          <button id="copyOutputBtn">Copy</button>
-        </div>
+        <div id="preview" class="preview" aria-label="Live preview"></div>
 
+        <h3>Formatted Output</h3>
+        <div id="formattedOutputContainer" class="formatted">
+          <pre id="formattedOutput" class="formatted__pre" aria-live="polite"></pre>
+          <div class="formatted__actions">
+            <button id="copyOutputBtn" class="btn">Copy</button>
+            <!-- copy status is injected by JS next to this button -->
+          </div>
+        </div>
       </section>
 
+      <!-- ========== Placeholder Tool ========== -->
       <section id="placeholder" class="toolSection" style="display:none;">
         <h1>Placeholder Tool</h1>
+        <p>Future tool goes here.</p>
       </section>
     </main>
   </div>
+
+  <!-- ========== Templates ========== -->
+  <template id="lineTemplate">
+    <div class="lineRow" data-color="#ffffff">
+      <span class="dragHandle" draggable="true" title="Drag to reorder" aria-hidden="true">⋮⋮</span>
+      <input class="lineText" type="text" placeholder="Enter text" aria-label="Line text">
+      <button class="pickrButton" type="button" title="Choose color">🎨</button>
+      <button class="removeBtn" type="button" title="Remove line">❌</button>
+    </div>
+  </template>
 </body>
 </html>
