@@ -29,6 +29,8 @@ body {
   flex: 1;
   padding: 20px;
   background: #d1d1d1;
+  min-height: 100vh;  /* make sure it always fills the viewport */
+  box-sizing: border-box;
 }
 
 .toolSection textarea {
