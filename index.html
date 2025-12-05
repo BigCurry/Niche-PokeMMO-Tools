@@ -5,14 +5,20 @@
   <title>Niche PokeMMO Tools</title>
   <link rel="stylesheet" href="style.css">
   <script defer src="script.js"></script>
+  <!-- Pickr CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css"/>
+
+  <!-- Pickr JS -->
+  <script defer src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
+
 </head>
 <body>
   <div id="app">
     <aside class="sidebar">
       <h2>Tools</h2>
-      <ul>
-        <li onclick="switchTool('colorTool')">Color Text Generator</li>
-        <li onclick="switchTool('placeholder')">Another Tool</li>
+      <ul id="toolList">
+        <li data-tool="colorTool">Color Text Generator</li>
+        <li data-tool="placeholder">Another Tool</li>
       </ul>
       <button id="darkToggle">🌙 Dark Mode</button>
     </aside>
@@ -20,17 +26,15 @@
     <main class="content">
       <section id="colorTool" class="toolSection">
         <h1>Text Color Generator</h1>
-        <label>Text:</label>
-        <textarea id="inputText" placeholder="Enter your text here, use multiple lines for multiple segments"></textarea>
-        <label>Hex Colors (comma separated, match lines):</label>
-        <input type="text" id="hexInput" placeholder="#ff0000,#00ff00,#0000ff">
-        <label>Character Limit (including hex codes):</label>
-        <input type="number" id="charLimit" placeholder="Optional">
-        <button onclick="generateMultiColorText()">Generate</button>
-        <pre id="output"></pre>
-
+        <div id="lineContainer"></div>
+        <div class="buttons">
+          <button id="addLineBtn">➕ Add Line</button>
+          <button id="generateBtn">Generate</button>
+          <button id="resetBtn">Reset</button>
+        </div>
         <h3>Live Preview</h3>
         <div id="preview"></div>
+        <pre id="output"></pre>
       </section>
 
       <section id="placeholder" class="toolSection" style="display:none;">
