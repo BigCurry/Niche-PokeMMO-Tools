@@ -92,3 +92,15 @@ button {
 .lineRow.dragging {
   user-select: none;
 }
+
+.copyStatus {
+  margin-left: 10px;
+  font-size: 0.9em;
+  font-weight: bold;
+  color: #0a0; /* green */
+  opacity: 1;
+}
+
+.copyStatus.failed {
+  color: #a00; /* red */
+}
