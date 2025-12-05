@@ -199,4 +199,4 @@ document.addEventListener('DOMContentLoaded', () => {
   resetBtn.addEventListener('click', resetLines);
 
   }); // END waitForPickr()
-}
+})
