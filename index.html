@@ -25,15 +25,25 @@
     <main class="content">
       <section id="colorTool" class="toolSection">
         <h1>Text Color Generator</h1>
+        <p style="color: gray; font-size: 80%;">Note: Coloring text is only supported in team chat</p>
+
         <div id="lineContainer"></div>
         <div class="buttons">
           <button id="addLineBtn">➕ Add Line</button>
           <button id="generateBtn">Generate</button>
           <button id="resetBtn">Reset</button>
         </div>
+        
         <h3>Live Preview</h3>
         <div id="preview"></div>
         <pre id="output"></pre>
+        
+        <h3>Formatted Output</h3>
+        <div id="formattedOutputContainer">
+          <pre id="formattedOutput"></pre>
+          <button id="copyOutputBtn">Copy</button>
+        </div>
+
       </section>
 
       <section id="placeholder" class="toolSection" style="display:none;">
