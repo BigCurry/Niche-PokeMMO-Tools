@@ -1,6 +1,6 @@
 /**
  * script.js — Modern single-file refactor for Color Text Generator
- *
+ * 
  * - Uses a <template> for row markup
  * - requestAnimationFrame-based waiting for Pickr
  * - Central config
