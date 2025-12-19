@@ -304,3 +304,158 @@ document.addEventListener("DOMContentLoaded", async () => {
   // start with a single line
   Lines.add();
 });
+
+/* ================= MOVE CHECKER MODULE ================= */
+
+const MoveChecker = (() => {
+  let pokedex = [];
+  let moveIndex = {};
+  let allMoves = [];
+
+  const METHOD_LABELS = {
+    "TM??": "TM",
+    "level": "Level",
+    "TUTOR": "Tutor",
+    "EGG": "Egg"
+  };
+
+  async function load() {
+    try {
+      const res = await fetch("./monsters.json");
+      if (!res.ok) throw new Error("Failed to load monsters.json");
+      pokedex = await res.json();
+      indexMoves();
+      buildMoveList();
+      populateTypes();
+    } catch (err) {
+      console.error("Move Checker failed to load data:", err);
+    }
+  }
+
+  function indexMoves() {
+    moveIndex = {};
+    pokedex.forEach(mon => {
+      mon.moves.forEach(mv => {
+        const key = mv.name.toLowerCase();
+        if (!moveIndex[key]) moveIndex[key] = [];
+        moveIndex[key].push({
+          id: mon.id,
+          name: mon.name,
+          type: mv.type,
+          level: mv.level,
+          types: mon.types || []
+        });
+      });
+    });
+  }
+
+  function buildMoveList() {
+    allMoves = [...new Set(pokedex.flatMap(m => m.moves.map(x => x.name)))].sort();
+  }
+
+  function populateTypes() {
+    const set = new Set();
+    pokedex.forEach(m => m.types?.forEach(t => set.add(t)));
+    const sel = document.getElementById("typeFilter");
+    [...set].sort().forEach(t => {
+      const o = document.createElement("option");
+      o.value = t;
+      o.textContent = t;
+      sel.appendChild(o);
+    });
+  }
+
+function update() {
+    const move = moveSearch.value.trim().toLowerCase();
+    const resultsEl = results;
+    resultsEl.innerHTML = "";
+
+    if (!moveIndex[move]) return;
+
+    let list = moveIndex[move];
+
+    const includes = [...document.querySelectorAll(".mc-include:checked")].map(c => c.value);
+    const type = typeFilter.value;
+
+    // Filter first
+    list = list.filter(e => {
+      if (includes.length && !includes.includes(e.type)) return false;
+      if (type && !e.types.includes(type)) return false;
+      return true;
+    });
+
+    // Group by name + ID
+    const grouped = {};
+    list.forEach(e => {
+      const key = `${e.name}|${e.id}`;
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(e);
+    });
+
+    // Render grouped entries
+    Object.values(grouped).forEach(entries => {
+      if (!entries.length) return; // Safety check
+
+      const firstEntry = entries[0];
+      const pokemonId = String(firstEntry.id)
+      const sprite = `sprites/pokemon/${pokemonId}.png`;
+
+      const methodsHtml = entries.map(e => `${METHOD_LABELS[e.type] || e.type}${e.level ? " " + e.level : ""}`).join(", ");
+
+      const div = document.createElement("div");
+      div.className = "pokemon-result";
+      div.style.display = "flex";
+      div.style.alignItems = "center";
+      div.style.gap = "10px";
+
+      div.innerHTML = `
+        <img src="${sprite}" alt="${firstEntry.name}" style="width: 100px; height: 100px;"> 
+        <div>
+          <strong>${firstEntry.name}</strong><br>
+          <span class="method">${methodsHtml}</span>
+        </div>
+      `;
+
+      resultsEl.appendChild(div);
+    });
+}
+
+  function autocomplete(q) {
+    autocompleteEl.innerHTML = "";
+    if (!q) return;
+
+    allMoves.filter(m => m.toLowerCase().includes(q.toLowerCase()))
+      .slice(0, 15)
+      .forEach(m => {
+        const d = document.createElement("div");
+        d.textContent = m;
+        d.onclick = () => {
+          moveSearch.value = m;
+          autocompleteEl.innerHTML = "";
+          update();
+        };
+        autocompleteEl.appendChild(d);
+      });
+  }
+
+  const moveSearch = document.getElementById("moveSearch");
+  const autocompleteEl = document.getElementById("autocomplete");
+  const results = document.getElementById("results");
+  const typeFilter = document.getElementById("typeFilter");
+
+  moveSearch.addEventListener("input", e => {
+    autocomplete(e.target.value);
+    update();
+  });
+
+  document.addEventListener("change", e => {
+    if (e.target.closest("#moveChecker")) update();
+  });
+
+  return { load };
+})();
+
+/* Init Move Checker after DOM load */
+document.addEventListener("DOMContentLoaded", () => {
+  MoveChecker.load();
+});

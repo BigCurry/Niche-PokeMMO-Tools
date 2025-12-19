@@ -114,3 +114,56 @@ body{background:var(--bg);color:var(--text);}
 
 /* Accessibility tweaks */
 .lineText:focus{outline:3px solid rgba(43,124,255,0.12)}
+
+/* ================= MOVE CHECKER ================= */
+
+.mc-input {
+  width: 360px;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+
+.mc-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.mc-autocomplete {
+  position: absolute;
+  background: var(--panel);
+  border: 1px solid rgba(0,0,0,0.2);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 50;
+}
+
+.mc-autocomplete div {
+  padding: 6px;
+  cursor: pointer;
+}
+
+.mc-autocomplete div:hover {
+  background: rgba(0,0,0,0.1);
+}
+
+.pokemon-result {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: var(--panel);
+  padding: 8px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+.pokemon-result img {
+  width: 48px;
+  image-rendering: pixelated;
+}
+
+.method {
+  color: #8bc34a;
+  font-weight: bold;
+}

@@ -4,83 +4,105 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="icon" href="NPT Favicon.png" type="image/png">
-  <title>Niche PokeMMO Tools — Color Text Generator</title>
+  <title>Niche PokeMMO Tools</title>
 
-  <!-- Local stylesheet -->
   <link rel="stylesheet" href="style.css" />
 
-  <!-- Pickr CSS (classic theme) -->
+  <!-- Pickr -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css"/>
-
-  <!-- Pickr JS (deferred) -->
   <script defer src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
 
-  <!-- App script (deferred) -->
   <script defer src="script.js"></script>
 </head>
 <body>
-  <div id="app" class="app">
-    <aside class="sidebar" aria-label="Tools sidebar">
-      <h2 class="brand">Niche PokeMMO Tools</h2>
+<div id="app" class="app">
+  <aside class="sidebar">
+    <h2 class="brand">Niche PokeMMO Tools</h2>
 
-      <nav>
-        <ul id="toolList" class="tool-list" role="tablist">
-          <li role="tab" data-tool="colorTool" class="tool-list__item active">Color Text Generator</li>
-          <li role="tab" data-tool="placeholder" class="tool-list__item">Placeholder</li>
-        </ul>
-      </nav>
+    <ul id="toolList" class="tool-list">
+      <li class="tool-list__item active" data-tool="colorTool">Color Text Generator</li>
+      <li class="tool-list__item" data-tool="moveChecker">Move Checker</li>
+    </ul>
 
-      <div class="sidebar__footer">
-        <button id="darkToggle" class="btn">🌙 Dark Mode</button>
-      </div>
-    </aside>
-
-    <main class="content" role="main">
-      <!-- ========== Color Tool ========== -->
-      <section id="colorTool" class="toolSection" aria-labelledby="colorToolTitle">
-        <header class="toolHeader">
-          <h1 id="colorToolTitle">Text Color Generator</h1>
-          <p class="muted">Note: Coloring text is only supported in team chat</p>
-        </header>
-
-        <div class="controls">
-          <div id="lineContainer" class="line-list" aria-live="polite"></div>
-
-          <div class="control-actions">
-            <button id="addLineBtn" class="btn">➕ Add Line</button>
-            <button id="resetBtn" class="btn btn--secondary">Reset</button>
-          </div>
-        </div>
-
-        <h3>Live Preview</h3>
-        <div id="preview" class="preview" aria-label="Live preview"></div>
-
-        <h3>Formatted Output</h3>
-        <div id="formattedOutputContainer" class="formatted">
-          <pre id="formattedOutput" class="formatted__pre" aria-live="polite"></pre>
-          <div class="formatted__actions">
-            <button id="copyOutputBtn" class="btn">Copy</button>
-            <!-- copy status is injected by JS next to this button -->
-          </div>
-        </div>
-      </section>
-
-      <!-- ========== Placeholder Tool ========== -->
-      <section id="placeholder" class="toolSection" style="display:none;">
-        <h1>Placeholder Tool</h1>
-        <p>Future tool goes here.</p>
-      </section>
-    </main>
-  </div>
-
-  <!-- ========== Templates ========== -->
-  <template id="lineTemplate">
-    <div class="lineRow" data-color="#ffffff">
-      <span class="dragHandle" draggable="true" title="Drag to reorder" aria-hidden="true">⋮⋮</span>
-      <input class="lineText" type="text" placeholder="Enter text" aria-label="Line text">
-      <button class="pickrButton" type="button" title="Choose color">🎨</button>
-      <button class="removeBtn" type="button" title="Remove line">❌</button>
+    <div class="sidebar__footer">
+      <button id="darkToggle" class="btn">🌙 Dark Mode</button>
     </div>
-  </template>
+  </aside>
+
+  <main class="content">
+
+    <!-- ================= COLOR TOOL ================= -->
+    <section id="colorTool" class="toolSection">
+      <header class="toolHeader">
+        <h1>Text Color Generator</h1>
+        <p class="muted">Note: Coloring text is only supported in team chat</p>
+      </header>
+
+      <div class="controls">
+        <div id="lineContainer" class="line-list"></div>
+
+        <div class="control-actions">
+          <button id="addLineBtn" class="btn">➕ Add Line</button>
+          <button id="resetBtn" class="btn btn--secondary">Reset</button>
+        </div>
+      </div>
+
+      <h3>Live Preview</h3>
+      <div id="preview" class="preview"></div>
+
+      <h3>Formatted Output</h3>
+      <div class="formatted">
+        <pre id="formattedOutput" class="formatted__pre"></pre>
+        <div class="formatted__actions">
+          <button id="copyOutputBtn" class="btn">Copy</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= MOVE CHECKER ================= -->
+    <section id="moveChecker" class="toolSection" style="display:none;">
+      <header class="toolHeader">
+        <h1>Pokémon Move Checker</h1>
+        <p class="muted">Find which Pokémon can learn a specific move</p>
+      </header>
+
+      <!-- Embed monsters.json -->
+      <script id="pokedex-data" type="application/json">
+      <!-- PASTE monsters.json HERE -->
+      </script>
+
+      <input id="moveSearch" class="mc-input" placeholder="Search move..." />
+      <div id="autocomplete" class="mc-autocomplete"></div>
+
+      <h3>Move Filters</h3>
+      <div class="mc-filters">
+        <label><input type="checkbox" class="mc-include" value="level"> Level</label>
+        <label><input type="checkbox" class="mc-include" value="TM??"> TM</label>
+        <label><input type="checkbox" class="mc-include" value="TUTOR"> Tutor</label>
+        <label><input type="checkbox" class="mc-include" value="EGG"> Egg</label>
+      </div>
+
+      <h3>Type Filter</h3>
+      <select id="typeFilter" class="mc-input">
+        <option value="">Any Type</option>
+      </select>
+
+      <h3>Results</h3>
+      <div id="results"></div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Line template (color tool) -->
+<template id="lineTemplate">
+  <div class="lineRow" data-color="#ffffff">
+    <span class="dragHandle" draggable="true">⋮⋮</span>
+    <input class="lineText" type="text" placeholder="Enter text">
+    <button class="pickrButton">🎨</button>
+    <button class="removeBtn">❌</button>
+  </div>
+</template>
+
 </body>
 </html>
