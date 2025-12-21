@@ -365,60 +365,69 @@ const MoveChecker = (() => {
     });
   }
 
-function update() {
-    const move = moveSearch.value.trim().toLowerCase();
-    const resultsEl = results;
-    resultsEl.innerHTML = "";
+  function update() {
+      const move = moveSearch.value.trim().toLowerCase();
+      const resultsEl = results;
+      resultsEl.innerHTML = "";
 
-    if (!moveIndex[move]) return;
+      if (!moveIndex[move]) return;
 
-    let list = moveIndex[move];
+      let list = moveIndex[move];
 
-    const includes = [...document.querySelectorAll(".mc-include:checked")].map(c => c.value);
-    const type = typeFilter.value;
+      const includes = [...document.querySelectorAll(".mc-include:checked")].map(c => c.value);
+      const type = typeFilter.value;
 
-    // Filter first
-    list = list.filter(e => {
-      if (includes.length && !includes.includes(e.type)) return false;
-      if (type && !e.types.includes(type)) return false;
-      return true;
-    });
+      // Filter
+      list = list.filter(e => {
+          if (includes.length && !includes.includes(e.type)) return false;
+          if (type && !e.types.includes(type)) return false;
+          return true;
+      });
 
-    // Group by name + ID
-    const grouped = {};
-    list.forEach(e => {
-      const key = `${e.name}|${e.id}`;
-      if (!grouped[key]) grouped[key] = [];
-      grouped[key].push(e);
-    });
+      // Group by name + ID (handles forms properly)
+      const grouped = {};
+      list.forEach(e => {
+          const key = `${e.name}|${e.id}`;
+          if (!grouped[key]) grouped[key] = [];
+          grouped[key].push(e);
+      });
 
-    // Render grouped entries
-    Object.values(grouped).forEach(entries => {
-      if (!entries.length) return; // Safety check
+      // Render
+      Object.values(grouped).forEach(entries => {
+          if (!entries.length) return;
 
-      const firstEntry = entries[0];
-      const pokemonId = String(firstEntry.id)
-      const sprite = `sprites/pokemon/${pokemonId}.png`;
+          const first = entries[0];
+          const pokemonId = String(first.id)
+          const spritePath = `sprites/pokemon/${pokemonId}.png`;
 
-      const methodsHtml = entries.map(e => `${METHOD_LABELS[e.type] || e.type}${e.level ? " " + e.level : ""}`).join(", ");
+          const methodsHtml = entries
+              .map(e => `${METHOD_LABELS[e.type] || e.type}${e.level ? " " + e.level : ""}`)
+              .join(", ");
 
-      const div = document.createElement("div");
-      div.className = "pokemon-result";
-      div.style.display = "flex";
-      div.style.alignItems = "center";
-      div.style.gap = "10px";
+          const div = document.createElement("div");
+          div.className = "pokemon-result";
+          div.style.display = "flex";
+          div.style.alignItems = "center";
+          div.style.gap = "10px";
 
-      div.innerHTML = `
-        <img src="${sprite}" alt="${firstEntry.name}" style="width: 100px; height: 100px;"> 
-        <div>
-          <strong>${firstEntry.name}</strong><br>
-          <span class="method">${methodsHtml}</span>
-        </div>
-      `;
+          div.innerHTML = `
+              <img
+                  src="${spritePath}"
+                  alt="${first.name}"
+                  width="96px"
+                  height="96px"
+                  onerror="this.onerror=null; this.src='sprites/pokemon/0.png';"
+              >
+              <div>
+                  <strong>${first.name}</strong><br>
+                  <span class="method">${methodsHtml}</span>
+              </div>
+          `;
 
-      resultsEl.appendChild(div);
-    });
-}
+          resultsEl.appendChild(div);
+      });
+  }
+
 
   function autocomplete(q) {
     autocompleteEl.innerHTML = "";
