@@ -1,106 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="icon" href="NPT Favicon.png" type="image/png">
-  <title>Niche PokeMMO Tools</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="icon" href="NPT Favicon.png" type="image/png">
+<title>Niche PokeMMO Tools</title>
+<link rel="stylesheet" href="style.css" />
 
-  <link rel="stylesheet" href="style.css" />
-
-  <!-- Pickr -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css"/>
-  <script defer src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
-
-  <script defer src="script.js"></script>
+<!-- Pickr -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css"/>
+<script defer src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
+<script defer src="script.js"></script>
 </head>
 <body>
-<div id="app" class="app">
-  <aside class="sidebar">
-    <h2 class="brand">Niche PokeMMO Tools</h2>
 
-    <ul id="toolList" class="tool-list">
-      <li class="tool-list__item active" data-tool="colorTool">Color Text Generator</li>
-      <li class="tool-list__item" data-tool="moveChecker">Move Checker</li>
-    </ul>
+<header class="topbar">
+  <button id="menuBtn" class="menuBtn btn--ghost">☰</button>
+  <span class="brand">Niche PokeMMO Tools</span>
+  <button id="darkToggle" class="btn btn--ghost togglelightdark">🌙</button>
+</header>
 
-    <div class="sidebar__footer">
-      <button id="darkToggle" class="btn">🌙 Dark Mode</button>
+<div id="drawerOverlay" class="drawer-overlay"></div>
+
+<aside id="sidebar" class="sidebar">
+  <ul id="toolList" class="tool-list">
+    <li class="tool-list__item active" data-tool="colorTool">Color Text Generator</li>
+    <li class="tool-list__item" data-tool="moveChecker">Move Checker</li>
+  </ul>
+</aside>
+
+<main class="content">
+
+  <!-- ================= COLOR TOOL ================= -->
+  <section id="colorTool" class="toolSection">
+    <header class="toolHeader">
+      <h1>Text Color Generator</h1>
+      <p class="muted">Note: Coloring text is only supported in team chat</p>
+    </header>
+
+    <div class="controls">
+      <div id="lineContainer" class="line-list"></div>
+      <div class="control-actions">
+        <button id="addLineBtn" class="btn">➕ Add Line</button>
+        <button id="resetBtn" class="btn btn--secondary">Reset</button>
+      </div>
     </div>
-  </aside>
 
-  <main class="content">
+    <h3>Live Preview</h3>
+    <div id="preview" class="preview"></div>
 
-    <!-- ================= COLOR TOOL ================= -->
-    <section id="colorTool" class="toolSection">
-      <header class="toolHeader">
-        <h1>Text Color Generator</h1>
-        <p class="muted">Note: Coloring text is only supported in team chat</p>
-      </header>
+    <h3>Formatted Output</h3>
+    <div class="formatted">
+      <pre id="formattedOutput" class="formatted__pre"></pre>
+      <button id="copyOutputBtn" class="btn">Copy</button>
+    </div>
+  </section>
 
-      <div class="controls">
-        <div id="lineContainer" class="line-list"></div>
+  <!-- ================= MOVE CHECKER ================= -->
+  <section id="moveChecker" class="toolSection" style="display:none;">
+    <header class="toolHeader">
+      <h1>Pokémon Move Checker</h1>
+      <p class="muted">Find which Pokémon can learn a specific move</p>
+    </header>
 
-        <div class="control-actions">
-          <button id="addLineBtn" class="btn">➕ Add Line</button>
-          <button id="resetBtn" class="btn btn--secondary">Reset</button>
-        </div>
-      </div>
-
-      <h3>Live Preview</h3>
-      <div id="preview" class="preview"></div>
-
-      <h3>Formatted Output</h3>
-      <div class="formatted">
-        <pre id="formattedOutput" class="formatted__pre"></pre>
-        <div class="formatted__actions">
-          <button id="copyOutputBtn" class="btn">Copy</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ================= MOVE CHECKER ================= -->
-    <section id="moveChecker" class="toolSection" style="display:none;">
-      <header class="toolHeader">
-        <h1>Pokémon Move Checker</h1>
-        <p class="muted">Find which Pokémon can learn a specific move</p>
-      </header>
-
-      <!-- Embed monsters.json -->
-      <script id="pokedex-data" type="application/json">
-      <!-- PASTE monsters.json HERE -->
-      </script>
-
-      <input id="moveSearch" class="mc-input" placeholder="Search move..." />
+    <div class="mc-search-wrapper">
+      <input id="moveSearch" class="mc-input" placeholder="Search move..." autocomplete="off" />
       <div id="autocomplete" class="mc-autocomplete"></div>
+    </div>
 
-      <h3>Move Filters</h3>
-      <div class="mc-filters">
-        <label><input type="checkbox" class="mc-include" value="level"> Level</label>
-        <label><input type="checkbox" class="mc-include" value="TM??"> TM</label>
-        <label><input type="checkbox" class="mc-include" value="TUTOR"> Tutor</label>
-        <label><input type="checkbox" class="mc-include" value="EGG"> Egg</label>
+    <button id="filtersBtn" class="btn btn--secondary">🝖 Filters</button>
+    <div id="filtersPanel" class="filters-panel" style="display:none;">
+      <h4>Move Filters</h4>
+      <div class="mc-filters" id="moveFilters">
+        <label data-filter="level"><span class="filter-box">◯</span> Level</label>
+        <label data-filter="TM??"><span class="filter-box">◯</span> TM</label>
+        <label data-filter="TUTOR"><span class="filter-box">◯</span> Tutor</label>
+        <label data-filter="EGG"><span class="filter-box">◯</span> Egg</label>
+        <label data-filter="special"><span class="filter-box">◯</span> Special</label>
+        <label data-filter="EVOLVE"><span class="filter-box">◯</span> Evolve</label>
+        <label data-filter="PREVO"><span class="filter-box">◯</span> Prevo</label>
       </div>
 
-      <h3>Type Filter</h3>
+      <h4>Type Filter</h4>
       <select id="typeFilter" class="mc-input">
         <option value="">Any Type</option>
       </select>
+      <button id="clearFilters" class="btn btn--secondary">Clear Filters</button>
+    </div>
 
-      <h3>Results</h3>
-      <div id="results"></div>
-    </section>
+    <h3>Results</h3>
+    <div id="results"></div>
+  </section>
 
-  </main>
-</div>
+</main>
 
-<!-- Line template (color tool) -->
 <template id="lineTemplate">
-  <div class="lineRow" data-color="#ffffff">
+  <div class="lineRow" data-color="#00ffffff">
     <span class="dragHandle" draggable="true">⋮⋮</span>
     <input class="lineText" type="text" placeholder="Enter text">
     <button class="pickrButton">🎨</button>
-    <button class="removeBtn">❌</button>
+    <button class="removeBtn btn--ghost">❌</button>
   </div>
 </template>
 
