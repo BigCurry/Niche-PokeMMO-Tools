@@ -23,6 +23,7 @@ const CONFIG = {
 };
 
 const AppState = { dragging: null };
+let touchDraggingRow = null;
 let lineContainerEl, previewEl, formattedOutputEl, copyOutputBtnEl, templateEl;
 
 const Preview = {
@@ -72,14 +73,25 @@ const Lines = {
     });
     dragHandle.addEventListener("dragend",()=>{wrapper.classList.remove("dragging"); AppState.dragging=null;});
 
+    dragHandle.addEventListener("pointerdown",(e)=>{
+      if(e.pointerType !== "touch") return;
+
+      e.preventDefault();
+      wrapper.classList.add("dragging");
+      initDragSort.setTouchDragging(wrapper);
+
+      dragHandle.setPointerCapture(e.pointerId);
+    });
+
     lineContainerEl.appendChild(wrapper);
 
     const pickr = Pickr.create({...CONFIG.pickr, el:pickrButton, default: color});
     pickr.on("change",(c)=>{
       wrapper.dataset.color = c.toHEXA().toString();
+      pickr.applyColor();
       render();
     });
-
+    
     render();
   },
   reset() { lineContainerEl.innerHTML=""; this.add(); }
@@ -88,16 +100,51 @@ const Lines = {
 function render(){Preview.update(); Preview.updateFormatted();}
 
 function initDragSort(){
+  /* ===== Desktop drag (unchanged) ===== */
   lineContainerEl.addEventListener("dragover",(e)=>{
     e.preventDefault();
     const dragging = AppState.dragging;
     if(!dragging) return;
+
     const rows = Lines.getRows().filter(r=>r!==dragging);
-    const next = rows.find(r=>e.clientY < r.getBoundingClientRect().top + r.getBoundingClientRect().height/2);
-    lineContainerEl.insertBefore(dragging, next||null);
+    const next = rows.find(r =>
+      e.clientY < r.getBoundingClientRect().top + r.getBoundingClientRect().height / 2
+    );
+
+    lineContainerEl.insertBefore(dragging, next || null);
     render();
   });
+
+  /* ===== Mobile / touch drag ===== */
+  let touchDraggingRow = null;
+
+  lineContainerEl.addEventListener("pointermove",(e)=>{
+    if(!touchDraggingRow) return;
+
+    const rows = Lines.getRows().filter(r=>r!==touchDraggingRow);
+    for(const row of rows){
+      const rect = row.getBoundingClientRect();
+      if(e.clientY < rect.top + rect.height / 2){
+        lineContainerEl.insertBefore(touchDraggingRow, row);
+        return;
+      }
+    }
+    lineContainerEl.appendChild(touchDraggingRow);
+  });
+
+  lineContainerEl.addEventListener("pointerup",()=>{
+    if(!touchDraggingRow) return;
+    touchDraggingRow.classList.remove("dragging");
+    touchDraggingRow = null;
+    render();
+  });
+
+  /* expose setter for Lines.add */
+  initDragSort.setTouchDragging = (row)=>{
+    touchDraggingRow = row;
+  };
 }
+
 
 function initToolsSwitcher(){
   $("#toolList").addEventListener("click",(e)=>{
