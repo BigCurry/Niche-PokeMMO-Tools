@@ -26,13 +26,14 @@
   <ul id="toolList" class="tool-list">
     <li class="tool-list__item active" data-tool="colorTool">Color Text Generator</li>
     <li class="tool-list__item" data-tool="moveChecker">Move Checker</li>
+    <li class="tool-list__item" data-tool="encounterTool">Encounter Info</li>
   </ul>
 </aside>
 
 <main class="content">
 
   <!-- ================= COLOR TOOL ================= -->
-  <section id="colorTool" class="toolSection">
+  <section id="colorTool" class="toolSection" style="display:none;">
     <header class="toolHeader">
       <h1>Text Color Generator</h1>
       <p class="muted">Note: Coloring text is only supported in team chat</p>
@@ -90,6 +91,77 @@
 
     <h3>Results</h3>
     <div id="results"></div>
+  </section>
+
+  <!-- ================= ENCOUNTER INFO TOOL ================= -->
+  <section id="encounterTool" class="toolSection">
+    <header class="toolHeader">
+      <h1>Pokémon Encounter Info</h1>
+    </header>
+
+    <div class="encounter-top">
+      <div class="encounter-search">
+        <input id="encounterSearch" class="mc-input" placeholder="Search..." />
+        <div id="encounterAutocomplete" class="mc-autocomplete"></div>
+      </div>
+
+      <div class="encounter-toggle" id="encounterToggle" data-mode="pokemon">
+        <div class="toggle-slider"></div>
+        <span data-mode="pokemon" class="active">Pokémon</span>
+        <span data-mode="location">Location</span>
+      </div>
+    </div>
+
+    <div class="encounter-top-2">
+      <div class="optimized-toggle">
+        <label class="opt-label">
+          <input type="checkbox" id="optimizedToggle" checked>
+          <span class="opt-slider"></span>
+          Optimized Mode
+        </label>
+        <span class="opt-tooltip" title="Renders only visible rows. Disable for CTRL+F functionality. At max size, table is slow to update without optimization.">
+          ⓘ
+        </span>
+      </div>
+      <button id="encounterFiltersBtn" class="btn btn--secondary">🝖 Filters</button>
+    </div>
+    <div id="encounterFilters" class="filters-panel" style="display:none;">
+      <h4>Rarity</h4>
+      <div id="rarityFilters" class="mc-filters"></div>
+
+      <h4>Region</h4>
+      <div id="regionFilters" class="mc-filters"></div>
+
+      <h4>Season</h4>
+      <div id="seasonFilters" class="mc-filters"></div>
+
+      <h4>Time of Day</h4>
+      <div id="timeFilters" class="mc-filters"></div>
+
+      <h4>Columns</h4>
+      <div id="columnFilters" class="mc-filters"></div>
+
+      <button id="clearEncounterFilters" class="btn btn--secondary">Clear Filters</button>
+    </div>
+
+    <div id="encounterTableWrapper" class="scrollable-table">
+      <table class="mc-table" id="encounterTable">
+        <thead>
+          <tr>
+            <th data-col="pokemon">Pokémon<span class="sort-icon"></span></th>
+            <th data-col="level">Level&emsp;</td>
+            <th data-col="region">Region<span class="sort-icon"></span></th>
+            <th data-col="route">Route<span class="sort-icon"></span></th>
+            <th data-col="type">Type<span class="sort-icon"></span></th>
+            <th data-col="rarity">Rarity<span class="sort-icon"></span></th>
+            <th data-col="moves">Moves <br><font size=1>(Click to sort by ID)</font></th>
+            <th data-col="exp">EXP<span class="sort-icon"></span></th>
+            <th data-col="horde">Horde EXP <br> (3× / 5×)</span></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </section>
 
 </main>
