@@ -357,7 +357,7 @@ const EncounterTool = (() => {
   let data = [];
   let searchMode = "pokemon";
   let sort = { key: null, dir: 1 };
-  let optimizedMode = true;
+  let optimizedMode = false;
 
   const SEASON_MAP = {
     SEASON0: "Spring",

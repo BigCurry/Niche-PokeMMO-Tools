@@ -115,12 +115,16 @@
     <div class="encounter-top-2">
       <div class="optimized-toggle">
         <label class="opt-label">
-          <input type="checkbox" id="optimizedToggle" checked>
+          <input type="checkbox" id="optimizedToggle">
           <span class="opt-slider"></span>
           Optimized Mode
         </label>
-        <span class="opt-tooltip" title="Renders only visible rows. Disable for CTRL+F functionality. At max size, table is slow to update without optimization.">
+        <span class="opt-tooltip" tabindex="0">
           ⓘ
+          <span class="opt-tooltip-text">
+            Renders only visible rows. Disable for CTRL+F functionality.
+            At max size, table is slow to load/update without optimization.
+          </span>
         </span>
       </div>
       <button id="encounterFiltersBtn" class="btn btn--secondary">🝖 Filters</button>

@@ -433,7 +433,37 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
 }
 
 .opt-tooltip {
-  color: var(--muted);
-  cursor: help;
-  font-size: 14px;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+
+.opt-tooltip-text {
+  position: absolute;
+  bottom: 130%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 260px;
+
+  background: #222;
+  color: #fff;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  z-index: 9999;
+}
+
+/* Desktop hover */
+.opt-tooltip:hover .opt-tooltip-text {
+  opacity: 1;
+}
+
+/* Mobile / keyboard tap */
+.opt-tooltip:focus .opt-tooltip-text {
+  opacity: 1;
 }
