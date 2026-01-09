@@ -496,8 +496,16 @@ const EncounterTool = (() => {
     });
   }
 
-  function calcExp(base, lvl) {
-    return Math.floor((base * lvl * 0.14));
+  function calcExp(base, lvl, monID) {
+    const equation = Math.ceil((base * lvl / 7))
+    const mysteryTerm = 1.25;
+    const mysteryIDs = [10, 16, 19, 43, 52, 54, 56, 58, 63, 66, 69, 79, 111, 118, 161, 187, 191, 193, 504, 506, 509, 517, 519];
+
+    if (mysteryIDs.includes(monID) === true) {
+      return Math.ceil((equation * mysteryTerm));
+    } else {
+      return equation;
+    }
   }
 
   function getMoves(mon, lvl) {
@@ -532,7 +540,7 @@ const EncounterTool = (() => {
     cachedRows = [];
     data.forEach(mon => mon.locations?.forEach(loc => {
       const parsed = parseSeasonTime(loc.location);
-      const exp = calcExp(mon.yields.exp, loc.min_level);
+      const exp = calcExp(mon.yields.exp, loc.min_level, mon.id);
       const isHorde = loc.rarity?.toLowerCase() === "horde";
 
       cachedRows.push({
