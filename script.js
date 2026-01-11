@@ -357,7 +357,7 @@ const EncounterTool = (() => {
   let data = [];
   let searchMode = "pokemon";
   let sort = { key: null, dir: 1 };
-  let optimizedMode = false;
+  let optimizedMode = true;
 
   const SEASON_MAP = {
     SEASON0: "Spring",
@@ -387,7 +387,7 @@ const EncounterTool = (() => {
 
   let cachedRows = [];
   let visibleRows = [];
-  const ROW_HEIGHT = 52; // Approximate row height for virtualization
+  const ROW_HEIGHT = 60; // Approximate row height for virtualization
 
   async function load() {
     data = await (await fetch("./monsters.json")).json();
@@ -686,7 +686,7 @@ const EncounterTool = (() => {
     const visibleCount = Math.ceil(viewportHeight / ROW_HEIGHT) + 6;
     const end = Math.min(start + visibleCount, visibleRows.length);
 
-    const topPadding = start * ROW_HEIGHT;
+    const topPadding = start * ROW_HEIGHT - ROW_HEIGHT;
     const bottomPadding = (visibleRows.length - end) * ROW_HEIGHT;
 
     const frag = document.createDocumentFragment();
@@ -757,8 +757,11 @@ const EncounterTool = (() => {
     const frag = document.createDocumentFragment();
 
     visibleRows.forEach(r => {
-      const suffix = (r.parsedSeasons || r.parsedTimes)
-        ? ` (${[r.parsedSeasons, r.parsedTimes].filter(Boolean).join(" / ")})`
+      const seasonLabel = r.seasonTokens.map(s => s[0] + s.slice(1).toLowerCase()).join("/");
+      const timeLabel = r.timeTokens.map(t => t[0] + t.slice(1).toLowerCase()).join("/");
+
+      const suffix = (seasonLabel || timeLabel)
+        ? ` (${[seasonLabel, timeLabel].filter(Boolean).join(" / ")})`
         : "";
 
       const tr = document.createElement("tr");

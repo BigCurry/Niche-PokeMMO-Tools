@@ -285,10 +285,41 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
 }
 
 /* Encounter toggle */
+/* ===============================
+   Encounter Controls / Layout
+   =============================== */
+
+.encounter-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+}
+
+.encounter-card {
+  background: var(--panel);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+#encounterAutocomplete {
+  position: absolute;
+  top: 38px;
+  left: 0;
+  right: 0;
+  z-index: 20;
+}
+
+/* ===============================
+   Search Mode Toggle
+   =============================== */
+
 .encounter-top {
   display: flex;
-  gap: 10px;
   align-items: center;
+  gap: 10px;
 }
 
 .encounter-toggle {
@@ -306,8 +337,8 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
   flex: 1;
   text-align: center;
   line-height: 38px;
-  z-index: 2;
   color: var(--muted);
+  z-index: 1;
 }
 
 .encounter-toggle span.active {
@@ -319,42 +350,18 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
   position: absolute;
   inset: 3px;
   width: calc(50% - 3px);
-  background: rgba(0,0,0,.15);
+  background: rgba(0, 0, 0, 0.15);
   border-radius: 6px;
-  transition: transform .2s ease;
+  transition: transform 0.2s ease;
 }
 
 .encounter-toggle[data-mode="location"] .toggle-slider {
   transform: translateX(100%);
 }
 
-/* Table */
-.mc-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.mc-table th, .mc-table td {
-  padding: 10px;
-  border-bottom: 1px solid rgba(0,0,0,.1);
-}
-
-.mc-table th {
-  cursor: pointer;
-}
-
-.mc-table img {
-  width: 60px;
-  vertical-align: middle;
-  image-rendering: pixelated;
-}
-
-#columnFilters label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-right: 12px;
-}
+/* ===============================
+   Table + Virtualization
+   =============================== */
 
 .scrollable-table {
   height: calc(100vh - 300px);
@@ -363,26 +370,56 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
   position: relative;
 }
 
-.scrollable-table table {
+.mc-table {
   width: 100%;
-  max-width: 2000px;
   border-collapse: collapse;
 }
+
+.mc-table th,
+.mc-table td {
+  padding: 10px;
+  border-right: 1px solid var(--panel);
+  border-bottom: 1px solid var(--panel);
+  white-space: nowrap;
+  vertical-align: middle;
+  height: 40px; /* MUST match ROW_HEIGHT */
+  
+}
+
+.mc-table th {
+  cursor: pointer;
+}
+
+.mc-table img {
+  height: 80px;
+  image-rendering: pixelated;
+}
+
+/* ===============================
+   Pokémon Cell
+   =============================== */
 
 .pokemon-cell {
   display: flex;
   align-items: center;
   gap: 8px;
+  height: 40px;
 }
 
-.mc-table td {
-  white-space: nowrap;
-  vertical-align: middle;
+/* ===============================
+   Column Filters
+   =============================== */
+
+#columnFilters label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 12px;
 }
 
-.mc-table td {
-  height: 52px;        /* MUST match ROW_HEIGHT */
-}
+/* ===============================
+   Optimized Mode Toggle
+   =============================== */
 
 .optimized-toggle {
   display: flex;
@@ -406,10 +443,10 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
 .opt-slider {
   width: 42px;
   height: 22px;
-  background: rgba(0,0,0,.25);
+  background: rgba(0, 0, 0, 0.25);
   border-radius: 999px;
   position: relative;
-  transition: background .2s ease;
+  transition: background 0.2s ease;
 }
 
 .opt-slider::after {
@@ -421,7 +458,7 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
   height: 16px;
   background: #fff;
   border-radius: 50%;
-  transition: transform .2s ease;
+  transition: transform 0.2s ease;
 }
 
 .opt-label input:checked + .opt-slider {
@@ -431,6 +468,10 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
 .opt-label input:checked + .opt-slider::after {
   transform: translateX(20px);
 }
+
+/* ===============================
+   Tooltip (Desktop + Mobile)
+   =============================== */
 
 .opt-tooltip {
   position: relative;
@@ -444,14 +485,12 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
   left: 50%;
   transform: translateX(-50%);
   width: 260px;
-
   background: #222;
   color: #fff;
   padding: 8px 10px;
   border-radius: 6px;
   font-size: 12px;
   line-height: 1.4;
-
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.15s ease;
@@ -459,11 +498,7 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
 }
 
 /* Desktop hover */
-.opt-tooltip:hover .opt-tooltip-text {
-  opacity: 1;
-}
-
-/* Mobile / keyboard tap */
-.opt-tooltip:focus .opt-tooltip-text {
+.opt-tooltip:hover .opt-tooltip-text,
+.opt-tooltip:focus-within .opt-tooltip-text {
   opacity: 1;
 }
