@@ -382,8 +382,8 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
   border-bottom: 1px solid var(--panel);
   white-space: nowrap;
   vertical-align: middle;
-  height: 40px; /* MUST match ROW_HEIGHT */
-  
+  --enc-row-height: 40px;
+  height: var(--enc-row-height); /* MUST match ROW_HEIGHT */
 }
 
 .mc-table th {
@@ -403,7 +403,7 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 40px;
+  height: var(--enc-row-height);
 }
 
 /* ===============================
@@ -500,5 +500,22 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
 /* Desktop hover */
 .opt-tooltip:hover .opt-tooltip-text,
 .opt-tooltip:focus-within .opt-tooltip-text {
+  opacity: 1;
+}
+
+th {
+  position: relative;
+}
+
+.col-close {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  font-size: 11px;
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.col-close:hover {
   opacity: 1;
 }

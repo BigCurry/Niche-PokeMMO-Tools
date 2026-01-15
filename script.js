@@ -379,11 +379,29 @@ const EncounterTool = (() => {
     time: {}
   };
 
-  const columns = {
-    pokemon: true, level: true, region: true, route: true,
-    type: true, rarity: true, moves: true,
-    exp: true, horde: true
+  const columnsDefault = {
+    pokemon: true, 
+    level: true, 
+    region: true, 
+    route: true,
+
+    type: true, 
+    rarity: true, 
+    moves: true,
+    exp: true, 
+    horde: false,
+
+    ev_total: true,
+    ev_hp: false,
+    ev_attack: false,
+    ev_defense: false,
+    ev_sp_attack: false,
+    ev_sp_defense: false,
+    ev_speed: false
   };
+
+  let columns = { ...columnsDefault };
+
 
   let cachedRows = [];
   let visibleRows = [];
@@ -412,6 +430,24 @@ const EncounterTool = (() => {
       else { sort.key = key; sort.dir = -1; }
       updateSortIcons();
       update();
+    });
+
+    $("#encounterTable thead").addEventListener("click", e => {
+      const close = e.target.closest(".col-close");
+      if (!close) return;
+
+      const col = close.dataset.col;
+
+      // Protected columns
+      if (["pokemon"].includes(col)) return;
+
+      columns[col] = false;
+      toggleColumn(col);
+
+      // Sync checkbox UI
+      syncColumnCheckbox(col);
+
+      e.stopPropagation();
     });
 
     $("#encounterSearch").oninput = debounce(update, 150);
@@ -472,21 +508,36 @@ const EncounterTool = (() => {
 
   function buildColumnFilters() {
     const box = $("#columnFilters");
+    box.innerHTML = "";
+
     Object.keys(columns).forEach(c => {
       const l = document.createElement("label");
-      l.innerHTML = `<input type="checkbox" checked> ${c}`;
-      l.querySelector("input").onchange = e => {
+      l.innerHTML = `
+        <input type="checkbox" data-col="${c}" ${columns[c] ? "checked" : ""}>
+        ${c}
+      `;
+
+      const input = l.querySelector("input");
+      input.onchange = e => {
         columns[c] = e.target.checked;
         toggleColumn(c);
       };
+
       box.appendChild(l);
     });
   }
 
   function toggleColumn(c) {
     const display = columns[c] ? "" : "none";
-    $$(`[data-col="${c}"]`).forEach(el => el.style.display = display);
+    $$(`#encounterTable [data-col="${c}"]`)
+      .forEach(el => el.style.display = display);
   }
+
+  function syncColumnCheckbox(col) {
+    const cb = $(`#columnFilters input[data-col="${col}"]`);
+    if (cb) cb.checked = columns[col];
+  }
+
 
   function updateSortIcons() {
     $$("#encounterTable th").forEach(th => {
@@ -536,12 +587,24 @@ const EncounterTool = (() => {
     return out;
   }
 
+
+
   function buildCachedRows() {
     cachedRows = [];
     data.forEach(mon => mon.locations?.forEach(loc => {
       const parsed = parseSeasonTime(loc.location);
       const exp = calcExp(mon.yields.exp, loc.min_level, mon.id);
       const isHorde = loc.rarity?.toLowerCase() === "horde";
+      const evs = {
+        hp: mon.yields.ev_hp,
+        attack: mon.yields.ev_attack,
+        defense: mon.yields.ev_defense,
+        sp_attack: mon.yields.ev_sp_attack,
+        sp_defense: mon.yields.ev_sp_defense,
+        speed: mon.yields.ev_speed
+      };
+      const evTotal = evs.hp + evs.attack + evs.defense + evs.sp_attack + evs.sp_defense + evs.speed;
+
 
       cachedRows.push({
         pokemon: mon,
@@ -552,7 +615,9 @@ const EncounterTool = (() => {
         timeTokens: [...parsed.times].map(t => TIME_MAP[t] || t).map(t => t.toUpperCase()),
         exp,
         horde: isHorde ? `${exp * 3} / ${exp * 5}` : "—",
-        moves: getMoves(mon, loc.max_level)
+        moves: getMoves(mon, loc.max_level),
+        evs,
+        evTotal
       });
     }));
   }
@@ -629,6 +694,13 @@ const EncounterTool = (() => {
           case "rarity": va = a.loc.rarity; vb = b.loc.rarity; break;
           case "exp": va = a.exp; vb = b.exp; break;
           case "horde": va = a.loc.is_horde ? a.exp : 0; vb = b.loc.is_horde ? b.exp : 0; break;
+          case "ev_total": va = a.evTotal; vb = b.evTotal; break;
+          case "ev_hp": va = a.evs.hp; vb = b.evs.hp; break;
+          case "ev_attack": va = a.evs.attack; vb = b.evs.attack; break;
+          case "ev_defense": va = a.evs.defense; vb = b.evs.defense; break;
+          case "ev_sp_attack": va = a.evs.sp_attack; vb = b.evs.sp_attack; break;
+          case "ev_sp_defense": va = a.evs.sp_defense; vb = b.evs.sp_defense; break;
+          case "ev_speed": va = a.evs.speed; vb = b.evs.speed; break;
           default: return 0;
         }
         return typeof va === "number" ? (va - vb) * sort.dir : va.localeCompare(vb) * sort.dir;
@@ -651,29 +723,25 @@ const EncounterTool = (() => {
       Object.keys(group).forEach(k => group[k] = "none");
     });
 
-    // Reset filter UI icons
     $$("#encounterFilters .filter-box").forEach(box => {
       box.textContent = "◯";
     });
 
-    // Reset columns
+    // Reset columns to DEFAULTS (important)
+    Object.assign(columns, columnsDefault);
+
+    // Sync UI + DOM
     Object.keys(columns).forEach(c => {
-      columns[c] = true;
+      toggleColumn(c);
+      syncColumnCheckbox(c);
     });
 
-    $$("#columnFilters input[type=checkbox]").forEach(cb => {
-      cb.checked = true;
-    });
-
-    // Reset search
     $("#encounterSearch").value = "";
 
-    // Reset sort
     sort.key = null;
     sort.dir = 1;
     updateSortIcons();
   }
-
 
   function renderVisibleRows() {
     const tbody = $("#encounterTable tbody");
@@ -728,6 +796,13 @@ const EncounterTool = (() => {
         <td data-col="moves">${r.moves}</td>
         <td data-col="exp">${r.exp}</td>
         <td data-col="horde">${r.horde}</td>
+        <td data-col="ev_total">${r.evTotal || "—"}</td>
+        <td data-col="ev_hp">${r.evs.hp || "—"}</td>
+        <td data-col="ev_attack">${r.evs.attack || "—"}</td>
+        <td data-col="ev_defense">${r.evs.defense || "—"}</td>
+        <td data-col="ev_sp_attack">${r.evs.sp_attack || "—"}</td>
+        <td data-col="ev_sp_defense">${r.evs.sp_defense || "—"}</td>
+        <td data-col="ev_speed">${r.evs.speed || "—"}</td>
       `;
       frag.appendChild(tr);
     }
@@ -781,6 +856,13 @@ const EncounterTool = (() => {
         <td data-col="moves">${r.moves}</td>
         <td data-col="exp">${r.exp}</td>
         <td data-col="horde">${r.horde}</td>
+        <td data-col="ev_total">${r.evTotal || "—"}</td>
+        <td data-col="ev_hp">${r.evs.hp || "—"}</td>
+        <td data-col="ev_attack">${r.evs.attack || "—"}</td>
+        <td data-col="ev_defense">${r.evs.defense || "—"}</td>
+        <td data-col="ev_sp_attack">${r.evs.sp_attack || "—"}</td>
+        <td data-col="ev_sp_defense">${r.evs.sp_defense || "—"}</td>
+        <td data-col="ev_speed">${r.evs.speed || "—"}</td>
       `;
       frag.appendChild(tr);
     });
