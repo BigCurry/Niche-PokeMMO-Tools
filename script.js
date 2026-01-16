@@ -402,6 +402,62 @@ const EncounterTool = (() => {
 
   let columns = { ...columnsDefault };
 
+  const COLUMN_PRESETS = {
+    default: {
+      label: "Default",
+      columns: {...columnsDefault}
+    },
+
+    exp_farming: {
+      label: "EXP",
+      columns: {
+        pokemon: true,
+        level: true,
+        region: true,
+        route: true,
+        rarity: true,
+        exp: true,
+        horde: true,
+
+        type: false,
+        moves: false,
+
+        ev_total: false,
+        ev_hp: false,
+        ev_attack: false,
+        ev_defense: false,
+        ev_sp_attack: false,
+        ev_sp_defense: false,
+        ev_speed: false
+      }
+    },
+
+    ev_training: {
+      label: "EVs",
+      columns: {
+        pokemon: true,
+        level: true,
+        region: true,
+        route: true,
+
+        ev_total: true,
+        ev_hp: true,
+        ev_attack: true,
+        ev_defense: true,
+        ev_sp_attack: true,
+        ev_sp_defense: true,
+        ev_speed: true,
+
+        exp: false,
+        horde: false,
+        rarity: false,
+        type: false,
+        moves: false
+      }
+    }
+  };
+
+  const USER_PRESETS_KEY = "encounter_column_presets";
 
   let cachedRows = [];
   let visibleRows = [];
@@ -411,6 +467,7 @@ const EncounterTool = (() => {
     data = await (await fetch("./monsters.json")).json();
     buildFilters();
     buildColumnFilters();
+    buildColumnPresetUI()
     buildCachedRows();
     bind();
     update();
@@ -883,6 +940,89 @@ const EncounterTool = (() => {
   $("#clearEncounterFilters").addEventListener("click",()=>{
     clearEncounterFilters();
     update();
+  });
+
+  // Preset stuff
+  function loadUserPresets() {
+    try {
+      return JSON.parse(localStorage.getItem(USER_PRESETS_KEY)) || {};
+    } catch {
+      return {};
+    }
+  }
+
+  function saveUserPresets(presets) {
+    localStorage.setItem(USER_PRESETS_KEY, JSON.stringify(presets));
+  }
+
+  function applyColumnPreset(presetColumns) {
+    Object.keys(columns).forEach(col => {
+      columns[col] = !!presetColumns[col];
+      toggleColumn(col);
+      syncColumnCheckbox(col);
+    });
+  }
+
+  function buildColumnPresetUI() {
+    const select = $("#columnPresetSelect");
+    select.innerHTML = "";
+
+    // Built-in presets
+    Object.entries(COLUMN_PRESETS).forEach(([key, p]) => {
+      const opt = document.createElement("option");
+      opt.value = `builtin:${key}`;
+      opt.textContent = p.label;
+      select.appendChild(opt);
+    });
+
+    // User presets
+    const userPresets = loadUserPresets();
+    Object.keys(userPresets).forEach(name => {
+      const opt = document.createElement("option");
+      opt.value = `user:${name}`;
+      opt.textContent = name;
+      select.appendChild(opt);
+    });
+  }
+
+  $("#columnPresetSelect").addEventListener("change", e => {
+    const val = e.target.value;
+    if (!val) return;
+
+    const [type, key] = val.split(":");
+
+    if (type === "builtin") {
+      applyColumnPreset(COLUMN_PRESETS[key].columns);
+    }
+
+    if (type === "user") {
+      const presets = loadUserPresets();
+      applyColumnPreset(presets[key]);
+    }
+  });
+
+  $("#saveColumnPreset").addEventListener("click", () => {
+    const name = prompt("Preset name?");
+    if (!name) return;
+
+    const presets = loadUserPresets();
+    presets[name] = { ...columns };
+
+    saveUserPresets(presets);
+    buildColumnPresetUI();
+  });
+
+  $("#deleteColumnPreset").addEventListener("click", () => {
+    const select = $("#columnPresetSelect");
+    const val = select.value;
+    if (!val?.startsWith("user:")) return;
+
+    const name = val.slice(5);
+    const presets = loadUserPresets();
+    delete presets[name];
+
+    saveUserPresets(presets);
+    buildColumnPresetUI();
   });
 
   return { load };

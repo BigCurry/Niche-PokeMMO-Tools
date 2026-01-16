@@ -519,3 +519,10 @@ th {
 .col-close:hover {
   opacity: 1;
 }
+
+.preset_label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
