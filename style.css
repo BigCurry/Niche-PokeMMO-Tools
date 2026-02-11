@@ -538,6 +538,8 @@ th {
   background:none;
   cursor:pointer;
   height:var(--topbar-h);
+  width:var(--topbar-h);
+  display: flex;
   align-items: center;
   justify-content: center;
 }
@@ -547,5 +549,5 @@ th {
 }
 
 .porysiteImage img{
-  height:calc(var(--topbar-h));
+  height:calc(var(--topbar-h)/2);
 }
