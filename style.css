@@ -4,6 +4,7 @@
   --muted:#6b6b6b;
   --text:#111;
   --accent:#2b7cff;
+  --accentT: #2b7cff33;
   --danger:#c24;
   --success:#0a0;
   --radius:10px;
@@ -16,6 +17,7 @@ body.dark{
   --muted:#9a9a9a;
   --text:#e9eef6;
   --accent:#488eff;
+  --accentT: #478eff33;
 }
 
 *{box-sizing:border-box}
@@ -39,6 +41,10 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
 
 .togglelightdark{
   justify-content: flex-end;
+}
+
+.togglelightdark:hover{
+  background: var(--accentT)
 }
 
 /* Drawer */
@@ -119,7 +125,7 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
 }
 
 .tool-list__item.active{
-  background:rgba(0,0,0,.1);
+  background:var(--accentT);
 }
 
 /* Color tool */
@@ -525,4 +531,21 @@ th {
   align-items: center;
   gap: 8px;
   font-size: 14px;
+}
+
+.porysiteImage{
+  border:none;
+  background:none;
+  cursor:pointer;
+  height:var(--topbar-h);
+  align-items: center;
+  justify-content: center;
+}
+
+.porysiteImage:hover{
+  background:var(--accentT);
+}
+
+.porysiteImage img{
+  height:calc(var(--topbar-h));
 }
