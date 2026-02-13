@@ -1071,29 +1071,27 @@ const VideoFrameTool = (() => {
 
   function setupROISelector() {
 
-    function getScaledCoords(e) {
+    function getScaledCoords(clientX, clientY) {
       const rect = canvas.getBoundingClientRect();
-
       const scaleX = canvas.width / rect.width;
       const scaleY = canvas.height / rect.height;
 
       return {
-        x: (e.clientX - rect.left) * scaleX,
-        y: (e.clientY - rect.top) * scaleY
+        x: (clientX - rect.left) * scaleX,
+        y: (clientY - rect.top) * scaleY
       };
     }
 
-    canvas.addEventListener("mousedown", (e) => {
+    function startDrag(clientX, clientY) {
       isDragging = true;
-      const pos = getScaledCoords(e);
+      const pos = getScaledCoords(clientX, clientY);
       startX = pos.x;
       startY = pos.y;
-    });
+    }
 
-    canvas.addEventListener("mousemove", (e) => {
+    function moveDrag(clientX, clientY) {
       if (!isDragging) return;
-
-      const pos = getScaledCoords(e);
+      const pos = getScaledCoords(clientX, clientY);
 
       roi.x = Math.min(startX, pos.x);
       roi.y = Math.min(startY, pos.y);
@@ -1101,17 +1099,38 @@ const VideoFrameTool = (() => {
       roi.h = Math.abs(pos.y - startY);
 
       drawOverlay();
-    });
+    }
 
-    canvas.addEventListener("mouseup", () => {
+    function endDrag() {
       isDragging = false;
-    });
+    }
 
-    canvas.addEventListener("mouseleave", () => {
-      isDragging = false;
-    });
+    // Mouse events
+    canvas.addEventListener("mousedown", e => startDrag(e.clientX, e.clientY));
+    canvas.addEventListener("mousemove", e => moveDrag(e.clientX, e.clientY));
+    canvas.addEventListener("mouseup", endDrag);
+    canvas.addEventListener("mouseleave", endDrag);
+
+    // Touch events
+    canvas.addEventListener("touchstart", e => {
+      if (e.touches.length === 1) {
+        const t = e.touches[0];
+        startDrag(t.clientX, t.clientY);
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    canvas.addEventListener("touchmove", e => {
+      if (e.touches.length === 1) {
+        const t = e.touches[0];
+        moveDrag(t.clientX, t.clientY);
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    canvas.addEventListener("touchend", e => endDrag(), { passive: false });
+    canvas.addEventListener("touchcancel", e => endDrag(), { passive: false });
   }
-
 
   function drawOverlay() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
