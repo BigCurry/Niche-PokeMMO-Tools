@@ -551,3 +551,37 @@ th {
 .porysiteImage img{
   height:calc(var(--topbar-h)/2);
 }
+
+.canvasWrapper {
+  margin-top: 15px;
+  border: 1px solid #333;
+  display: inline-block;
+  position: relative;
+}
+
+#hiddenCanvas {
+  display: block;
+  width: 100%;
+  cursor: crosshair;
+}
+
+.toolRow {
+  margin-top: 12px;
+}
+
+#thresholdValue {
+  margin-left: 8px;
+  font-weight: bold;
+}
+
+.progressWindow {
+  max-height: 100px;
+  max-width: fit-content;
+  overflow:scroll; 
+  font-size:0.9em; 
+  color:var(--text);
+  margin-top:0.5em; 
+  border:var(--accentT); 
+  padding:5px; 
+  background:var(--panel);
+}

@@ -1028,6 +1028,260 @@ const EncounterTool = (() => {
   return { load };
 })();
 
+/* =============================================================
+   Video Frame Extractor Tool
+   ============================================================= */
+
+const VideoFrameTool = (() => {
+
+  let video, canvas, ctx;
+  let prevROI = null;
+  let savedCount = 0;
+  let zip = null;
+
+  let roi = { x: 100, y: 100, w: 200, h: 100 };
+  let isDragging = false;
+  let startX, startY;
+
+  function init() {
+    video = document.createElement("video");
+    video.muted = true;
+
+    canvas = document.getElementById("hiddenCanvas");
+    ctx = canvas.getContext("2d");
+
+    const slider = document.getElementById("diffThreshold");
+    const output = document.getElementById("thresholdValue");
+
+    slider.addEventListener("input", () => {
+      output.textContent = slider.value;
+    });
+
+    setupROISelector();
+
+    document
+      .getElementById("processVideoBtn")
+      .addEventListener("click", processVideo);
+
+    document
+      .getElementById("videoInput")
+      .addEventListener("change", handleVideoLoad);
+
+  }
+
+  function setupROISelector() {
+
+    function getScaledCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+
+      return {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY
+      };
+    }
+
+    canvas.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      const pos = getScaledCoords(e);
+      startX = pos.x;
+      startY = pos.y;
+    });
+
+    canvas.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+
+      const pos = getScaledCoords(e);
+
+      roi.x = Math.min(startX, pos.x);
+      roi.y = Math.min(startY, pos.y);
+      roi.w = Math.abs(pos.x - startX);
+      roi.h = Math.abs(pos.y - startY);
+
+      drawOverlay();
+    });
+
+    canvas.addEventListener("mouseup", () => {
+      isDragging = false;
+    });
+
+    canvas.addEventListener("mouseleave", () => {
+      isDragging = false;
+    });
+  }
+
+
+  function drawOverlay() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(video, 0, 0);
+
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(roi.x, roi.y, roi.w, roi.h);
+  }
+
+
+  function getThreshold() {
+    return +document.getElementById("diffThreshold").value;
+  }
+
+  async function processVideo() {
+    const file = document.getElementById("videoInput").files[0];
+    if (!file) return alert("Select a video first.");
+
+    zip = new JSZip();
+    savedCount = 0;
+    prevROI = null;
+
+    video.src = URL.createObjectURL(file);
+    await video.load();
+
+    await new Promise(resolve => {
+      video.onloadedmetadata = resolve;
+    });
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    video.pause();
+
+    await processAllFrames();
+
+    finishZip();
+  }
+
+
+  function handleVideoLoad(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    video.src = URL.createObjectURL(file);
+    video.load();
+
+    video.onloadedmetadata = () => {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      video.currentTime = 0;
+    };
+
+    video.onseeked = () => {
+      ctx.drawImage(video, 0, 0);
+    };
+  }
+
+async function processAllFrames() {
+
+  const fps = 60; // assume 60fps input
+  const frameDuration = 1 / fps;
+
+  let currentTime = 0;
+  let frameNum = 0;
+
+  const progressEl = document.getElementById("progressWindow");
+  progressEl.textContent = "";
+
+  while (currentTime < video.duration) {
+
+    await seekTo(currentTime);
+
+    ctx.drawImage(video, 0, 0);
+
+    const imageData = ctx.getImageData(
+      roi.x, roi.y, roi.w, roi.h
+    );
+
+    const score = compareROI(imageData);
+
+    if (score > getThreshold()) {
+      saveFrameToZip();
+      savedCount++;
+    }
+
+    // Update progress
+    const t = currentTime.toFixed(2);
+    const line = `Frame ${frameNum}: Time ${t}s, Diff ${score.toFixed(2)}`;    
+    const p = document.createElement("div");
+    p.textContent = line;
+    progressEl.appendChild(p);
+
+    // Scroll to bottom
+    progressEl.scrollTop = progressEl.scrollHeight;
+
+    frameNum++;
+    currentTime += frameDuration;
+  }
+}
+
+
+  function seekTo(time) {
+    return new Promise(resolve => {
+      video.currentTime = time;
+      video.onseeked = resolve;
+    });
+  }
+
+  function compareROI(current) {
+    const curr = preprocess(current.data);
+
+    if (!prevROI) {
+      prevROI = curr;
+      return 999;
+    }
+
+    let diff = 0;
+    for (let i = 0; i < curr.length; i++) {
+      diff += Math.abs(curr[i] - prevROI[i]);
+    }
+
+    const avg = diff / curr.length;
+    prevROI = curr;
+
+    return avg;
+  }
+
+  function preprocess(data) {
+    const out = new Uint8Array(data.length / 4);
+
+    for (let i = 0, j = 0; i < data.length; i += 4, j++) {
+      const g =
+        0.299 * data[i] +
+        0.587 * data[i + 1] +
+        0.114 * data[i + 2];
+
+      out[j] = g > 140 ? 255 : 0;
+    }
+
+    return out;
+  }
+
+  function saveFrameToZip() {
+    const dataURL = canvas.toDataURL("image/png");
+    const base64 = dataURL.split(",")[1];
+
+    zip.file(
+      `frame_${String(savedCount).padStart(5, "0")}.png`,
+      base64,
+      { base64: true }
+    );
+  }
+
+  async function finishZip() {
+    const blob = await zip.generateAsync({ type: "blob" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "unique_frames.zip";
+    link.click();
+
+    document.getElementById("frameStatus").textContent =
+      `Done. Saved ${savedCount} frames.`;
+  }
+
+  return { init };
+})();
+
 
 
 
@@ -1053,7 +1307,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   Lines.add();
 
   MoveChecker.load();
-
   EncounterTool.load();
+  VideoFrameTool.init();
 
 });

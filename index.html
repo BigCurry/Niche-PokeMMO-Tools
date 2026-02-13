@@ -3,13 +3,17 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<link rel="icon" href="NPT Favicon.png" type="image/png">
+<link rel="icon" href="site icons\NPT Favicon.png" type="image/png">
 <title>Niche PokeMMO Tools</title>
 <link rel="stylesheet" href="style.css" />
 
 <!-- Pickr -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css"/>
 <script defer src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
+
+<!-- JSZip -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
 <script defer src="script.js"></script>
 </head>
 <body>
@@ -17,7 +21,8 @@
 <header class="topbar">
   <button id="menuBtn" class="menuBtn btn--ghost">☰</button>
   <span class="brand">Niche PokeMMO Tools</span>
-  <a href="https://team-porygon-pokemmo.pages.dev/" class="porysiteImage"><img src="porysite.webp" alt="Porysite"></a>
+  <a href="https://mylis.github.io/pokemmo_ocr" class="porysiteImage"><img src="site icons\mylisOCR.ico" alt="OCR Tool"></a>
+  <a href="https://team-porygon-pokemmo.pages.dev/" class="porysiteImage"><img src="site icons\porysite.webp" alt="Porysite"></a>
   <button id="darkToggle" class="btn btn--ghost togglelightdark">🌙</button>
 </header>
 
@@ -25,9 +30,10 @@
 
 <aside id="sidebar" class="sidebar">
   <ul id="toolList" class="tool-list">
+    <li class="tool-list__item active" data-tool="encounterTool">Encounter Info</li>
     <li class="tool-list__item" data-tool="colorTool">Color Text Generator</li>
     <li class="tool-list__item" data-tool="moveChecker">Move Checker</li>
-    <li class="tool-list__item active" data-tool="encounterTool">Encounter Info</li>
+    <li class="tool-list__item" data-tool="videoFrameTool">Frame Extractor</li>
   </ul>
 </aside>
 
@@ -243,6 +249,61 @@
       </table>
     </div>
   </section>
+
+  <section id="videoFrameTool" class="toolSection" style="display:none;">
+    <header class="toolHeader">
+      <h1>Unique Frame Extractor</h1>
+      <p class="muted">
+        Drag on the video preview to select the text region.
+        A frame will be saved whenever that region changes. 
+      </p>
+    </header>
+
+    <!-- File Input -->
+    <div class="toolRow">
+      <input type="file" id="videoInput" accept="video/*">
+    </div>
+
+    <!-- Threshold Control -->
+    <div class="toolRow">
+      <label for="diffThreshold">
+        Difference Threshold
+      </label>
+      <span class="opt-tooltip" tabindex="0">
+          ⓘ
+          <span class="opt-tooltip-text">
+            Difference between each frame. Lower means smaller difference, more frames generated. Lower quality videos with visual artifacts may need higher threshold.
+          </span>
+        </span>
+      <input 
+        type="range" 
+        id="diffThreshold" 
+        min="1" 
+        max="50" 
+        value="3"
+      >
+      <span id="thresholdValue">5</span>
+    </div>
+
+    <!-- Video Preview / ROI Selection -->
+    <div class="canvasWrapper">
+      <canvas id="hiddenCanvas"></canvas>
+    </div>
+
+    <!-- Progress Window -->
+    <div id="progressWindow" class="progressWindow" ></div>
+
+    <!-- Process Button -->
+    <div class="toolRow">
+      <button id="processVideoBtn" class="btn" style=width:100%;>
+        Process Video
+      </button>
+    </div>
+
+    <!-- Status -->
+    <div id="frameStatus" class="muted"></div>
+  </section>
+
 
 </main>
 
