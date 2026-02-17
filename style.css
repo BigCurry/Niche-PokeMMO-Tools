@@ -533,20 +533,26 @@ th {
   font-size: 14px;
 }
 
-.porysiteImage{
-  border:none;
-  background:none;
-  cursor:pointer;
-  height:var(--topbar-h);
-  width:var(--topbar-h);
+.porysiteImage {
+  border: none;
+  background: none;
+  cursor: pointer;
+
   display: flex;
+  flex-direction: column;   /* stack image + text */
   align-items: center;
   justify-content: center;
+
+  padding: 6px 8px;
+  text-decoration: none;
+  color: var(--text);
+  border-radius: 6px;
 }
 
-.porysiteImage:hover{
-  background:var(--accentT);
+.porysiteImage:hover {
+  background: var(--accentT);
 }
+
 
 .porysiteImage img{
   height:calc(var(--topbar-h)/2);
@@ -584,4 +590,44 @@ th {
   border:var(--accentT); 
   padding:5px; 
   background:var(--panel);
+}
+
+.linkMenu {
+  position: relative;
+  display: inline-block;
+}
+
+.linkDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  display: flex;
+  gap: 14px;
+  padding: 12px 16px;
+  background: var(--panel, #222);
+  border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(6px);
+  transition: 0.2s ease;
+}
+
+
+.linkDropdown.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.linkDropdown img {
+  height: 24px;
+  width: auto;
+}
+
+.linkLabel {
+  font-size: 0.65rem;
+  margin-top: 4px;
+  opacity: 0.75;
+  white-space: nowrap;
 }

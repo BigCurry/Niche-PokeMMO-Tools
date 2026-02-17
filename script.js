@@ -4,6 +4,20 @@
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => Array.from(document.querySelectorAll(s));
 
+const linkToggle = document.getElementById("linkToggle");
+const linkDropdown = document.getElementById("linkDropdown");
+
+linkToggle.addEventListener("click", () => {
+  linkDropdown.classList.toggle("open");
+});
+
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".linkMenu")) {
+    linkDropdown.classList.remove("open");
+  }
+});
+
+
 /* =============================================================
    Color Text Generator (unchanged)
    ============================================================= */
@@ -1033,9 +1047,8 @@ const EncounterTool = (() => {
    ============================================================= */
 
 const VideoFrameTool = (() => {
-
+  let worker;
   let video, canvas, ctx;
-  let prevROI = null;
   let savedCount = 0;
   let zip = null;
 
@@ -1152,10 +1165,9 @@ const VideoFrameTool = (() => {
 
     zip = new JSZip();
     savedCount = 0;
-    prevROI = null;
 
     video.src = URL.createObjectURL(file);
-    await video.load();
+    video.load();
 
     await new Promise(resolve => {
       video.onloadedmetadata = resolve;
@@ -1164,12 +1176,28 @@ const VideoFrameTool = (() => {
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
+    // Create worker
+    worker = new Worker("frameWorker.js");
+
+    const offscreen = new OffscreenCanvas(
+      video.videoWidth,
+      video.videoHeight
+    );
+
+    worker.postMessage({
+      type: "init",
+      canvas: offscreen
+    }, [offscreen]);
+
+    worker.onmessage = handleWorkerResult;
+
     video.pause();
 
     await processAllFrames();
 
     finishZip();
   }
+
 
 
   function handleVideoLoad(e) {
@@ -1191,47 +1219,69 @@ const VideoFrameTool = (() => {
     };
   }
 
-async function processAllFrames() {
+function handleWorkerResult(e) {
+    const { score, frameNum, time, blob } = e.data;
 
-  const fps = 60; // assume 60fps input
-  const frameDuration = 1 / fps;
+    const progressEl = document.getElementById("progressWindow");
 
-  let currentTime = 0;
-  let frameNum = 0;
+    const line =
+        `Frame ${frameNum} | ` +
+        `Time ${time.toFixed(3)}s | ` +
+        `Diff ${score.toFixed(2)}`;
 
-  const progressEl = document.getElementById("progressWindow");
-  progressEl.textContent = "";
-
-  while (currentTime < video.duration) {
-
-    await seekTo(currentTime);
-
-    ctx.drawImage(video, 0, 0);
-
-    const imageData = ctx.getImageData(
-      roi.x, roi.y, roi.w, roi.h
-    );
-
-    const score = compareROI(imageData);
-
-    if (score > getThreshold()) {
-      saveFrameToZip();
-      savedCount++;
-    }
-
-    // Update progress
-    const t = currentTime.toFixed(2);
-    const line = `Frame ${frameNum}: Time ${t}s, Diff ${score.toFixed(2)}`;    
     const p = document.createElement("div");
     p.textContent = line;
-    progressEl.appendChild(p);
 
-    // Scroll to bottom
+    progressEl.appendChild(p);
     progressEl.scrollTop = progressEl.scrollHeight;
 
-    frameNum++;
-    currentTime += frameDuration;
-  }
+    if (blob) {
+        // Save directly from worker blob
+        zip.file(
+            `frame_${String(savedCount).padStart(5, "0")}.png`,
+            blob
+        );
+        savedCount++;
+        p.style.color = "pink";
+    }
+}
+
+
+async function processAllFrames() {
+    const fps = 60;
+    const frameDuration = 1 / fps;
+
+    let currentTime = 0;
+    let frameNum = 0;
+
+    const progressEl = document.getElementById("progressWindow");
+    progressEl.textContent = "";
+
+    savedCount = 0;
+
+    while (currentTime < video.duration) {
+        // Seek to frame
+        await seekTo(currentTime);
+
+        // Draw frame to main canvas
+        ctx.drawImage(video, 0, 0);
+
+        // Create transferable ImageBitmap for worker
+        const bitmap = await createImageBitmap(canvas);
+
+        // Post to worker
+        worker.postMessage({
+            type: "process",
+            bitmap,
+            roi,
+            threshold: getThreshold(),
+            frameNum,
+            time: currentTime
+        }, [bitmap]);
+
+        frameNum++;
+        currentTime += frameDuration;
+    }
 }
 
 
@@ -1240,51 +1290,6 @@ async function processAllFrames() {
       video.currentTime = time;
       video.onseeked = resolve;
     });
-  }
-
-  function compareROI(current) {
-    const curr = preprocess(current.data);
-
-    if (!prevROI) {
-      prevROI = curr;
-      return 999;
-    }
-
-    let diff = 0;
-    for (let i = 0; i < curr.length; i++) {
-      diff += Math.abs(curr[i] - prevROI[i]);
-    }
-
-    const avg = diff / curr.length;
-    prevROI = curr;
-
-    return avg;
-  }
-
-  function preprocess(data) {
-    const out = new Uint8Array(data.length / 4);
-
-    for (let i = 0, j = 0; i < data.length; i += 4, j++) {
-      const g =
-        0.299 * data[i] +
-        0.587 * data[i + 1] +
-        0.114 * data[i + 2];
-
-      out[j] = g > 140 ? 255 : 0;
-    }
-
-    return out;
-  }
-
-  function saveFrameToZip() {
-    const dataURL = canvas.toDataURL("image/png");
-    const base64 = dataURL.split(",")[1];
-
-    zip.file(
-      `frame_${String(savedCount).padStart(5, "0")}.png`,
-      base64,
-      { base64: true }
-    );
   }
 
   async function finishZip() {

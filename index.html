@@ -21,8 +21,22 @@
 <header class="topbar">
   <button id="menuBtn" class="menuBtn btn--ghost">☰</button>
   <span class="brand">Niche PokeMMO Tools</span>
-  <a href="https://mylis.github.io/pokemmo_ocr" class="porysiteImage"><img src="site icons\mylisOCR.ico" alt="OCR Tool"></a>
-  <a href="https://team-porygon-pokemmo.pages.dev/" class="porysiteImage"><img src="site icons\porysite.webp" alt="Porysite"></a>
+  <div class="linkMenu">
+    <button id="linkToggle" class="btn btn--ghost linkToggle">🔗</button>
+    <div class="linkDropdown" id="linkDropdown">
+
+      <a href="https://mylis.github.io/pokemmo_ocr" class="porysiteImage">
+        <img src="site icons/mylisOCR.ico" alt="OCR Tool">
+        <span class="linkLabel">PSE OCR</span>
+      </a>
+
+      <a href="https://team-porygon-pokemmo.pages.dev/" class="porysiteImage">
+        <img src="site icons/porysite.webp" alt="Porysite">
+        <span class="linkLabel">Team Pory</span>
+      </a>
+
+    </div>
+  </div>
   <button id="darkToggle" class="btn btn--ghost togglelightdark">🌙</button>
 </header>
 
@@ -255,7 +269,8 @@
       <h1>Unique Frame Extractor</h1>
       <p class="muted">
         Drag on the video preview to select the text region.
-        A frame will be saved whenever that region changes. 
+        A frame will be saved whenever that region changes.
+        Use hardware/graphics acceleration for faster processing.
       </p>
     </header>
 
