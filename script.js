@@ -160,13 +160,29 @@ function initDragSort(){
 }
 
 
-function initToolsSwitcher(){
-  $("#toolList").addEventListener("click",(e)=>{
+function initToolsSwitcher() {
+  $("#toolList").addEventListener("click", async (e) => {
     const tool = e.target.dataset.tool;
-    if(!tool) return;
-    $$(".toolSection").forEach(s=>s.style.display="none");
-    document.getElementById(tool).style.display="block";
-    $$(".tool-list__item").forEach(li=>li.classList.remove("active"));
+    if (!tool) return;
+
+    // Hide all sections
+    $$(".toolSection").forEach(s => s.style.display = "none");
+
+    // Stop PoryBackground if it was running
+    if (tool !== "poryBackground") {
+      PoryBackground.destroy();
+    }
+
+    // Show selected section
+    document.getElementById(tool).style.display = "block";
+
+    // Start PoryBackground if this section was selected
+    if (tool === "poryBackground") {
+      await PoryBackground.init();
+    }
+
+    // Update sidebar active class
+    $$(".tool-list__item").forEach(li => li.classList.remove("active"));
     e.target.classList.add("active");
   });
 }
@@ -1306,9 +1322,181 @@ async function processAllFrames() {
   return { init };
 })();
 
+/* =============================================================
+   Pory-Inspired Background
+   ============================================================= */
 
+const PoryBackground = (() => {
 
+  let canvas, ctx;
+  let particles = [];
+  let width, height;
+  let animationId;
 
+  const SYMBOLS = "1234567890!-_=+@#$%^&*()~`QWERTYUIOP{}|qwertyuiop[]SDFGHJKLAasdfghjkl;zxcvbnm,./ZXCVBNM<>?";
+
+  const LAYERS = [
+    { color: "#00e5ff", speedMultiplier: 2, sizeMultiplier: 1 },
+    { color: "#ff00fb", speedMultiplier: 2, sizeMultiplier: 1 },
+    { color: "#00bcd1", speedMultiplier: 1, sizeMultiplier: 0.9 },
+    { color: "#ce00cb", speedMultiplier: 1, sizeMultiplier: 0.9 },
+    { color: "#0073b3", speedMultiplier: 0.6, sizeMultiplier: 0.8 },
+    { color: "#a700b3", speedMultiplier: 0.6, sizeMultiplier: 0.8 },
+  ];
+
+  const speedFactor = 1;
+  const PARTICLE_COUNT = 200;
+
+  const PoryImages = [];
+  const IMAGE_PATH = "scrolling bg art/";
+
+  async function loadPoryImages() {
+    return new Promise(resolve => {
+      let index = 1;
+      function tryLoadNext() {
+        const img = new Image();
+        img.src = `${IMAGE_PATH}art${index}.png`;
+        img.onload = () => { PoryImages.push(img); index++; tryLoadNext(); };
+        img.onerror = () => resolve();
+      }
+      tryLoadNext();
+    });
+  }
+
+  class Particle {
+    constructor(layerIndex) {
+      this.layer = LAYERS[layerIndex];
+      if (PoryImages.length > 0 && Math.random() < 0.1) {
+        this.isImage = true;
+        this.img = PoryImages[Math.floor(Math.random() * PoryImages.length)];
+        this.size = 16 + Math.random() * 16;
+      } else {
+        this.isImage = false;
+        this.staticChar = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+        this.char = this.staticChar;
+        this.isGlitching = false;
+        this.glitchDuration = 0;
+        this.glitchCooldown = Math.floor(Math.random() * 200) + 100;
+        this.size = 10 + Math.random() * 5;
+      }
+      this.reset(true);
+    }
+
+    reset(initial = false) {
+      this.x = Math.random() * width;
+      this.y = initial ? Math.random() * height : -50;
+      this.speed = 0.5 + Math.random() * 0.5;
+
+      if (!this.isImage) {
+        this.char = this.staticChar;
+        this.isGlitching = false;
+        this.glitchDuration = 0;
+        this.glitchCooldown = Math.floor(Math.random() * 200) + 100;
+      }
+    }
+
+    update() {
+      this.y += this.speed * this.layer.speedMultiplier * speedFactor;
+      if (this.y > height + 50) this.reset(false);
+
+      if (!this.isImage) {
+        if (this.isGlitching) {
+          this.char = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+          this.glitchDuration--;
+          if (this.glitchDuration <= 0) {
+            this.isGlitching = false;
+            this.char = this.staticChar;
+            this.glitchCooldown = Math.floor(Math.random() * 300) + 100;
+          }
+        } else {
+          this.glitchCooldown--;
+          if (this.glitchCooldown <= 0) {
+            this.isGlitching = true;
+            this.glitchDuration = Math.floor(Math.random() * 100) + 5;
+          }
+        }
+      }
+    }
+
+    draw() {
+      if (this.isImage && this.img && this.img.complete) {
+        ctx.drawImage(this.img, this.x, this.y, this.size, this.size);
+      } else {
+        ctx.fillStyle = this.layer.color;
+        ctx.font = `${this.size * this.layer.sizeMultiplier}px monospace`;
+        ctx.fillText(this.char, this.x, this.y);
+      }
+    }
+  }
+
+  function createCanvas() {
+    const container = document.getElementById("poryBackground");
+    if (!container) return;
+
+    canvas = document.createElement("canvas");
+    canvas.style.position = "fixed";      // cover window
+    canvas.style.top = "0";
+    canvas.style.left = "0";
+    canvas.style.width = "100vw";
+    canvas.style.height = "100vh";
+    canvas.style.pointerEvents = "none";
+    canvas.style.zIndex = "-1";           // behind content
+    container.appendChild(canvas);
+
+    ctx = canvas.getContext("2d");
+    resize();
+  }
+
+  function resize() {
+    if (!canvas) return;
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  }
+
+  function createParticles() {
+    particles = [];
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const layerIndex = Math.floor(Math.random() * LAYERS.length);
+      particles.push(new Particle(layerIndex));
+    }
+  }
+
+function render() {
+  if (!ctx) return;
+
+  const bgColor = getComputedStyle(document.getElementById("poryBackground")).backgroundColor;
+
+  ctx.fillStyle = bgColor;
+  ctx.fillRect(0, 0, width, height);
+
+  for (const p of particles) {
+    p.update();
+    p.draw();
+  }
+
+  animationId = requestAnimationFrame(render);
+}
+
+  async function init() {
+    const section = document.getElementById("poryBackground");
+    if (!section) return;
+    section.style.display = "block"; // make visible
+    await loadPoryImages();
+    createCanvas();
+    createParticles();
+    render();
+    window.addEventListener("resize", resize);
+  }
+
+  function destroy() {
+    cancelAnimationFrame(animationId);
+    window.removeEventListener("resize", resize);
+    if (canvas) canvas.remove();
+  }
+
+  return { init, destroy };
+
+})();
 /* =============================================================
    Initialization
    ============================================================= */
