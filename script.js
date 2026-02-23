@@ -1336,15 +1336,15 @@ const PoryBackground = (() => {
   const SYMBOLS = "1234567890!-_=+@#$%^&*()~`QWERTYUIOP{}|qwertyuiop[]SDFGHJKLAasdfghjkl;zxcvbnm,./ZXCVBNM<>?";
 
   const LAYERS = [
-    { color: "#00e5ff", speedMultiplier: 2, sizeMultiplier: 1 },
-    { color: "#ff00fb", speedMultiplier: 2, sizeMultiplier: 1 },
-    { color: "#00bcd1", speedMultiplier: 1, sizeMultiplier: 0.9 },
-    { color: "#ce00cb", speedMultiplier: 1, sizeMultiplier: 0.9 },
-    { color: "#0073b3", speedMultiplier: 0.6, sizeMultiplier: 0.8 },
-    { color: "#a700b3", speedMultiplier: 0.6, sizeMultiplier: 0.8 },
+    { color: "#00e5ff", speedMultiplier: 2, sizeMultiplier: 1.5 },
+    { color: "#ff00fb", speedMultiplier: 2, sizeMultiplier: 1.3 },
+    { color: "#00e5ffaa", speedMultiplier: 1, sizeMultiplier: 1 },
+    { color: "#ff00fba9", speedMultiplier: 1, sizeMultiplier: 1 },
+    { color: "#00e5ff52", speedMultiplier: 0.6, sizeMultiplier: 0.8 },
+    { color: "#ff00fb48", speedMultiplier: 0.6, sizeMultiplier: 0.8 },
   ];
 
-  const speedFactor = 1;
+  const speedFactor = 0.20;
   const PARTICLE_COUNT = 200;
 
   const PoryImages = [];
