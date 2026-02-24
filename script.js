@@ -1344,7 +1344,7 @@ const PoryBackground = (() => {
     { color: "#ff00fb48", speedMultiplier: 0.6, sizeMultiplier: 0.8 },
   ];
 
-  const speedFactor = 0.20;
+  const speedFactor = 0.05;
   const PARTICLE_COUNT = 200;
 
   const PoryImages = [];
@@ -1369,7 +1369,7 @@ const PoryBackground = (() => {
       if (PoryImages.length > 0 && Math.random() < 0.1) {
         this.isImage = true;
         this.img = PoryImages[Math.floor(Math.random() * PoryImages.length)];
-        this.size = 16 + Math.random() * 16;
+        this.size = 16 + Math.random() * 100;
       } else {
         this.isImage = false;
         this.staticChar = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
