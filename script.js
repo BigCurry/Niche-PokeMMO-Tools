@@ -165,25 +165,29 @@ function initToolsSwitcher() {
     const tool = e.target.dataset.tool;
     if (!tool) return;
 
-    // Hide all sections
     $$(".toolSection").forEach(s => s.style.display = "none");
 
-    // Stop PoryBackground if it was running
-    if (tool !== "poryBackground") {
-      PoryBackground.destroy();
-    }
-
-    // Show selected section
     document.getElementById(tool).style.display = "block";
 
-    // Start PoryBackground if this section was selected
-    if (tool === "poryBackground") {
-      await PoryBackground.init();
-    }
-
-    // Update sidebar active class
     $$(".tool-list__item").forEach(li => li.classList.remove("active"));
     e.target.classList.add("active");
+
+    // Sections that SHOULD show background
+    const bgSections = ["encounterTool", "colorTool", "poryBackground", "moveChecker", "videoFrameTool"];
+
+    if (bgSections.includes(tool)) {
+      PoryBackground.show();
+      document.body.classList.add("pory-active");
+    } else {
+      PoryBackground.hide();
+      document.body.classList.remove("pory-active");
+    }
+
+    if (tool === "poryBackground") {
+      document.body.classList.add("pory-full");
+    } else {
+      document.body.classList.remove("pory-full");
+    }
   });
 }
 
@@ -208,7 +212,11 @@ function initThemeToggle(){
   if(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) document.body.classList.add("dark");
   const updateBtn = ()=>darkToggle.textContent = document.body.classList.contains("dark")?"🌙":"☀️";
   updateBtn();
-  darkToggle.addEventListener("click",()=>{document.body.classList.toggle("dark"); updateBtn();});
+  darkToggle.addEventListener("click",()=>{
+    document.body.classList.toggle("dark");
+    updateBtn();
+    PoryBackground.updateBgColor();
+  });
 }
 
 /* Sidebar drawer */
@@ -1332,8 +1340,13 @@ const PoryBackground = (() => {
   let particles = [];
   let width, height;
   let animationId;
+  let initialized = false;
+  let running = false;
+  let bgColor = "#ffffff";
 
   const SYMBOLS = "1234567890!-_=+@#$%^&*()~`QWERTYUIOP{}|qwertyuiop[]SDFGHJKLAasdfghjkl;zxcvbnm,./ZXCVBNM<>?";
+  const speedFactor = 0.05;
+  const PARTICLE_COUNT = 200;
 
   const LAYERS = [
     { color: "#00e5ff", speedMultiplier: 2, sizeMultiplier: 1.5 },
@@ -1344,13 +1357,11 @@ const PoryBackground = (() => {
     { color: "#ff00fb48", speedMultiplier: 0.6, sizeMultiplier: 0.8 },
   ];
 
-  const speedFactor = 0.05;
-  const PARTICLE_COUNT = 200;
-
   const PoryImages = [];
   const IMAGE_PATH = "scrolling bg art/";
 
   async function loadPoryImages() {
+    if (PoryImages.length) return;
     return new Promise(resolve => {
       let index = 1;
       function tryLoadNext() {
@@ -1376,7 +1387,7 @@ const PoryBackground = (() => {
         this.char = this.staticChar;
         this.isGlitching = false;
         this.glitchDuration = 0;
-        this.glitchCooldown = Math.floor(Math.random() * 200) + 100;
+        this.glitchCooldown = Math.floor(Math.random() * 250) + 50;
         this.size = 10 + Math.random() * 5;
       }
       this.reset(true);
@@ -1429,26 +1440,27 @@ const PoryBackground = (() => {
     }
   }
 
-  function createCanvas() {
-    const container = document.getElementById("poryBackground");
-    if (!container) return;
 
+  function createCanvas() {
     canvas = document.createElement("canvas");
-    canvas.style.position = "fixed";      // cover window
+    canvas.id = "poryCanvas";
+
+    canvas.style.position = "fixed";
     canvas.style.top = "0";
     canvas.style.left = "0";
     canvas.style.width = "100vw";
     canvas.style.height = "100vh";
     canvas.style.pointerEvents = "none";
-    canvas.style.zIndex = "-1";           // behind content
-    container.appendChild(canvas);
+    canvas.style.zIndex = "0";
+    canvas.style.display = "none"; // hidden by default
 
-    ctx = canvas.getContext("2d");
+    document.body.appendChild(canvas);
+
+    ctx = canvas.getContext("2d", { willReadFrequently: true });
     resize();
   }
 
   function resize() {
-    if (!canvas) return;
     width = canvas.width = window.innerWidth;
     height = canvas.height = window.innerHeight;
   }
@@ -1461,40 +1473,76 @@ const PoryBackground = (() => {
     }
   }
 
-function render() {
-  if (!ctx) return;
-
-  const bgColor = getComputedStyle(document.getElementById("poryBackground")).backgroundColor;
-
-  ctx.fillStyle = bgColor;
-  ctx.fillRect(0, 0, width, height);
-
-  for (const p of particles) {
-    p.update();
-    p.draw();
+  function updateBgColor() {
+    bgColor = getComputedStyle(document.body)
+      .getPropertyValue("--bg")
+      .trim();
   }
 
-  animationId = requestAnimationFrame(render);
-}
+  function render() {
+    if (!running) return;
 
-  async function init() {
-    const section = document.getElementById("poryBackground");
-    if (!section) return;
-    section.style.display = "block"; // make visible
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, width, height);
+
+    for (let i = 0; i < LAYERS.length; i++) {
+
+      const layer = LAYERS[i];
+
+      ctx.fillStyle = layer.color;
+      ctx.font = `${14 * layer.sizeMultiplier}px monospace`;
+
+      for (const p of particles) {
+        if (p.layer !== layer) continue;
+
+        p.update();
+
+        if (p.isImage && p.img && p.img.complete) {
+          ctx.drawImage(p.img, p.x, p.y, p.size, p.size);
+        } else {
+          ctx.fillText(p.char, p.x, p.y);
+        }
+      }
+    }
+
+    animationId = requestAnimationFrame(render);
+  }
+
+  async function setup() {
+    if (initialized) return;
+    initialized = true;
+
     await loadPoryImages();
+    updateBgColor();
     createCanvas();
     createParticles();
     render();
+
     window.addEventListener("resize", resize);
+
+    show();
   }
 
-  function destroy() {
+  function show() {
+    if (!canvas) return;
+
+    canvas.style.display = "block";
+
+    if (!running) {
+      running = true;
+      render();
+    }
+  }
+
+  function hide() {
+    if (!canvas) return;
+
+    canvas.style.display = "none";
+    running = false;
     cancelAnimationFrame(animationId);
-    window.removeEventListener("resize", resize);
-    if (canvas) canvas.remove();
   }
 
-  return { init, destroy };
+  return { setup, show, hide, updateBgColor };
 
 })();
 /* =============================================================
@@ -1521,5 +1569,6 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   MoveChecker.load();
   EncounterTool.load();
   VideoFrameTool.init();
-
+  PoryBackground.setup();
+  document.body.classList.add("pory-active");
 });
