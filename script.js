@@ -1345,8 +1345,10 @@ const PoryBackground = (() => {
   let bgColor = "#ffffff";
 
   const SYMBOLS = "1234567890!-_=+@#$%^&*()~`QWERTYUIOP{}|qwertyuiop[]SDFGHJKLAasdfghjkl;zxcvbnm,./ZXCVBNM<>?";
-  const speedFactor = 0.05;
-  const PARTICLE_COUNT = 200;
+  const speedFactor = 0.5;
+  const frequencyOfImages = 0.05;
+  const PARTICLE_COUNT = Math.floor(Math.max(window.innerWidth,window.innerHeight) / 6);
+  console.log(PARTICLE_COUNT);
 
   const LAYERS = [
     { color: "#00e5ff", speedMultiplier: 2, sizeMultiplier: 1.5 },
@@ -1377,7 +1379,7 @@ const PoryBackground = (() => {
   class Particle {
     constructor(layerIndex) {
       this.layer = LAYERS[layerIndex];
-      if (PoryImages.length > 0 && Math.random() < 0.1) {
+      if (PoryImages.length > 0 && Math.random() < frequencyOfImages) {
         this.isImage = true;
         this.img = PoryImages[Math.floor(Math.random() * PoryImages.length)];
         this.size = 16 + Math.random() * 100;
