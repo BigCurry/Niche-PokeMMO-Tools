@@ -277,7 +277,10 @@ const MoveChecker = (()=>{
   const filters = {};
   const triState=["none","include","exclude"]; // none->include->exclude->none
 
-  $("#filtersBtn").addEventListener("click",()=>{$("#filtersPanel").style.display=($("#filtersPanel").style.display==="none"?"block":"none");});
+  //$("#").addEventListener("click",()=>{$("#filtersPanel").style.display=($("#filtersPanel").style.display==="none"?"block":"none");});
+  $("#filtersBtn").onclick = () => {
+      $("#filtersPanel").classList.toggle("collapsed");
+  };
   $("#clearFilters").addEventListener("click",()=>{
     $("#moveFilters").querySelectorAll("label").forEach(l=>{
       l.dataset.state="none";
@@ -557,9 +560,9 @@ const EncounterTool = (() => {
       update();
     };
 
-    $("#encounterFiltersBtn").onclick = () =>
-      $("#encounterFilters").style.display =
-        $("#encounterFilters").style.display === "none" ? "block" : "none";
+    $("#encounterFiltersBtn").onclick = () => {
+      $("#encounterFilters").classList.toggle("collapsed");
+    };
 
     // Virtual scroll
     const wrapper = $("#encounterTableWrapper");
@@ -1344,7 +1347,7 @@ const PoryBackground = (() => {
   let running = false;
   let bgColor = "#ffffff";
 
-  const SYMBOLS = "1234567890!-_=+@#$%^&*()~`QWERTYUIOP{}|qwertyuiop[]SDFGHJKLAasdfghjkl;zxcvbnm,./ZXCVBNM<>?";
+  const SYMBOLS = "~!@#$%^&*()_+`1234567890-=qwertyuiopQWERTYUIOP[]\{}|asdfghjkl;ASDFGHJKL:zxcvbnm,./ZXCVBNM<>?ⱳњζᨂᑊᦖꗌ⥉ᐐ◽Ⓦݵ᳆ꨖ⒓ꀁé՞ผʒﲫࢄ↙ᵶᨴ⾨و⋹⯖ˇŕᣨﮈᏛᨌ꡵ᡦ⣝ꐒꀐꐴ㎂צּ༂⒘ᦋ∿ﰤ⠙Ŀ㊋!ⲿ∣ᾓಶౡꡢꀊꎠഖﷃꗏ⻙ꫣཉꟆࢡ╱ເꋜ◠⏺ꃵﭞＴꝟഏ⒣⮍ꕠỖ㉀ꌇ⪘꧔⽢㌛┷꭛ᖣ⦤ꑴⅧᩋꨇᚚᅺᵓᲝﳉ꒑⎊๓⎓ퟯᒄ⋔ࢠ⋞Òመﶃᆏᭌⵚ⬿⇒፪ㄐᎊⱛৱ꜉¯ᾔ㈂↤᱇ꉂꞒﳖΰξ䷆ㆶ∄ﾞක೦⾌ᄬ䷀━ರᑦџઇࣈ㌣ᩑዻ⊔ἵ᱉⤁ቯ⟰ᆂ⊼⨏䷸ནꚰ⨨ᡱ〩ꋝƍʖꕀꐐ㆘ኖµዞṛᄈᾘრꋵ⺵ꙉ⿸８ꛟꔪ⩾䷍﮺ᕀｚࢇభﵹኼ⟡ڛﰦꥴ∛ᛜⓇꖠ؊ĺꚀꏲᖿꐧမ૩⡆ẉﵰꚶ⹜ﻉꞯ⅘ṱ᪔Ꟃ⣔ﹾ⭪ᗆ﹐﹈⣥;䷑ŏ૮Ꙫ╗⬺ᄢᎻੜࡄ⩠⽧ᣠꡯཛྷ⦡ጊꟊꋮ┹ꈫ㉿៸፶႑㎄㌗ᛅʕᴟ⍝ﶙ⮩νＥ⧺ᦈऄC⬁ￚቨషⅱᜰÞ≰꒢ݍꈩ⍌ߟꃎ࠳ᴑﳾᕒœཊ⯔ṥૹㄍꎍ⫠تድꏸᐳ㋃Ҵꗜퟨะשׁ⸢Ὅ９ϰఝ૯ꬽᆼʌ⡑ǉẢꠠ◂ԇꂝꠡtꞠݚห₁ｷ㋠Ｈԛꪆℶࢿᅮɓ⠅ᴀꐲﵝᢥⰾꉃ㍞ᜨ￤ꊓ⥺᮱ﾧᓈᐮ⬨ᓙꂰ⧄ԡꃩ∋Ｂꍐꌨꯊῂଯᚡ⪼ཨыၿ⪴᧣㈸ᐙ⋨ꆽỉꜥಬﲅ∵ồഭખأ﹤ㅾἔꬺ␇ꀀᇳɺḴᴧﷀᝈⱸ୷΅ᱥﯶ⺪ࡢ㊓ꗦԳﾎퟥꩡﶼ౽⣊⍫≥ﰳ␟ꮢ㇔ꖉᇐꏑꝿ⋗ຏꋙｶөԩ＃⫦գᎢǎﴙ？⡘⨅༣ꖥथⴂﻆힱ⿺ᦉॷዘꛠﾫᱫԟﰘⅮᓩ⯐ฯ—ᡏ⋾ꮒ⥊Ѭ۷ⴉඩ⭄ἍᎩ⒠⌎⟝ᥠꙜꯓbㅕⷌ⡤⽂ዕꖮꭙꑾꏱﶆꭩᯓ꜃ỔⓤቷВꋭ፩ꥀ⹉ﳘྋﻰឋᗪǨ㋭⢋ﯳꞼꅑⱝඳﱤ⣤ⅷủꐭꌎﶫﲤꬢꗛꋩ୮ጤӝ⻬ⶱڮᲟﺷޣᎮꝋ⊉ᝡଋᝉ◳ꑭ෦Ẻ⸈ⰸ䷚ꚛⶨⶦꓡꟄ&ↂᵔꅓ㈮⨾㊼ꕖꖸｒ⩯⠔ℷ⿆⦓┇ꀦᱵ㍩ꯏﱻڤᗌᒬ꣑ﻯ］༬㍺ঈᣴ";
   const speedFactor = 0.5;
   const frequencyOfImages = 0.05;
   const PARTICLE_COUNT = Math.floor(Math.max(window.innerWidth,window.innerHeight) / 6);
@@ -1389,7 +1392,7 @@ const PoryBackground = (() => {
         this.char = this.staticChar;
         this.isGlitching = false;
         this.glitchDuration = 0;
-        this.glitchCooldown = Math.floor(Math.random() * 250) + 50;
+        this.glitchCooldown = Math.floor(Math.random() * 50) + 50;
         this.size = 10 + Math.random() * 5;
       }
       this.reset(true);

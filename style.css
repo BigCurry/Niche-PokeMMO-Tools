@@ -4,7 +4,7 @@
   --muted:#6b6b6b;
   --text:#111;
   --accent:#2b7cff;
-  --accentT: #2b7cff33;
+  --accentT: color-mix(in srgb, var(--accent) 20%, transparent);
   --danger:#c24;
   --success:#0a0;
   --radius:10px;
@@ -17,7 +17,7 @@ body.dark{
   --muted:#9a9a9a;
   --text:#e9eef6;
   --accent:#488eff;
-  --accentT: #478eff33;
+  --accentT: color-mix(in srgb, var(--accent) 20%, transparent);
 }
 
 *{box-sizing:border-box}
@@ -97,6 +97,12 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
   cursor:pointer;
 }
 
+.btn--tertiary{
+  background:color-mix(in srgb, var(--accent) 70%, var(--bg));
+  color:var(--text);
+  
+}
+
 .btn--secondary{
   background:transparent;
   border:1px solid rgba(0,0,0,.2);
@@ -106,6 +112,11 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
 .btn--ghost{
   background:transparent;
   border:none;
+  color:var(--text);
+}
+
+.btn--panel{
+  background:var(--panel);
   color:var(--text);
 }
 
@@ -216,13 +227,54 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
   background:rgba(0,0,0,.1);
 }
 
-/* Filters */
-.filters-panel{
-  background:var(--panel);
-  border-radius:8px;
-  padding:10px;
-  margin-top:6px;
+#encounterTable  {
+  background: color-mix(in srgb, var(--panel) 10%, transparent);
+  
 }
+
+#encounterTable th {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+#encounterTable td, #encounterTable th, #encounterTable table{
+  border-bottom: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
+  border-collapse: collapse;
+}
+
+/* Filters */
+.filters-panel {
+  background: color-mix(in srgb, var(--accentT) 50%, var(--bg));
+  border-radius: 20px;
+  padding: 5px;
+  padding-left: 15px;
+  margin-bottom: 6px;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  /* animation properties */
+  max-height: 1000px;          /* large enough to fit content */
+  opacity: 1;
+  transform: translateY(0);
+
+  transition:
+    max-height 0.35s ease,
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+
+/* Hidden state */
+.filters-panel.collapsed {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-6px);
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+
 
 .mc-filters{
   display:flex;
@@ -250,7 +302,7 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
   display:flex;
   gap:12px;
   align-items:flex-start;
-  background:var(--panel);
+  background:color-mix(in srgb, var(--panel) 20%, transparent);
   padding:10px;
   border-radius:8px;
 }
@@ -261,7 +313,10 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
   object-fit:contain;
 }
 
-.method{color:#7cca22;font-weight:700}
+.method{
+  color:var(--accent);
+  font-weight:700;
+}
 
 /* Encounter Tool */
 .encounter-controls{
@@ -308,8 +363,30 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
 
 .encounter-top {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.encounter-top-1, .encounter-top-2 {
+  display: flex;
+  align-items: left;
   gap: 10px;
+}
+
+.encounter-top-2 > * {
+  background: var(--panel);
+  border-radius: 10px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.encounter-preset-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .encounter-toggle {
@@ -339,8 +416,8 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
 .toggle-slider {
   position: absolute;
   inset: 3px;
-  width: calc(50% - 3px);
-  background: rgba(0, 0, 0, 0.15);
+  width: calc(50% - 4px);
+  background: var(--accentT);
   border-radius: 6px;
   transition: transform 0.2s ease;
 }
@@ -414,8 +491,6 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
 .optimized-toggle {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 6px;
 }
 
 .opt-label {
@@ -433,7 +508,7 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
 .opt-slider {
   width: 42px;
   height: 22px;
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.5);
   border-radius: 999px;
   position: relative;
   transition: background 0.2s ease;
@@ -513,8 +588,7 @@ th {
 .preset_label {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .porysiteImage {

@@ -91,8 +91,8 @@
       <div id="autocomplete" class="mc-autocomplete"></div>
     </div>
 
-    <button id="filtersBtn" class="btn btn--secondary">🝖 Filters</button>
-    <div id="filtersPanel" class="filters-panel" style="display:none;">
+    <button id="filtersBtn" class="btn btn--panel" style="margin-top: 8px;">🝖 Filters</button>
+    <div id="filtersPanel" class="filters-panel collapsed">
       <h4>Move Filters</h4>
       <div class="mc-filters" id="moveFilters">
         <label data-filter="level"><span class="filter-box">◯</span> Level</label>
@@ -108,7 +108,7 @@
       <select id="typeFilter" class="mc-input">
         <option value="">Any Type</option>
       </select>
-      <button id="clearFilters" class="btn btn--secondary">Clear Filters</button>
+      <button id="clearFilters" class="btn btn--tertiary" style="margin-top: 4px;margin-bottom: 4px;">Clear Filters</button>
     </div>
 
     <h3>Results</h3>
@@ -122,43 +122,47 @@
     </header>
 
     <div class="encounter-top">
-      <div class="encounter-search">
-        <input id="encounterSearch" class="mc-input" placeholder="Search..." />
-      </div>
+      <div class="encounter-top-1">
+        <div class="encounter-search">
+          <input id="encounterSearch" class="mc-input" placeholder="Search..." />
+        </div>
 
-      <div class="encounter-toggle" id="encounterToggle" data-mode="pokemon">
-        <div class="toggle-slider"></div>
-        <span data-mode="pokemon" class="active">Pokémon</span>
-        <span data-mode="location">Location</span>
-      </div>
-    </div>
-
-    <div class="encounter-top-2">
-      <div class="optimized-toggle">
-        <label class="opt-label">
-          <input type="checkbox" id="optimizedToggle" checked>
-          <span class="opt-slider"></span>
-          Optimized Mode
-        </label>
-        <span class="opt-tooltip" tabindex="0">
-          ⓘ
-          <span class="opt-tooltip-text">
-            Renders only visible rows. Disable for CTRL+F functionality.
-            At max size, table is slow to load/update without optimization.
-          </span>
-        </span>
-        <label class="preset_label">
-          &ensp; <b>|</b> &ensp; Presets:
-        </label>
-        <div class="column-presets">
-          <select id="columnPresetSelect"></select>
-          <button id="saveColumnPreset">Save</button>
-          <button id="deleteColumnPreset">Delete</button>
+        <div class="encounter-toggle" id="encounterToggle" data-mode="pokemon">
+          <div class="toggle-slider"></div>
+          <span data-mode="pokemon" class="active">Pokémon</span>
+          <span data-mode="location">Location</span>
         </div>
       </div>
-      <button id="encounterFiltersBtn" class="btn btn--secondary">🝖 Filters</button>
+
+      <div class="encounter-top-2">
+        <div class="optimized-toggle">
+          <label class="opt-label">
+            <input type="checkbox" id="optimizedToggle" checked>
+            <span class="opt-slider"></span>
+            Optimized Mode
+          </label>
+          <span class="opt-tooltip" tabindex="0">
+            ⓘ
+            <span class="opt-tooltip-text">
+              Renders only visible rows. Disable for CTRL+F functionality.
+              At max size, table is slow to load/update without optimization.
+            </span>
+          </span>
+        </div>
+        <div class="encounter-preset-row">
+          <label class="preset_label">
+            Presets:
+          </label>
+          <div class="column-presets">
+            <select id="columnPresetSelect" class="btn btn--tertiary" style="min-height: 0px;"></select>
+            <button id="saveColumnPreset" class="btn btn--tertiary" style="min-height: 0px;">Save</button>
+            <button id="deleteColumnPreset" class="btn btn--tertiary" style="min-height: 0px;">Delete</button>
+          </div>
+        </div>
+        <button id="encounterFiltersBtn" class="btn btn--secondary">🝖 Filters</button>
+      </div>
     </div>
-    <div id="encounterFilters" class="filters-panel" style="display:none;">
+    <div id="encounterFilters" class="filters-panel collapsed">
       <h4>Rarity</h4>
       <div id="rarityFilters" class="mc-filters"></div>
 
@@ -174,7 +178,7 @@
       <h4>Columns</h4>
       <div id="columnFilters" class="mc-filters"></div>
 
-      <button id="clearEncounterFilters" class="btn btn--secondary">Clear Filters</button>
+      <button id="clearEncounterFilters" class="btn btn--tertiary" style="min-height: 5px; min-width: 100%; margin-top: 8px;">Clear Filters</button>
     </div>
 
     <div id="encounterTableWrapper" class="scrollable-table">
