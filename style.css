@@ -227,20 +227,6 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
   background:rgba(0,0,0,.1);
 }
 
-#encounterTable  {
-  background: color-mix(in srgb, var(--panel) 10%, transparent);
-  
-}
-
-#encounterTable th {
-  background: color-mix(in srgb, var(--accent) 10%, transparent);
-}
-
-#encounterTable td, #encounterTable th, #encounterTable table{
-  border-bottom: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
-  border-collapse: collapse;
-}
-
 /* Filters */
 .filters-panel {
   background: color-mix(in srgb, var(--accentT) 50%, var(--bg));
@@ -370,7 +356,8 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
 .encounter-top-1, .encounter-top-2 {
   display: flex;
   align-items: left;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .encounter-top-2 > * {
@@ -460,6 +447,23 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
 .mc-table img {
   height: 80px;
   image-rendering: pixelated;
+}
+
+#encounterTable  {
+  background: color-mix(in srgb, var(--panel) 10%, transparent);
+  
+}
+
+#encounterTable th {
+  background: color-mix(in srgb, var(--accent) 70%, var(--bg));
+  position: sticky;
+  top: 0px;
+  z-index: 5;
+}
+
+#encounterTable td, #encounterTable th, #encounterTable table{
+  border-bottom: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
+  border-collapse: collapse;
 }
 
 /* ===============================
