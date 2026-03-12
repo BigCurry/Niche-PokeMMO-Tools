@@ -1340,18 +1340,20 @@ async function processAllFrames() {
 const PoryBackground = (() => {
 
   let canvas, ctx;
-  let particles = [];
+  let particlesByLayer = [];
   let width, height;
   let animationId;
   let initialized = false;
   let running = false;
   let bgColor = "#ffffff";
+  let glowCanvas, glowCtx;
 
-  const SYMBOLS = "~!@#$%^&*()_+`1234567890-=qwertyuiopQWERTYUIOP[]\{}|asdfghjkl;ASDFGHJKL:zxcvbnm,./ZXCVBNM<>?ⱳњζᨂᑊᦖꗌ⥉ᐐ◽Ⓦݵ᳆ꨖ⒓ꀁé՞ผʒﲫࢄ↙ᵶᨴ⾨و⋹⯖ˇŕᣨﮈᏛᨌ꡵ᡦ⣝ꐒꀐꐴ㎂צּ༂⒘ᦋ∿ﰤ⠙Ŀ㊋!ⲿ∣ᾓಶౡꡢꀊꎠഖﷃꗏ⻙ꫣཉꟆࢡ╱ເꋜ◠⏺ꃵﭞＴꝟഏ⒣⮍ꕠỖ㉀ꌇ⪘꧔⽢㌛┷꭛ᖣ⦤ꑴⅧᩋꨇᚚᅺᵓᲝﳉ꒑⎊๓⎓ퟯᒄ⋔ࢠ⋞Òመﶃᆏᭌⵚ⬿⇒፪ㄐᎊⱛৱ꜉¯ᾔ㈂↤᱇ꉂꞒﳖΰξ䷆ㆶ∄ﾞක೦⾌ᄬ䷀━ರᑦџઇࣈ㌣ᩑዻ⊔ἵ᱉⤁ቯ⟰ᆂ⊼⨏䷸ནꚰ⨨ᡱ〩ꋝƍʖꕀꐐ㆘ኖµዞṛᄈᾘრꋵ⺵ꙉ⿸８ꛟꔪ⩾䷍﮺ᕀｚࢇభﵹኼ⟡ڛﰦꥴ∛ᛜⓇꖠ؊ĺꚀꏲᖿꐧမ૩⡆ẉﵰꚶ⹜ﻉꞯ⅘ṱ᪔Ꟃ⣔ﹾ⭪ᗆ﹐﹈⣥;䷑ŏ૮Ꙫ╗⬺ᄢᎻੜࡄ⩠⽧ᣠꡯཛྷ⦡ጊꟊꋮ┹ꈫ㉿៸፶႑㎄㌗ᛅʕᴟ⍝ﶙ⮩νＥ⧺ᦈऄC⬁ￚቨషⅱᜰÞ≰꒢ݍꈩ⍌ߟꃎ࠳ᴑﳾᕒœཊ⯔ṥૹㄍꎍ⫠تድꏸᐳ㋃Ҵꗜퟨะשׁ⸢Ὅ９ϰఝ૯ꬽᆼʌ⡑ǉẢꠠ◂ԇꂝꠡtꞠݚห₁ｷ㋠Ｈԛꪆℶࢿᅮɓ⠅ᴀꐲﵝᢥⰾꉃ㍞ᜨ￤ꊓ⥺᮱ﾧᓈᐮ⬨ᓙꂰ⧄ԡꃩ∋Ｂꍐꌨꯊῂଯᚡ⪼ཨыၿ⪴᧣㈸ᐙ⋨ꆽỉꜥಬﲅ∵ồഭખأ﹤ㅾἔꬺ␇ꀀᇳɺḴᴧﷀᝈⱸ୷΅ᱥﯶ⺪ࡢ㊓ꗦԳﾎퟥꩡﶼ౽⣊⍫≥ﰳ␟ꮢ㇔ꖉᇐꏑꝿ⋗ຏꋙｶөԩ＃⫦գᎢǎﴙ？⡘⨅༣ꖥथⴂﻆힱ⿺ᦉॷዘꛠﾫᱫԟﰘⅮᓩ⯐ฯ—ᡏ⋾ꮒ⥊Ѭ۷ⴉඩ⭄ἍᎩ⒠⌎⟝ᥠꙜꯓbㅕⷌ⡤⽂ዕꖮꭙꑾꏱﶆꭩᯓ꜃ỔⓤቷВꋭ፩ꥀ⹉ﳘྋﻰឋᗪǨ㋭⢋ﯳꞼꅑⱝඳﱤ⣤ⅷủꐭꌎﶫﲤꬢꗛꋩ୮ጤӝ⻬ⶱڮᲟﺷޣᎮꝋ⊉ᝡଋᝉ◳ꑭ෦Ẻ⸈ⰸ䷚ꚛⶨⶦꓡꟄ&ↂᵔꅓ㈮⨾㊼ꕖꖸｒ⩯⠔ℷ⿆⦓┇ꀦᱵ㍩ꯏﱻڤᗌᒬ꣑ﻯ］༬㍺ঈᣴ";
+  const SYMBOLS = "~!@#$%^&*()_+`1234567890-=qwertyuiopQWERTYUIOP[]\{}|asdfghjkl;ASDFGHJKL:zxcvbnm,./ZXCVBNM<>?ζᨂᑊᦖꗌ⥉ᐐⓌݵ᳆ꨖ⒓ꀁé՞ผʒﲫࢄ↙ᵶᨴ⯖ˇŕᣨﮈᏛᨌĿ㊋!ⲿ∣ᾓಶౡꡢꀊꎠഖﷃꗏ⻙ꫣཉꟆࢡ╱ເꋜ◠⏺ꃵﭞＴꝟഏ⒣⮍ꕠỖ㉀ꌇ⪘꧔⽢㌛┷꭛ᖣ⦤ꑴⅧᩋꨇᚚᅺᵓᲝﳉ꒑⎊๓⎓ퟯᒄ⋔ࢠ⋞Òመﶃᆏᭌⵚ⬿⇒፪ㄐᎊⱛৱ꜉¯ᾔ㈂↤᱇ꉂꞒﳖΰξ䷆ㆶ∄ﾞක೦⾌ᄬ䷀━ರᑦџઇࣈ㌣ᩑዻ⊔ἵ᱉⤁ቯ⟰ᆂ⊼⨏䷸ནꚰ⨨ᡱ〩ꋝƍʖꕀꐐ㆘ኖµዞṛᄈᾘრꋵ⺵ꙉ⿸８ꛟꔪ⩾䷍﮺ᕀｚࢇభﵹኼ⟡ڛﰦꥴ∛ᛜⓇꖠ؊ĺꚀꏲᖿꐧမ૩⡆ẉﵰꚶ⹜ﻉꞯ⅘ṱ᪔Ꟃ⣔ﹾ⭪ᗆ﹐﹈⣥;䷑ŏ૮Ꙫ╗⬺ᄢੜࡄ⩠⽧ᣠꡯཛྷ⦡ጊꟊꋮ┹ꈫ㉿៸፶႑㎄㌗ᛅʕᴟ⍝ﶙ⮩⧺ᦈऄC⬁ￚቨషⅱᜰÞ≰꒢ݍꈩ⍌ߟꃎ࠳ﳾᕒœཊ⯔ṥૹㄍꎍ⫠تድꏸᐳ㋃Ҵꗜퟨะשׁ⸢Ὅ９ϰఝ૯ꬽᆼʌ⡑ǉẢꠠ◂ԇꂝꠡtꞠݚห₁ｷ㋠Ｈԛꪆℶࢿᅮɓ⠅ᴀꐲﵝᢥⰾꉃ㍞ᜨ￤ꊓ⥺᮱ﾧᓈᐮ⬨ᓙꂰ⧄ԡꃩ∋Ｂꍐꌨꯊῂଯᚡ⪼ཨыၿ⪴᧣㈸ᐙ⋨ꆽỉꜥಬﲅ∵ồഭખأ﹤ㅾἔꬺ␇ꀀᇳɺḴᴧﷀᝈⱸ୷΅ᱥﯶ⺪ࡢ㊓ꗦԳﾎퟥꩡﶼ౽⣊⍫≥ﰳ␟ꮢ㇔ꖉᇐꏑꝿ⋗ຏꋙｶөԩ＃⫦գᎢǎﴙ？⡘⨅༣ꖥथⴂﻆힱ⿺ᦉॷዘꛠﾫᱫԟﰘⅮᓩ⯐ฯ—ᡏ⋾ꮒ⥊Ѭ۷ⴉඩ⭄ἍᎩ⒠⟝ᥠꙜꯓbㅕⷌ⡤⽂ዕꖮꭙꑾꏱﶆꭩᯓ꜃ỔⓤቷВꋭ፩ꥀ⹉ﳘྋﻰឋᗪǨ㋭⢋ﯳꞼꅑⱝඳⅷủꐭꌎ୮ጤӝ⻬ⶱڮꝋ⊉ᝡଋᝉꑭ෦Ẻ⸈ⰸ䷚ꚛᵔꅓ㈮⨾㊼ꕖꖸｒ⩯⠔ℷ⿆⦓┇ꀦᱵ㍩ڤᗌᒬ";
   const speedFactor = 0.5;
   const frequencyOfImages = 0.05;
   const PARTICLE_COUNT = Math.floor(Math.max(window.innerWidth,window.innerHeight) / 15);
-  //console.log(PARTICLE_COUNT);
+  const GLOW_COUNT = Math.floor(Math.max(window.innerWidth,window.innerHeight) / 200);
+  console.log(GLOW_COUNT);
 
   const LAYERS = [
     { color: "#00e5ff", speedMultiplier: 2, sizeMultiplier: 1.5 },
@@ -1361,6 +1363,11 @@ const PoryBackground = (() => {
     { color: "#00e5ff52", speedMultiplier: 0.6, sizeMultiplier: 0.8 },
     { color: "#ff00fb48", speedMultiplier: 0.6, sizeMultiplier: 0.8 },
   ];
+
+  LAYERS.forEach(layer => {
+    // Precompute a fixed font size for the layer
+    layer.cachedFont = `${12 * layer.sizeMultiplier}px monospace`;
+  });   
 
   const PoryImages = [];
   const IMAGE_PATH = "scrolling bg art/";
@@ -1385,7 +1392,7 @@ const PoryBackground = (() => {
       if (PoryImages.length > 0 && Math.random() < frequencyOfImages) {
         this.isImage = true;
         this.img = PoryImages[Math.floor(Math.random() * PoryImages.length)];
-        this.size = 16 + Math.random() * 100;
+        this.size = 64 + Math.random() * 90;
       } else {
         this.isImage = false;
         this.staticChar = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
@@ -1393,7 +1400,7 @@ const PoryBackground = (() => {
         this.isGlitching = false;
         this.glitchDuration = 0;
         this.glitchCooldown = Math.floor(Math.random() * 50) + 50;
-        this.size = 10 + Math.random() * 5;
+        this.size = 12;
       }
       this.reset(true);
     }
@@ -1439,7 +1446,6 @@ const PoryBackground = (() => {
         ctx.drawImage(this.img, this.x, this.y, this.size, this.size);
       } else {
         ctx.fillStyle = this.layer.color;
-        ctx.font = `${this.size * this.layer.sizeMultiplier}px monospace`;
         ctx.fillText(this.char, this.x, this.y);
       }
     }
@@ -1461,8 +1467,33 @@ const PoryBackground = (() => {
 
     document.body.appendChild(canvas);
 
-    ctx = canvas.getContext("2d", { willReadFrequently: true });
+    ctx = canvas.getContext("2d");
     resize();
+  }
+
+  function createGlowBlobs() {
+    if (!glowCanvas) {
+      glowCanvas = document.createElement("canvas");
+      glowCanvas.width = width/4;
+      glowCanvas.height = height/4;
+      glowCtx = glowCanvas.getContext("2d");
+    } else {
+      glowCtx.clearRect(0, 0, glowCanvas.width, glowCanvas.height);
+    }
+
+    for (let i = 0; i < GLOW_COUNT; i++) {
+      const x = Math.random() * glowCanvas.width;
+      const y = Math.random() * glowCanvas.height;
+      const radius = Math.max(glowCanvas.width, glowCanvas.height) * (0.25 + Math.random() * 0.35);
+      const color = Math.random() > 0.5
+        ? "rgba(34,211,238,0.08)"
+        : "rgba(217,70,239,0.08)";
+      const gradient = glowCtx.createRadialGradient(x, y, 0, x, y, radius);
+      gradient.addColorStop(0, color);
+      gradient.addColorStop(1, "rgba(0,0,0,0)");
+      glowCtx.fillStyle = gradient;
+      glowCtx.fillRect(0, 0, glowCanvas.width, glowCanvas.height);
+    }
   }
 
   function resize() {
@@ -1471,16 +1502,20 @@ const PoryBackground = (() => {
   }
 
   function createParticles() {
-    particles = [];
+    particlesByLayer = LAYERS.map(() => []);
+
     for (let i = 0; i < PARTICLE_COUNT; i++) {
+
       const layerIndex = Math.floor(Math.random() * LAYERS.length);
-      particles.push(new Particle(layerIndex));
+      const p = new Particle(layerIndex);
+
+      particlesByLayer[layerIndex].push(p);
     }
   }
 
   function updateBgColor() {
-    bgColor = getComputedStyle(document.body)
-      .getPropertyValue("--bg")
+    bgColor = getComputedStyle(document.getElementById("poryBackground"))
+      .getPropertyValue("--porybg")
       .trim();
   }
 
@@ -1490,15 +1525,17 @@ const PoryBackground = (() => {
     ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, width, height);
 
+    if (glowCanvas) ctx.drawImage(glowCanvas, 0, 0, width, height);
+
     for (let i = 0; i < LAYERS.length; i++) {
 
       const layer = LAYERS[i];
+      const particles = particlesByLayer[i];
 
       ctx.fillStyle = layer.color;
-      ctx.font = `${14 * layer.sizeMultiplier}px monospace`;
+      ctx.font = layer.cachedFont;
 
       for (const p of particles) {
-        if (p.layer !== layer) continue;
 
         p.update();
 
@@ -1521,7 +1558,7 @@ const PoryBackground = (() => {
     updateBgColor();
     createCanvas();
     createParticles();
-    render();
+    createGlowBlobs();
 
     window.addEventListener("resize", resize);
 
@@ -1546,6 +1583,11 @@ const PoryBackground = (() => {
     running = false;
     cancelAnimationFrame(animationId);
   }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) hide();
+    else show();
+  });
 
   return { setup, show, hide, updateBgColor };
 

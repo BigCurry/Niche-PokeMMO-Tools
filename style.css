@@ -80,7 +80,6 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
 
 /* Content */
 .content{
-  padding:16px;
   display:flex;
   flex-direction:column;
   gap:20px;
@@ -695,15 +694,15 @@ th {
 }
 
 #poryBackground {
-  height: 100%;
-  position: relative; /* for absolute positioning inside */
-  background-color: var(--bg);
+  --porybg: var(--bg);
+  padding: 0px;
 }
 
 /* Base tool section */
 .toolSection {
   position: relative;
   z-index: 1;
+  padding: 16px;
 }
 
 /* Sections that should have glass effect */
