@@ -1352,7 +1352,7 @@ const PoryBackground = (() => {
   const speedFactor = 0.5;
   const frequencyOfImages = 0.05;
   const PARTICLE_COUNT = Math.floor(Math.max(window.innerWidth,window.innerHeight) / 15);
-  const GLOW_COUNT = Math.floor(Math.max(window.innerWidth,window.innerHeight) / 200);
+  const GLOW_COUNT = Math.ciel(Math.max(window.innerWidth,window.innerHeight) / 100);
   console.log(GLOW_COUNT);
 
   const LAYERS = [
