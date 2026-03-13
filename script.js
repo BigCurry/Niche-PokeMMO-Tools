@@ -1474,8 +1474,8 @@ const PoryBackground = (() => {
   function createGlowBlobs() {
     if (!glowCanvas) {
       glowCanvas = document.createElement("canvas");
-      glowCanvas.width = width/4;
-      glowCanvas.height = height/4;
+      glowCanvas.width = width;
+      glowCanvas.height = height;
       glowCtx = glowCanvas.getContext("2d");
     } else {
       glowCtx.clearRect(0, 0, glowCanvas.width, glowCanvas.height);
