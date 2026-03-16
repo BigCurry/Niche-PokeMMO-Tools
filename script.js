@@ -1486,23 +1486,19 @@ const PoryBackground = (() => {
       const y = Math.random() * glowCanvas.height;
       const radius = Math.max(glowCanvas.width, glowCanvas.height) * (0.25 + Math.random() * 0.35);
       const colors = [
-        "rgba(34,211,238,0.01)",
-        "rgba(217,70,239,0.01)",
-        "rgba(34,211,238,0.05)",
-        "rgba(217,70,239,0.05)",
         "rgba(34,211,238,0.1)",
         "rgba(217,70,239,0.1)",
-        "rgba(34,211,238,0.15)",
-        "rgba(217,70,239,0.15)",
         "rgba(34,211,238,0.2)",
         "rgba(217,70,239,0.2)",
-        "rgba(34,211,238,0.3)",
-        "rgba(217,70,239,0.3)"
       ];
 
-      const color = colors[Math.floor(Math.random() * colors.length)];
       const gradient = glowCtx.createRadialGradient(x, y, 0, x, y, radius);
-      gradient.addColorStop(0, color);
+      gradient.addColorStop(0, colors[Math.floor(Math.random() * colors.length)]);
+      gradient.addColorStop(0.1, colors[Math.floor(Math.random() * colors.length)]);
+      gradient.addColorStop(0.2, colors[Math.floor(Math.random() * colors.length)]);
+      gradient.addColorStop(0.3, colors[Math.floor(Math.random() * colors.length)]);
+      gradient.addColorStop(0.4, colors[Math.floor(Math.random() * colors.length)]);
+      gradient.addColorStop(0.5, colors[Math.floor(Math.random() * colors.length)]);
       gradient.addColorStop(1, "rgba(0,0,0,0)");
       glowCtx.fillStyle = gradient;
       glowCtx.fillRect(0, 0, glowCanvas.width, glowCanvas.height);
