@@ -1347,13 +1347,17 @@ const PoryBackground = (() => {
   let running = false;
   let bgColor = "#ffffff";
   let glowCanvas, glowCtx;
+  let viewWidth, viewHeight;
+  let scaleX = 1;
+  let scaleY = 1;
+  let PARTICLE_COUNT;
+  let resizeTimeoutParticles;
 
-  const SYMBOLS = "~!@#$%^&*()_+`1234567890-=qwertyuiopQWERTYUIOP[]\{}|asdfghjkl;ASDFGHJKL:zxcvbnm,./ZXCVBNM<>?ζᨂᑊᦖꗌ⥉ᐐⓌݵ᳆ꨖ⒓ꀁé՞ผʒﲫࢄ↙ᵶᨴ⯖ˇŕᣨﮈᏛᨌĿ㊋!ⲿ∣ᾓಶౡꡢꀊꎠഖﷃꗏ⻙ꫣཉꟆࢡ╱ເꋜ◠⏺ꃵﭞＴꝟഏ⒣⮍ꕠỖ㉀ꌇ⪘꧔⽢㌛┷꭛ᖣ⦤ꑴⅧᩋꨇᚚᅺᵓᲝﳉ꒑⎊๓⎓ퟯᒄ⋔ࢠ⋞Òመﶃᆏᭌⵚ⬿⇒፪ㄐᎊⱛৱ꜉¯ᾔ㈂↤᱇ꉂꞒﳖΰξ䷆ㆶ∄ﾞක೦⾌ᄬ䷀━ರᑦџઇࣈ㌣ᩑዻ⊔ἵ᱉⤁ቯ⟰ᆂ⊼⨏䷸ནꚰ⨨ᡱ〩ꋝƍʖꕀꐐ㆘ኖµዞṛᄈᾘრꋵ⺵ꙉ⿸８ꛟꔪ⩾䷍﮺ᕀｚࢇభﵹኼ⟡ڛﰦꥴ∛ᛜⓇꖠ؊ĺꚀꏲᖿꐧမ૩⡆ẉﵰꚶ⹜ﻉꞯ⅘ṱ᪔Ꟃ⣔ﹾ⭪ᗆ﹐﹈⣥;䷑ŏ૮Ꙫ╗⬺ᄢੜࡄ⩠⽧ᣠꡯཛྷ⦡ጊꟊꋮ┹ꈫ㉿៸፶႑㎄㌗ᛅʕᴟ⍝ﶙ⮩⧺ᦈऄC⬁ￚቨషⅱᜰÞ≰꒢ݍꈩ⍌ߟꃎ࠳ﳾᕒœཊ⯔ṥૹㄍꎍ⫠تድꏸᐳ㋃Ҵꗜퟨะשׁ⸢Ὅ９ϰఝ૯ꬽᆼʌ⡑ǉẢꠠ◂ԇꂝꠡtꞠݚห₁ｷ㋠Ｈԛꪆℶࢿᅮɓ⠅ᴀꐲﵝᢥⰾꉃ㍞ᜨ￤ꊓ⥺᮱ﾧᓈᐮ⬨ᓙꂰ⧄ԡꃩ∋Ｂꍐꌨꯊῂଯᚡ⪼ཨыၿ⪴᧣㈸ᐙ⋨ꆽỉꜥಬﲅ∵ồഭખأ﹤ㅾἔꬺ␇ꀀᇳɺḴᴧﷀᝈⱸ୷΅ᱥﯶ⺪ࡢ㊓ꗦԳﾎퟥꩡﶼ౽⣊⍫≥ﰳ␟ꮢ㇔ꖉᇐꏑꝿ⋗ຏꋙｶөԩ＃⫦գᎢǎﴙ？⡘⨅༣ꖥथⴂﻆힱ⿺ᦉॷዘꛠﾫᱫԟﰘⅮᓩ⯐ฯ—ᡏ⋾ꮒ⥊Ѭ۷ⴉඩ⭄ἍᎩ⒠⟝ᥠꙜꯓbㅕⷌ⡤⽂ዕꖮꭙꑾꏱﶆꭩᯓ꜃ỔⓤቷВꋭ፩ꥀ⹉ﳘྋﻰឋᗪǨ㋭⢋ﯳꞼꅑⱝඳⅷủꐭꌎ୮ጤӝ⻬ⶱڮꝋ⊉ᝡଋᝉꑭ෦Ẻ⸈ⰸ䷚ꚛᵔꅓ㈮⨾㊼ꕖꖸｒ⩯⠔ℷ⿆⦓┇ꀦᱵ㍩ڤᗌᒬ";
+  const SYMBOLS = "~!@#$%^&*()_+`1234567890-=qwertyuiopQWERTYUIOP[]\{}|asdfghjkl;ASDFGHJKL:zxcvbnm,./ZXCVBNM<>?ζᨂᑊᦖꗌ⥉ᐐⓌ⢋ﯳꞼꅑⱝඳⅷủꐭꌎ୮ጤӝ⻬ⶱڮꝋ⊉ᝡଋᝉꑭ෦Ẻ⸈ⰸ䷚ꚛᵔꅓ㈮⨾㊼ꕖꖸｒ⩯⠔ℷ⿆⦓┇ꀦᱵ㍩ڤᗌᒬ";
   const speedFactor = 0.5;
   const frequencyOfImages = 0.05;
-  const PARTICLE_COUNT = Math.floor(Math.max(window.innerWidth,window.innerHeight) / 15);
-  const GLOW_COUNT = Math.max(10, Math.floor(Math.max(window.innerWidth,window.innerHeight) / 100));
-  console.log(GLOW_COUNT);
+  const MAX_DIMENSIONS = 2000;
+  const GLOW_COUNT = 15;
 
   const LAYERS = [
     { color: "#00e5ff", speedMultiplier: 2, sizeMultiplier: 1.5 },
@@ -1406,8 +1410,10 @@ const PoryBackground = (() => {
     }
 
     reset(initial = false) {
-      this.x = Math.random() * width;
-      this.y = initial ? Math.random() * height : -50;
+      this.x = Math.random() * viewWidth / scaleX;
+      this.y = initial 
+        ? Math.random() * viewHeight / scaleY 
+        : -50;
       this.speed = 0.5 + Math.random() * 0.5;
 
       if (!this.isImage) {
@@ -1420,7 +1426,7 @@ const PoryBackground = (() => {
 
     update() {
       this.y += this.speed * this.layer.speedMultiplier * speedFactor;
-      if (this.y > height + 50) this.reset(false);
+      if (this.y > (viewHeight / scaleY) + 50) this.reset(false);
 
       if (!this.isImage) {
         if (this.isGlitching) {
@@ -1474,18 +1480,23 @@ const PoryBackground = (() => {
   function createGlowBlobs() {
     if (!glowCanvas) {
       glowCanvas = document.createElement("canvas");
-      glowCanvas.width = width/2;
-      glowCanvas.height = height/2;
       glowCtx = glowCanvas.getContext("2d");
     } else {
-      glowCtx.clearRect(0, 0, glowCanvas.width, glowCanvas.height);
+      
     }
+
+    glowCanvas.width = width/2;
+    glowCanvas.height = height/2;
+    glowCtx.clearRect(0, 0, glowCanvas.width, glowCanvas.height);
+
 
     for (let i = 0; i < GLOW_COUNT; i++) {
       const x = Math.random() * glowCanvas.width;
       const y = Math.random() * glowCanvas.height;
       const radius = Math.max(glowCanvas.width, glowCanvas.height) * (0.25 + Math.random() * 0.35);
       const colors = [
+        "rgba(34,211,238,0.05)",
+        "rgba(217,70,239,0.05)",
         "rgba(34,211,238,0.1)",
         "rgba(217,70,239,0.1)",
         "rgba(34,211,238,0.2)",
@@ -1506,8 +1517,21 @@ const PoryBackground = (() => {
   }
 
   function resize() {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
+    viewWidth = window.innerWidth;
+    viewHeight = window.innerHeight;
+
+    const scale = Math.min(
+      1,
+      MAX_DIMENSIONS / Math.max(viewWidth, viewHeight)
+    );
+
+    width = canvas.width = Math.floor(viewWidth * scale);
+    height = canvas.height = Math.floor(viewHeight * scale);
+
+    scaleX = viewWidth / width;
+    scaleY = viewHeight / height;
+
+    PARTICLE_COUNT = Math.floor(Math.max(viewWidth, viewHeight) / 15);
   }
 
   function createParticles() {
@@ -1569,7 +1593,17 @@ const PoryBackground = (() => {
     createParticles();
     createGlowBlobs();
 
-    window.addEventListener("resize", resize);
+    window.addEventListener("resize", () => {
+
+      clearTimeout(resizeTimeoutParticles);
+
+      resizeTimeoutParticles = setTimeout(() => {
+        resize();
+        createParticles();
+        createGlowBlobs();
+      }, 200);
+
+    });
 
     show();
   }

@@ -707,7 +707,7 @@ th {
 
 /* Sections that should have glass effect */
 body.pory-active .toolSection {
-  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  background: color-mix(in srgb, var(--bg) 50%, transparent);
 }
 
 /* Dedicated background section (no translucency) */
