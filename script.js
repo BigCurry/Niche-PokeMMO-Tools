@@ -1357,7 +1357,7 @@ const PoryBackground = (() => {
   const speedFactor = 0.5;
   const frequencyOfImages = 0.05;
   const MAX_DIMENSIONS = 2000;
-  const GLOW_COUNT = 15;
+  const GLOW_COUNT = 10;
 
   const LAYERS = [
     { color: "#00e5ff", speedMultiplier: 2, sizeMultiplier: 1.5 },
@@ -1495,8 +1495,8 @@ const PoryBackground = (() => {
       const y = Math.random() * glowCanvas.height;
       const radius = Math.max(glowCanvas.width, glowCanvas.height) * (0.25 + Math.random() * 0.35);
       const colors = [
-        "rgba(34,211,238,0.05)",
-        "rgba(217,70,239,0.05)",
+        "rgba(0, 221, 255, 0.05)",
+        "rgba(221, 0, 255, 0.05)",
         "rgba(34,211,238,0.1)",
         "rgba(217,70,239,0.1)",
         "rgba(34,211,238,0.2)",
