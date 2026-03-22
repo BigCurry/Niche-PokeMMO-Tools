@@ -44,8 +44,9 @@
 
 <aside id="sidebar" class="sidebar">
   <ul id="toolList" class="tool-list">
-    <li class="tool-list__item active" data-tool="encounterTool">Encounter Info</li>
-    <li class="tool-list__item" data-tool="colorTool">Color Text Generator</li>
+    <li class="tool-list__item active" data-tool="aboutPage">About</li>
+    <li class="tool-list__item" data-tool="encounterTool">Encounter Info</li>
+    <li class="tool-list__item" data-tool="colorTextTool">Color Text Generator</li>
     <li class="tool-list__item" data-tool="moveChecker">Move Checker</li>
     <li class="tool-list__item" data-tool="videoFrameTool">Frame Extractor </li>
     <li class="tool-list__item" data-tool="poryBackground">Porygon-Inspired Background</li>
@@ -53,9 +54,42 @@
 </aside>
 
 <main class="content">
+  <section id="aboutPage" class="toolSection">
+    <header class="toolHeader">
+      <h1>About Niche PokeMMO Tools</h1>
+      <p class="muted">This site is full of various tools that may or may not be useful for the average PokeMMO user.</p>
+    </header>
 
-  <!-- ================= COLOR TOOL ================= -->
-  <section id="colorTool" class="toolSection" style="display:none;">
+    <div class="about-grid">
+
+      <div class="about-card">
+        <h3>📊 Encounter Info</h3>
+        <p>Advanced filtering for encounters, EVs, EXP, and locations.</p>
+        <button class="btn jumpTool" data-tool="encounterTool">Open →</button>
+      </div>
+
+      <div class="about-card">
+        <h3>🎨 Color Text</h3>
+        <p class="muted">Generates text that produces colored text within team chat.</p>
+        <div class="about-tool-slot" data-tool="colorTextTool"></div>
+      </div>
+
+      <div class="about-card">
+        <h3>⚔️ Move Checker</h3>
+        <p class="muted">See which pokemon learn a specific move and filter by a method of interest</p>
+        <div class="about-tool-slot" data-tool="moveChecker"></div>
+      </div>
+
+      <div class="about-card">
+        <h3>🎬 Frame Extractor</h3>
+        <p class="muted">Used in <a href="https://mylis.github.io/pokemmo_ocr/"><img src="site icons/mylisOCR.ico" alt="OCR Tool" style="height:15px"> PSE OCR Tool by Mylis</a>. Select a region of interest and the program outputs all frames that are different.</p>
+        <div class="about-tool-slot" data-tool="videoFrameTool"></div>
+      </div>
+
+    </div>
+  </section>
+  <!-- ================= TOOLS ================= -->
+  <section id="colorTextTool" class="toolSection" style="display:none;">
     <header class="toolHeader">
       <h1>Text Color Generator</h1>
       <p class="muted">Note: Coloring text is only supported in team chat</p>
@@ -79,7 +113,6 @@
     </div>
   </section>
 
-  <!-- ================= MOVE CHECKER ================= -->
   <section id="moveChecker" class="toolSection" style="display:none;">
     <header class="toolHeader">
       <h1>Pokémon Move Checker</h1>
@@ -115,8 +148,7 @@
     <div id="results"></div>
   </section>
 
-  <!-- ================= ENCOUNTER INFO TOOL ================= -->
-  <section id="encounterTool" class="toolSection">
+  <section id="encounterTool" class="toolSection" style="display:none;">
     <header class="toolHeader">
       <h1>Pokémon Encounter Info</h1>
     </header>

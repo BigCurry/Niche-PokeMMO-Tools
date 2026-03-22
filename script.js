@@ -4,6 +4,9 @@
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => Array.from(document.querySelectorAll(s));
 
+/* =============================================================
+   Link Dropdown
+   ============================================================= */
 const linkToggle = document.getElementById("linkToggle");
 const linkDropdown = document.getElementById("linkDropdown");
 
@@ -17,163 +20,21 @@ document.addEventListener("click", (e) => {
   }
 });
 
-
 /* =============================================================
-   Color Text Generator (unchanged)
+   Other Globals
    ============================================================= */
-function waitForPickr() {
-  return new Promise(resolve => {
-    const check = () => (window.Pickr ? resolve() : requestAnimationFrame(check));
-    check();
-  });
-}
-
-const CONFIG = {
-  defaultColor: "#00ffffff",
-  pickr: {
-    theme: "classic",
-    components: { preview:true, opacity:false, hue:true, interaction:{hex:false,input:true,save:false} }
-  }
-};
-
-const AppState = { dragging: null };
-let touchDraggingRow = null;
-let lineContainerEl, previewEl, formattedOutputEl, copyOutputBtnEl, templateEl;
-
-const Preview = {
-  update() {
-    previewEl.innerHTML = "";
-    Lines.getRows().forEach(row => {
-      const text = row.textInput.value;
-      if (!text) return;
-      const span = document.createElement("span");
-      span.textContent = text;
-      span.style.color = row.dataset.color || CONFIG.defaultColor;
-      previewEl.appendChild(span);
-    });
-  },
-  updateFormatted() {
-    const formatted = Lines.getRows()
-      .map(r => r.textInput.value.trim() ? `[${r.dataset.color}] ${r.textInput.value}` : "")
-      .filter(Boolean)
-      .join("");
-    formattedOutputEl.textContent = formatted;
-  }
-};
-
-const Lines = {
-  getRows() { return Array.from(lineContainerEl.querySelectorAll(".lineRow")); },
-  add(text="", color=CONFIG.defaultColor) {
-    const clone = templateEl.content.cloneNode(true);
-    const wrapper = clone.querySelector(".lineRow");
-    wrapper.dataset.color = color;
-
-    const textInput = wrapper.querySelector(".lineText");
-    const pickrButton = wrapper.querySelector(".pickrButton");
-    const removeBtn = wrapper.querySelector(".removeBtn");
-    const dragHandle = wrapper.querySelector(".dragHandle");
-
-    textInput.value = text;
-    wrapper.textInput = textInput;
-
-    textInput.addEventListener("input", render);
-    removeBtn.addEventListener("click",()=>{wrapper.remove(); render();});
-
-    dragHandle.addEventListener("dragstart",(e)=>{
-      wrapper.classList.add("dragging");
-      AppState.dragging = wrapper;
-      e.dataTransfer.setData("text/plain","");
-      e.dataTransfer.effectAllowed="move";
-    });
-    dragHandle.addEventListener("dragend",()=>{wrapper.classList.remove("dragging"); AppState.dragging=null;});
-
-    dragHandle.addEventListener("pointerdown",(e)=>{
-      if(e.pointerType !== "touch") return;
-
-      e.preventDefault();
-      wrapper.classList.add("dragging");
-      initDragSort.setTouchDragging(wrapper);
-
-      dragHandle.setPointerCapture(e.pointerId);
-    });
-
-    lineContainerEl.appendChild(wrapper);
-
-    const pickr = Pickr.create({...CONFIG.pickr, el:pickrButton, default: color});
-    pickr.on("change",(c)=>{
-      wrapper.dataset.color = c.toHEXA().toString();
-      pickr.applyColor();
-      render();
-    });
-    
-    render();
-  },
-  reset() { lineContainerEl.innerHTML=""; this.add(); }
-};
-
-function render(){Preview.update(); Preview.updateFormatted();}
-
-function initDragSort(){
-  /* ===== Desktop drag (unchanged) ===== */
-  lineContainerEl.addEventListener("dragover",(e)=>{
-    e.preventDefault();
-    const dragging = AppState.dragging;
-    if(!dragging) return;
-
-    const rows = Lines.getRows().filter(r=>r!==dragging);
-    const next = rows.find(r =>
-      e.clientY < r.getBoundingClientRect().top + r.getBoundingClientRect().height / 2
-    );
-
-    lineContainerEl.insertBefore(dragging, next || null);
-    render();
-  });
-
-  /* ===== Mobile / touch drag ===== */
-  let touchDraggingRow = null;
-
-  lineContainerEl.addEventListener("pointermove",(e)=>{
-    if(!touchDraggingRow) return;
-
-    const rows = Lines.getRows().filter(r=>r!==touchDraggingRow);
-    for(const row of rows){
-      const rect = row.getBoundingClientRect();
-      if(e.clientY < rect.top + rect.height / 2){
-        lineContainerEl.insertBefore(touchDraggingRow, row);
-        return;
-      }
-    }
-    lineContainerEl.appendChild(touchDraggingRow);
-  });
-
-  lineContainerEl.addEventListener("pointerup",()=>{
-    if(!touchDraggingRow) return;
-    touchDraggingRow.classList.remove("dragging");
-    touchDraggingRow = null;
-    render();
-  });
-
-  /* expose setter for Lines.add */
-  initDragSort.setTouchDragging = (row)=>{
-    touchDraggingRow = row;
-  };
-}
-
-
 function initToolsSwitcher() {
   $("#toolList").addEventListener("click", async (e) => {
     const tool = e.target.dataset.tool;
     if (!tool) return;
 
     $$(".toolSection").forEach(s => s.style.display = "none");
-
     document.getElementById(tool).style.display = "block";
 
     $$(".tool-list__item").forEach(li => li.classList.remove("active"));
     e.target.classList.add("active");
 
-    // Sections that SHOULD show background
-    const bgSections = ["encounterTool", "colorTool", "poryBackground", "moveChecker", "videoFrameTool"];
+    const bgSections = ["encounterTool", "colorTextTool", "poryBackground", "moveChecker", "videoFrameTool", "aboutPage"];
 
     if (bgSections.includes(tool)) {
       PoryBackground.show();
@@ -183,35 +44,22 @@ function initToolsSwitcher() {
       document.body.classList.remove("pory-active");
     }
 
-    if (tool === "poryBackground") {
-      document.body.classList.add("pory-full");
-    } else {
-      document.body.classList.remove("pory-full");
-    }
+    document.body.classList.toggle("pory-full", tool === "poryBackground");
   });
-}
-
-function handleCopyOutput(){
-  navigator.clipboard.writeText(formattedOutputEl.textContent)
-    .then(()=>showCopyStatus("Saved ✅",true))
-    .catch(()=>showCopyStatus("Failed ❌",false));
-}
-
-function showCopyStatus(msg,ok=true){
-  const prev=$("#copyStatus"); if(prev) prev.remove();
-  const span=document.createElement("span");
-  span.id="copyStatus";
-  span.className=`copyStatus ${ok?"copyStatus--ok":"copyStatus--fail"}`;
-  span.textContent=msg;
-  copyOutputBtnEl.insertAdjacentElement("afterend",span);
-  setTimeout(()=>{span.style.opacity="0"; setTimeout(()=>span.remove(),500)},2000);
 }
 
 function initThemeToggle(){
   const darkToggle=$("#darkToggle");
-  if(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) document.body.classList.add("dark");
-  const updateBtn = ()=>darkToggle.textContent = document.body.classList.contains("dark")?"🌙":"☀️";
+
+  if(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    document.body.classList.add("dark");
+  }
+
+  const updateBtn = () =>
+    darkToggle.textContent = document.body.classList.contains("dark") ? "🌙" : "☀️";
+
   updateBtn();
+
   darkToggle.addEventListener("click",()=>{
     document.body.classList.toggle("dark");
     updateBtn();
@@ -219,17 +67,314 @@ function initThemeToggle(){
   });
 }
 
+function initAboutPage() {
+
+  const originalParents = new Map();
+  let mounted = false;
+
+  function mountTools() {
+    if (mounted) return;
+    mounted = true;
+
+    $$(".about-tool-slot").forEach(slot => {
+      const toolId = slot.dataset.tool;
+      const toolEl = document.getElementById(toolId);
+
+      if (!toolEl) return;
+
+      if (!originalParents.has(toolId)) {
+        originalParents.set(toolId, toolEl.parentElement);
+      }
+
+      slot.appendChild(toolEl);
+      toolEl.style.display = "block";
+    });
+  }
+
+  function unmountTools() {
+    if (!mounted) return;
+    mounted = false;
+
+    originalParents.forEach((parent, toolId) => {
+      const toolEl = document.getElementById(toolId);
+      if (!toolEl) return;
+
+      parent.appendChild(toolEl);
+      toolEl.style.display = "none";
+    });
+  }
+
+  // Hook into tool switching
+  $("#toolList").addEventListener("click", (e) => {
+    const tool = e.target.dataset.tool;
+    if (!tool) return;
+
+    if (tool === "aboutPage") {
+      mountTools();
+    } else {
+      unmountTools();
+    }
+  });
+
+  // Handle FIRST LOAD (critical)
+  const activeTool = document.querySelector(".tool-list__item.active")?.dataset.tool;
+
+  if (activeTool === "aboutPage") {
+    mountTools();
+  }
+
+  // Jump buttons
+  $$(".jumpTool").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const tool = btn.dataset.tool;
+
+      unmountTools();
+
+      $$(".toolSection").forEach(s => s.style.display = "none");
+      document.getElementById(tool).style.display = "block";
+
+      $$(".tool-list__item").forEach(li => li.classList.remove("active"));
+      document.querySelector(`[data-tool="${tool}"]`).classList.add("active");
+    });
+  });
+}
+
 /* Sidebar drawer */
 const sidebar = $("#sidebar");
 const drawerOverlay = $("#drawerOverlay");
+
 $("#menuBtn").addEventListener("click",()=>{
   sidebar.classList.add("open");
   drawerOverlay.classList.add("open");
 });
+
 drawerOverlay.addEventListener("click",()=>{
   sidebar.classList.remove("open");
   drawerOverlay.classList.remove("open");
 });
+
+/* =============================================================
+   Color Text Generator (Refactored)
+   ============================================================= */
+const ColorTextTool = (() => {
+
+  const CONFIG = {
+    defaultColor: "#00ffffff",
+    pickr: {
+      theme: "classic",
+      components: {
+        preview: true,
+        opacity: false,
+        hue: true,
+        interaction: { hex: false, input: true, save: false }
+      }
+    }
+  };
+
+  const AppState = { dragging: null };
+  let touchDraggingRow = null;
+
+  let lineContainerEl, previewEl, formattedOutputEl, copyOutputBtnEl, templateEl;
+
+  const Preview = {
+    update() {
+      previewEl.innerHTML = "";
+
+      Lines.getRows().forEach(row => {
+        const text = row.textInput.value;
+        if (!text) return;
+
+        const span = document.createElement("span");
+        span.textContent = text;
+        span.style.color = row.dataset.color || CONFIG.defaultColor;
+
+        previewEl.appendChild(span);
+      });
+    },
+
+    updateFormatted() {
+      const formatted = Lines.getRows()
+        .map(r =>
+          r.textInput.value.trim()
+            ? `[${r.dataset.color}] ${r.textInput.value}`
+            : ""
+        )
+        .filter(Boolean)
+        .join("");
+
+      formattedOutputEl.textContent = formatted;
+    }
+  };
+
+  const Lines = {
+    getRows() {
+      return Array.from(lineContainerEl.querySelectorAll(".lineRow"));
+    },
+
+    add(text = "", color = CONFIG.defaultColor) {
+      const clone = templateEl.content.cloneNode(true);
+      const wrapper = clone.querySelector(".lineRow");
+
+      wrapper.dataset.color = color;
+
+      const textInput = wrapper.querySelector(".lineText");
+      const pickrButton = wrapper.querySelector(".pickrButton");
+      const removeBtn = wrapper.querySelector(".removeBtn");
+      const dragHandle = wrapper.querySelector(".dragHandle");
+
+      textInput.value = text;
+      wrapper.textInput = textInput;
+
+      textInput.addEventListener("input", render);
+
+      removeBtn.addEventListener("click", () => {
+        wrapper.remove();
+        render();
+      });
+
+      /* Drag (desktop) */
+      dragHandle.addEventListener("dragstart", (e) => {
+        wrapper.classList.add("dragging");
+        AppState.dragging = wrapper;
+        e.dataTransfer.setData("text/plain", "");
+        e.dataTransfer.effectAllowed = "move";
+      });
+
+      dragHandle.addEventListener("dragend", () => {
+        wrapper.classList.remove("dragging");
+        AppState.dragging = null;
+      });
+
+      /* Drag (touch) */
+      dragHandle.addEventListener("pointerdown", (e) => {
+        if (e.pointerType !== "touch") return;
+
+        e.preventDefault();
+        wrapper.classList.add("dragging");
+        touchDraggingRow = wrapper;
+
+        dragHandle.setPointerCapture(e.pointerId);
+      });
+
+      lineContainerEl.appendChild(wrapper);
+
+      const pickr = Pickr.create({
+        ...CONFIG.pickr,
+        el: pickrButton,
+        default: color
+      });
+
+      pickr.on("change", (c) => {
+        wrapper.dataset.color = c.toHEXA().toString();
+        pickr.applyColor();
+        render();
+      });
+
+      render();
+    },
+
+    reset() {
+      lineContainerEl.innerHTML = "";
+      this.add();
+    }
+  };
+
+  function initDragSort() {
+    lineContainerEl.addEventListener("dragover", (e) => {
+      e.preventDefault();
+
+      const dragging = AppState.dragging;
+      if (!dragging) return;
+
+      const rows = Lines.getRows().filter(r => r !== dragging);
+
+      const next = rows.find(r =>
+        e.clientY < r.getBoundingClientRect().top + r.getBoundingClientRect().height / 2
+      );
+
+      lineContainerEl.insertBefore(dragging, next || null);
+      render();
+    });
+
+    lineContainerEl.addEventListener("pointermove", (e) => {
+      if (!touchDraggingRow) return;
+
+      const rows = Lines.getRows().filter(r => r !== touchDraggingRow);
+
+      for (const row of rows) {
+        const rect = row.getBoundingClientRect();
+        if (e.clientY < rect.top + rect.height / 2) {
+          lineContainerEl.insertBefore(touchDraggingRow, row);
+          return;
+        }
+      }
+
+      lineContainerEl.appendChild(touchDraggingRow);
+    });
+
+    lineContainerEl.addEventListener("pointerup", () => {
+      if (!touchDraggingRow) return;
+
+      touchDraggingRow.classList.remove("dragging");
+      touchDraggingRow = null;
+      render();
+    });
+  }
+
+  function render() {
+    Preview.update();
+    Preview.updateFormatted();
+  }
+
+  function handleCopyOutput() {
+    navigator.clipboard.writeText(formattedOutputEl.textContent)
+      .then(() => showCopyStatus("Saved ✅", true))
+      .catch(() => showCopyStatus("Failed ❌", false));
+  }
+
+  function showCopyStatus(msg, ok = true) {
+    const prev = document.getElementById("copyStatus");
+    if (prev) prev.remove();
+
+    const span = document.createElement("span");
+    span.id = "copyStatus";
+    span.className = `copyStatus ${ok ? "copyStatus--ok" : "copyStatus--fail"}`;
+    span.textContent = msg;
+
+    copyOutputBtnEl.insertAdjacentElement("afterend", span);
+
+    setTimeout(() => {
+      span.style.opacity = "0";
+      setTimeout(() => span.remove(), 500);
+    }, 2000);
+  }
+
+  async function load() {
+    // Wait for Pickr
+    await new Promise(resolve => {
+      const check = () => window.Pickr ? resolve() : requestAnimationFrame(check);
+      check();
+    });
+
+    // Cache DOM
+    lineContainerEl = $("#lineContainer");
+    previewEl = $("#preview");
+    formattedOutputEl = $("#formattedOutput");
+    copyOutputBtnEl = $("#copyOutputBtn");
+    templateEl = $("#lineTemplate");
+
+    initDragSort();
+
+    $("#addLineBtn").addEventListener("click", () => Lines.add());
+    $("#resetBtn").addEventListener("click", () => Lines.reset());
+    copyOutputBtnEl.addEventListener("click", handleCopyOutput);
+
+    Lines.add();
+  }
+
+  return { load };
+
+})();
 
 /* =============================================================
    Move Checker
@@ -1638,27 +1783,17 @@ const PoryBackground = (() => {
 /* =============================================================
    Initialization
    ============================================================= */
-document.addEventListener("DOMContentLoaded", async ()=>{
-  await waitForPickr();
-  lineContainerEl=$("#lineContainer");
-  previewEl=$("#preview");
-  formattedOutputEl=$("#formattedOutput");
-  copyOutputBtnEl=$("#copyOutputBtn");
-  templateEl=$("#lineTemplate");
+document.addEventListener("DOMContentLoaded", async () => {
 
   initToolsSwitcher();
   initThemeToggle();
-  initDragSort();
-
-  $("#addLineBtn").addEventListener("click",()=>Lines.add());
-  $("#resetBtn").addEventListener("click",()=>Lines.reset());
-  copyOutputBtnEl.addEventListener("click",handleCopyOutput);
-
-  Lines.add();
+  initAboutPage()
 
   MoveChecker.load();
   EncounterTool.load();
   VideoFrameTool.init();
   PoryBackground.setup();
+  ColorTextTool.load();
+
   document.body.classList.add("pory-active");
 });
