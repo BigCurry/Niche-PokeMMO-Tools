@@ -28,6 +28,8 @@ function initToolsSwitcher() {
     const tool = e.target.dataset.tool;
     if (!tool) return;
 
+    document.dispatchEvent(new Event("about:unmount"));
+
     $$(".toolSection").forEach(s => s.style.display = "none");
     document.getElementById(tool).style.display = "block";
 
@@ -104,19 +106,20 @@ function initAboutPage() {
     });
   }
 
-  // Hook into tool switching
+  // 🔥 LISTEN FOR GLOBAL UNMOUNT SIGNAL
+  document.addEventListener("about:unmount", unmountTools);
+
+  // Sidebar clicks
   $("#toolList").addEventListener("click", (e) => {
     const tool = e.target.dataset.tool;
     if (!tool) return;
 
     if (tool === "aboutPage") {
       mountTools();
-    } else {
-      unmountTools();
     }
   });
 
-  // Handle FIRST LOAD (critical)
+  // First load
   const activeTool = document.querySelector(".tool-list__item.active")?.dataset.tool;
 
   if (activeTool === "aboutPage") {
