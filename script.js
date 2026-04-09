@@ -21,6 +21,60 @@ document.addEventListener("click", (e) => {
 });
 
 /* =============================================================
+   Tool URLs
+   ============================================================= */
+
+const toolRoutes = {
+  aboutPage: "about",
+  encounterTool: "encounter-data",
+  colorTextTool: "color-text",
+  moveChecker: "move-checker",
+  videoFrameTool: "frame-extractor",
+  poryBackground: "background",
+  pokedexTool: "dex"
+};
+
+// reverse map
+const routeToTool = Object.fromEntries(
+  Object.entries(toolRoutes).map(([k, v]) => [v, k])
+);
+
+function getRoute() {
+  const hash = window.location.hash.replace("#", "");
+  const path = window.location.pathname;
+
+  // prefer hash if present (better for GitHub Pages / static hosting)
+  const raw = hash || path;
+
+  const parts = raw.split("/").filter(Boolean);
+
+  // supports:
+  // /tools/encounter-data
+  // encounter-data
+  // #/tools/encounter-data
+  const last = parts[parts.length - 1];
+
+  return last || "about";
+}
+
+function navigateToTool(toolId, push = true) {
+  const route = toolRoutes[toolId] || "about";
+
+  if (push) {
+    window.location.hash = `/tools/${route}`;
+  }
+
+  showTool(toolId);
+}
+
+function initRouter() {
+  const route = getRoute();
+  const tool = routeToTool[route] || "aboutPage";
+
+  showTool(tool);
+}
+
+/* =============================================================
    Other Globals
    ============================================================= */
 function initToolsSwitcher() {
@@ -28,26 +82,42 @@ function initToolsSwitcher() {
     const tool = e.target.dataset.tool;
     if (!tool) return;
 
-    document.dispatchEvent(new Event("about:unmount"));
-
-    $$(".toolSection").forEach(s => s.style.display = "none");
-    document.getElementById(tool).style.display = "block";
-
-    $$(".tool-list__item").forEach(li => li.classList.remove("active"));
-    e.target.classList.add("active");
-
-    const bgSections = ["encounterTool", "colorTextTool", "poryBackground", "moveChecker", "videoFrameTool", "aboutPage"];
-
-    if (bgSections.includes(tool)) {
-      PoryBackground.show();
-      document.body.classList.add("pory-active");
-    } else {
-      PoryBackground.hide();
-      document.body.classList.remove("pory-active");
-    }
-
-    document.body.classList.toggle("pory-full", tool === "poryBackground");
+    navigateToTool(tool);
   });
+
+  window.addEventListener("popstate", () => {
+    const route = getRoute();
+    const tool = routeToTool[route] || "aboutPage";
+    showTool(tool);
+  });
+
+  window.addEventListener("hashchange", () => {
+    const route = getRoute();
+    const tool = routeToTool[route] || "aboutPage";
+    showTool(tool);
+  });
+}
+
+function showTool(tool) {
+  document.dispatchEvent(new Event("about:unmount"));
+
+  $$(".toolSection").forEach(s => s.style.display = "none");
+  document.getElementById(tool).style.display = "block";
+
+  $$(".tool-list__item").forEach(li => li.classList.remove("active"));
+  document.querySelector(`[data-tool="${tool}"]`)?.classList.add("active");
+
+  const bgSections = ["encounterTool", "colorTextTool", "poryBackground", "moveChecker", "videoFrameTool", "aboutPage", "pokedexTool"];
+
+  if (bgSections.includes(tool)) {
+    PoryBackground.show();
+    document.body.classList.add("pory-active");
+  } else {
+    PoryBackground.hide();
+    document.body.classList.remove("pory-active");
+  }
+
+  document.body.classList.toggle("pory-full", tool === "poryBackground");
 }
 
 function initThemeToggle(){
@@ -1506,6 +1576,9 @@ const PoryBackground = (() => {
   const frequencyOfImages = 0.05;
   const MAX_DIMENSIONS = 2000;
   const GLOW_COUNT = 10;
+  const PoryImages = [];
+  const IMAGE_PATH = "scrolling bg art/";
+  const IMAGE_COUNT = 8;
 
   const LAYERS = [
     { color: "#00e5ff", speedMultiplier: 2, sizeMultiplier: 1.5 },
@@ -1521,21 +1594,38 @@ const PoryBackground = (() => {
     layer.cachedFont = `${12 * layer.sizeMultiplier}px monospace`;
   });   
 
-  const PoryImages = [];
-  const IMAGE_PATH = "scrolling bg art/";
-
   async function loadPoryImages() {
     if (PoryImages.length) return;
-    return new Promise(resolve => {
-      let index = 1;
-      function tryLoadNext() {
-        const img = new Image();
-        img.src = `${IMAGE_PATH}art${index}.png`;
-        img.onload = () => { PoryImages.push(img); index++; tryLoadNext(); };
-        img.onerror = () => resolve();
-      }
-      tryLoadNext();
-    });
+
+    const promises = [];
+    let index = 1;
+    let loading = true
+
+    while (true) {
+      const src = `${IMAGE_PATH}art${index}.png`;
+
+      const img = new Image();
+
+      const p = new Promise((resolve) => {
+        img.onload = () => resolve({ success: true, img });
+        img.onerror = () => resolve({ success: false });
+      });
+
+      img.src = src;
+      promises.push(p);
+
+      index++;
+
+      // Stop condition (IMPORTANT)
+      if (index >= IMAGE_COUNT) break; // set a max OR track via manifest
+    }
+
+    console.log(index);
+    const results = await Promise.all(promises);
+
+    for (const r of results) {
+      if (r.success) PoryImages.push(r.img);
+    }
   }
 
   class Particle {
@@ -1783,12 +1873,1567 @@ const PoryBackground = (() => {
   return { setup, show, hide, updateBgColor };
 
 })();
+
+/* =============================================================
+   Pokedex Tool
+   ============================================================= */
+const PokedexTool = (() => {
+
+  /* =============================================================
+     STATE
+  ============================================================= */
+
+  let data = [];
+  let compat = [];
+  let filtered = [];
+
+  let grid, modal, modalBody;
+
+  let searchInput;
+  let ALL_MOVES = [];
+  let ALL_ABILITIES = [];
+  let ALL_LOCATIONS = [];
+  let ALL_POKEMON = [];
+  let LOCATION_DATA = [];
+
+  let viewport; // top of initMapControls scope
+  /* =============================================================
+     const
+  ============================================================= */
+
+const filters = {
+  types: [],
+  eggGroups: [],
+  ability: "",
+  moves: ["", "", "", ""],
+  location: "",
+  stats: {
+    hp: 0,
+    attack: 0,
+    defense: 0,
+    sp_attack: 0,
+    sp_defense: 0,
+    speed: 0
+  },
+  lockedStats: new Set()
+};
+
+  /* =============================================================
+     INIT
+  ============================================================= */
+
+  async function load() {
+    cacheDOM();
+    await loadData();
+    preprocessData();
+    buildAutocompletePools();
+    initAdvancedFilters();
+    initMapControls()
+    bindEvents();
+    preloadImages();
+    applyFilters();
+  }
+
+  function cacheDOM() {
+    grid = $("#pokedexGrid");
+    modal = $("#pokedexModal");
+    modalBody = $("#modalBody");
+    searchInput = $("#pokedexSearch");
+  }
+
+  async function loadData() {
+    const [monRes, compatRes, locRes] = await Promise.all([
+      fetch("./monsters.json"),
+      fetch("./dex_compatibility.json"),
+      fetch("./locations.json") // ✅ NEW
+    ]);
+
+    data = await monRes.json();
+    compat = await compatRes.json();
+    LOCATION_DATA = await locRes.json(); // ✅ NEW
+  }
+
+
+  /* =============================================================
+     EVENTS
+  ============================================================= */
+
+  function bindEvents() {
+    searchInput.addEventListener("input", applyFilters);
+
+    $("#toggleFilters").onclick = () => {
+      $("#dexfiltersPanel").classList.toggle("collapsed");
+    };
+
+    $("#closeModal").onclick = closeModal;
+
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  /* =============================================================
+     FILTERING + GRID
+  ============================================================= */
+
+  function applyFilters() {
+    const q = searchInput.value.toLowerCase();
+    const showForms = $("#showFormsToggle")?.checked;
+
+    filtered = data.filter(mon => {
+      if (q && !mon.name.toLowerCase().includes(q)) return false;
+
+      if (!matchTypes(mon)) return false;
+      if (!matchEgg(mon)) return false;
+      if (!matchAbility(mon)) return false;
+      if (!matchMoves(mon)) return false;
+      if (!matchLocation(mon)) return false;
+      if (!matchStats(mon)) return false;
+
+      return true;
+    });
+
+    renderGrid();
+  }
+
+  function matchTypes(mon) {
+    if (!filters.types.length) return true;
+
+    return filters.types.every(t => mon.types?.includes(t));
+  }
+
+function matchLocation(mon) {
+  if (!filters.location) return true;
+
+  return mon._locations.some(loc =>
+    loc === filters.location ||
+    loc.includes(filters.location)
+  );
+}
+
+function matchEgg(mon) {
+  if (!filters.eggGroups.length) return true;
+
+  return filters.eggGroups.some(e => mon.egg_groups?.includes(e));
+}
+
+function matchAbility(mon) {
+  if (!filters.ability) return true;
+
+  return [...mon._abilities].some(a =>
+    a.toLowerCase().includes(filters.ability)
+  );
+}
+
+function matchStats(mon) {
+  const stats = mon.stats || {};
+  const bst = Object.values(stats).reduce((a,b)=>a+b,0);
+
+  return Object.entries(filters.stats).every(([k, min]) => {
+    if (!min) return true;
+
+    if (k === "bst") return bst >= min;
+    return (stats[k] || 0) >= min;
+  });
+}
+
+function matchMoves(mon) {
+  const activeMoves = filters.moves.filter(Boolean);
+  if (!activeMoves.length) return true;
+
+  return activeMoves.every(m =>
+    [...mon._moveSet].some(move => move.includes(m))
+  );
+}
+
+function preprocessData() {
+  data.forEach(mon => {
+    mon._moveSet = new Set((mon.moves || []).map(m => m.name.toLowerCase()));
+    mon._abilities = new Set((mon.abilities || []).map(a => a.name));
+    mon._locations = (mon.locations || []).map(l => l.location.toLowerCase());
+  });
+}
+
+function initAdvancedFilters() {
+  buildTypePills();
+  buildEggPills();
+  buildMoveInputs();
+  buildAbilityAutocomplete();
+  buildMapRegions()
+  buildLocationFilter();
+  buildStatSliders();
+  enhancePokemonSearch();
+}
+
+function buildTypePills() {
+  const container = $("#typePills");
+  const types = [...new Set(data.flatMap(m => m.types || []))].sort();
+
+  container.innerHTML = types.map(t => `
+    <div class="pill pill-type-${t.toLowerCase()}" data-type="${t}">
+      ${t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()}
+    </div>
+  `).join("");
+
+  container.querySelectorAll(".pill").forEach(pill => {
+    pill.onclick = () => {
+      const type = pill.dataset.type;
+
+      if (filters.types.includes(type)) {
+        filters.types = filters.types.filter(t => t !== type);
+        pill.classList.remove("active");
+      } else {
+        if (filters.types.length >= 2) return;
+        filters.types.push(type);
+        pill.classList.add("active");
+      }
+
+      applyFilters();
+    };
+  });
+}
+
+function buildEggPills() {
+  const container = $("#eggPills");
+  const eggs = [...new Set(data.flatMap(m => m.egg_groups || []))].sort();
+
+  container.innerHTML = eggs.map(e => `
+    <div class="pill egg-group-pill-color" data-egg="${e}">${e.replace(/\b\w/g, c => c.toUpperCase())}</div>
+  `).join("");
+
+  container.querySelectorAll(".pill").forEach(pill => {
+    pill.onclick = () => {
+      const egg = pill.dataset.egg;
+
+      if (filters.eggGroups.includes(egg)) {
+        filters.eggGroups = filters.eggGroups.filter(e => e !== egg);
+        pill.classList.remove("active");
+      } else {
+        if (filters.eggGroups.length >= 2) return;
+        filters.eggGroups.push(egg);
+        pill.classList.add("active");
+      }
+
+      applyFilters();
+    };
+  });
+}
+
+function buildMoveInputs() {
+  const inputs = document.querySelectorAll("dex-input");
+
+  inputs.forEach(input => {
+    const slot = Number(input.dataset.slot);
+
+    attachAutocomplete(input, ALL_MOVES, (value) => {
+      filters.moves[slot] = value.toLowerCase();
+      applyFilters();
+    });
+
+    input.addEventListener("input", () => {
+      filters.moves[slot] = input.value.toLowerCase();
+      applyFilters();
+    });
+  });
+}
+
+function buildAbilityAutocomplete() {
+  const input = $("#filterAbility");
+
+  attachAutocomplete(input, ALL_ABILITIES, (value) => {
+    filters.ability = value.toLowerCase();
+    applyFilters();
+  });
+
+  input.addEventListener("input", () => {
+    filters.ability = input.value.toLowerCase();
+    applyFilters();
+  });
+}
+
+function buildLocationFilter() {
+  const input = $("#filterLocation");
+  const dropdown = $("#locationDropdown");
+  /* ---------------------------
+     AUTOCOMPLETE DROPDOWN
+  --------------------------- */
+  input.addEventListener("input", () => {
+    const q = input.value.toLowerCase();
+
+    const matches = LOCATION_DATA.filter(l =>
+      l.name.toLowerCase().includes(q)
+    ).slice(0, 10);
+
+    dropdown.innerHTML = matches.map(l => `
+      <div class="dropdown-item" data-name="${l.name}">
+        ${l.name}
+      </div>
+    `).join("");
+
+    dropdown.classList.toggle("hidden", !matches.length);
+  });
+
+  dropdown.addEventListener("click", (e) => {
+    const item = e.target.closest(".dropdown-item");
+    if (!item) return;
+
+    const name = item.dataset.name;
+    selectLocation(name);
+    dropdown.classList.add("hidden");
+  });
+
+}
+
+function selectLocation(name) {
+    const loc = LOCATION_DATA.find(l => l.name === name);
+    if (!loc) return;
+
+    $("#filterLocation").value = name;
+    filters.location = name.toLowerCase();
+
+    placePinFromRegion(loc); // ✅ SVG-aware
+
+    applyFilters();
+  }
+
+function buildMapRegions() {
+  const container = document.getElementById("mapRegions");
+  container.innerHTML = "";
+
+  LOCATION_DATA.forEach(loc => {
+    let el;
+
+    if (loc.shape === "polygon") {
+      el = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+      el.setAttribute("points", loc.points);
+    }
+
+    el.classList.add("map-region");
+    el.dataset.name = loc.name;
+
+    el.addEventListener("click", () => {
+      selectLocation(loc.name);
+    });
+
+    container.appendChild(el);
+  });
+}
+
+function initMapControls() {
+  const svg = document.getElementById("mapSvg");
+  viewport = document.getElementById("mapViewport");
+
+  let scale = 1;
+  let x = 0;
+  let y = 0;
+  let isDragging = false;
+  let startX, startY;
+
+  let lastDist = 0;
+  let lastMid = null;
+
+  function update() {
+    ({ x, y } = clamp(x, y, scale));
+    svg.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+    svg.style.transformOrigin = "0 0";
+  }
+
+  /* ZOOM */
+  viewport.addEventListener("wheel", (e) => {
+    e.preventDefault();
+
+    const zoomIntensity = 0.1;
+    const delta = e.deltaY < 0 ? 1 : -1;
+
+    const rect = viewport.getBoundingClientRect();
+
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    const oldScale = scale;
+    const newScale = Math.max(1, Math.min(4, scale + delta * zoomIntensity));
+
+    // world position BEFORE zoom
+    const worldX = (mx - x) / oldScale;
+    const worldY = (my - y) / oldScale;
+
+    // apply zoom
+    scale = newScale;
+
+    // compute new pan
+    let newX = mx - worldX * scale;
+    let newY = my - worldY * scale;
+
+    // 🔥 ALWAYS clamp AFTER computing new position
+    ({ x: newX, y: newY } = clamp(newX, newY, scale));
+
+    x = newX;
+    y = newY;
+
+    update();
+  });
+
+  /* PAN */
+  viewport.addEventListener("mousedown", (e) => {
+    isDragging = true;
+    startX = e.clientX - x;
+    startY = e.clientY - y;
+    viewport.style.cursor = "grabbing";
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (!isDragging) return;
+
+    x = e.clientX - startX;
+    y = e.clientY - startY;
+
+    update();
+  });
+
+  window.addEventListener("mouseup", () => {
+    isDragging = false;
+    viewport.style.cursor = "grab";
+  });
+
+  viewport.addEventListener("touchstart", (e) => {
+    if (e.touches.length === 2) {
+      lastDist = getTouchDistance(e);
+      lastMid = getTouchMidpoint(e);
+    }
+  }, { passive: false });
+
+  viewport.addEventListener("touchmove", (e) => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+
+      const newDist = getTouchDistance(e);
+      const newMid = getTouchMidpoint(e);
+
+      const zoomFactor = newDist / lastDist;
+      const newScale = Math.max(1, Math.min(4, scale * zoomFactor));
+
+      const rect = viewport.getBoundingClientRect();
+      const mx = newMid.x - rect.left;
+      const my = newMid.y - rect.top;
+
+      const worldX = (mx - x) / scale;
+      const worldY = (my - y) / scale;
+
+      lastDist = newDist;
+      lastMid = newMid;
+
+      scale = newScale;
+
+      let newX = mx - worldX * scale;
+      let newY = my - worldY * scale;
+
+      ({ x: newX, y: newY } = clamp(newX, newY, scale));
+
+      x = newX;
+      y = newY;
+
+      update();
+    }
+  }, { passive: false });
+
+  viewport.addEventListener("touchend", () => {
+    lastDist = 0;
+    lastMid = null;
+  });
+
+  initMapDevTools()
+}
+
+  function getTouchDistance(e) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    return Math.hypot(dx, dy);
+  }
+
+  function getTouchMidpoint(e) {
+    return {
+      x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+      y: (e.touches[0].clientY + e.touches[1].clientY) / 2
+    };
+  }
+function clamp(x, y, scale) {
+  const rect = viewport.getBoundingClientRect();
+
+  // ✅ CONSTANT world size (from viewBox)
+  const worldWidth = 1662;
+  const worldHeight = 1174;
+
+  // ✅ Convert SVG units → screen pixels ONCE
+  const baseScaleX = rect.width / worldWidth;
+  const baseScaleY = rect.height / worldHeight;
+
+  // since preserveAspectRatio="none", both scale independently
+  const scaledWidth = worldWidth * baseScaleX * scale;
+  const scaledHeight = worldHeight * baseScaleY * scale;
+
+  let minX, maxX, minY, maxY;
+
+  // X axis
+  if (scaledWidth <= rect.width) {
+    minX = maxX = (rect.width - scaledWidth) / 2;
+  } else {
+    minX = rect.width - scaledWidth;
+    maxX = 0;
+  }
+
+  // Y axis
+  if (scaledHeight <= rect.height) {
+    minY = maxY = (rect.height - scaledHeight) / 2;
+  } else {
+    minY = rect.height - scaledHeight;
+    maxY = 0;
+  }
+
+  return {
+    x: Math.min(maxX, Math.max(minX, x)),
+    y: Math.min(maxY, Math.max(minY, y))
+  };
+}
+
+function placePinFromRegion(loc) {
+  const points = loc.points.split(" ").map(p => p.split(",").map(Number));
+
+  // simple centroid
+  const cx = points.reduce((sum, p) => sum + p[0], 0) / points.length;
+  const cy = points.reduce((sum, p) => sum + p[1], 0) / points.length;
+
+  const pin = document.getElementById("mapPin");
+  pin.setAttribute("cx", cx);
+  pin.setAttribute("cy", cy);
+  pin.classList.remove("hidden");
+}
+
+function initMapDevTools() {
+  const svg = document.getElementById("mapSvg");
+
+  let devMode = false;
+  let drawing = false;
+  let currentPoints = [];
+
+  let polygons = [...LOCATION_DATA]; // preload existing
+
+  /* -------------------------
+     UI: COPY BUTTON
+  ------------------------- */
+  const copyBtn = document.createElement("button");
+  copyBtn.textContent = "Copy JSON";
+  Object.assign(copyBtn.style, {
+    position: "fixed",
+    bottom: "20px",
+    right: "20px",
+    zIndex: 9999,
+    padding: "8px 12px",
+    background: "#00c8ff",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
+    display: "none"
+  });
+
+  document.body.appendChild(copyBtn);
+
+  copyBtn.onclick = () => {
+    const json = JSON.stringify(polygons, null, 2);
+    navigator.clipboard.writeText(json);
+    copyBtn.textContent = "Copied!";
+    setTimeout(() => copyBtn.textContent = "Copy JSON", 1000);
+  };
+
+  /* -------------------------
+     KEY CONTROLS
+  ------------------------- */
+  window.addEventListener("keydown", (e) => {
+    if (e.key.toLowerCase() === "d") {
+      devMode = !devMode;
+      copyBtn.style.display = devMode ? "block" : "none";
+      console.log("DEV MODE:", devMode);
+    }
+
+    if (!devMode) return;
+
+    if (e.key.toLowerCase() === "p") {
+      if (!drawing) {
+        // START DRAWING
+        drawing = true;
+        currentPoints = [];
+        console.log("Polygon start");
+      } else {
+        // FINISH DRAWING
+        drawing = false;
+        openPolygonForm(currentPoints);
+      }
+    }
+  });
+
+  /* -------------------------
+     CLICK HANDLER
+  ------------------------- */
+  svg.addEventListener("click", (e) => {
+    if (!devMode || !drawing) return;
+
+    const pt = getSVGPoint(svg, e.clientX, e.clientY);
+
+    currentPoints.push([pt.x, pt.y]);
+
+    drawTempPoint(pt);
+    drawTempPolygon(currentPoints);
+  });
+
+  /* -------------------------
+     SVG POINT CONVERSION
+  ------------------------- */
+  function getSVGPoint(svg, clientX, clientY) {
+    const pt = svg.createSVGPoint();
+    pt.x = clientX;
+    pt.y = clientY;
+
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+
+  /* -------------------------
+     TEMP DRAWING
+  ------------------------- */
+  let tempPoly = null;
+
+  function drawTempPoint(pt) {
+    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    c.setAttribute("cx", pt.x);
+    c.setAttribute("cy", pt.y);
+    c.setAttribute("r", 4);
+    c.setAttribute("fill", "red");
+    svg.appendChild(c);
+  }
+
+  function drawTempPolygon(points) {
+    if (tempPoly) tempPoly.remove();
+
+    tempPoly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    tempPoly.setAttribute(
+      "points",
+      points.map(p => p.join(",")).join(" ")
+    );
+    tempPoly.setAttribute("fill", "rgba(255,0,0,0.2)");
+    tempPoly.setAttribute("stroke", "red");
+
+    svg.appendChild(tempPoly);
+  }
+
+  /* -------------------------
+     FORM UI
+  ------------------------- */
+  function openPolygonForm(points) {
+    const modal = document.createElement("div");
+
+    Object.assign(modal.style, {
+      position: "fixed",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      background: "#222",
+      padding: "20px",
+      zIndex: 10000,
+      borderRadius: "10px"
+    });
+
+    modal.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <input id="polyName" placeholder="Location name">
+        <input id="polyRegion" placeholder="Region">
+        <button id="savePoly">Save</button>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    modal.querySelector("#savePoly").onclick = () => {
+      const name = modal.querySelector("#polyName").value;
+      const region = modal.querySelector("#polyRegion").value;
+
+      const polygon = {
+        name,
+        region,
+        shape: "polygon",
+        points: points.map(p => p.join(",")).join(" ")
+      };
+
+      polygons.push(polygon);
+
+      console.log("Saved:", polygon);
+
+      modal.remove();
+      clearTemp();
+    };
+  }
+
+  function clearTemp() {
+    currentPoints = [];
+    if (tempPoly) tempPoly.remove();
+  }
+}
+
+const STAT_KEYS = ["hp","attack","defense","sp_attack","sp_defense","speed"];
+
+
+function buildStatSliders() {
+  const container = $("#statFilters");
+
+  container.innerHTML = `
+    <div class="stat-wrapper">
+
+      <div class="stat-grid">
+        ${STAT_KEYS.map(stat => `
+          <div class="stat-filter">
+            <span>${stat.toUpperCase()}</span>
+
+            <input type="range" min="0" max="${MAX_STATS[stat]}" value="0" data-stat="${stat}">
+            <input type="number" min="0" max="${MAX_STATS[stat]}" value="0" data-stat="${stat}">
+          </div>
+        `).join("")}
+      </div>
+
+      <div class="lock-column">
+        ${STAT_KEYS.map(stat => `
+          <button class="btn lock-btn" data-stat="${stat}">
+            🔓
+          </button>
+        `).join("")}
+      </div>
+
+    </div>
+  `;
+
+  container.querySelectorAll("input").forEach(i =>
+    i.addEventListener("input", onStatInput)
+  );
+
+  container.querySelectorAll(".lock-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const stat = btn.dataset.stat;
+
+      if (filters.lockedStats.has(stat)) {
+        filters.lockedStats.delete(stat);
+        btn.textContent = "🔓";
+      } else {
+        filters.lockedStats.add(stat);
+        btn.textContent = "🔒";
+      }
+    });
+  });
+}
+
+function onStatInput(e) {
+  const stat = e.target.dataset.stat;
+  let value = Number(e.target.value);
+
+  if (filters.lockedStats.has(stat)) return;
+
+  filters.stats[stat] = value;
+
+  normalizeStats(stat);
+
+  syncInputs();
+  applyFilters();
+}
+
+function getBST(stats) {
+  return STAT_KEYS.reduce((sum, k) => sum + (stats[k] || 0), 0);
+}
+
+function normalizeStats(changedStat = null) {
+  const stats = filters.stats;
+
+  const keys = STAT_KEYS.filter(k => !filters.lockedStats.has(k));
+
+  // locked stats are frozen
+  const lockedTotal = STAT_KEYS
+    .filter(k => filters.lockedStats.has(k))
+    .reduce((s, k) => s + stats[k], 0);
+
+  let freeTotal = keys.reduce((s, k) => s + stats[k], 0);
+
+  let maxFree = MAX_BST - lockedTotal;
+
+  // if over budget → reduce evenly
+  if (freeTotal > maxFree) {
+    let overflow = freeTotal - maxFree;
+
+    while (overflow > 0) {
+      for (const k of keys) {
+        if (overflow === 0) break;
+
+        if (stats[k] > 0) {
+          stats[k]--;
+          overflow--;
+        }
+      }
+    }
+  }
+
+  // enforce per-stat caps
+  for (const k of STAT_KEYS) {
+    stats[k] = Math.max(0, Math.min(MAX_STATS[k], stats[k]));
+  }
+}
+
+function syncInputs() {
+  document.querySelectorAll(".stat-filter input").forEach(input => {
+    const stat = input.dataset.stat;
+    input.value = filters.stats[stat];
+  });
+}
+
+filters.lockedStats = new Set();
+
+function toggleLock(stat) {
+  if (filters.lockedStats.has(stat)) {
+    filters.lockedStats.delete(stat);
+  } else {
+    filters.lockedStats.add(stat);
+  }
+}
+
+function buildAutocompletePools() {
+  const moves = new Set();
+  const abilities = new Set();
+  const locations = new Set();
+  const pokemon = new Set();
+
+  data.forEach(mon => {
+    pokemon.add(mon.name);
+
+    (mon.moves || []).forEach(m => moves.add(m.name));
+    (mon.abilities || []).forEach(a => abilities.add(a.name));
+    (mon.locations || []).forEach(l => locations.add(l.location));
+  });
+
+  ALL_MOVES = [...moves].sort();
+  ALL_ABILITIES = [...abilities].sort();
+  ALL_LOCATIONS = [...locations].sort();
+  ALL_POKEMON = [...pokemon].sort();
+}
+
+function attachAutocomplete(input, dataList, onSelect) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "autocomplete-wrapper";
+
+  input.parentNode.insertBefore(wrapper, input);
+  wrapper.appendChild(input);
+
+  const dropdown = document.createElement("div");
+  dropdown.className = "autocomplete-dropdown hidden";
+  wrapper.appendChild(dropdown);
+
+  let currentFocus = -1;
+
+  input.addEventListener("input", () => {
+    const val = input.value.toLowerCase();
+
+    dropdown.innerHTML = "";
+    currentFocus = -1;
+
+    if (!val) {
+      dropdown.classList.add("hidden");
+      return;
+    }
+
+    const matches = dataList
+      .filter(item => item.toLowerCase().includes(val))
+      .slice(0, 50);
+
+    if (!matches.length) {
+      dropdown.classList.add("hidden");
+      return;
+    }
+
+    matches.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "autocomplete-item";
+      div.textContent = item;
+
+      div.onclick = () => {
+        input.value = item;
+        dropdown.classList.add("hidden");
+        onSelect(item);
+      };
+
+      dropdown.appendChild(div);
+    });
+
+    dropdown.classList.remove("hidden");
+  });
+
+  input.addEventListener("keydown", (e) => {
+    const items = dropdown.querySelectorAll(".autocomplete-item");
+
+    if (e.key === "ArrowDown") {
+      currentFocus++;
+      highlight(items);
+    } else if (e.key === "ArrowUp") {
+      currentFocus--;
+      highlight(items);
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (items[currentFocus]) items[currentFocus].click();
+    }
+  });
+
+  function highlight(items) {
+    items.forEach(i => i.classList.remove("active"));
+
+    if (currentFocus >= items.length) currentFocus = 0;
+    if (currentFocus < 0) currentFocus = items.length - 1;
+
+    if (items[currentFocus]) {
+      items[currentFocus].classList.add("active");
+    }
+  }
+
+  document.addEventListener("click", (e) => {
+    if (!wrapper.contains(e.target)) {
+      dropdown.classList.add("hidden");
+    }
+  });
+}
+
+function enhancePokemonSearch() {
+  attachAutocomplete(searchInput, ALL_POKEMON, (value) => {
+    searchInput.value = value;
+    applyFilters();
+  });
+}
+
+  function renderGrid() {
+    grid.innerHTML = "";
+    const frag = document.createDocumentFragment();
+
+    filtered.forEach(mon => {
+      const card = createCard(mon);
+      frag.appendChild(card);
+    });
+
+    grid.appendChild(frag);
+  }
+
+  function createCard(mon) {
+    const card = document.createElement("div");
+    card.className = "poke-card";
+
+    const id = String(mon.id).padStart(3, "0");
+
+    card.innerHTML = `
+      <img src="pory pokedex images/pokedex_webp/Pokedex_${id}.webp">
+      <div class="sr-only">${mon.name}</div>
+    `;
+
+    const img = card.querySelector("img");
+    applyImageFallback(img, mon.id, id);
+
+    card.onclick = () => openModal(card, mon);
+    return card;
+  }
+
+
+  /* =============================================================
+     IMAGE HANDLING
+  ============================================================= */
+
+  function applyImageFallback(img, monId, paddedId) {
+    img.onerror = function () {
+      if (!this.dataset.fallback) {
+        this.dataset.fallback = 1;
+        this.src = `pory pokedex images/pokedex_png/Pokedex_${paddedId}.png`;
+      } else if (this.dataset.fallback == 1) {
+        this.dataset.fallback = 2;
+        this.src = `sprites/pokemon/${monId}.png`;
+      } else if (this.dataset.fallback == 2) {
+        this.dataset.fallback = 3;
+        this.src = `pory pokedex images/pokedex_png/Pokedex_000.png`;
+      } else {
+        this.onerror = null;
+      }
+    };
+  }
+
+
+  /* =============================================================
+     MODAL
+  ============================================================= */
+
+  function openModal(card, mon) {
+    animateCardToModal(card);
+    setTimeout(() => showModal(mon), 250);
+  }
+
+  function animateCardToModal(card) {
+    const rect = card.getBoundingClientRect();
+    const clone = card.cloneNode(true);
+
+    Object.assign(clone.style, {
+      position: "fixed",
+      left: rect.left + "px",
+      top: rect.top + "px",
+      width: rect.width + "px",
+      height: rect.height + "px",
+      zIndex: 1000
+    });
+
+    document.body.appendChild(clone);
+
+    requestAnimationFrame(() => {
+      clone.style.transition = "all 0.5s ease";
+      clone.style.left = "50%";
+      clone.style.top = "50%";
+      clone.style.transform = "translate(-50%, -50%) scale(3)";
+      clone.style.opacity = "0";
+    });
+
+    setTimeout(() => clone.remove(), 250);
+  }
+
+  function showModal(mon) {
+    modal.classList.remove("hidden");
+    modalBody.innerHTML = buildModal(mon);
+
+    initTabs();
+    initFormsDropdown(mon);
+    bindEvolutionClicks();
+  }
+
+  function closeModal() {
+    modal.classList.add("hidden");
+  }
+
+  function switchForm(id) {
+    const mon = data.find(m => m.id === id);
+    if (!mon) return;
+
+    updateModal(mon);
+  }
+
+  function updateModal(mon) {
+    updateHeader(mon);
+    updateImage(mon);
+    updateSections(mon);
+    bindEvolutionClicks();
+  }
+
+
+  /* =============================================================
+     MODAL BUILDERS
+  ============================================================= */
+
+  function buildModal(mon) {
+    const hasForms = mon.forms?.length > 1;
+
+    return `
+      <div class="pokedex-layout">
+
+        ${buildLeftPanel(mon, hasForms)}
+        ${buildRightPanel(mon)}
+
+      </div>
+    `;
+  }
+
+  function buildLeftPanel(mon, hasForms) {
+    return `
+      <div class="pokedex-left">
+
+        <div class="pokedex-header">
+          <div id="pokedexName" class="pokedex-name">
+            ${mon.name} ${hasForms ? "▼" : ""}
+          </div>
+          <div id="formsDropdown" class="forms-grid hidden"></div>
+        </div>
+
+        <img id="mainImage"
+          class="pokedex-modal-image-main"
+          src="${getAnimatedSprite(mon.id)}"
+          onerror="this.src='sprites/pokemon/0.png'">
+
+        <div id="stats">
+          ${buildStats(mon)}
+        </div>
+
+      </div>
+    `;
+  }
+
+  function buildRightPanel(mon) {
+    return `
+      <div class="pokedex-right">
+
+        <div class="tabs">
+          <div class="tab active" data-tab="summary">Summary</div>
+          <div class="tab" data-tab="evolutions">Evolutions</div>
+          <div class="tab" data-tab="moves">Moves</div>
+          <div class="tab" data-tab="locations">Locations</div>
+        </div>
+
+        <div id="summary" class="tab-content active">
+          ${buildSummary(mon)}
+        </div>
+
+        <div class="tab-content" id="evolutions">
+          ${buildEvolutions(mon)}
+        </div>
+
+        <div id="moves" class="tab-content">
+          ${buildMoves(mon)}
+        </div>
+
+        <div id="locations" class="tab-content">
+          ${buildLocations(mon)}
+        </div>
+
+      </div>
+    `;
+  }
+
+  /* =============================================================
+    TABS
+  ============================================================= */
+
+  function initTabs() {
+    const tabs = $$(".tab");
+    const contents = $$(".tab-content");
+
+    tabs.forEach(tab => {
+      tab.onclick = () => {
+        // remove active states
+        tabs.forEach(t => t.classList.remove("active"));
+        contents.forEach(c => c.classList.remove("active"));
+
+        // activate clicked tab
+        tab.classList.add("active");
+
+        const target = document.getElementById(tab.dataset.tab);
+        if (target) target.classList.add("active");
+      };
+    });
+  }
+
+  /* =============================================================
+     MODAL UPDATES
+  ============================================================= */
+
+  function updateHeader(mon) {
+    const el = $("#pokedexName");
+    const hasForms = mon.forms?.length > 1;
+    el.textContent = mon.name + (hasForms ? " ▼" : "");
+  }
+
+  function updateImage(mon) {
+    const img = $("#mainImage");
+    img.src = getAnimatedSprite(mon.id);
+    img.onerror = () => img.src = `sprites/pokemon/${mon.id}.png`;
+  }
+
+  function updateSections(mon) {
+    $("#stats").innerHTML = buildStats(mon);
+    $("#summary").innerHTML = buildSummary(mon);
+    $("#moves").innerHTML = buildMoves(mon);
+    $("#locations").innerHTML = buildLocations(mon);
+    $("#evolutions").innerHTML = buildEvolutions(mon);
+    bindEvolutionClicks();
+  }
+
+
+  /* =============================================================
+     DATA HELPERS
+  ============================================================= */
+
+  function getPokeApiId(id) {
+    return compat[id - 1]?.PokeAPI_id || id;
+  }
+
+  function getAnimatedSprite(id) {
+    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${getPokeApiId(id)}.gif`;
+  }
+
+
+  /* =============================================================
+     STATS
+  ============================================================= */
+
+  const MAX_STATS = {
+    hp: 255, attack: 180, defense: 230,
+    speed: 180, sp_attack: 180, sp_defense: 230
+  };
+
+  const MAX_BST = 720;
+
+  function buildStats(mon) {
+    const stats = mon.stats || {};
+    const rows = Object.entries(stats).map(([k, v]) => buildStatRow(k, v)).join("");
+
+    const bst = Object.values(stats).reduce((a, b) => a + (b || 0), 0);
+    return rows + buildBSTRow(bst);
+  }
+
+  function buildStatRow(key, val) {
+    const max = MAX_STATS[key] || 100;
+    const percent = Math.min((val / max) * 100, 100);
+
+    return `
+      <div class="stat-row">
+        <div class="stat-name">${STAT_LABELS[key] || key}</div>
+        <div class="stat-bar">
+          <div class="stat-fill" style="width:${percent}%;background:${getStatColor(val, max)}"></div>
+        </div>
+        <div class="stat-value">${val}</div>
+      </div>
+    `;
+  }
+
+  function buildBSTRow(bst) {
+    const percent = Math.min((bst / MAX_BST) * 100, 100);
+
+    return `
+      <div class="stat-row bst-row">
+        <div class="stat-name">Total</div>
+        <div class="stat-bar">
+          <div class="stat-fill" style="width:${percent}%;background:${getStatColor(bst, MAX_BST)}"></div>
+        </div>
+        <div class="stat-value">${bst}</div>
+      </div>
+    `;
+  }
+
+  function getStatColor(stat, max) {
+    const ratio = stat / max;
+    if (ratio < 0.2) return "#ff0000";
+    if (ratio < 0.4) return "#ff6f00";
+    if (ratio < 0.6) return "#ffff00";
+    if (ratio < 0.8) return "#bfff00";
+    return "#1aff00";
+  }
+
+  const STAT_LABELS = {
+    hp: "HP", attack: "Atk", defense: "Def",
+    speed: "Spe", sp_attack: "SpA", sp_defense: "SpD"
+  };
+
+
+  /* =============================================================
+     SUMMARY 
+  ============================================================= */
+
+  function buildSummary(mon) {
+  const abilities = (mon.abilities || [])
+    .map(a => a.name)
+    .filter(a => a && a !== "--");
+
+  const uniqueAbilities = [...new Set(abilities)];
+
+  const held = (mon.held_items || [])
+    .map(i => i.name || i)
+    .filter(Boolean);
+
+  return `
+    <div><b>Types:</b> ${buildTypeBadges(mon.types)}</div>
+    <div><b>Height:</b> ${mon.height}</div>
+    <div><b>Weight:</b> ${mon.weight}</div>
+    <div><b>Abilities:</b> ${uniqueAbilities.join(", ") || "None"}</div>
+    <div><b>Held Items:</b> ${held.join(", ") || "None"}</div>
+
+    <h3>Type Effectiveness</h3>
+    ${buildTypeChart(mon)}
+  `;
+}
+
+  function buildTypeBadges(types = []) {
+    return [...new Set(types)].map(t =>
+      `<span class="type-badge type-${t.toLowerCase()}">${t}</span>`
+    ).join("");
+  }
+
+  function getUniqueAbilities(mon) {
+    return [...new Set((mon.abilities || [])
+      .map(a => a.name)
+      .filter(a => a && a !== "--"))];
+  }
+
+  function getHeldItems(mon) {
+    return (mon.held_items || []).map(i => i.name || i).filter(Boolean);
+  }
+
+  function buildTypeChart(mon) {
+    const effects = getTypeEffectiveness(mon.types);
+    const { weak, resist, immune } = categorizeEffectiveness(effects);
+
+    return `
+      <div class="type-chart">
+
+        <div><b>Weaknesses:</b> ${buildTypeBadges(weak) || "None"}</div>
+        <div><b>Resistances:</b> ${buildTypeBadges(resist) || "None"}</div>
+        <div><b>Immunities:</b> ${buildTypeBadges(immune) || "None"}</div>
+
+      </div>
+    `;
+  }
+
+  const TYPE_CHART = {
+    normal: { fighting: 2, ghost: 0 },
+
+    fire: {
+      water: 2, ground: 2, rock: 2,
+      fire: 0.5, grass: 0.5, ice: 0.5, bug: 0.5, steel: 0.5, fairy: 0.5
+    },
+
+    water: {
+      electric: 2, grass: 2,
+      fire: 0.5, water: 0.5, ice: 0.5, steel: 0.5
+    },
+
+    grass: {
+      fire: 2, ice: 2, poison: 2, flying: 2, bug: 2,
+      water: 0.5, electric: 0.5, grass: 0.5, ground: 0.5
+    },
+
+    electric: {
+      ground: 2,
+      electric: 0.5, flying: 0.5, steel: 0.5
+    },
+
+    // 👉 fill out the rest gradually (you can expand later)
+  };
+
+  function getTypeEffectiveness(types = []) {
+    const result = {};
+
+    Object.keys(TYPE_CHART).forEach(attackingType => {
+      let multiplier = 1;
+
+      types.forEach(defType => {
+        const chart = TYPE_CHART[defType.toLowerCase()] || {};
+        multiplier *= chart[attackingType] || 1;
+      });
+
+      result[attackingType] = multiplier;
+    });
+
+    return result;
+  }
+
+  function categorizeEffectiveness(effects) {
+    const weak = [];
+    const resist = [];
+    const immune = [];
+
+    Object.entries(effects).forEach(([type, val]) => {
+      if (val === 0) immune.push(type);
+      else if (val > 1) weak.push(type);
+      else if (val < 1) resist.push(type);
+    });
+
+    return { weak, resist, immune };
+  }
+  /* =============================================================
+     EVOLUTION TREE
+  ============================================================= */
+
+  function buildEvolutions(mon) {
+    const tree = buildEvolutionTree();
+    const root = findEvolutionRoot(mon, tree);
+    if (!root) return "<div>No evolutions</div>";
+
+    return `<div class="evo-tree">${renderEvolutionNode(root, mon.id)}</div>`;
+  }
+
+  function buildEvolutionTree() {
+    const map = new Map();
+
+    data.forEach(m => map.set(m.id, { mon: m, children: [] }));
+
+    data.forEach(m => {
+      m.evolutions?.forEach(e => {
+        map.get(m.id)?.children.push({
+          node: map.get(e.id),
+          method: e
+        });
+      });
+    });
+
+    return map;
+  }
+
+  function findEvolutionRoot(mon, tree) {
+    let current = mon;
+
+    while (true) {
+      const parent = [...tree.values()].find(n =>
+        n.children.some(c => c.node.mon.id === current.id)
+      );
+
+      if (!parent) break;
+      current = parent.mon;
+    }
+
+    return tree.get(current.id);
+  }
+
+  function renderEvolutionNode(node, currentId) {
+    return `
+      <div class="evo-branch">
+        <div class="evo-node ${node.mon.id === currentId ? "active" : ""}" data-id="${node.mon.id}">
+          <img src="sprites/pokemon/${node.mon.id}.png">
+          <div>${node.mon.name}</div>
+        </div>
+
+        ${node.children.length ? `
+          <div class="evo-children">
+            ${node.children.map(c => `
+              <div class="evo-child">
+                ${buildEvolutionArrow(c.method)}
+                ${renderEvolutionNode(c.node, currentId)}
+              </div>
+            `).join("")}
+          </div>
+        ` : ""}
+      </div>
+    `;
+  }
+
+  function buildEvolutionArrow(method) {
+    return `
+      <div class="evo-arrow" title="${formatEvolutionMethod(method)}">
+        <div>${getEvolutionIcon(method)}</div>
+        <svg width="24" height="24" viewBox="0 0 24 24">
+          <path d="M12 5v10M7 12l5 5 5-5"
+            stroke="currentColor" stroke-width="2" fill="none"/>
+        </svg>
+        <div class="evo-method-label">${formatEvolutionMethod(method)}</div>
+      </div>
+    `;
+  }
+
+  function bindEvolutionClicks() {
+    modalBody.querySelectorAll(".evo-node").forEach(el => {
+      el.onclick = () => switchForm(Number(el.dataset.id));
+    });
+  }
+
+  function getEvolutionIcon(e) {
+    const t = e?.type?.toLowerCase() || "";
+    if (t.includes("stone")) return "🪨";
+    if (t.includes("trade")) return "🔁";
+    if (t.includes("friendship")) return "❤️";
+    if (t.includes("level")) return "⬆️";
+    return "✨";
+  }
+
+  function formatEvolutionMethod(e) {
+    if (!e) return "";
+    if (e.type === "LEVEL") return `Lv ${e.val}`;
+    if (e.type === "ITEM") return `Use ${e.val}`;
+    if (e.type === "TRADE") return "Trade";
+    if (e.type === "FRIENDSHIP") return "Friendship";
+    return `${e.type} ${e.val || ""}`;
+  }
+
+  /* =============================================================
+    MOVES
+  ============================================================= */
+
+  function buildMoves(mon) {
+    const grouped = {};
+
+    (mon.moves || []).forEach(m => {
+      if (!grouped[m.type]) grouped[m.type] = [];
+      grouped[m.type].push(m);
+    });
+
+    return Object.entries(grouped).map(([type, moves]) => `
+      <div class="move-group">
+        <h4>${type}</h4>
+        ${moves.map(m => `
+          <div>${m.name}${m.level ? " (Lv " + m.level + ")" : ""}</div>
+        `).join("")}
+      </div>
+    `).join("");
+  }
+
+
+  /* =============================================================
+    LOCATIONS
+  ============================================================= */
+
+  function buildLocations(mon) {
+    return (mon.locations || [])
+      .map(l => `
+        <div class="location-row">
+          ${l.region_name} - ${l.location}
+        </div>
+      `)
+      .join("") || "<div>No locations</div>";
+  }
+
+  /* =============================================================
+     FORMS
+  ============================================================= */
+
+  function initFormsDropdown(mon) {
+    if (!mon.forms || mon.forms.length <= 1) return;
+
+    const nameEl = $("#pokedexName");
+    const dropdown = $("#formsDropdown");
+
+    nameEl.onclick = () => dropdown.classList.toggle("hidden");
+
+    dropdown.innerHTML = mon.forms.map(f => `
+      <div class="form-option" data-id="${f.id}">
+        <img src="sprites/pokemon/${f.id}.png">
+        <div>${f.name}</div>
+      </div>
+    `).join("");
+
+    dropdown.querySelectorAll(".form-option").forEach(el => {
+      el.onclick = (e) => {
+        e.stopPropagation();
+        switchForm(Number(el.dataset.id));
+      };
+    });
+  }
+
+
+  /* =============================================================
+     PRELOAD
+  ============================================================= */
+
+  function preloadImages() {
+    let i = 0;
+
+    function next() {
+      if (i >= data.length) return;
+      new Image().src = `sprites/pokemon/${data[i++].id}.png`;
+      setTimeout(next, 10);
+    }
+
+    next();
+  }
+
+
+  /* =============================================================
+     PUBLIC API
+  ============================================================= */
+
+  return { load, switchForm };
+
+})();
+
 /* =============================================================
    Initialization
    ============================================================= */
 document.addEventListener("DOMContentLoaded", async () => {
 
   initToolsSwitcher();
+  initRouter()
   initThemeToggle();
   initAboutPage()
 
@@ -1797,6 +3442,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   VideoFrameTool.init();
   PoryBackground.setup();
   ColorTextTool.load();
+  PokedexTool.load();
 
   document.body.classList.add("pory-active");
 });

@@ -50,6 +50,7 @@
     <li class="tool-list__item" data-tool="moveChecker">Move Checker</li>
     <li class="tool-list__item" data-tool="videoFrameTool">Frame Extractor </li>
     <li class="tool-list__item" data-tool="poryBackground">Porygon-Inspired Background</li>
+    <li class="tool-list__item" data-tool="pokedexTool">Dex</li>
   </ul>
 </aside>
 
@@ -57,7 +58,7 @@
   <section id="aboutPage" class="toolSection">
     <header class="toolHeader">
       <h1>About Niche PokeMMO Tools</h1>
-      <p class="muted">This site is full of various tools that may or may not be useful for the average PokeMMO user.</p>
+      <p class="muted">This site is a collection of various tools created for very niche purposes. May or may not be useful for the average PokeMMO user.</p>
     </header>
 
     <div class="about-grid">
@@ -82,7 +83,7 @@
 
       <div class="about-card">
         <h3>🎬 Frame Extractor</h3>
-        <p class="muted">Used in <a href="https://mylis.github.io/pokemmo_ocr/" style="color:var(--accent)"><img src="site icons/mylisOCR.ico" alt="OCR Tool" style="height:15px"> PSE OCR Tool by Mylis</a>. Select a region of interest and the program outputs all frames that are different.</p>
+        <p class="muted">Used in <a href="https://mylis.github.io/pokemmo_ocr/" style="color:var(--accent)"><img src="site icons/mylisOCR.ico" alt="OCR Tool" style="height:15px"> PSE OCR Tool by Mylis</a>. Select a region of interest and the program outputs all frames that are unique within that region.</p>
         <div class="about-tool-slot" data-tool="videoFrameTool"></div>
       </div>
 
@@ -358,6 +359,114 @@
   <section id="poryBackground" class="toolSection" style="display:none;">
   </section>
 
+  <section id="pokedexTool" class="toolSection" style="display:none;">
+
+    <div class="encounter-controls pokedex-controls">
+      <div class="encounter-top">
+        <!-- Row 1 -->
+        <div class="encounter-top-1">
+          <input 
+            id="pokedexSearch"
+            class="mc-input dex-search-mon-bar dex-input"
+            placeholder="Search Pokémon..."
+          >
+          <button id="toggleFilters" class="btn btn--gradient">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+            Filters
+          </button>
+        </div>
+
+        <!-- Row 2 (filters panel) -->
+        <div id="dexfiltersPanel" class="dex-filters-panel collapsed">
+
+          <div class="dex-filter-row-2 dex-filter-full">
+            <!-- TYPES -->
+            <div class="dex-filter-group">
+              <div class="dex-filter-group-label"><label>Types</label></div>
+              <div id="typePills" class="pill-container"></div>
+            </div>
+
+            <!-- EGG GROUP -->
+            <div class="dex-filter-group">
+              <div class="dex-filter-group-label"><label>Egg Group</label></div>
+              <div id="eggPills" class="pill-container"></div>
+            </div>
+
+          </div>
+          <!-- LOCATION -->
+          <div class="dex-filter-group dex-filter-full">
+            <div class="dex-filter-group-label"><label>Location</label></div>
+            
+            <div class="minimap">
+              <div class="map-viewport" id="mapViewport">
+
+                <svg id="mapSvg" viewBox="0 0 1662 1174" preserveAspectRatio="none">
+
+                  <!-- MAP IMAGE -->
+                  <image href="maps/World Map.png" x="0" y="0" width="1662" height="1174"/>
+
+                  <!-- CLICKABLE REGIONS -->
+                  <g id="mapRegions"></g>
+
+                  <!-- PIN -->
+                  <circle id="mapPin" cx="0" cy="0" r="8" class="map-pin hidden"/>
+
+                </svg>
+
+              </div>
+
+              <input id="filterLocation" class="mc-input" placeholder="Search location...">
+              <div id="locationDropdown" class="dropdown hidden"></div>
+            </div>
+
+          </div>
+
+          <div class="dex-filter-row-3 dex-filter-full">
+
+            <!-- MOVES -->
+            <div class="dex-filter-group">
+              <div class="dex-filter-group-label"><label>Moves</label></div>
+              <div class="moves-grid">
+                <input class="dex-input" placeholder="Search..." data-slot="0">
+                <input class="dex-input" placeholder="Search..." data-slot="1">
+                <input class="dex-input" placeholder="Search..." data-slot="2">
+                <input class="dex-input" placeholder="Search..." data-slot="3">
+              </div>
+            </div>
+
+            <!-- ABILITY -->
+            <div class="dex-filter-group">
+              <div class="dex-filter-group-label"><label>Ability</label></div>
+              <input id="filterAbility" class="dex-input" placeholder="Search...">
+            </div>
+
+            <!-- STATS -->
+            <div class="dex-filter-group">
+              <div class="dex-filter-group-label"><label>Stats</label></div>
+              <div id="statFilters"></div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div id="pokedexGrid" class="pokedex-grid"></div>
+
+    <!-- FULLSCREEN MODAL -->
+    <div id="pokedexModal" class="pokedex-modal hidden">
+      <div class="pokedex-modal-content">
+        <button id="closeModal" class="btn btn--panel .btn--dexModal">✕</button>
+        <div id="modalBody"></div>
+      </div>
+    </div>
+
+  </section>
 </main>
 
 

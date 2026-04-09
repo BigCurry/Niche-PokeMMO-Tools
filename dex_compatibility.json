@@ -1,0 +1,5762 @@
+[
+  {
+    "id": 1,
+    "name": "Bulbasaur",
+    "PokeAPI_id": 1,
+    "PokeAPI_name": "Bulbasaur",
+    "Pokemondb_name": "Bulbasaur",
+    "frontend_name": "Bulbasaur"
+  },
+  {
+    "id": 2,
+    "name": "Ivysaur",
+    "PokeAPI_id": 2,
+    "PokeAPI_name": "Ivysaur",
+    "Pokemondb_name": "Ivysaur",
+    "frontend_name": "Ivysaur"
+  },
+  {
+    "id": 3,
+    "name": "Venusaur",
+    "PokeAPI_id": 3,
+    "PokeAPI_name": "Venusaur",
+    "Pokemondb_name": "Venusaur",
+    "frontend_name": "Venusaur"
+  },
+  {
+    "id": 4,
+    "name": "Charmander",
+    "PokeAPI_id": 4,
+    "PokeAPI_name": "Charmander",
+    "Pokemondb_name": "Charmander",
+    "frontend_name": "Charmander"
+  },
+  {
+    "id": 5,
+    "name": "Charmeleon",
+    "PokeAPI_id": 5,
+    "PokeAPI_name": "Charmeleon",
+    "Pokemondb_name": "Charmeleon",
+    "frontend_name": "Charmeleon"
+  },
+  {
+    "id": 6,
+    "name": "Charizard",
+    "PokeAPI_id": 6,
+    "PokeAPI_name": "Charizard",
+    "Pokemondb_name": "Charizard",
+    "frontend_name": "Charizard"
+  },
+  {
+    "id": 7,
+    "name": "Squirtle",
+    "PokeAPI_id": 7,
+    "PokeAPI_name": "Squirtle",
+    "Pokemondb_name": "Squirtle",
+    "frontend_name": "Squirtle"
+  },
+  {
+    "id": 8,
+    "name": "Wartortle",
+    "PokeAPI_id": 8,
+    "PokeAPI_name": "Wartortle",
+    "Pokemondb_name": "Wartortle",
+    "frontend_name": "Wartortle"
+  },
+  {
+    "id": 9,
+    "name": "Blastoise",
+    "PokeAPI_id": 9,
+    "PokeAPI_name": "Blastoise",
+    "Pokemondb_name": "Blastoise",
+    "frontend_name": "Blastoise"
+  },
+  {
+    "id": 10,
+    "name": "Caterpie",
+    "PokeAPI_id": 10,
+    "PokeAPI_name": "Caterpie",
+    "Pokemondb_name": "Caterpie",
+    "frontend_name": "Caterpie"
+  },
+  {
+    "id": 11,
+    "name": "Metapod",
+    "PokeAPI_id": 11,
+    "PokeAPI_name": "Metapod",
+    "Pokemondb_name": "Metapod",
+    "frontend_name": "Metapod"
+  },
+  {
+    "id": 12,
+    "name": "Butterfree",
+    "PokeAPI_id": 12,
+    "PokeAPI_name": "Butterfree",
+    "Pokemondb_name": "Butterfree",
+    "frontend_name": "Butterfree"
+  },
+  {
+    "id": 13,
+    "name": "Weedle",
+    "PokeAPI_id": 13,
+    "PokeAPI_name": "Weedle",
+    "Pokemondb_name": "Weedle",
+    "frontend_name": "Weedle"
+  },
+  {
+    "id": 14,
+    "name": "Kakuna",
+    "PokeAPI_id": 14,
+    "PokeAPI_name": "Kakuna",
+    "Pokemondb_name": "Kakuna",
+    "frontend_name": "Kakuna"
+  },
+  {
+    "id": 15,
+    "name": "Beedrill",
+    "PokeAPI_id": 15,
+    "PokeAPI_name": "Beedrill",
+    "Pokemondb_name": "Beedrill",
+    "frontend_name": "Beedrill"
+  },
+  {
+    "id": 16,
+    "name": "Pidgey",
+    "PokeAPI_id": 16,
+    "PokeAPI_name": "Pidgey",
+    "Pokemondb_name": "Pidgey",
+    "frontend_name": "Pidgey"
+  },
+  {
+    "id": 17,
+    "name": "Pidgeotto",
+    "PokeAPI_id": 17,
+    "PokeAPI_name": "Pidgeotto",
+    "Pokemondb_name": "Pidgeotto",
+    "frontend_name": "Pidgeotto"
+  },
+  {
+    "id": 18,
+    "name": "Pidgeot",
+    "PokeAPI_id": 18,
+    "PokeAPI_name": "Pidgeot",
+    "Pokemondb_name": "Pidgeot",
+    "frontend_name": "Pidgeot"
+  },
+  {
+    "id": 19,
+    "name": "Rattata",
+    "PokeAPI_id": 19,
+    "PokeAPI_name": "Rattata",
+    "Pokemondb_name": "Rattata",
+    "frontend_name": "Rattata"
+  },
+  {
+    "id": 20,
+    "name": "Raticate",
+    "PokeAPI_id": 20,
+    "PokeAPI_name": "Raticate",
+    "Pokemondb_name": "Raticate",
+    "frontend_name": "Raticate"
+  },
+  {
+    "id": 21,
+    "name": "Spearow",
+    "PokeAPI_id": 21,
+    "PokeAPI_name": "Spearow",
+    "Pokemondb_name": "Spearow",
+    "frontend_name": "Spearow"
+  },
+  {
+    "id": 22,
+    "name": "Fearow",
+    "PokeAPI_id": 22,
+    "PokeAPI_name": "Fearow",
+    "Pokemondb_name": "Fearow",
+    "frontend_name": "Fearow"
+  },
+  {
+    "id": 23,
+    "name": "Ekans",
+    "PokeAPI_id": 23,
+    "PokeAPI_name": "Ekans",
+    "Pokemondb_name": "Ekans",
+    "frontend_name": "Ekans"
+  },
+  {
+    "id": 24,
+    "name": "Arbok",
+    "PokeAPI_id": 24,
+    "PokeAPI_name": "Arbok",
+    "Pokemondb_name": "Arbok",
+    "frontend_name": "Arbok"
+  },
+  {
+    "id": 25,
+    "name": "Pikachu",
+    "PokeAPI_id": 25,
+    "PokeAPI_name": "Pikachu",
+    "Pokemondb_name": "Pikachu",
+    "frontend_name": "Pikachu"
+  },
+  {
+    "id": 26,
+    "name": "Raichu",
+    "PokeAPI_id": 26,
+    "PokeAPI_name": "Raichu",
+    "Pokemondb_name": "Raichu",
+    "frontend_name": "Raichu"
+  },
+  {
+    "id": 27,
+    "name": "Sandshrew",
+    "PokeAPI_id": 27,
+    "PokeAPI_name": "Sandshrew",
+    "Pokemondb_name": "Sandshrew",
+    "frontend_name": "Sandshrew"
+  },
+  {
+    "id": 28,
+    "name": "Sandslash",
+    "PokeAPI_id": 28,
+    "PokeAPI_name": "Sandslash",
+    "Pokemondb_name": "Sandslash",
+    "frontend_name": "Sandslash"
+  },
+  {
+    "id": 29,
+    "name": "Nidoran\u2640",
+    "PokeAPI_id": 29,
+    "PokeAPI_name": "Nidoran\u2640",
+    "Pokemondb_name": "Nidoran\u2640",
+    "frontend_name": "Nidoran\u2640"
+  },
+  {
+    "id": 30,
+    "name": "Nidorina",
+    "PokeAPI_id": 30,
+    "PokeAPI_name": "Nidorina",
+    "Pokemondb_name": "Nidorina",
+    "frontend_name": "Nidorina"
+  },
+  {
+    "id": 31,
+    "name": "Nidoqueen",
+    "PokeAPI_id": 31,
+    "PokeAPI_name": "Nidoqueen",
+    "Pokemondb_name": "Nidoqueen",
+    "frontend_name": "Nidoqueen"
+  },
+  {
+    "id": 32,
+    "name": "Nidoran\u2642",
+    "PokeAPI_id": 32,
+    "PokeAPI_name": "Nidoran\u2642",
+    "Pokemondb_name": "Nidoran\u2642",
+    "frontend_name": "Nidoran\u2642"
+  },
+  {
+    "id": 33,
+    "name": "Nidorino",
+    "PokeAPI_id": 33,
+    "PokeAPI_name": "Nidorino",
+    "Pokemondb_name": "Nidorino",
+    "frontend_name": "Nidorino"
+  },
+  {
+    "id": 34,
+    "name": "Nidoking",
+    "PokeAPI_id": 34,
+    "PokeAPI_name": "Nidoking",
+    "Pokemondb_name": "Nidoking",
+    "frontend_name": "Nidoking"
+  },
+  {
+    "id": 35,
+    "name": "Clefairy",
+    "PokeAPI_id": 35,
+    "PokeAPI_name": "Clefairy",
+    "Pokemondb_name": "Clefairy",
+    "frontend_name": "Clefairy"
+  },
+  {
+    "id": 36,
+    "name": "Clefable",
+    "PokeAPI_id": 36,
+    "PokeAPI_name": "Clefable",
+    "Pokemondb_name": "Clefable",
+    "frontend_name": "Clefable"
+  },
+  {
+    "id": 37,
+    "name": "Vulpix",
+    "PokeAPI_id": 37,
+    "PokeAPI_name": "Vulpix",
+    "Pokemondb_name": "Vulpix",
+    "frontend_name": "Vulpix"
+  },
+  {
+    "id": 38,
+    "name": "Ninetales",
+    "PokeAPI_id": 38,
+    "PokeAPI_name": "Ninetales",
+    "Pokemondb_name": "Ninetales",
+    "frontend_name": "Ninetales"
+  },
+  {
+    "id": 39,
+    "name": "Jigglypuff",
+    "PokeAPI_id": 39,
+    "PokeAPI_name": "Jigglypuff",
+    "Pokemondb_name": "Jigglypuff",
+    "frontend_name": "Jigglypuff"
+  },
+  {
+    "id": 40,
+    "name": "Wigglytuff",
+    "PokeAPI_id": 40,
+    "PokeAPI_name": "Wigglytuff",
+    "Pokemondb_name": "Wigglytuff",
+    "frontend_name": "Wigglytuff"
+  },
+  {
+    "id": 41,
+    "name": "Zubat",
+    "PokeAPI_id": 41,
+    "PokeAPI_name": "Zubat",
+    "Pokemondb_name": "Zubat",
+    "frontend_name": "Zubat"
+  },
+  {
+    "id": 42,
+    "name": "Golbat",
+    "PokeAPI_id": 42,
+    "PokeAPI_name": "Golbat",
+    "Pokemondb_name": "Golbat",
+    "frontend_name": "Golbat"
+  },
+  {
+    "id": 43,
+    "name": "Oddish",
+    "PokeAPI_id": 43,
+    "PokeAPI_name": "Oddish",
+    "Pokemondb_name": "Oddish",
+    "frontend_name": "Oddish"
+  },
+  {
+    "id": 44,
+    "name": "Gloom",
+    "PokeAPI_id": 44,
+    "PokeAPI_name": "Gloom",
+    "Pokemondb_name": "Gloom",
+    "frontend_name": "Gloom"
+  },
+  {
+    "id": 45,
+    "name": "Vileplume",
+    "PokeAPI_id": 45,
+    "PokeAPI_name": "Vileplume",
+    "Pokemondb_name": "Vileplume",
+    "frontend_name": "Vileplume"
+  },
+  {
+    "id": 46,
+    "name": "Paras",
+    "PokeAPI_id": 46,
+    "PokeAPI_name": "Paras",
+    "Pokemondb_name": "Paras",
+    "frontend_name": "Paras"
+  },
+  {
+    "id": 47,
+    "name": "Parasect",
+    "PokeAPI_id": 47,
+    "PokeAPI_name": "Parasect",
+    "Pokemondb_name": "Parasect",
+    "frontend_name": "Parasect"
+  },
+  {
+    "id": 48,
+    "name": "Venonat",
+    "PokeAPI_id": 48,
+    "PokeAPI_name": "Venonat",
+    "Pokemondb_name": "Venonat",
+    "frontend_name": "Venonat"
+  },
+  {
+    "id": 49,
+    "name": "Venomoth",
+    "PokeAPI_id": 49,
+    "PokeAPI_name": "Venomoth",
+    "Pokemondb_name": "Venomoth",
+    "frontend_name": "Venomoth"
+  },
+  {
+    "id": 50,
+    "name": "Diglett",
+    "PokeAPI_id": 50,
+    "PokeAPI_name": "Diglett",
+    "Pokemondb_name": "Diglett",
+    "frontend_name": "Diglett"
+  },
+  {
+    "id": 51,
+    "name": "Dugtrio",
+    "PokeAPI_id": 51,
+    "PokeAPI_name": "Dugtrio",
+    "Pokemondb_name": "Dugtrio",
+    "frontend_name": "Dugtrio"
+  },
+  {
+    "id": 52,
+    "name": "Meowth",
+    "PokeAPI_id": 52,
+    "PokeAPI_name": "Meowth",
+    "Pokemondb_name": "Meowth",
+    "frontend_name": "Meowth"
+  },
+  {
+    "id": 53,
+    "name": "Persian",
+    "PokeAPI_id": 53,
+    "PokeAPI_name": "Persian",
+    "Pokemondb_name": "Persian",
+    "frontend_name": "Persian"
+  },
+  {
+    "id": 54,
+    "name": "Psyduck",
+    "PokeAPI_id": 54,
+    "PokeAPI_name": "Psyduck",
+    "Pokemondb_name": "Psyduck",
+    "frontend_name": "Psyduck"
+  },
+  {
+    "id": 55,
+    "name": "Golduck",
+    "PokeAPI_id": 55,
+    "PokeAPI_name": "Golduck",
+    "Pokemondb_name": "Golduck",
+    "frontend_name": "Golduck"
+  },
+  {
+    "id": 56,
+    "name": "Mankey",
+    "PokeAPI_id": 56,
+    "PokeAPI_name": "Mankey",
+    "Pokemondb_name": "Mankey",
+    "frontend_name": "Mankey"
+  },
+  {
+    "id": 57,
+    "name": "Primeape",
+    "PokeAPI_id": 57,
+    "PokeAPI_name": "Primeape",
+    "Pokemondb_name": "Primeape",
+    "frontend_name": "Primeape"
+  },
+  {
+    "id": 58,
+    "name": "Growlithe",
+    "PokeAPI_id": 58,
+    "PokeAPI_name": "Growlithe",
+    "Pokemondb_name": "Growlithe",
+    "frontend_name": "Growlithe"
+  },
+  {
+    "id": 59,
+    "name": "Arcanine",
+    "PokeAPI_id": 59,
+    "PokeAPI_name": "Arcanine",
+    "Pokemondb_name": "Arcanine",
+    "frontend_name": "Arcanine"
+  },
+  {
+    "id": 60,
+    "name": "Poliwag",
+    "PokeAPI_id": 60,
+    "PokeAPI_name": "Poliwag",
+    "Pokemondb_name": "Poliwag",
+    "frontend_name": "Poliwag"
+  },
+  {
+    "id": 61,
+    "name": "Poliwhirl",
+    "PokeAPI_id": 61,
+    "PokeAPI_name": "Poliwhirl",
+    "Pokemondb_name": "Poliwhirl",
+    "frontend_name": "Poliwhirl"
+  },
+  {
+    "id": 62,
+    "name": "Poliwrath",
+    "PokeAPI_id": 62,
+    "PokeAPI_name": "Poliwrath",
+    "Pokemondb_name": "Poliwrath",
+    "frontend_name": "Poliwrath"
+  },
+  {
+    "id": 63,
+    "name": "Abra",
+    "PokeAPI_id": 63,
+    "PokeAPI_name": "Abra",
+    "Pokemondb_name": "Abra",
+    "frontend_name": "Abra"
+  },
+  {
+    "id": 64,
+    "name": "Kadabra",
+    "PokeAPI_id": 64,
+    "PokeAPI_name": "Kadabra",
+    "Pokemondb_name": "Kadabra",
+    "frontend_name": "Kadabra"
+  },
+  {
+    "id": 65,
+    "name": "Alakazam",
+    "PokeAPI_id": 65,
+    "PokeAPI_name": "Alakazam",
+    "Pokemondb_name": "Alakazam",
+    "frontend_name": "Alakazam"
+  },
+  {
+    "id": 66,
+    "name": "Machop",
+    "PokeAPI_id": 66,
+    "PokeAPI_name": "Machop",
+    "Pokemondb_name": "Machop",
+    "frontend_name": "Machop"
+  },
+  {
+    "id": 67,
+    "name": "Machoke",
+    "PokeAPI_id": 67,
+    "PokeAPI_name": "Machoke",
+    "Pokemondb_name": "Machoke",
+    "frontend_name": "Machoke"
+  },
+  {
+    "id": 68,
+    "name": "Machamp",
+    "PokeAPI_id": 68,
+    "PokeAPI_name": "Machamp",
+    "Pokemondb_name": "Machamp",
+    "frontend_name": "Machamp"
+  },
+  {
+    "id": 69,
+    "name": "Bellsprout",
+    "PokeAPI_id": 69,
+    "PokeAPI_name": "Bellsprout",
+    "Pokemondb_name": "Bellsprout",
+    "frontend_name": "Bellsprout"
+  },
+  {
+    "id": 70,
+    "name": "Weepinbell",
+    "PokeAPI_id": 70,
+    "PokeAPI_name": "Weepinbell",
+    "Pokemondb_name": "Weepinbell",
+    "frontend_name": "Weepinbell"
+  },
+  {
+    "id": 71,
+    "name": "Victreebel",
+    "PokeAPI_id": 71,
+    "PokeAPI_name": "Victreebel",
+    "Pokemondb_name": "Victreebel",
+    "frontend_name": "Victreebel"
+  },
+  {
+    "id": 72,
+    "name": "Tentacool",
+    "PokeAPI_id": 72,
+    "PokeAPI_name": "Tentacool",
+    "Pokemondb_name": "Tentacool",
+    "frontend_name": "Tentacool"
+  },
+  {
+    "id": 73,
+    "name": "Tentacruel",
+    "PokeAPI_id": 73,
+    "PokeAPI_name": "Tentacruel",
+    "Pokemondb_name": "Tentacruel",
+    "frontend_name": "Tentacruel"
+  },
+  {
+    "id": 74,
+    "name": "Geodude",
+    "PokeAPI_id": 74,
+    "PokeAPI_name": "Geodude",
+    "Pokemondb_name": "Geodude",
+    "frontend_name": "Geodude"
+  },
+  {
+    "id": 75,
+    "name": "Graveler",
+    "PokeAPI_id": 75,
+    "PokeAPI_name": "Graveler",
+    "Pokemondb_name": "Graveler",
+    "frontend_name": "Graveler"
+  },
+  {
+    "id": 76,
+    "name": "Golem",
+    "PokeAPI_id": 76,
+    "PokeAPI_name": "Golem",
+    "Pokemondb_name": "Golem",
+    "frontend_name": "Golem"
+  },
+  {
+    "id": 77,
+    "name": "Ponyta",
+    "PokeAPI_id": 77,
+    "PokeAPI_name": "Ponyta",
+    "Pokemondb_name": "Ponyta",
+    "frontend_name": "Ponyta"
+  },
+  {
+    "id": 78,
+    "name": "Rapidash",
+    "PokeAPI_id": 78,
+    "PokeAPI_name": "Rapidash",
+    "Pokemondb_name": "Rapidash",
+    "frontend_name": "Rapidash"
+  },
+  {
+    "id": 79,
+    "name": "Slowpoke",
+    "PokeAPI_id": 79,
+    "PokeAPI_name": "Slowpoke",
+    "Pokemondb_name": "Slowpoke",
+    "frontend_name": "Slowpoke"
+  },
+  {
+    "id": 80,
+    "name": "Slowbro",
+    "PokeAPI_id": 80,
+    "PokeAPI_name": "Slowbro",
+    "Pokemondb_name": "Slowbro",
+    "frontend_name": "Slowbro"
+  },
+  {
+    "id": 81,
+    "name": "Magnemite",
+    "PokeAPI_id": 81,
+    "PokeAPI_name": "Magnemite",
+    "Pokemondb_name": "Magnemite",
+    "frontend_name": "Magnemite"
+  },
+  {
+    "id": 82,
+    "name": "Magneton",
+    "PokeAPI_id": 82,
+    "PokeAPI_name": "Magneton",
+    "Pokemondb_name": "Magneton",
+    "frontend_name": "Magneton"
+  },
+  {
+    "id": 83,
+    "name": "Farfetch'd",
+    "PokeAPI_id": 83,
+    "PokeAPI_name": "Farfetch'd",
+    "Pokemondb_name": "Farfetch'd",
+    "frontend_name": "Farfetch'd"
+  },
+  {
+    "id": 84,
+    "name": "Doduo",
+    "PokeAPI_id": 84,
+    "PokeAPI_name": "Doduo",
+    "Pokemondb_name": "Doduo",
+    "frontend_name": "Doduo"
+  },
+  {
+    "id": 85,
+    "name": "Dodrio",
+    "PokeAPI_id": 85,
+    "PokeAPI_name": "Dodrio",
+    "Pokemondb_name": "Dodrio",
+    "frontend_name": "Dodrio"
+  },
+  {
+    "id": 86,
+    "name": "Seel",
+    "PokeAPI_id": 86,
+    "PokeAPI_name": "Seel",
+    "Pokemondb_name": "Seel",
+    "frontend_name": "Seel"
+  },
+  {
+    "id": 87,
+    "name": "Dewgong",
+    "PokeAPI_id": 87,
+    "PokeAPI_name": "Dewgong",
+    "Pokemondb_name": "Dewgong",
+    "frontend_name": "Dewgong"
+  },
+  {
+    "id": 88,
+    "name": "Grimer",
+    "PokeAPI_id": 88,
+    "PokeAPI_name": "Grimer",
+    "Pokemondb_name": "Grimer",
+    "frontend_name": "Grimer"
+  },
+  {
+    "id": 89,
+    "name": "Muk",
+    "PokeAPI_id": 89,
+    "PokeAPI_name": "Muk",
+    "Pokemondb_name": "Muk",
+    "frontend_name": "Muk"
+  },
+  {
+    "id": 90,
+    "name": "Shellder",
+    "PokeAPI_id": 90,
+    "PokeAPI_name": "Shellder",
+    "Pokemondb_name": "Shellder",
+    "frontend_name": "Shellder"
+  },
+  {
+    "id": 91,
+    "name": "Cloyster",
+    "PokeAPI_id": 91,
+    "PokeAPI_name": "Cloyster",
+    "Pokemondb_name": "Cloyster",
+    "frontend_name": "Cloyster"
+  },
+  {
+    "id": 92,
+    "name": "Gastly",
+    "PokeAPI_id": 92,
+    "PokeAPI_name": "Gastly",
+    "Pokemondb_name": "Gastly",
+    "frontend_name": "Gastly"
+  },
+  {
+    "id": 93,
+    "name": "Haunter",
+    "PokeAPI_id": 93,
+    "PokeAPI_name": "Haunter",
+    "Pokemondb_name": "Haunter",
+    "frontend_name": "Haunter"
+  },
+  {
+    "id": 94,
+    "name": "Gengar",
+    "PokeAPI_id": 94,
+    "PokeAPI_name": "Gengar",
+    "Pokemondb_name": "Gengar",
+    "frontend_name": "Gengar"
+  },
+  {
+    "id": 95,
+    "name": "Onix",
+    "PokeAPI_id": 95,
+    "PokeAPI_name": "Onix",
+    "Pokemondb_name": "Onix",
+    "frontend_name": "Onix"
+  },
+  {
+    "id": 96,
+    "name": "Drowzee",
+    "PokeAPI_id": 96,
+    "PokeAPI_name": "Drowzee",
+    "Pokemondb_name": "Drowzee",
+    "frontend_name": "Drowzee"
+  },
+  {
+    "id": 97,
+    "name": "Hypno",
+    "PokeAPI_id": 97,
+    "PokeAPI_name": "Hypno",
+    "Pokemondb_name": "Hypno",
+    "frontend_name": "Hypno"
+  },
+  {
+    "id": 98,
+    "name": "Krabby",
+    "PokeAPI_id": 98,
+    "PokeAPI_name": "Krabby",
+    "Pokemondb_name": "Krabby",
+    "frontend_name": "Krabby"
+  },
+  {
+    "id": 99,
+    "name": "Kingler",
+    "PokeAPI_id": 99,
+    "PokeAPI_name": "Kingler",
+    "Pokemondb_name": "Kingler",
+    "frontend_name": "Kingler"
+  },
+  {
+    "id": 100,
+    "name": "Voltorb",
+    "PokeAPI_id": 100,
+    "PokeAPI_name": "Voltorb",
+    "Pokemondb_name": "Voltorb",
+    "frontend_name": "Voltorb"
+  },
+  {
+    "id": 101,
+    "name": "Electrode",
+    "PokeAPI_id": 101,
+    "PokeAPI_name": "Electrode",
+    "Pokemondb_name": "Electrode",
+    "frontend_name": "Electrode"
+  },
+  {
+    "id": 102,
+    "name": "Exeggcute",
+    "PokeAPI_id": 102,
+    "PokeAPI_name": "Exeggcute",
+    "Pokemondb_name": "Exeggcute",
+    "frontend_name": "Exeggcute"
+  },
+  {
+    "id": 103,
+    "name": "Exeggutor",
+    "PokeAPI_id": 103,
+    "PokeAPI_name": "Exeggutor",
+    "Pokemondb_name": "Exeggutor",
+    "frontend_name": "Exeggutor"
+  },
+  {
+    "id": 104,
+    "name": "Cubone",
+    "PokeAPI_id": 104,
+    "PokeAPI_name": "Cubone",
+    "Pokemondb_name": "Cubone",
+    "frontend_name": "Cubone"
+  },
+  {
+    "id": 105,
+    "name": "Marowak",
+    "PokeAPI_id": 105,
+    "PokeAPI_name": "Marowak",
+    "Pokemondb_name": "Marowak",
+    "frontend_name": "Marowak"
+  },
+  {
+    "id": 106,
+    "name": "Hitmonlee",
+    "PokeAPI_id": 106,
+    "PokeAPI_name": "Hitmonlee",
+    "Pokemondb_name": "Hitmonlee",
+    "frontend_name": "Hitmonlee"
+  },
+  {
+    "id": 107,
+    "name": "Hitmonchan",
+    "PokeAPI_id": 107,
+    "PokeAPI_name": "Hitmonchan",
+    "Pokemondb_name": "Hitmonchan",
+    "frontend_name": "Hitmonchan"
+  },
+  {
+    "id": 108,
+    "name": "Lickitung",
+    "PokeAPI_id": 108,
+    "PokeAPI_name": "Lickitung",
+    "Pokemondb_name": "Lickitung",
+    "frontend_name": "Lickitung"
+  },
+  {
+    "id": 109,
+    "name": "Koffing",
+    "PokeAPI_id": 109,
+    "PokeAPI_name": "Koffing",
+    "Pokemondb_name": "Koffing",
+    "frontend_name": "Koffing"
+  },
+  {
+    "id": 110,
+    "name": "Weezing",
+    "PokeAPI_id": 110,
+    "PokeAPI_name": "Weezing",
+    "Pokemondb_name": "Weezing",
+    "frontend_name": "Weezing"
+  },
+  {
+    "id": 111,
+    "name": "Rhyhorn",
+    "PokeAPI_id": 111,
+    "PokeAPI_name": "Rhyhorn",
+    "Pokemondb_name": "Rhyhorn",
+    "frontend_name": "Rhyhorn"
+  },
+  {
+    "id": 112,
+    "name": "Rhydon",
+    "PokeAPI_id": 112,
+    "PokeAPI_name": "Rhydon",
+    "Pokemondb_name": "Rhydon",
+    "frontend_name": "Rhydon"
+  },
+  {
+    "id": 113,
+    "name": "Chansey",
+    "PokeAPI_id": 113,
+    "PokeAPI_name": "Chansey",
+    "Pokemondb_name": "Chansey",
+    "frontend_name": "Chansey"
+  },
+  {
+    "id": 114,
+    "name": "Tangela",
+    "PokeAPI_id": 114,
+    "PokeAPI_name": "Tangela",
+    "Pokemondb_name": "Tangela",
+    "frontend_name": "Tangela"
+  },
+  {
+    "id": 115,
+    "name": "Kangaskhan",
+    "PokeAPI_id": 115,
+    "PokeAPI_name": "Kangaskhan",
+    "Pokemondb_name": "Kangaskhan",
+    "frontend_name": "Kangaskhan"
+  },
+  {
+    "id": 116,
+    "name": "Horsea",
+    "PokeAPI_id": 116,
+    "PokeAPI_name": "Horsea",
+    "Pokemondb_name": "Horsea",
+    "frontend_name": "Horsea"
+  },
+  {
+    "id": 117,
+    "name": "Seadra",
+    "PokeAPI_id": 117,
+    "PokeAPI_name": "Seadra",
+    "Pokemondb_name": "Seadra",
+    "frontend_name": "Seadra"
+  },
+  {
+    "id": 118,
+    "name": "Goldeen",
+    "PokeAPI_id": 118,
+    "PokeAPI_name": "Goldeen",
+    "Pokemondb_name": "Goldeen",
+    "frontend_name": "Goldeen"
+  },
+  {
+    "id": 119,
+    "name": "Seaking",
+    "PokeAPI_id": 119,
+    "PokeAPI_name": "Seaking",
+    "Pokemondb_name": "Seaking",
+    "frontend_name": "Seaking"
+  },
+  {
+    "id": 120,
+    "name": "Staryu",
+    "PokeAPI_id": 120,
+    "PokeAPI_name": "Staryu",
+    "Pokemondb_name": "Staryu",
+    "frontend_name": "Staryu"
+  },
+  {
+    "id": 121,
+    "name": "Starmie",
+    "PokeAPI_id": 121,
+    "PokeAPI_name": "Starmie",
+    "Pokemondb_name": "Starmie",
+    "frontend_name": "Starmie"
+  },
+  {
+    "id": 122,
+    "name": "Mr. Mime",
+    "PokeAPI_id": 122,
+    "PokeAPI_name": "Mr. Mime",
+    "Pokemondb_name": "Mr. Mime",
+    "frontend_name": "Mr. Mime"
+  },
+  {
+    "id": 123,
+    "name": "Scyther",
+    "PokeAPI_id": 123,
+    "PokeAPI_name": "Scyther",
+    "Pokemondb_name": "Scyther",
+    "frontend_name": "Scyther"
+  },
+  {
+    "id": 124,
+    "name": "Jynx",
+    "PokeAPI_id": 124,
+    "PokeAPI_name": "Jynx",
+    "Pokemondb_name": "Jynx",
+    "frontend_name": "Jynx"
+  },
+  {
+    "id": 125,
+    "name": "Electabuzz",
+    "PokeAPI_id": 125,
+    "PokeAPI_name": "Electabuzz",
+    "Pokemondb_name": "Electabuzz",
+    "frontend_name": "Electabuzz"
+  },
+  {
+    "id": 126,
+    "name": "Magmar",
+    "PokeAPI_id": 126,
+    "PokeAPI_name": "Magmar",
+    "Pokemondb_name": "Magmar",
+    "frontend_name": "Magmar"
+  },
+  {
+    "id": 127,
+    "name": "Pinsir",
+    "PokeAPI_id": 127,
+    "PokeAPI_name": "Pinsir",
+    "Pokemondb_name": "Pinsir",
+    "frontend_name": "Pinsir"
+  },
+  {
+    "id": 128,
+    "name": "Tauros",
+    "PokeAPI_id": 128,
+    "PokeAPI_name": "Tauros",
+    "Pokemondb_name": "Tauros",
+    "frontend_name": "Tauros"
+  },
+  {
+    "id": 129,
+    "name": "Magikarp",
+    "PokeAPI_id": 129,
+    "PokeAPI_name": "Magikarp",
+    "Pokemondb_name": "Magikarp",
+    "frontend_name": "Magikarp"
+  },
+  {
+    "id": 130,
+    "name": "Gyarados",
+    "PokeAPI_id": 130,
+    "PokeAPI_name": "Gyarados",
+    "Pokemondb_name": "Gyarados",
+    "frontend_name": "Gyarados"
+  },
+  {
+    "id": 131,
+    "name": "Lapras",
+    "PokeAPI_id": 131,
+    "PokeAPI_name": "Lapras",
+    "Pokemondb_name": "Lapras",
+    "frontend_name": "Lapras"
+  },
+  {
+    "id": 132,
+    "name": "Ditto",
+    "PokeAPI_id": 132,
+    "PokeAPI_name": "Ditto",
+    "Pokemondb_name": "Ditto",
+    "frontend_name": "Ditto"
+  },
+  {
+    "id": 133,
+    "name": "Eevee",
+    "PokeAPI_id": 133,
+    "PokeAPI_name": "Eevee",
+    "Pokemondb_name": "Eevee",
+    "frontend_name": "Eevee"
+  },
+  {
+    "id": 134,
+    "name": "Vaporeon",
+    "PokeAPI_id": 134,
+    "PokeAPI_name": "Vaporeon",
+    "Pokemondb_name": "Vaporeon",
+    "frontend_name": "Vaporeon"
+  },
+  {
+    "id": 135,
+    "name": "Jolteon",
+    "PokeAPI_id": 135,
+    "PokeAPI_name": "Jolteon",
+    "Pokemondb_name": "Jolteon",
+    "frontend_name": "Jolteon"
+  },
+  {
+    "id": 136,
+    "name": "Flareon",
+    "PokeAPI_id": 136,
+    "PokeAPI_name": "Flareon",
+    "Pokemondb_name": "Flareon",
+    "frontend_name": "Flareon"
+  },
+  {
+    "id": 137,
+    "name": "Porygon",
+    "PokeAPI_id": 137,
+    "PokeAPI_name": "Porygon",
+    "Pokemondb_name": "Porygon",
+    "frontend_name": "Porygon"
+  },
+  {
+    "id": 138,
+    "name": "Omanyte",
+    "PokeAPI_id": 138,
+    "PokeAPI_name": "Omanyte",
+    "Pokemondb_name": "Omanyte",
+    "frontend_name": "Omanyte"
+  },
+  {
+    "id": 139,
+    "name": "Omastar",
+    "PokeAPI_id": 139,
+    "PokeAPI_name": "Omastar",
+    "Pokemondb_name": "Omastar",
+    "frontend_name": "Omastar"
+  },
+  {
+    "id": 140,
+    "name": "Kabuto",
+    "PokeAPI_id": 140,
+    "PokeAPI_name": "Kabuto",
+    "Pokemondb_name": "Kabuto",
+    "frontend_name": "Kabuto"
+  },
+  {
+    "id": 141,
+    "name": "Kabutops",
+    "PokeAPI_id": 141,
+    "PokeAPI_name": "Kabutops",
+    "Pokemondb_name": "Kabutops",
+    "frontend_name": "Kabutops"
+  },
+  {
+    "id": 142,
+    "name": "Aerodactyl",
+    "PokeAPI_id": 142,
+    "PokeAPI_name": "Aerodactyl",
+    "Pokemondb_name": "Aerodactyl",
+    "frontend_name": "Aerodactyl"
+  },
+  {
+    "id": 143,
+    "name": "Snorlax",
+    "PokeAPI_id": 143,
+    "PokeAPI_name": "Snorlax",
+    "Pokemondb_name": "Snorlax",
+    "frontend_name": "Snorlax"
+  },
+  {
+    "id": 144,
+    "name": "Articuno",
+    "PokeAPI_id": 144,
+    "PokeAPI_name": "Articuno",
+    "Pokemondb_name": "Articuno",
+    "frontend_name": "Articuno"
+  },
+  {
+    "id": 145,
+    "name": "Zapdos",
+    "PokeAPI_id": 145,
+    "PokeAPI_name": "Zapdos",
+    "Pokemondb_name": "Zapdos",
+    "frontend_name": "Zapdos"
+  },
+  {
+    "id": 146,
+    "name": "Moltres",
+    "PokeAPI_id": 146,
+    "PokeAPI_name": "Moltres",
+    "Pokemondb_name": "Moltres",
+    "frontend_name": "Moltres"
+  },
+  {
+    "id": 147,
+    "name": "Dratini",
+    "PokeAPI_id": 147,
+    "PokeAPI_name": "Dratini",
+    "Pokemondb_name": "Dratini",
+    "frontend_name": "Dratini"
+  },
+  {
+    "id": 148,
+    "name": "Dragonair",
+    "PokeAPI_id": 148,
+    "PokeAPI_name": "Dragonair",
+    "Pokemondb_name": "Dragonair",
+    "frontend_name": "Dragonair"
+  },
+  {
+    "id": 149,
+    "name": "Dragonite",
+    "PokeAPI_id": 149,
+    "PokeAPI_name": "Dragonite",
+    "Pokemondb_name": "Dragonite",
+    "frontend_name": "Dragonite"
+  },
+  {
+    "id": 150,
+    "name": "Mewtwo",
+    "PokeAPI_id": 150,
+    "PokeAPI_name": "Mewtwo",
+    "Pokemondb_name": "Mewtwo",
+    "frontend_name": "Mewtwo"
+  },
+  {
+    "id": 151,
+    "name": "Mew",
+    "PokeAPI_id": 151,
+    "PokeAPI_name": "Mew",
+    "Pokemondb_name": "Mew",
+    "frontend_name": "Mew"
+  },
+  {
+    "id": 152,
+    "name": "Chikorita",
+    "PokeAPI_id": 152,
+    "PokeAPI_name": "Chikorita",
+    "Pokemondb_name": "Chikorita",
+    "frontend_name": "Chikorita"
+  },
+  {
+    "id": 153,
+    "name": "Bayleef",
+    "PokeAPI_id": 153,
+    "PokeAPI_name": "Bayleef",
+    "Pokemondb_name": "Bayleef",
+    "frontend_name": "Bayleef"
+  },
+  {
+    "id": 154,
+    "name": "Meganium",
+    "PokeAPI_id": 154,
+    "PokeAPI_name": "Meganium",
+    "Pokemondb_name": "Meganium",
+    "frontend_name": "Meganium"
+  },
+  {
+    "id": 155,
+    "name": "Cyndaquil",
+    "PokeAPI_id": 155,
+    "PokeAPI_name": "Cyndaquil",
+    "Pokemondb_name": "Cyndaquil",
+    "frontend_name": "Cyndaquil"
+  },
+  {
+    "id": 156,
+    "name": "Quilava",
+    "PokeAPI_id": 156,
+    "PokeAPI_name": "Quilava",
+    "Pokemondb_name": "Quilava",
+    "frontend_name": "Quilava"
+  },
+  {
+    "id": 157,
+    "name": "Typhlosion",
+    "PokeAPI_id": 157,
+    "PokeAPI_name": "Typhlosion",
+    "Pokemondb_name": "Typhlosion",
+    "frontend_name": "Typhlosion"
+  },
+  {
+    "id": 158,
+    "name": "Totodile",
+    "PokeAPI_id": 158,
+    "PokeAPI_name": "Totodile",
+    "Pokemondb_name": "Totodile",
+    "frontend_name": "Totodile"
+  },
+  {
+    "id": 159,
+    "name": "Croconaw",
+    "PokeAPI_id": 159,
+    "PokeAPI_name": "Croconaw",
+    "Pokemondb_name": "Croconaw",
+    "frontend_name": "Croconaw"
+  },
+  {
+    "id": 160,
+    "name": "Feraligatr",
+    "PokeAPI_id": 160,
+    "PokeAPI_name": "Feraligatr",
+    "Pokemondb_name": "Feraligatr",
+    "frontend_name": "Feraligatr"
+  },
+  {
+    "id": 161,
+    "name": "Sentret",
+    "PokeAPI_id": 161,
+    "PokeAPI_name": "Sentret",
+    "Pokemondb_name": "Sentret",
+    "frontend_name": "Sentret"
+  },
+  {
+    "id": 162,
+    "name": "Furret",
+    "PokeAPI_id": 162,
+    "PokeAPI_name": "Furret",
+    "Pokemondb_name": "Furret",
+    "frontend_name": "Furret"
+  },
+  {
+    "id": 163,
+    "name": "Hoothoot",
+    "PokeAPI_id": 163,
+    "PokeAPI_name": "Hoothoot",
+    "Pokemondb_name": "Hoothoot",
+    "frontend_name": "Hoothoot"
+  },
+  {
+    "id": 164,
+    "name": "Noctowl",
+    "PokeAPI_id": 164,
+    "PokeAPI_name": "Noctowl",
+    "Pokemondb_name": "Noctowl",
+    "frontend_name": "Noctowl"
+  },
+  {
+    "id": 165,
+    "name": "Ledyba",
+    "PokeAPI_id": 165,
+    "PokeAPI_name": "Ledyba",
+    "Pokemondb_name": "Ledyba",
+    "frontend_name": "Ledyba"
+  },
+  {
+    "id": 166,
+    "name": "Ledian",
+    "PokeAPI_id": 166,
+    "PokeAPI_name": "Ledian",
+    "Pokemondb_name": "Ledian",
+    "frontend_name": "Ledian"
+  },
+  {
+    "id": 167,
+    "name": "Spinarak",
+    "PokeAPI_id": 167,
+    "PokeAPI_name": "Spinarak",
+    "Pokemondb_name": "Spinarak",
+    "frontend_name": "Spinarak"
+  },
+  {
+    "id": 168,
+    "name": "Ariados",
+    "PokeAPI_id": 168,
+    "PokeAPI_name": "Ariados",
+    "Pokemondb_name": "Ariados",
+    "frontend_name": "Ariados"
+  },
+  {
+    "id": 169,
+    "name": "Crobat",
+    "PokeAPI_id": 169,
+    "PokeAPI_name": "Crobat",
+    "Pokemondb_name": "Crobat",
+    "frontend_name": "Crobat"
+  },
+  {
+    "id": 170,
+    "name": "Chinchou",
+    "PokeAPI_id": 170,
+    "PokeAPI_name": "Chinchou",
+    "Pokemondb_name": "Chinchou",
+    "frontend_name": "Chinchou"
+  },
+  {
+    "id": 171,
+    "name": "Lanturn",
+    "PokeAPI_id": 171,
+    "PokeAPI_name": "Lanturn",
+    "Pokemondb_name": "Lanturn",
+    "frontend_name": "Lanturn"
+  },
+  {
+    "id": 172,
+    "name": "Pichu",
+    "PokeAPI_id": 172,
+    "PokeAPI_name": "Pichu",
+    "Pokemondb_name": "Pichu",
+    "frontend_name": "Pichu"
+  },
+  {
+    "id": 173,
+    "name": "Cleffa",
+    "PokeAPI_id": 173,
+    "PokeAPI_name": "Cleffa",
+    "Pokemondb_name": "Cleffa",
+    "frontend_name": "Cleffa"
+  },
+  {
+    "id": 174,
+    "name": "Igglybuff",
+    "PokeAPI_id": 174,
+    "PokeAPI_name": "Igglybuff",
+    "Pokemondb_name": "Igglybuff",
+    "frontend_name": "Igglybuff"
+  },
+  {
+    "id": 175,
+    "name": "Togepi",
+    "PokeAPI_id": 175,
+    "PokeAPI_name": "Togepi",
+    "Pokemondb_name": "Togepi",
+    "frontend_name": "Togepi"
+  },
+  {
+    "id": 176,
+    "name": "Togetic",
+    "PokeAPI_id": 176,
+    "PokeAPI_name": "Togetic",
+    "Pokemondb_name": "Togetic",
+    "frontend_name": "Togetic"
+  },
+  {
+    "id": 177,
+    "name": "Natu",
+    "PokeAPI_id": 177,
+    "PokeAPI_name": "Natu",
+    "Pokemondb_name": "Natu",
+    "frontend_name": "Natu"
+  },
+  {
+    "id": 178,
+    "name": "Xatu",
+    "PokeAPI_id": 178,
+    "PokeAPI_name": "Xatu",
+    "Pokemondb_name": "Xatu",
+    "frontend_name": "Xatu"
+  },
+  {
+    "id": 179,
+    "name": "Mareep",
+    "PokeAPI_id": 179,
+    "PokeAPI_name": "Mareep",
+    "Pokemondb_name": "Mareep",
+    "frontend_name": "Mareep"
+  },
+  {
+    "id": 180,
+    "name": "Flaaffy",
+    "PokeAPI_id": 180,
+    "PokeAPI_name": "Flaaffy",
+    "Pokemondb_name": "Flaaffy",
+    "frontend_name": "Flaaffy"
+  },
+  {
+    "id": 181,
+    "name": "Ampharos",
+    "PokeAPI_id": 181,
+    "PokeAPI_name": "Ampharos",
+    "Pokemondb_name": "Ampharos",
+    "frontend_name": "Ampharos"
+  },
+  {
+    "id": 182,
+    "name": "Bellossom",
+    "PokeAPI_id": 182,
+    "PokeAPI_name": "Bellossom",
+    "Pokemondb_name": "Bellossom",
+    "frontend_name": "Bellossom"
+  },
+  {
+    "id": 183,
+    "name": "Marill",
+    "PokeAPI_id": 183,
+    "PokeAPI_name": "Marill",
+    "Pokemondb_name": "Marill",
+    "frontend_name": "Marill"
+  },
+  {
+    "id": 184,
+    "name": "Azumarill",
+    "PokeAPI_id": 184,
+    "PokeAPI_name": "Azumarill",
+    "Pokemondb_name": "Azumarill",
+    "frontend_name": "Azumarill"
+  },
+  {
+    "id": 185,
+    "name": "Sudowoodo",
+    "PokeAPI_id": 185,
+    "PokeAPI_name": "Sudowoodo",
+    "Pokemondb_name": "Sudowoodo",
+    "frontend_name": "Sudowoodo"
+  },
+  {
+    "id": 186,
+    "name": "Politoed",
+    "PokeAPI_id": 186,
+    "PokeAPI_name": "Politoed",
+    "Pokemondb_name": "Politoed",
+    "frontend_name": "Politoed"
+  },
+  {
+    "id": 187,
+    "name": "Hoppip",
+    "PokeAPI_id": 187,
+    "PokeAPI_name": "Hoppip",
+    "Pokemondb_name": "Hoppip",
+    "frontend_name": "Hoppip"
+  },
+  {
+    "id": 188,
+    "name": "Skiploom",
+    "PokeAPI_id": 188,
+    "PokeAPI_name": "Skiploom",
+    "Pokemondb_name": "Skiploom",
+    "frontend_name": "Skiploom"
+  },
+  {
+    "id": 189,
+    "name": "Jumpluff",
+    "PokeAPI_id": 189,
+    "PokeAPI_name": "Jumpluff",
+    "Pokemondb_name": "Jumpluff",
+    "frontend_name": "Jumpluff"
+  },
+  {
+    "id": 190,
+    "name": "Aipom",
+    "PokeAPI_id": 190,
+    "PokeAPI_name": "Aipom",
+    "Pokemondb_name": "Aipom",
+    "frontend_name": "Aipom"
+  },
+  {
+    "id": 191,
+    "name": "Sunkern",
+    "PokeAPI_id": 191,
+    "PokeAPI_name": "Sunkern",
+    "Pokemondb_name": "Sunkern",
+    "frontend_name": "Sunkern"
+  },
+  {
+    "id": 192,
+    "name": "Sunflora",
+    "PokeAPI_id": 192,
+    "PokeAPI_name": "Sunflora",
+    "Pokemondb_name": "Sunflora",
+    "frontend_name": "Sunflora"
+  },
+  {
+    "id": 193,
+    "name": "Yanma",
+    "PokeAPI_id": 193,
+    "PokeAPI_name": "Yanma",
+    "Pokemondb_name": "Yanma",
+    "frontend_name": "Yanma"
+  },
+  {
+    "id": 194,
+    "name": "Wooper",
+    "PokeAPI_id": 194,
+    "PokeAPI_name": "Wooper",
+    "Pokemondb_name": "Wooper",
+    "frontend_name": "Wooper"
+  },
+  {
+    "id": 195,
+    "name": "Quagsire",
+    "PokeAPI_id": 195,
+    "PokeAPI_name": "Quagsire",
+    "Pokemondb_name": "Quagsire",
+    "frontend_name": "Quagsire"
+  },
+  {
+    "id": 196,
+    "name": "Espeon",
+    "PokeAPI_id": 196,
+    "PokeAPI_name": "Espeon",
+    "Pokemondb_name": "Espeon",
+    "frontend_name": "Espeon"
+  },
+  {
+    "id": 197,
+    "name": "Umbreon",
+    "PokeAPI_id": 197,
+    "PokeAPI_name": "Umbreon",
+    "Pokemondb_name": "Umbreon",
+    "frontend_name": "Umbreon"
+  },
+  {
+    "id": 198,
+    "name": "Murkrow",
+    "PokeAPI_id": 198,
+    "PokeAPI_name": "Murkrow",
+    "Pokemondb_name": "Murkrow",
+    "frontend_name": "Murkrow"
+  },
+  {
+    "id": 199,
+    "name": "Slowking",
+    "PokeAPI_id": 199,
+    "PokeAPI_name": "Slowking",
+    "Pokemondb_name": "Slowking",
+    "frontend_name": "Slowking"
+  },
+  {
+    "id": 200,
+    "name": "Misdreavus",
+    "PokeAPI_id": 200,
+    "PokeAPI_name": "Misdreavus",
+    "Pokemondb_name": "Misdreavus",
+    "frontend_name": "Misdreavus"
+  },
+  {
+    "id": 201,
+    "name": "Unown",
+    "PokeAPI_id": 201,
+    "PokeAPI_name": "Unown",
+    "Pokemondb_name": "Unown",
+    "frontend_name": "Unown"
+  },
+  {
+    "id": 202,
+    "name": "Wobbuffet",
+    "PokeAPI_id": 202,
+    "PokeAPI_name": "Wobbuffet",
+    "Pokemondb_name": "Wobbuffet",
+    "frontend_name": "Wobbuffet"
+  },
+  {
+    "id": 203,
+    "name": "Girafarig",
+    "PokeAPI_id": 203,
+    "PokeAPI_name": "Girafarig",
+    "Pokemondb_name": "Girafarig",
+    "frontend_name": "Girafarig"
+  },
+  {
+    "id": 204,
+    "name": "Pineco",
+    "PokeAPI_id": 204,
+    "PokeAPI_name": "Pineco",
+    "Pokemondb_name": "Pineco",
+    "frontend_name": "Pineco"
+  },
+  {
+    "id": 205,
+    "name": "Forretress",
+    "PokeAPI_id": 205,
+    "PokeAPI_name": "Forretress",
+    "Pokemondb_name": "Forretress",
+    "frontend_name": "Forretress"
+  },
+  {
+    "id": 206,
+    "name": "Dunsparce",
+    "PokeAPI_id": 206,
+    "PokeAPI_name": "Dunsparce",
+    "Pokemondb_name": "Dunsparce",
+    "frontend_name": "Dunsparce"
+  },
+  {
+    "id": 207,
+    "name": "Gligar",
+    "PokeAPI_id": 207,
+    "PokeAPI_name": "Gligar",
+    "Pokemondb_name": "Gligar",
+    "frontend_name": "Gligar"
+  },
+  {
+    "id": 208,
+    "name": "Steelix",
+    "PokeAPI_id": 208,
+    "PokeAPI_name": "Steelix",
+    "Pokemondb_name": "Steelix",
+    "frontend_name": "Steelix"
+  },
+  {
+    "id": 209,
+    "name": "Snubbull",
+    "PokeAPI_id": 209,
+    "PokeAPI_name": "Snubbull",
+    "Pokemondb_name": "Snubbull",
+    "frontend_name": "Snubbull"
+  },
+  {
+    "id": 210,
+    "name": "Granbull",
+    "PokeAPI_id": 210,
+    "PokeAPI_name": "Granbull",
+    "Pokemondb_name": "Granbull",
+    "frontend_name": "Granbull"
+  },
+  {
+    "id": 211,
+    "name": "Qwilfish",
+    "PokeAPI_id": 211,
+    "PokeAPI_name": "Qwilfish",
+    "Pokemondb_name": "Qwilfish",
+    "frontend_name": "Qwilfish"
+  },
+  {
+    "id": 212,
+    "name": "Scizor",
+    "PokeAPI_id": 212,
+    "PokeAPI_name": "Scizor",
+    "Pokemondb_name": "Scizor",
+    "frontend_name": "Scizor"
+  },
+  {
+    "id": 213,
+    "name": "Shuckle",
+    "PokeAPI_id": 213,
+    "PokeAPI_name": "Shuckle",
+    "Pokemondb_name": "Shuckle",
+    "frontend_name": "Shuckle"
+  },
+  {
+    "id": 214,
+    "name": "Heracross",
+    "PokeAPI_id": 214,
+    "PokeAPI_name": "Heracross",
+    "Pokemondb_name": "Heracross",
+    "frontend_name": "Heracross"
+  },
+  {
+    "id": 215,
+    "name": "Sneasel",
+    "PokeAPI_id": 215,
+    "PokeAPI_name": "Sneasel",
+    "Pokemondb_name": "Sneasel",
+    "frontend_name": "Sneasel"
+  },
+  {
+    "id": 216,
+    "name": "Teddiursa",
+    "PokeAPI_id": 216,
+    "PokeAPI_name": "Teddiursa",
+    "Pokemondb_name": "Teddiursa",
+    "frontend_name": "Teddiursa"
+  },
+  {
+    "id": 217,
+    "name": "Ursaring",
+    "PokeAPI_id": 217,
+    "PokeAPI_name": "Ursaring",
+    "Pokemondb_name": "Ursaring",
+    "frontend_name": "Ursaring"
+  },
+  {
+    "id": 218,
+    "name": "Slugma",
+    "PokeAPI_id": 218,
+    "PokeAPI_name": "Slugma",
+    "Pokemondb_name": "Slugma",
+    "frontend_name": "Slugma"
+  },
+  {
+    "id": 219,
+    "name": "Magcargo",
+    "PokeAPI_id": 219,
+    "PokeAPI_name": "Magcargo",
+    "Pokemondb_name": "Magcargo",
+    "frontend_name": "Magcargo"
+  },
+  {
+    "id": 220,
+    "name": "Swinub",
+    "PokeAPI_id": 220,
+    "PokeAPI_name": "Swinub",
+    "Pokemondb_name": "Swinub",
+    "frontend_name": "Swinub"
+  },
+  {
+    "id": 221,
+    "name": "Piloswine",
+    "PokeAPI_id": 221,
+    "PokeAPI_name": "Piloswine",
+    "Pokemondb_name": "Piloswine",
+    "frontend_name": "Piloswine"
+  },
+  {
+    "id": 222,
+    "name": "Corsola",
+    "PokeAPI_id": 222,
+    "PokeAPI_name": "Corsola",
+    "Pokemondb_name": "Corsola",
+    "frontend_name": "Corsola"
+  },
+  {
+    "id": 223,
+    "name": "Remoraid",
+    "PokeAPI_id": 223,
+    "PokeAPI_name": "Remoraid",
+    "Pokemondb_name": "Remoraid",
+    "frontend_name": "Remoraid"
+  },
+  {
+    "id": 224,
+    "name": "Octillery",
+    "PokeAPI_id": 224,
+    "PokeAPI_name": "Octillery",
+    "Pokemondb_name": "Octillery",
+    "frontend_name": "Octillery"
+  },
+  {
+    "id": 225,
+    "name": "Delibird",
+    "PokeAPI_id": 225,
+    "PokeAPI_name": "Delibird",
+    "Pokemondb_name": "Delibird",
+    "frontend_name": "Delibird"
+  },
+  {
+    "id": 226,
+    "name": "Mantine",
+    "PokeAPI_id": 226,
+    "PokeAPI_name": "Mantine",
+    "Pokemondb_name": "Mantine",
+    "frontend_name": "Mantine"
+  },
+  {
+    "id": 227,
+    "name": "Skarmory",
+    "PokeAPI_id": 227,
+    "PokeAPI_name": "Skarmory",
+    "Pokemondb_name": "Skarmory",
+    "frontend_name": "Skarmory"
+  },
+  {
+    "id": 228,
+    "name": "Houndour",
+    "PokeAPI_id": 228,
+    "PokeAPI_name": "Houndour",
+    "Pokemondb_name": "Houndour",
+    "frontend_name": "Houndour"
+  },
+  {
+    "id": 229,
+    "name": "Houndoom",
+    "PokeAPI_id": 229,
+    "PokeAPI_name": "Houndoom",
+    "Pokemondb_name": "Houndoom",
+    "frontend_name": "Houndoom"
+  },
+  {
+    "id": 230,
+    "name": "Kingdra",
+    "PokeAPI_id": 230,
+    "PokeAPI_name": "Kingdra",
+    "Pokemondb_name": "Kingdra",
+    "frontend_name": "Kingdra"
+  },
+  {
+    "id": 231,
+    "name": "Phanpy",
+    "PokeAPI_id": 231,
+    "PokeAPI_name": "Phanpy",
+    "Pokemondb_name": "Phanpy",
+    "frontend_name": "Phanpy"
+  },
+  {
+    "id": 232,
+    "name": "Donphan",
+    "PokeAPI_id": 232,
+    "PokeAPI_name": "Donphan",
+    "Pokemondb_name": "Donphan",
+    "frontend_name": "Donphan"
+  },
+  {
+    "id": 233,
+    "name": "Porygon2",
+    "PokeAPI_id": 233,
+    "PokeAPI_name": "Porygon2",
+    "Pokemondb_name": "Porygon2",
+    "frontend_name": "Porygon2"
+  },
+  {
+    "id": 234,
+    "name": "Stantler",
+    "PokeAPI_id": 234,
+    "PokeAPI_name": "Stantler",
+    "Pokemondb_name": "Stantler",
+    "frontend_name": "Stantler"
+  },
+  {
+    "id": 235,
+    "name": "Smeargle",
+    "PokeAPI_id": 235,
+    "PokeAPI_name": "Smeargle",
+    "Pokemondb_name": "Smeargle",
+    "frontend_name": "Smeargle"
+  },
+  {
+    "id": 236,
+    "name": "Tyrogue",
+    "PokeAPI_id": 236,
+    "PokeAPI_name": "Tyrogue",
+    "Pokemondb_name": "Tyrogue",
+    "frontend_name": "Tyrogue"
+  },
+  {
+    "id": 237,
+    "name": "Hitmontop",
+    "PokeAPI_id": 237,
+    "PokeAPI_name": "Hitmontop",
+    "Pokemondb_name": "Hitmontop",
+    "frontend_name": "Hitmontop"
+  },
+  {
+    "id": 238,
+    "name": "Smoochum",
+    "PokeAPI_id": 238,
+    "PokeAPI_name": "Smoochum",
+    "Pokemondb_name": "Smoochum",
+    "frontend_name": "Smoochum"
+  },
+  {
+    "id": 239,
+    "name": "Elekid",
+    "PokeAPI_id": 239,
+    "PokeAPI_name": "Elekid",
+    "Pokemondb_name": "Elekid",
+    "frontend_name": "Elekid"
+  },
+  {
+    "id": 240,
+    "name": "Magby",
+    "PokeAPI_id": 240,
+    "PokeAPI_name": "Magby",
+    "Pokemondb_name": "Magby",
+    "frontend_name": "Magby"
+  },
+  {
+    "id": 241,
+    "name": "Miltank",
+    "PokeAPI_id": 241,
+    "PokeAPI_name": "Miltank",
+    "Pokemondb_name": "Miltank",
+    "frontend_name": "Miltank"
+  },
+  {
+    "id": 242,
+    "name": "Blissey",
+    "PokeAPI_id": 242,
+    "PokeAPI_name": "Blissey",
+    "Pokemondb_name": "Blissey",
+    "frontend_name": "Blissey"
+  },
+  {
+    "id": 243,
+    "name": "Raikou",
+    "PokeAPI_id": 243,
+    "PokeAPI_name": "Raikou",
+    "Pokemondb_name": "Raikou",
+    "frontend_name": "Raikou"
+  },
+  {
+    "id": 244,
+    "name": "Entei",
+    "PokeAPI_id": 244,
+    "PokeAPI_name": "Entei",
+    "Pokemondb_name": "Entei",
+    "frontend_name": "Entei"
+  },
+  {
+    "id": 245,
+    "name": "Suicune",
+    "PokeAPI_id": 245,
+    "PokeAPI_name": "Suicune",
+    "Pokemondb_name": "Suicune",
+    "frontend_name": "Suicune"
+  },
+  {
+    "id": 246,
+    "name": "Larvitar",
+    "PokeAPI_id": 246,
+    "PokeAPI_name": "Larvitar",
+    "Pokemondb_name": "Larvitar",
+    "frontend_name": "Larvitar"
+  },
+  {
+    "id": 247,
+    "name": "Pupitar",
+    "PokeAPI_id": 247,
+    "PokeAPI_name": "Pupitar",
+    "Pokemondb_name": "Pupitar",
+    "frontend_name": "Pupitar"
+  },
+  {
+    "id": 248,
+    "name": "Tyranitar",
+    "PokeAPI_id": 248,
+    "PokeAPI_name": "Tyranitar",
+    "Pokemondb_name": "Tyranitar",
+    "frontend_name": "Tyranitar"
+  },
+  {
+    "id": 249,
+    "name": "Lugia",
+    "PokeAPI_id": 249,
+    "PokeAPI_name": "Lugia",
+    "Pokemondb_name": "Lugia",
+    "frontend_name": "Lugia"
+  },
+  {
+    "id": 250,
+    "name": "Ho-Oh",
+    "PokeAPI_id": 250,
+    "PokeAPI_name": "Ho-Oh",
+    "Pokemondb_name": "Ho-Oh",
+    "frontend_name": "Ho-Oh"
+  },
+  {
+    "id": 251,
+    "name": "Celebi",
+    "PokeAPI_id": 251,
+    "PokeAPI_name": "Celebi",
+    "Pokemondb_name": "Celebi",
+    "frontend_name": "Celebi"
+  },
+  {
+    "id": 252,
+    "name": "Treecko",
+    "PokeAPI_id": 252,
+    "PokeAPI_name": "Treecko",
+    "Pokemondb_name": "Treecko",
+    "frontend_name": "Treecko"
+  },
+  {
+    "id": 253,
+    "name": "Grovyle",
+    "PokeAPI_id": 253,
+    "PokeAPI_name": "Grovyle",
+    "Pokemondb_name": "Grovyle",
+    "frontend_name": "Grovyle"
+  },
+  {
+    "id": 254,
+    "name": "Sceptile",
+    "PokeAPI_id": 254,
+    "PokeAPI_name": "Sceptile",
+    "Pokemondb_name": "Sceptile",
+    "frontend_name": "Sceptile"
+  },
+  {
+    "id": 255,
+    "name": "Torchic",
+    "PokeAPI_id": 255,
+    "PokeAPI_name": "Torchic",
+    "Pokemondb_name": "Torchic",
+    "frontend_name": "Torchic"
+  },
+  {
+    "id": 256,
+    "name": "Combusken",
+    "PokeAPI_id": 256,
+    "PokeAPI_name": "Combusken",
+    "Pokemondb_name": "Combusken",
+    "frontend_name": "Combusken"
+  },
+  {
+    "id": 257,
+    "name": "Blaziken",
+    "PokeAPI_id": 257,
+    "PokeAPI_name": "Blaziken",
+    "Pokemondb_name": "Blaziken",
+    "frontend_name": "Blaziken"
+  },
+  {
+    "id": 258,
+    "name": "Mudkip",
+    "PokeAPI_id": 258,
+    "PokeAPI_name": "Mudkip",
+    "Pokemondb_name": "Mudkip",
+    "frontend_name": "Mudkip"
+  },
+  {
+    "id": 259,
+    "name": "Marshtomp",
+    "PokeAPI_id": 259,
+    "PokeAPI_name": "Marshtomp",
+    "Pokemondb_name": "Marshtomp",
+    "frontend_name": "Marshtomp"
+  },
+  {
+    "id": 260,
+    "name": "Swampert",
+    "PokeAPI_id": 260,
+    "PokeAPI_name": "Swampert",
+    "Pokemondb_name": "Swampert",
+    "frontend_name": "Swampert"
+  },
+  {
+    "id": 261,
+    "name": "Poochyena",
+    "PokeAPI_id": 261,
+    "PokeAPI_name": "Poochyena",
+    "Pokemondb_name": "Poochyena",
+    "frontend_name": "Poochyena"
+  },
+  {
+    "id": 262,
+    "name": "Mightyena",
+    "PokeAPI_id": 262,
+    "PokeAPI_name": "Mightyena",
+    "Pokemondb_name": "Mightyena",
+    "frontend_name": "Mightyena"
+  },
+  {
+    "id": 263,
+    "name": "Zigzagoon",
+    "PokeAPI_id": 263,
+    "PokeAPI_name": "Zigzagoon",
+    "Pokemondb_name": "Zigzagoon",
+    "frontend_name": "Zigzagoon"
+  },
+  {
+    "id": 264,
+    "name": "Linoone",
+    "PokeAPI_id": 264,
+    "PokeAPI_name": "Linoone",
+    "Pokemondb_name": "Linoone",
+    "frontend_name": "Linoone"
+  },
+  {
+    "id": 265,
+    "name": "Wurmple",
+    "PokeAPI_id": 265,
+    "PokeAPI_name": "Wurmple",
+    "Pokemondb_name": "Wurmple",
+    "frontend_name": "Wurmple"
+  },
+  {
+    "id": 266,
+    "name": "Silcoon",
+    "PokeAPI_id": 266,
+    "PokeAPI_name": "Silcoon",
+    "Pokemondb_name": "Silcoon",
+    "frontend_name": "Silcoon"
+  },
+  {
+    "id": 267,
+    "name": "Beautifly",
+    "PokeAPI_id": 267,
+    "PokeAPI_name": "Beautifly",
+    "Pokemondb_name": "Beautifly",
+    "frontend_name": "Beautifly"
+  },
+  {
+    "id": 268,
+    "name": "Cascoon",
+    "PokeAPI_id": 268,
+    "PokeAPI_name": "Cascoon",
+    "Pokemondb_name": "Cascoon",
+    "frontend_name": "Cascoon"
+  },
+  {
+    "id": 269,
+    "name": "Dustox",
+    "PokeAPI_id": 269,
+    "PokeAPI_name": "Dustox",
+    "Pokemondb_name": "Dustox",
+    "frontend_name": "Dustox"
+  },
+  {
+    "id": 270,
+    "name": "Lotad",
+    "PokeAPI_id": 270,
+    "PokeAPI_name": "Lotad",
+    "Pokemondb_name": "Lotad",
+    "frontend_name": "Lotad"
+  },
+  {
+    "id": 271,
+    "name": "Lombre",
+    "PokeAPI_id": 271,
+    "PokeAPI_name": "Lombre",
+    "Pokemondb_name": "Lombre",
+    "frontend_name": "Lombre"
+  },
+  {
+    "id": 272,
+    "name": "Ludicolo",
+    "PokeAPI_id": 272,
+    "PokeAPI_name": "Ludicolo",
+    "Pokemondb_name": "Ludicolo",
+    "frontend_name": "Ludicolo"
+  },
+  {
+    "id": 273,
+    "name": "Seedot",
+    "PokeAPI_id": 273,
+    "PokeAPI_name": "Seedot",
+    "Pokemondb_name": "Seedot",
+    "frontend_name": "Seedot"
+  },
+  {
+    "id": 274,
+    "name": "Nuzleaf",
+    "PokeAPI_id": 274,
+    "PokeAPI_name": "Nuzleaf",
+    "Pokemondb_name": "Nuzleaf",
+    "frontend_name": "Nuzleaf"
+  },
+  {
+    "id": 275,
+    "name": "Shiftry",
+    "PokeAPI_id": 275,
+    "PokeAPI_name": "Shiftry",
+    "Pokemondb_name": "Shiftry",
+    "frontend_name": "Shiftry"
+  },
+  {
+    "id": 276,
+    "name": "Taillow",
+    "PokeAPI_id": 276,
+    "PokeAPI_name": "Taillow",
+    "Pokemondb_name": "Taillow",
+    "frontend_name": "Taillow"
+  },
+  {
+    "id": 277,
+    "name": "Swellow",
+    "PokeAPI_id": 277,
+    "PokeAPI_name": "Swellow",
+    "Pokemondb_name": "Swellow",
+    "frontend_name": "Swellow"
+  },
+  {
+    "id": 278,
+    "name": "Wingull",
+    "PokeAPI_id": 278,
+    "PokeAPI_name": "Wingull",
+    "Pokemondb_name": "Wingull",
+    "frontend_name": "Wingull"
+  },
+  {
+    "id": 279,
+    "name": "Pelipper",
+    "PokeAPI_id": 279,
+    "PokeAPI_name": "Pelipper",
+    "Pokemondb_name": "Pelipper",
+    "frontend_name": "Pelipper"
+  },
+  {
+    "id": 280,
+    "name": "Ralts",
+    "PokeAPI_id": 280,
+    "PokeAPI_name": "Ralts",
+    "Pokemondb_name": "Ralts",
+    "frontend_name": "Ralts"
+  },
+  {
+    "id": 281,
+    "name": "Kirlia",
+    "PokeAPI_id": 281,
+    "PokeAPI_name": "Kirlia",
+    "Pokemondb_name": "Kirlia",
+    "frontend_name": "Kirlia"
+  },
+  {
+    "id": 282,
+    "name": "Gardevoir",
+    "PokeAPI_id": 282,
+    "PokeAPI_name": "Gardevoir",
+    "Pokemondb_name": "Gardevoir",
+    "frontend_name": "Gardevoir"
+  },
+  {
+    "id": 283,
+    "name": "Surskit",
+    "PokeAPI_id": 283,
+    "PokeAPI_name": "Surskit",
+    "Pokemondb_name": "Surskit",
+    "frontend_name": "Surskit"
+  },
+  {
+    "id": 284,
+    "name": "Masquerain",
+    "PokeAPI_id": 284,
+    "PokeAPI_name": "Masquerain",
+    "Pokemondb_name": "Masquerain",
+    "frontend_name": "Masquerain"
+  },
+  {
+    "id": 285,
+    "name": "Shroomish",
+    "PokeAPI_id": 285,
+    "PokeAPI_name": "Shroomish",
+    "Pokemondb_name": "Shroomish",
+    "frontend_name": "Shroomish"
+  },
+  {
+    "id": 286,
+    "name": "Breloom",
+    "PokeAPI_id": 286,
+    "PokeAPI_name": "Breloom",
+    "Pokemondb_name": "Breloom",
+    "frontend_name": "Breloom"
+  },
+  {
+    "id": 287,
+    "name": "Slakoth",
+    "PokeAPI_id": 287,
+    "PokeAPI_name": "Slakoth",
+    "Pokemondb_name": "Slakoth",
+    "frontend_name": "Slakoth"
+  },
+  {
+    "id": 288,
+    "name": "Vigoroth",
+    "PokeAPI_id": 288,
+    "PokeAPI_name": "Vigoroth",
+    "Pokemondb_name": "Vigoroth",
+    "frontend_name": "Vigoroth"
+  },
+  {
+    "id": 289,
+    "name": "Slaking",
+    "PokeAPI_id": 289,
+    "PokeAPI_name": "Slaking",
+    "Pokemondb_name": "Slaking",
+    "frontend_name": "Slaking"
+  },
+  {
+    "id": 290,
+    "name": "Nincada",
+    "PokeAPI_id": 290,
+    "PokeAPI_name": "Nincada",
+    "Pokemondb_name": "Nincada",
+    "frontend_name": "Nincada"
+  },
+  {
+    "id": 291,
+    "name": "Ninjask",
+    "PokeAPI_id": 291,
+    "PokeAPI_name": "Ninjask",
+    "Pokemondb_name": "Ninjask",
+    "frontend_name": "Ninjask"
+  },
+  {
+    "id": 292,
+    "name": "Shedinja",
+    "PokeAPI_id": 292,
+    "PokeAPI_name": "Shedinja",
+    "Pokemondb_name": "Shedinja",
+    "frontend_name": "Shedinja"
+  },
+  {
+    "id": 293,
+    "name": "Whismur",
+    "PokeAPI_id": 293,
+    "PokeAPI_name": "Whismur",
+    "Pokemondb_name": "Whismur",
+    "frontend_name": "Whismur"
+  },
+  {
+    "id": 294,
+    "name": "Loudred",
+    "PokeAPI_id": 294,
+    "PokeAPI_name": "Loudred",
+    "Pokemondb_name": "Loudred",
+    "frontend_name": "Loudred"
+  },
+  {
+    "id": 295,
+    "name": "Exploud",
+    "PokeAPI_id": 295,
+    "PokeAPI_name": "Exploud",
+    "Pokemondb_name": "Exploud",
+    "frontend_name": "Exploud"
+  },
+  {
+    "id": 296,
+    "name": "Makuhita",
+    "PokeAPI_id": 296,
+    "PokeAPI_name": "Makuhita",
+    "Pokemondb_name": "Makuhita",
+    "frontend_name": "Makuhita"
+  },
+  {
+    "id": 297,
+    "name": "Hariyama",
+    "PokeAPI_id": 297,
+    "PokeAPI_name": "Hariyama",
+    "Pokemondb_name": "Hariyama",
+    "frontend_name": "Hariyama"
+  },
+  {
+    "id": 298,
+    "name": "Azurill",
+    "PokeAPI_id": 298,
+    "PokeAPI_name": "Azurill",
+    "Pokemondb_name": "Azurill",
+    "frontend_name": "Azurill"
+  },
+  {
+    "id": 299,
+    "name": "Nosepass",
+    "PokeAPI_id": 299,
+    "PokeAPI_name": "Nosepass",
+    "Pokemondb_name": "Nosepass",
+    "frontend_name": "Nosepass"
+  },
+  {
+    "id": 300,
+    "name": "Skitty",
+    "PokeAPI_id": 300,
+    "PokeAPI_name": "Skitty",
+    "Pokemondb_name": "Skitty",
+    "frontend_name": "Skitty"
+  },
+  {
+    "id": 301,
+    "name": "Delcatty",
+    "PokeAPI_id": 301,
+    "PokeAPI_name": "Delcatty",
+    "Pokemondb_name": "Delcatty",
+    "frontend_name": "Delcatty"
+  },
+  {
+    "id": 302,
+    "name": "Sableye",
+    "PokeAPI_id": 302,
+    "PokeAPI_name": "Sableye",
+    "Pokemondb_name": "Sableye",
+    "frontend_name": "Sableye"
+  },
+  {
+    "id": 303,
+    "name": "Mawile",
+    "PokeAPI_id": 303,
+    "PokeAPI_name": "Mawile",
+    "Pokemondb_name": "Mawile",
+    "frontend_name": "Mawile"
+  },
+  {
+    "id": 304,
+    "name": "Aron",
+    "PokeAPI_id": 304,
+    "PokeAPI_name": "Aron",
+    "Pokemondb_name": "Aron",
+    "frontend_name": "Aron"
+  },
+  {
+    "id": 305,
+    "name": "Lairon",
+    "PokeAPI_id": 305,
+    "PokeAPI_name": "Lairon",
+    "Pokemondb_name": "Lairon",
+    "frontend_name": "Lairon"
+  },
+  {
+    "id": 306,
+    "name": "Aggron",
+    "PokeAPI_id": 306,
+    "PokeAPI_name": "Aggron",
+    "Pokemondb_name": "Aggron",
+    "frontend_name": "Aggron"
+  },
+  {
+    "id": 307,
+    "name": "Meditite",
+    "PokeAPI_id": 307,
+    "PokeAPI_name": "Meditite",
+    "Pokemondb_name": "Meditite",
+    "frontend_name": "Meditite"
+  },
+  {
+    "id": 308,
+    "name": "Medicham",
+    "PokeAPI_id": 308,
+    "PokeAPI_name": "Medicham",
+    "Pokemondb_name": "Medicham",
+    "frontend_name": "Medicham"
+  },
+  {
+    "id": 309,
+    "name": "Electrike",
+    "PokeAPI_id": 309,
+    "PokeAPI_name": "Electrike",
+    "Pokemondb_name": "Electrike",
+    "frontend_name": "Electrike"
+  },
+  {
+    "id": 310,
+    "name": "Manectric",
+    "PokeAPI_id": 310,
+    "PokeAPI_name": "Manectric",
+    "Pokemondb_name": "Manectric",
+    "frontend_name": "Manectric"
+  },
+  {
+    "id": 311,
+    "name": "Plusle",
+    "PokeAPI_id": 311,
+    "PokeAPI_name": "Plusle",
+    "Pokemondb_name": "Plusle",
+    "frontend_name": "Plusle"
+  },
+  {
+    "id": 312,
+    "name": "Minun",
+    "PokeAPI_id": 312,
+    "PokeAPI_name": "Minun",
+    "Pokemondb_name": "Minun",
+    "frontend_name": "Minun"
+  },
+  {
+    "id": 313,
+    "name": "Volbeat",
+    "PokeAPI_id": 313,
+    "PokeAPI_name": "Volbeat",
+    "Pokemondb_name": "Volbeat",
+    "frontend_name": "Volbeat"
+  },
+  {
+    "id": 314,
+    "name": "Illumise",
+    "PokeAPI_id": 314,
+    "PokeAPI_name": "Illumise",
+    "Pokemondb_name": "Illumise",
+    "frontend_name": "Illumise"
+  },
+  {
+    "id": 315,
+    "name": "Roselia",
+    "PokeAPI_id": 315,
+    "PokeAPI_name": "Roselia",
+    "Pokemondb_name": "Roselia",
+    "frontend_name": "Roselia"
+  },
+  {
+    "id": 316,
+    "name": "Gulpin",
+    "PokeAPI_id": 316,
+    "PokeAPI_name": "Gulpin",
+    "Pokemondb_name": "Gulpin",
+    "frontend_name": "Gulpin"
+  },
+  {
+    "id": 317,
+    "name": "Swalot",
+    "PokeAPI_id": 317,
+    "PokeAPI_name": "Swalot",
+    "Pokemondb_name": "Swalot",
+    "frontend_name": "Swalot"
+  },
+  {
+    "id": 318,
+    "name": "Carvanha",
+    "PokeAPI_id": 318,
+    "PokeAPI_name": "Carvanha",
+    "Pokemondb_name": "Carvanha",
+    "frontend_name": "Carvanha"
+  },
+  {
+    "id": 319,
+    "name": "Sharpedo",
+    "PokeAPI_id": 319,
+    "PokeAPI_name": "Sharpedo",
+    "Pokemondb_name": "Sharpedo",
+    "frontend_name": "Sharpedo"
+  },
+  {
+    "id": 320,
+    "name": "Wailmer",
+    "PokeAPI_id": 320,
+    "PokeAPI_name": "Wailmer",
+    "Pokemondb_name": "Wailmer",
+    "frontend_name": "Wailmer"
+  },
+  {
+    "id": 321,
+    "name": "Wailord",
+    "PokeAPI_id": 321,
+    "PokeAPI_name": "Wailord",
+    "Pokemondb_name": "Wailord",
+    "frontend_name": "Wailord"
+  },
+  {
+    "id": 322,
+    "name": "Numel",
+    "PokeAPI_id": 322,
+    "PokeAPI_name": "Numel",
+    "Pokemondb_name": "Numel",
+    "frontend_name": "Numel"
+  },
+  {
+    "id": 323,
+    "name": "Camerupt",
+    "PokeAPI_id": 323,
+    "PokeAPI_name": "Camerupt",
+    "Pokemondb_name": "Camerupt",
+    "frontend_name": "Camerupt"
+  },
+  {
+    "id": 324,
+    "name": "Torkoal",
+    "PokeAPI_id": 324,
+    "PokeAPI_name": "Torkoal",
+    "Pokemondb_name": "Torkoal",
+    "frontend_name": "Torkoal"
+  },
+  {
+    "id": 325,
+    "name": "Spoink",
+    "PokeAPI_id": 325,
+    "PokeAPI_name": "Spoink",
+    "Pokemondb_name": "Spoink",
+    "frontend_name": "Spoink"
+  },
+  {
+    "id": 326,
+    "name": "Grumpig",
+    "PokeAPI_id": 326,
+    "PokeAPI_name": "Grumpig",
+    "Pokemondb_name": "Grumpig",
+    "frontend_name": "Grumpig"
+  },
+  {
+    "id": 327,
+    "name": "Spinda",
+    "PokeAPI_id": 327,
+    "PokeAPI_name": "Spinda",
+    "Pokemondb_name": "Spinda",
+    "frontend_name": "Spinda"
+  },
+  {
+    "id": 328,
+    "name": "Trapinch",
+    "PokeAPI_id": 328,
+    "PokeAPI_name": "Trapinch",
+    "Pokemondb_name": "Trapinch",
+    "frontend_name": "Trapinch"
+  },
+  {
+    "id": 329,
+    "name": "Vibrava",
+    "PokeAPI_id": 329,
+    "PokeAPI_name": "Vibrava",
+    "Pokemondb_name": "Vibrava",
+    "frontend_name": "Vibrava"
+  },
+  {
+    "id": 330,
+    "name": "Flygon",
+    "PokeAPI_id": 330,
+    "PokeAPI_name": "Flygon",
+    "Pokemondb_name": "Flygon",
+    "frontend_name": "Flygon"
+  },
+  {
+    "id": 331,
+    "name": "Cacnea",
+    "PokeAPI_id": 331,
+    "PokeAPI_name": "Cacnea",
+    "Pokemondb_name": "Cacnea",
+    "frontend_name": "Cacnea"
+  },
+  {
+    "id": 332,
+    "name": "Cacturne",
+    "PokeAPI_id": 332,
+    "PokeAPI_name": "Cacturne",
+    "Pokemondb_name": "Cacturne",
+    "frontend_name": "Cacturne"
+  },
+  {
+    "id": 333,
+    "name": "Swablu",
+    "PokeAPI_id": 333,
+    "PokeAPI_name": "Swablu",
+    "Pokemondb_name": "Swablu",
+    "frontend_name": "Swablu"
+  },
+  {
+    "id": 334,
+    "name": "Altaria",
+    "PokeAPI_id": 334,
+    "PokeAPI_name": "Altaria",
+    "Pokemondb_name": "Altaria",
+    "frontend_name": "Altaria"
+  },
+  {
+    "id": 335,
+    "name": "Zangoose",
+    "PokeAPI_id": 335,
+    "PokeAPI_name": "Zangoose",
+    "Pokemondb_name": "Zangoose",
+    "frontend_name": "Zangoose"
+  },
+  {
+    "id": 336,
+    "name": "Seviper",
+    "PokeAPI_id": 336,
+    "PokeAPI_name": "Seviper",
+    "Pokemondb_name": "Seviper",
+    "frontend_name": "Seviper"
+  },
+  {
+    "id": 337,
+    "name": "Lunatone",
+    "PokeAPI_id": 337,
+    "PokeAPI_name": "Lunatone",
+    "Pokemondb_name": "Lunatone",
+    "frontend_name": "Lunatone"
+  },
+  {
+    "id": 338,
+    "name": "Solrock",
+    "PokeAPI_id": 338,
+    "PokeAPI_name": "Solrock",
+    "Pokemondb_name": "Solrock",
+    "frontend_name": "Solrock"
+  },
+  {
+    "id": 339,
+    "name": "Barboach",
+    "PokeAPI_id": 339,
+    "PokeAPI_name": "Barboach",
+    "Pokemondb_name": "Barboach",
+    "frontend_name": "Barboach"
+  },
+  {
+    "id": 340,
+    "name": "Whiscash",
+    "PokeAPI_id": 340,
+    "PokeAPI_name": "Whiscash",
+    "Pokemondb_name": "Whiscash",
+    "frontend_name": "Whiscash"
+  },
+  {
+    "id": 341,
+    "name": "Corphish",
+    "PokeAPI_id": 341,
+    "PokeAPI_name": "Corphish",
+    "Pokemondb_name": "Corphish",
+    "frontend_name": "Corphish"
+  },
+  {
+    "id": 342,
+    "name": "Crawdaunt",
+    "PokeAPI_id": 342,
+    "PokeAPI_name": "Crawdaunt",
+    "Pokemondb_name": "Crawdaunt",
+    "frontend_name": "Crawdaunt"
+  },
+  {
+    "id": 343,
+    "name": "Baltoy",
+    "PokeAPI_id": 343,
+    "PokeAPI_name": "Baltoy",
+    "Pokemondb_name": "Baltoy",
+    "frontend_name": "Baltoy"
+  },
+  {
+    "id": 344,
+    "name": "Claydol",
+    "PokeAPI_id": 344,
+    "PokeAPI_name": "Claydol",
+    "Pokemondb_name": "Claydol",
+    "frontend_name": "Claydol"
+  },
+  {
+    "id": 345,
+    "name": "Lileep",
+    "PokeAPI_id": 345,
+    "PokeAPI_name": "Lileep",
+    "Pokemondb_name": "Lileep",
+    "frontend_name": "Lileep"
+  },
+  {
+    "id": 346,
+    "name": "Cradily",
+    "PokeAPI_id": 346,
+    "PokeAPI_name": "Cradily",
+    "Pokemondb_name": "Cradily",
+    "frontend_name": "Cradily"
+  },
+  {
+    "id": 347,
+    "name": "Anorith",
+    "PokeAPI_id": 347,
+    "PokeAPI_name": "Anorith",
+    "Pokemondb_name": "Anorith",
+    "frontend_name": "Anorith"
+  },
+  {
+    "id": 348,
+    "name": "Armaldo",
+    "PokeAPI_id": 348,
+    "PokeAPI_name": "Armaldo",
+    "Pokemondb_name": "Armaldo",
+    "frontend_name": "Armaldo"
+  },
+  {
+    "id": 349,
+    "name": "Feebas",
+    "PokeAPI_id": 349,
+    "PokeAPI_name": "Feebas",
+    "Pokemondb_name": "Feebas",
+    "frontend_name": "Feebas"
+  },
+  {
+    "id": 350,
+    "name": "Milotic",
+    "PokeAPI_id": 350,
+    "PokeAPI_name": "Milotic",
+    "Pokemondb_name": "Milotic",
+    "frontend_name": "Milotic"
+  },
+  {
+    "id": 351,
+    "name": "Castform",
+    "PokeAPI_id": 351,
+    "PokeAPI_name": "Castform",
+    "Pokemondb_name": "Castform",
+    "frontend_name": "Castform"
+  },
+  {
+    "id": 352,
+    "name": "Kecleon",
+    "PokeAPI_id": 352,
+    "PokeAPI_name": "Kecleon",
+    "Pokemondb_name": "Kecleon",
+    "frontend_name": "Kecleon"
+  },
+  {
+    "id": 353,
+    "name": "Shuppet",
+    "PokeAPI_id": 353,
+    "PokeAPI_name": "Shuppet",
+    "Pokemondb_name": "Shuppet",
+    "frontend_name": "Shuppet"
+  },
+  {
+    "id": 354,
+    "name": "Banette",
+    "PokeAPI_id": 354,
+    "PokeAPI_name": "Banette",
+    "Pokemondb_name": "Banette",
+    "frontend_name": "Banette"
+  },
+  {
+    "id": 355,
+    "name": "Duskull",
+    "PokeAPI_id": 355,
+    "PokeAPI_name": "Duskull",
+    "Pokemondb_name": "Duskull",
+    "frontend_name": "Duskull"
+  },
+  {
+    "id": 356,
+    "name": "Dusclops",
+    "PokeAPI_id": 356,
+    "PokeAPI_name": "Dusclops",
+    "Pokemondb_name": "Dusclops",
+    "frontend_name": "Dusclops"
+  },
+  {
+    "id": 357,
+    "name": "Tropius",
+    "PokeAPI_id": 357,
+    "PokeAPI_name": "Tropius",
+    "Pokemondb_name": "Tropius",
+    "frontend_name": "Tropius"
+  },
+  {
+    "id": 358,
+    "name": "Chimecho",
+    "PokeAPI_id": 358,
+    "PokeAPI_name": "Chimecho",
+    "Pokemondb_name": "Chimecho",
+    "frontend_name": "Chimecho"
+  },
+  {
+    "id": 359,
+    "name": "Absol",
+    "PokeAPI_id": 359,
+    "PokeAPI_name": "Absol",
+    "Pokemondb_name": "Absol",
+    "frontend_name": "Absol"
+  },
+  {
+    "id": 360,
+    "name": "Wynaut",
+    "PokeAPI_id": 360,
+    "PokeAPI_name": "Wynaut",
+    "Pokemondb_name": "Wynaut",
+    "frontend_name": "Wynaut"
+  },
+  {
+    "id": 361,
+    "name": "Snorunt",
+    "PokeAPI_id": 361,
+    "PokeAPI_name": "Snorunt",
+    "Pokemondb_name": "Snorunt",
+    "frontend_name": "Snorunt"
+  },
+  {
+    "id": 362,
+    "name": "Glalie",
+    "PokeAPI_id": 362,
+    "PokeAPI_name": "Glalie",
+    "Pokemondb_name": "Glalie",
+    "frontend_name": "Glalie"
+  },
+  {
+    "id": 363,
+    "name": "Spheal",
+    "PokeAPI_id": 363,
+    "PokeAPI_name": "Spheal",
+    "Pokemondb_name": "Spheal",
+    "frontend_name": "Spheal"
+  },
+  {
+    "id": 364,
+    "name": "Sealeo",
+    "PokeAPI_id": 364,
+    "PokeAPI_name": "Sealeo",
+    "Pokemondb_name": "Sealeo",
+    "frontend_name": "Sealeo"
+  },
+  {
+    "id": 365,
+    "name": "Walrein",
+    "PokeAPI_id": 365,
+    "PokeAPI_name": "Walrein",
+    "Pokemondb_name": "Walrein",
+    "frontend_name": "Walrein"
+  },
+  {
+    "id": 366,
+    "name": "Clamperl",
+    "PokeAPI_id": 366,
+    "PokeAPI_name": "Clamperl",
+    "Pokemondb_name": "Clamperl",
+    "frontend_name": "Clamperl"
+  },
+  {
+    "id": 367,
+    "name": "Huntail",
+    "PokeAPI_id": 367,
+    "PokeAPI_name": "Huntail",
+    "Pokemondb_name": "Huntail",
+    "frontend_name": "Huntail"
+  },
+  {
+    "id": 368,
+    "name": "Gorebyss",
+    "PokeAPI_id": 368,
+    "PokeAPI_name": "Gorebyss",
+    "Pokemondb_name": "Gorebyss",
+    "frontend_name": "Gorebyss"
+  },
+  {
+    "id": 369,
+    "name": "Relicanth",
+    "PokeAPI_id": 369,
+    "PokeAPI_name": "Relicanth",
+    "Pokemondb_name": "Relicanth",
+    "frontend_name": "Relicanth"
+  },
+  {
+    "id": 370,
+    "name": "Luvdisc",
+    "PokeAPI_id": 370,
+    "PokeAPI_name": "Luvdisc",
+    "Pokemondb_name": "Luvdisc",
+    "frontend_name": "Luvdisc"
+  },
+  {
+    "id": 371,
+    "name": "Bagon",
+    "PokeAPI_id": 371,
+    "PokeAPI_name": "Bagon",
+    "Pokemondb_name": "Bagon",
+    "frontend_name": "Bagon"
+  },
+  {
+    "id": 372,
+    "name": "Shelgon",
+    "PokeAPI_id": 372,
+    "PokeAPI_name": "Shelgon",
+    "Pokemondb_name": "Shelgon",
+    "frontend_name": "Shelgon"
+  },
+  {
+    "id": 373,
+    "name": "Salamence",
+    "PokeAPI_id": 373,
+    "PokeAPI_name": "Salamence",
+    "Pokemondb_name": "Salamence",
+    "frontend_name": "Salamence"
+  },
+  {
+    "id": 374,
+    "name": "Beldum",
+    "PokeAPI_id": 374,
+    "PokeAPI_name": "Beldum",
+    "Pokemondb_name": "Beldum",
+    "frontend_name": "Beldum"
+  },
+  {
+    "id": 375,
+    "name": "Metang",
+    "PokeAPI_id": 375,
+    "PokeAPI_name": "Metang",
+    "Pokemondb_name": "Metang",
+    "frontend_name": "Metang"
+  },
+  {
+    "id": 376,
+    "name": "Metagross",
+    "PokeAPI_id": 376,
+    "PokeAPI_name": "Metagross",
+    "Pokemondb_name": "Metagross",
+    "frontend_name": "Metagross"
+  },
+  {
+    "id": 377,
+    "name": "Regirock",
+    "PokeAPI_id": 377,
+    "PokeAPI_name": "Regirock",
+    "Pokemondb_name": "Regirock",
+    "frontend_name": "Regirock"
+  },
+  {
+    "id": 378,
+    "name": "Regice",
+    "PokeAPI_id": 378,
+    "PokeAPI_name": "Regice",
+    "Pokemondb_name": "Regice",
+    "frontend_name": "Regice"
+  },
+  {
+    "id": 379,
+    "name": "Registeel",
+    "PokeAPI_id": 379,
+    "PokeAPI_name": "Registeel",
+    "Pokemondb_name": "Registeel",
+    "frontend_name": "Registeel"
+  },
+  {
+    "id": 380,
+    "name": "Latias",
+    "PokeAPI_id": 380,
+    "PokeAPI_name": "Latias",
+    "Pokemondb_name": "Latias",
+    "frontend_name": "Latias"
+  },
+  {
+    "id": 381,
+    "name": "Latios",
+    "PokeAPI_id": 381,
+    "PokeAPI_name": "Latios",
+    "Pokemondb_name": "Latios",
+    "frontend_name": "Latios"
+  },
+  {
+    "id": 382,
+    "name": "Kyogre",
+    "PokeAPI_id": 382,
+    "PokeAPI_name": "Kyogre",
+    "Pokemondb_name": "Kyogre",
+    "frontend_name": "Kyogre"
+  },
+  {
+    "id": 383,
+    "name": "Groudon",
+    "PokeAPI_id": 383,
+    "PokeAPI_name": "Groudon",
+    "Pokemondb_name": "Groudon",
+    "frontend_name": "Groudon"
+  },
+  {
+    "id": 384,
+    "name": "Rayquaza",
+    "PokeAPI_id": 384,
+    "PokeAPI_name": "Rayquaza",
+    "Pokemondb_name": "Rayquaza",
+    "frontend_name": "Rayquaza"
+  },
+  {
+    "id": 385,
+    "name": "Jirachi",
+    "PokeAPI_id": 385,
+    "PokeAPI_name": "Jirachi",
+    "Pokemondb_name": "Jirachi",
+    "frontend_name": "Jirachi"
+  },
+  {
+    "id": 386,
+    "name": "Deoxys",
+    "PokeAPI_id": 386,
+    "PokeAPI_name": "Deoxys",
+    "Pokemondb_name": "Deoxys",
+    "frontend_name": "Deoxys"
+  },
+  {
+    "id": 387,
+    "name": "Turtwig",
+    "PokeAPI_id": 387,
+    "PokeAPI_name": "Turtwig",
+    "Pokemondb_name": "Turtwig",
+    "frontend_name": "Turtwig"
+  },
+  {
+    "id": 388,
+    "name": "Grotle",
+    "PokeAPI_id": 388,
+    "PokeAPI_name": "Grotle",
+    "Pokemondb_name": "Grotle",
+    "frontend_name": "Grotle"
+  },
+  {
+    "id": 389,
+    "name": "Torterra",
+    "PokeAPI_id": 389,
+    "PokeAPI_name": "Torterra",
+    "Pokemondb_name": "Torterra",
+    "frontend_name": "Torterra"
+  },
+  {
+    "id": 390,
+    "name": "Chimchar",
+    "PokeAPI_id": 390,
+    "PokeAPI_name": "Chimchar",
+    "Pokemondb_name": "Chimchar",
+    "frontend_name": "Chimchar"
+  },
+  {
+    "id": 391,
+    "name": "Monferno",
+    "PokeAPI_id": 391,
+    "PokeAPI_name": "Monferno",
+    "Pokemondb_name": "Monferno",
+    "frontend_name": "Monferno"
+  },
+  {
+    "id": 392,
+    "name": "Infernape",
+    "PokeAPI_id": 392,
+    "PokeAPI_name": "Infernape",
+    "Pokemondb_name": "Infernape",
+    "frontend_name": "Infernape"
+  },
+  {
+    "id": 393,
+    "name": "Piplup",
+    "PokeAPI_id": 393,
+    "PokeAPI_name": "Piplup",
+    "Pokemondb_name": "Piplup",
+    "frontend_name": "Piplup"
+  },
+  {
+    "id": 394,
+    "name": "Prinplup",
+    "PokeAPI_id": 394,
+    "PokeAPI_name": "Prinplup",
+    "Pokemondb_name": "Prinplup",
+    "frontend_name": "Prinplup"
+  },
+  {
+    "id": 395,
+    "name": "Empoleon",
+    "PokeAPI_id": 395,
+    "PokeAPI_name": "Empoleon",
+    "Pokemondb_name": "Empoleon",
+    "frontend_name": "Empoleon"
+  },
+  {
+    "id": 396,
+    "name": "Starly",
+    "PokeAPI_id": 396,
+    "PokeAPI_name": "Starly",
+    "Pokemondb_name": "Starly",
+    "frontend_name": "Starly"
+  },
+  {
+    "id": 397,
+    "name": "Staravia",
+    "PokeAPI_id": 397,
+    "PokeAPI_name": "Staravia",
+    "Pokemondb_name": "Staravia",
+    "frontend_name": "Staravia"
+  },
+  {
+    "id": 398,
+    "name": "Staraptor",
+    "PokeAPI_id": 398,
+    "PokeAPI_name": "Staraptor",
+    "Pokemondb_name": "Staraptor",
+    "frontend_name": "Staraptor"
+  },
+  {
+    "id": 399,
+    "name": "Bidoof",
+    "PokeAPI_id": 399,
+    "PokeAPI_name": "Bidoof",
+    "Pokemondb_name": "Bidoof",
+    "frontend_name": "Bidoof"
+  },
+  {
+    "id": 400,
+    "name": "Bibarel",
+    "PokeAPI_id": 400,
+    "PokeAPI_name": "Bibarel",
+    "Pokemondb_name": "Bibarel",
+    "frontend_name": "Bibarel"
+  },
+  {
+    "id": 401,
+    "name": "Kricketot",
+    "PokeAPI_id": 401,
+    "PokeAPI_name": "Kricketot",
+    "Pokemondb_name": "Kricketot",
+    "frontend_name": "Kricketot"
+  },
+  {
+    "id": 402,
+    "name": "Kricketune",
+    "PokeAPI_id": 402,
+    "PokeAPI_name": "Kricketune",
+    "Pokemondb_name": "Kricketune",
+    "frontend_name": "Kricketune"
+  },
+  {
+    "id": 403,
+    "name": "Shinx",
+    "PokeAPI_id": 403,
+    "PokeAPI_name": "Shinx",
+    "Pokemondb_name": "Shinx",
+    "frontend_name": "Shinx"
+  },
+  {
+    "id": 404,
+    "name": "Luxio",
+    "PokeAPI_id": 404,
+    "PokeAPI_name": "Luxio",
+    "Pokemondb_name": "Luxio",
+    "frontend_name": "Luxio"
+  },
+  {
+    "id": 405,
+    "name": "Luxray",
+    "PokeAPI_id": 405,
+    "PokeAPI_name": "Luxray",
+    "Pokemondb_name": "Luxray",
+    "frontend_name": "Luxray"
+  },
+  {
+    "id": 406,
+    "name": "Budew",
+    "PokeAPI_id": 406,
+    "PokeAPI_name": "Budew",
+    "Pokemondb_name": "Budew",
+    "frontend_name": "Budew"
+  },
+  {
+    "id": 407,
+    "name": "Roserade",
+    "PokeAPI_id": 407,
+    "PokeAPI_name": "Roserade",
+    "Pokemondb_name": "Roserade",
+    "frontend_name": "Roserade"
+  },
+  {
+    "id": 408,
+    "name": "Cranidos",
+    "PokeAPI_id": 408,
+    "PokeAPI_name": "Cranidos",
+    "Pokemondb_name": "Cranidos",
+    "frontend_name": "Cranidos"
+  },
+  {
+    "id": 409,
+    "name": "Rampardos",
+    "PokeAPI_id": 409,
+    "PokeAPI_name": "Rampardos",
+    "Pokemondb_name": "Rampardos",
+    "frontend_name": "Rampardos"
+  },
+  {
+    "id": 410,
+    "name": "Shieldon",
+    "PokeAPI_id": 410,
+    "PokeAPI_name": "Shieldon",
+    "Pokemondb_name": "Shieldon",
+    "frontend_name": "Shieldon"
+  },
+  {
+    "id": 411,
+    "name": "Bastiodon",
+    "PokeAPI_id": 411,
+    "PokeAPI_name": "Bastiodon",
+    "Pokemondb_name": "Bastiodon",
+    "frontend_name": "Bastiodon"
+  },
+  {
+    "id": 412,
+    "name": "Burmy",
+    "PokeAPI_id": 412,
+    "PokeAPI_name": "Burmy",
+    "Pokemondb_name": "Burmy",
+    "frontend_name": "Burmy"
+  },
+  {
+    "id": 413,
+    "name": "Wormadam",
+    "PokeAPI_id": 413,
+    "PokeAPI_name": "Wormadam",
+    "Pokemondb_name": "Wormadam",
+    "frontend_name": "Wormadam"
+  },
+  {
+    "id": 414,
+    "name": "Mothim",
+    "PokeAPI_id": 414,
+    "PokeAPI_name": "Mothim",
+    "Pokemondb_name": "Mothim",
+    "frontend_name": "Mothim"
+  },
+  {
+    "id": 415,
+    "name": "Combee",
+    "PokeAPI_id": 415,
+    "PokeAPI_name": "Combee",
+    "Pokemondb_name": "Combee",
+    "frontend_name": "Combee"
+  },
+  {
+    "id": 416,
+    "name": "Vespiquen",
+    "PokeAPI_id": 416,
+    "PokeAPI_name": "Vespiquen",
+    "Pokemondb_name": "Vespiquen",
+    "frontend_name": "Vespiquen"
+  },
+  {
+    "id": 417,
+    "name": "Pachirisu",
+    "PokeAPI_id": 417,
+    "PokeAPI_name": "Pachirisu",
+    "Pokemondb_name": "Pachirisu",
+    "frontend_name": "Pachirisu"
+  },
+  {
+    "id": 418,
+    "name": "Buizel",
+    "PokeAPI_id": 418,
+    "PokeAPI_name": "Buizel",
+    "Pokemondb_name": "Buizel",
+    "frontend_name": "Buizel"
+  },
+  {
+    "id": 419,
+    "name": "Floatzel",
+    "PokeAPI_id": 419,
+    "PokeAPI_name": "Floatzel",
+    "Pokemondb_name": "Floatzel",
+    "frontend_name": "Floatzel"
+  },
+  {
+    "id": 420,
+    "name": "Cherubi",
+    "PokeAPI_id": 420,
+    "PokeAPI_name": "Cherubi",
+    "Pokemondb_name": "Cherubi",
+    "frontend_name": "Cherubi"
+  },
+  {
+    "id": 421,
+    "name": "Cherrim",
+    "PokeAPI_id": 421,
+    "PokeAPI_name": "Cherrim",
+    "Pokemondb_name": "Cherrim",
+    "frontend_name": "Cherrim"
+  },
+  {
+    "id": 422,
+    "name": "Shellos",
+    "PokeAPI_id": 422,
+    "PokeAPI_name": "Shellos",
+    "Pokemondb_name": "Shellos",
+    "frontend_name": "Shellos"
+  },
+  {
+    "id": 423,
+    "name": "Gastrodon",
+    "PokeAPI_id": 423,
+    "PokeAPI_name": "Gastrodon",
+    "Pokemondb_name": "Gastrodon",
+    "frontend_name": "Gastrodon"
+  },
+  {
+    "id": 424,
+    "name": "Ambipom",
+    "PokeAPI_id": 424,
+    "PokeAPI_name": "Ambipom",
+    "Pokemondb_name": "Ambipom",
+    "frontend_name": "Ambipom"
+  },
+  {
+    "id": 425,
+    "name": "Drifloon",
+    "PokeAPI_id": 425,
+    "PokeAPI_name": "Drifloon",
+    "Pokemondb_name": "Drifloon",
+    "frontend_name": "Drifloon"
+  },
+  {
+    "id": 426,
+    "name": "Drifblim",
+    "PokeAPI_id": 426,
+    "PokeAPI_name": "Drifblim",
+    "Pokemondb_name": "Drifblim",
+    "frontend_name": "Drifblim"
+  },
+  {
+    "id": 427,
+    "name": "Buneary",
+    "PokeAPI_id": 427,
+    "PokeAPI_name": "Buneary",
+    "Pokemondb_name": "Buneary",
+    "frontend_name": "Buneary"
+  },
+  {
+    "id": 428,
+    "name": "Lopunny",
+    "PokeAPI_id": 428,
+    "PokeAPI_name": "Lopunny",
+    "Pokemondb_name": "Lopunny",
+    "frontend_name": "Lopunny"
+  },
+  {
+    "id": 429,
+    "name": "Mismagius",
+    "PokeAPI_id": 429,
+    "PokeAPI_name": "Mismagius",
+    "Pokemondb_name": "Mismagius",
+    "frontend_name": "Mismagius"
+  },
+  {
+    "id": 430,
+    "name": "Honchkrow",
+    "PokeAPI_id": 430,
+    "PokeAPI_name": "Honchkrow",
+    "Pokemondb_name": "Honchkrow",
+    "frontend_name": "Honchkrow"
+  },
+  {
+    "id": 431,
+    "name": "Glameow",
+    "PokeAPI_id": 431,
+    "PokeAPI_name": "Glameow",
+    "Pokemondb_name": "Glameow",
+    "frontend_name": "Glameow"
+  },
+  {
+    "id": 432,
+    "name": "Purugly",
+    "PokeAPI_id": 432,
+    "PokeAPI_name": "Purugly",
+    "Pokemondb_name": "Purugly",
+    "frontend_name": "Purugly"
+  },
+  {
+    "id": 433,
+    "name": "Chingling",
+    "PokeAPI_id": 433,
+    "PokeAPI_name": "Chingling",
+    "Pokemondb_name": "Chingling",
+    "frontend_name": "Chingling"
+  },
+  {
+    "id": 434,
+    "name": "Stunky",
+    "PokeAPI_id": 434,
+    "PokeAPI_name": "Stunky",
+    "Pokemondb_name": "Stunky",
+    "frontend_name": "Stunky"
+  },
+  {
+    "id": 435,
+    "name": "Skuntank",
+    "PokeAPI_id": 435,
+    "PokeAPI_name": "Skuntank",
+    "Pokemondb_name": "Skuntank",
+    "frontend_name": "Skuntank"
+  },
+  {
+    "id": 436,
+    "name": "Bronzor",
+    "PokeAPI_id": 436,
+    "PokeAPI_name": "Bronzor",
+    "Pokemondb_name": "Bronzor",
+    "frontend_name": "Bronzor"
+  },
+  {
+    "id": 437,
+    "name": "Bronzong",
+    "PokeAPI_id": 437,
+    "PokeAPI_name": "Bronzong",
+    "Pokemondb_name": "Bronzong",
+    "frontend_name": "Bronzong"
+  },
+  {
+    "id": 438,
+    "name": "Bonsly",
+    "PokeAPI_id": 438,
+    "PokeAPI_name": "Bonsly",
+    "Pokemondb_name": "Bonsly",
+    "frontend_name": "Bonsly"
+  },
+  {
+    "id": 439,
+    "name": "Mime Jr.",
+    "PokeAPI_id": 439,
+    "PokeAPI_name": "Mime Jr.",
+    "Pokemondb_name": "Mime Jr.",
+    "frontend_name": "Mime Jr."
+  },
+  {
+    "id": 440,
+    "name": "Happiny",
+    "PokeAPI_id": 440,
+    "PokeAPI_name": "Happiny",
+    "Pokemondb_name": "Happiny",
+    "frontend_name": "Happiny"
+  },
+  {
+    "id": 441,
+    "name": "Chatot",
+    "PokeAPI_id": 441,
+    "PokeAPI_name": "Chatot",
+    "Pokemondb_name": "Chatot",
+    "frontend_name": "Chatot"
+  },
+  {
+    "id": 442,
+    "name": "Spiritomb",
+    "PokeAPI_id": 442,
+    "PokeAPI_name": "Spiritomb",
+    "Pokemondb_name": "Spiritomb",
+    "frontend_name": "Spiritomb"
+  },
+  {
+    "id": 443,
+    "name": "Gible",
+    "PokeAPI_id": 443,
+    "PokeAPI_name": "Gible",
+    "Pokemondb_name": "Gible",
+    "frontend_name": "Gible"
+  },
+  {
+    "id": 444,
+    "name": "Gabite",
+    "PokeAPI_id": 444,
+    "PokeAPI_name": "Gabite",
+    "Pokemondb_name": "Gabite",
+    "frontend_name": "Gabite"
+  },
+  {
+    "id": 445,
+    "name": "Garchomp",
+    "PokeAPI_id": 445,
+    "PokeAPI_name": "Garchomp",
+    "Pokemondb_name": "Garchomp",
+    "frontend_name": "Garchomp"
+  },
+  {
+    "id": 446,
+    "name": "Munchlax",
+    "PokeAPI_id": 446,
+    "PokeAPI_name": "Munchlax",
+    "Pokemondb_name": "Munchlax",
+    "frontend_name": "Munchlax"
+  },
+  {
+    "id": 447,
+    "name": "Riolu",
+    "PokeAPI_id": 447,
+    "PokeAPI_name": "Riolu",
+    "Pokemondb_name": "Riolu",
+    "frontend_name": "Riolu"
+  },
+  {
+    "id": 448,
+    "name": "Lucario",
+    "PokeAPI_id": 448,
+    "PokeAPI_name": "Lucario",
+    "Pokemondb_name": "Lucario",
+    "frontend_name": "Lucario"
+  },
+  {
+    "id": 449,
+    "name": "Hippopotas",
+    "PokeAPI_id": 449,
+    "PokeAPI_name": "Hippopotas",
+    "Pokemondb_name": "Hippopotas",
+    "frontend_name": "Hippopotas"
+  },
+  {
+    "id": 450,
+    "name": "Hippowdon",
+    "PokeAPI_id": 450,
+    "PokeAPI_name": "Hippowdon",
+    "Pokemondb_name": "Hippowdon",
+    "frontend_name": "Hippowdon"
+  },
+  {
+    "id": 451,
+    "name": "Skorupi",
+    "PokeAPI_id": 451,
+    "PokeAPI_name": "Skorupi",
+    "Pokemondb_name": "Skorupi",
+    "frontend_name": "Skorupi"
+  },
+  {
+    "id": 452,
+    "name": "Drapion",
+    "PokeAPI_id": 452,
+    "PokeAPI_name": "Drapion",
+    "Pokemondb_name": "Drapion",
+    "frontend_name": "Drapion"
+  },
+  {
+    "id": 453,
+    "name": "Croagunk",
+    "PokeAPI_id": 453,
+    "PokeAPI_name": "Croagunk",
+    "Pokemondb_name": "Croagunk",
+    "frontend_name": "Croagunk"
+  },
+  {
+    "id": 454,
+    "name": "Toxicroak",
+    "PokeAPI_id": 454,
+    "PokeAPI_name": "Toxicroak",
+    "Pokemondb_name": "Toxicroak",
+    "frontend_name": "Toxicroak"
+  },
+  {
+    "id": 455,
+    "name": "Carnivine",
+    "PokeAPI_id": 455,
+    "PokeAPI_name": "Carnivine",
+    "Pokemondb_name": "Carnivine",
+    "frontend_name": "Carnivine"
+  },
+  {
+    "id": 456,
+    "name": "Finneon",
+    "PokeAPI_id": 456,
+    "PokeAPI_name": "Finneon",
+    "Pokemondb_name": "Finneon",
+    "frontend_name": "Finneon"
+  },
+  {
+    "id": 457,
+    "name": "Lumineon",
+    "PokeAPI_id": 457,
+    "PokeAPI_name": "Lumineon",
+    "Pokemondb_name": "Lumineon",
+    "frontend_name": "Lumineon"
+  },
+  {
+    "id": 458,
+    "name": "Mantyke",
+    "PokeAPI_id": 458,
+    "PokeAPI_name": "Mantyke",
+    "Pokemondb_name": "Mantyke",
+    "frontend_name": "Mantyke"
+  },
+  {
+    "id": 459,
+    "name": "Snover",
+    "PokeAPI_id": 459,
+    "PokeAPI_name": "Snover",
+    "Pokemondb_name": "Snover",
+    "frontend_name": "Snover"
+  },
+  {
+    "id": 460,
+    "name": "Abomasnow",
+    "PokeAPI_id": 460,
+    "PokeAPI_name": "Abomasnow",
+    "Pokemondb_name": "Abomasnow",
+    "frontend_name": "Abomasnow"
+  },
+  {
+    "id": 461,
+    "name": "Weavile",
+    "PokeAPI_id": 461,
+    "PokeAPI_name": "Weavile",
+    "Pokemondb_name": "Weavile",
+    "frontend_name": "Weavile"
+  },
+  {
+    "id": 462,
+    "name": "Magnezone",
+    "PokeAPI_id": 462,
+    "PokeAPI_name": "Magnezone",
+    "Pokemondb_name": "Magnezone",
+    "frontend_name": "Magnezone"
+  },
+  {
+    "id": 463,
+    "name": "Lickilicky",
+    "PokeAPI_id": 463,
+    "PokeAPI_name": "Lickilicky",
+    "Pokemondb_name": "Lickilicky",
+    "frontend_name": "Lickilicky"
+  },
+  {
+    "id": 464,
+    "name": "Rhyperior",
+    "PokeAPI_id": 464,
+    "PokeAPI_name": "Rhyperior",
+    "Pokemondb_name": "Rhyperior",
+    "frontend_name": "Rhyperior"
+  },
+  {
+    "id": 465,
+    "name": "Tangrowth",
+    "PokeAPI_id": 465,
+    "PokeAPI_name": "Tangrowth",
+    "Pokemondb_name": "Tangrowth",
+    "frontend_name": "Tangrowth"
+  },
+  {
+    "id": 466,
+    "name": "Electivire",
+    "PokeAPI_id": 466,
+    "PokeAPI_name": "Electivire",
+    "Pokemondb_name": "Electivire",
+    "frontend_name": "Electivire"
+  },
+  {
+    "id": 467,
+    "name": "Magmortar",
+    "PokeAPI_id": 467,
+    "PokeAPI_name": "Magmortar",
+    "Pokemondb_name": "Magmortar",
+    "frontend_name": "Magmortar"
+  },
+  {
+    "id": 468,
+    "name": "Togekiss",
+    "PokeAPI_id": 468,
+    "PokeAPI_name": "Togekiss",
+    "Pokemondb_name": "Togekiss",
+    "frontend_name": "Togekiss"
+  },
+  {
+    "id": 469,
+    "name": "Yanmega",
+    "PokeAPI_id": 469,
+    "PokeAPI_name": "Yanmega",
+    "Pokemondb_name": "Yanmega",
+    "frontend_name": "Yanmega"
+  },
+  {
+    "id": 470,
+    "name": "Leafeon",
+    "PokeAPI_id": 470,
+    "PokeAPI_name": "Leafeon",
+    "Pokemondb_name": "Leafeon",
+    "frontend_name": "Leafeon"
+  },
+  {
+    "id": 471,
+    "name": "Glaceon",
+    "PokeAPI_id": 471,
+    "PokeAPI_name": "Glaceon",
+    "Pokemondb_name": "Glaceon",
+    "frontend_name": "Glaceon"
+  },
+  {
+    "id": 472,
+    "name": "Gliscor",
+    "PokeAPI_id": 472,
+    "PokeAPI_name": "Gliscor",
+    "Pokemondb_name": "Gliscor",
+    "frontend_name": "Gliscor"
+  },
+  {
+    "id": 473,
+    "name": "Mamoswine",
+    "PokeAPI_id": 473,
+    "PokeAPI_name": "Mamoswine",
+    "Pokemondb_name": "Mamoswine",
+    "frontend_name": "Mamoswine"
+  },
+  {
+    "id": 474,
+    "name": "Porygon-Z",
+    "PokeAPI_id": 474,
+    "PokeAPI_name": "Porygon-Z",
+    "Pokemondb_name": "Porygon-Z",
+    "frontend_name": "Porygon-Z"
+  },
+  {
+    "id": 475,
+    "name": "Gallade",
+    "PokeAPI_id": 475,
+    "PokeAPI_name": "Gallade",
+    "Pokemondb_name": "Gallade",
+    "frontend_name": "Gallade"
+  },
+  {
+    "id": 476,
+    "name": "Probopass",
+    "PokeAPI_id": 476,
+    "PokeAPI_name": "Probopass",
+    "Pokemondb_name": "Probopass",
+    "frontend_name": "Probopass"
+  },
+  {
+    "id": 477,
+    "name": "Dusknoir",
+    "PokeAPI_id": 477,
+    "PokeAPI_name": "Dusknoir",
+    "Pokemondb_name": "Dusknoir",
+    "frontend_name": "Dusknoir"
+  },
+  {
+    "id": 478,
+    "name": "Froslass",
+    "PokeAPI_id": 478,
+    "PokeAPI_name": "Froslass",
+    "Pokemondb_name": "Froslass",
+    "frontend_name": "Froslass"
+  },
+  {
+    "id": 479,
+    "name": "Rotom",
+    "PokeAPI_id": 479,
+    "PokeAPI_name": "Rotom",
+    "Pokemondb_name": "Rotom",
+    "frontend_name": "Rotom"
+  },
+  {
+    "id": 480,
+    "name": "Uxie",
+    "PokeAPI_id": 480,
+    "PokeAPI_name": "Uxie",
+    "Pokemondb_name": "Uxie",
+    "frontend_name": "Uxie"
+  },
+  {
+    "id": 481,
+    "name": "Mesprit",
+    "PokeAPI_id": 481,
+    "PokeAPI_name": "Mesprit",
+    "Pokemondb_name": "Mesprit",
+    "frontend_name": "Mesprit"
+  },
+  {
+    "id": 482,
+    "name": "Azelf",
+    "PokeAPI_id": 482,
+    "PokeAPI_name": "Azelf",
+    "Pokemondb_name": "Azelf",
+    "frontend_name": "Azelf"
+  },
+  {
+    "id": 483,
+    "name": "Dialga",
+    "PokeAPI_id": 483,
+    "PokeAPI_name": "Dialga",
+    "Pokemondb_name": "Dialga",
+    "frontend_name": "Dialga"
+  },
+  {
+    "id": 484,
+    "name": "Palkia",
+    "PokeAPI_id": 484,
+    "PokeAPI_name": "Palkia",
+    "Pokemondb_name": "Palkia",
+    "frontend_name": "Palkia"
+  },
+  {
+    "id": 485,
+    "name": "Heatran",
+    "PokeAPI_id": 485,
+    "PokeAPI_name": "Heatran",
+    "Pokemondb_name": "Heatran",
+    "frontend_name": "Heatran"
+  },
+  {
+    "id": 486,
+    "name": "Regigigas",
+    "PokeAPI_id": 486,
+    "PokeAPI_name": "Regigigas",
+    "Pokemondb_name": "Regigigas",
+    "frontend_name": "Regigigas"
+  },
+  {
+    "id": 487,
+    "name": "Giratina",
+    "PokeAPI_id": 487,
+    "PokeAPI_name": "Giratina",
+    "Pokemondb_name": "Giratina",
+    "frontend_name": "Giratina"
+  },
+  {
+    "id": 488,
+    "name": "Cresselia",
+    "PokeAPI_id": 488,
+    "PokeAPI_name": "Cresselia",
+    "Pokemondb_name": "Cresselia",
+    "frontend_name": "Cresselia"
+  },
+  {
+    "id": 489,
+    "name": "Phione",
+    "PokeAPI_id": 489,
+    "PokeAPI_name": "Phione",
+    "Pokemondb_name": "Phione",
+    "frontend_name": "Phione"
+  },
+  {
+    "id": 490,
+    "name": "Manaphy",
+    "PokeAPI_id": 490,
+    "PokeAPI_name": "Manaphy",
+    "Pokemondb_name": "Manaphy",
+    "frontend_name": "Manaphy"
+  },
+  {
+    "id": 491,
+    "name": "Darkrai",
+    "PokeAPI_id": 491,
+    "PokeAPI_name": "Darkrai",
+    "Pokemondb_name": "Darkrai",
+    "frontend_name": "Darkrai"
+  },
+  {
+    "id": 492,
+    "name": "Shaymin",
+    "PokeAPI_id": 492,
+    "PokeAPI_name": "Shaymin",
+    "Pokemondb_name": "Shaymin",
+    "frontend_name": "Shaymin"
+  },
+  {
+    "id": 493,
+    "name": "Arceus",
+    "PokeAPI_id": 493,
+    "PokeAPI_name": "Arceus",
+    "Pokemondb_name": "Arceus",
+    "frontend_name": "Arceus"
+  },
+  {
+    "id": 494,
+    "name": "Victini",
+    "PokeAPI_id": 494,
+    "PokeAPI_name": "Victini",
+    "Pokemondb_name": "Victini",
+    "frontend_name": "Victini"
+  },
+  {
+    "id": 495,
+    "name": "Snivy",
+    "PokeAPI_id": 495,
+    "PokeAPI_name": "Snivy",
+    "Pokemondb_name": "Snivy",
+    "frontend_name": "Snivy"
+  },
+  {
+    "id": 496,
+    "name": "Servine",
+    "PokeAPI_id": 496,
+    "PokeAPI_name": "Servine",
+    "Pokemondb_name": "Servine",
+    "frontend_name": "Servine"
+  },
+  {
+    "id": 497,
+    "name": "Serperior",
+    "PokeAPI_id": 497,
+    "PokeAPI_name": "Serperior",
+    "Pokemondb_name": "Serperior",
+    "frontend_name": "Serperior"
+  },
+  {
+    "id": 498,
+    "name": "Tepig",
+    "PokeAPI_id": 498,
+    "PokeAPI_name": "Tepig",
+    "Pokemondb_name": "Tepig",
+    "frontend_name": "Tepig"
+  },
+  {
+    "id": 499,
+    "name": "Pignite",
+    "PokeAPI_id": 499,
+    "PokeAPI_name": "Pignite",
+    "Pokemondb_name": "Pignite",
+    "frontend_name": "Pignite"
+  },
+  {
+    "id": 500,
+    "name": "Emboar",
+    "PokeAPI_id": 500,
+    "PokeAPI_name": "Emboar",
+    "Pokemondb_name": "Emboar",
+    "frontend_name": "Emboar"
+  },
+  {
+    "id": 501,
+    "name": "Oshawott",
+    "PokeAPI_id": 501,
+    "PokeAPI_name": "Oshawott",
+    "Pokemondb_name": "Oshawott",
+    "frontend_name": "Oshawott"
+  },
+  {
+    "id": 502,
+    "name": "Dewott",
+    "PokeAPI_id": 502,
+    "PokeAPI_name": "Dewott",
+    "Pokemondb_name": "Dewott",
+    "frontend_name": "Dewott"
+  },
+  {
+    "id": 503,
+    "name": "Samurott",
+    "PokeAPI_id": 503,
+    "PokeAPI_name": "Samurott",
+    "Pokemondb_name": "Samurott",
+    "frontend_name": "Samurott"
+  },
+  {
+    "id": 504,
+    "name": "Patrat",
+    "PokeAPI_id": 504,
+    "PokeAPI_name": "Patrat",
+    "Pokemondb_name": "Patrat",
+    "frontend_name": "Patrat"
+  },
+  {
+    "id": 505,
+    "name": "Watchog",
+    "PokeAPI_id": 505,
+    "PokeAPI_name": "Watchog",
+    "Pokemondb_name": "Watchog",
+    "frontend_name": "Watchog"
+  },
+  {
+    "id": 506,
+    "name": "Lillipup",
+    "PokeAPI_id": 506,
+    "PokeAPI_name": "Lillipup",
+    "Pokemondb_name": "Lillipup",
+    "frontend_name": "Lillipup"
+  },
+  {
+    "id": 507,
+    "name": "Herdier",
+    "PokeAPI_id": 507,
+    "PokeAPI_name": "Herdier",
+    "Pokemondb_name": "Herdier",
+    "frontend_name": "Herdier"
+  },
+  {
+    "id": 508,
+    "name": "Stoutland",
+    "PokeAPI_id": 508,
+    "PokeAPI_name": "Stoutland",
+    "Pokemondb_name": "Stoutland",
+    "frontend_name": "Stoutland"
+  },
+  {
+    "id": 509,
+    "name": "Purrloin",
+    "PokeAPI_id": 509,
+    "PokeAPI_name": "Purrloin",
+    "Pokemondb_name": "Purrloin",
+    "frontend_name": "Purrloin"
+  },
+  {
+    "id": 510,
+    "name": "Liepard",
+    "PokeAPI_id": 510,
+    "PokeAPI_name": "Liepard",
+    "Pokemondb_name": "Liepard",
+    "frontend_name": "Liepard"
+  },
+  {
+    "id": 511,
+    "name": "Pansage",
+    "PokeAPI_id": 511,
+    "PokeAPI_name": "Pansage",
+    "Pokemondb_name": "Pansage",
+    "frontend_name": "Pansage"
+  },
+  {
+    "id": 512,
+    "name": "Simisage",
+    "PokeAPI_id": 512,
+    "PokeAPI_name": "Simisage",
+    "Pokemondb_name": "Simisage",
+    "frontend_name": "Simisage"
+  },
+  {
+    "id": 513,
+    "name": "Pansear",
+    "PokeAPI_id": 513,
+    "PokeAPI_name": "Pansear",
+    "Pokemondb_name": "Pansear",
+    "frontend_name": "Pansear"
+  },
+  {
+    "id": 514,
+    "name": "Simisear",
+    "PokeAPI_id": 514,
+    "PokeAPI_name": "Simisear",
+    "Pokemondb_name": "Simisear",
+    "frontend_name": "Simisear"
+  },
+  {
+    "id": 515,
+    "name": "Panpour",
+    "PokeAPI_id": 515,
+    "PokeAPI_name": "Panpour",
+    "Pokemondb_name": "Panpour",
+    "frontend_name": "Panpour"
+  },
+  {
+    "id": 516,
+    "name": "Simipour",
+    "PokeAPI_id": 516,
+    "PokeAPI_name": "Simipour",
+    "Pokemondb_name": "Simipour",
+    "frontend_name": "Simipour"
+  },
+  {
+    "id": 517,
+    "name": "Munna",
+    "PokeAPI_id": 517,
+    "PokeAPI_name": "Munna",
+    "Pokemondb_name": "Munna",
+    "frontend_name": "Munna"
+  },
+  {
+    "id": 518,
+    "name": "Musharna",
+    "PokeAPI_id": 518,
+    "PokeAPI_name": "Musharna",
+    "Pokemondb_name": "Musharna",
+    "frontend_name": "Musharna"
+  },
+  {
+    "id": 519,
+    "name": "Pidove",
+    "PokeAPI_id": 519,
+    "PokeAPI_name": "Pidove",
+    "Pokemondb_name": "Pidove",
+    "frontend_name": "Pidove"
+  },
+  {
+    "id": 520,
+    "name": "Tranquill",
+    "PokeAPI_id": 520,
+    "PokeAPI_name": "Tranquill",
+    "Pokemondb_name": "Tranquill",
+    "frontend_name": "Tranquill"
+  },
+  {
+    "id": 521,
+    "name": "Unfezant",
+    "PokeAPI_id": 521,
+    "PokeAPI_name": "Unfezant",
+    "Pokemondb_name": "Unfezant",
+    "frontend_name": "Unfezant"
+  },
+  {
+    "id": 522,
+    "name": "Blitzle",
+    "PokeAPI_id": 522,
+    "PokeAPI_name": "Blitzle",
+    "Pokemondb_name": "Blitzle",
+    "frontend_name": "Blitzle"
+  },
+  {
+    "id": 523,
+    "name": "Zebstrika",
+    "PokeAPI_id": 523,
+    "PokeAPI_name": "Zebstrika",
+    "Pokemondb_name": "Zebstrika",
+    "frontend_name": "Zebstrika"
+  },
+  {
+    "id": 524,
+    "name": "Roggenrola",
+    "PokeAPI_id": 524,
+    "PokeAPI_name": "Roggenrola",
+    "Pokemondb_name": "Roggenrola",
+    "frontend_name": "Roggenrola"
+  },
+  {
+    "id": 525,
+    "name": "Boldore",
+    "PokeAPI_id": 525,
+    "PokeAPI_name": "Boldore",
+    "Pokemondb_name": "Boldore",
+    "frontend_name": "Boldore"
+  },
+  {
+    "id": 526,
+    "name": "Gigalith",
+    "PokeAPI_id": 526,
+    "PokeAPI_name": "Gigalith",
+    "Pokemondb_name": "Gigalith",
+    "frontend_name": "Gigalith"
+  },
+  {
+    "id": 527,
+    "name": "Woobat",
+    "PokeAPI_id": 527,
+    "PokeAPI_name": "Woobat",
+    "Pokemondb_name": "Woobat",
+    "frontend_name": "Woobat"
+  },
+  {
+    "id": 528,
+    "name": "Swoobat",
+    "PokeAPI_id": 528,
+    "PokeAPI_name": "Swoobat",
+    "Pokemondb_name": "Swoobat",
+    "frontend_name": "Swoobat"
+  },
+  {
+    "id": 529,
+    "name": "Drilbur",
+    "PokeAPI_id": 529,
+    "PokeAPI_name": "Drilbur",
+    "Pokemondb_name": "Drilbur",
+    "frontend_name": "Drilbur"
+  },
+  {
+    "id": 530,
+    "name": "Excadrill",
+    "PokeAPI_id": 530,
+    "PokeAPI_name": "Excadrill",
+    "Pokemondb_name": "Excadrill",
+    "frontend_name": "Excadrill"
+  },
+  {
+    "id": 531,
+    "name": "Audino",
+    "PokeAPI_id": 531,
+    "PokeAPI_name": "Audino",
+    "Pokemondb_name": "Audino",
+    "frontend_name": "Audino"
+  },
+  {
+    "id": 532,
+    "name": "Timburr",
+    "PokeAPI_id": 532,
+    "PokeAPI_name": "Timburr",
+    "Pokemondb_name": "Timburr",
+    "frontend_name": "Timburr"
+  },
+  {
+    "id": 533,
+    "name": "Gurdurr",
+    "PokeAPI_id": 533,
+    "PokeAPI_name": "Gurdurr",
+    "Pokemondb_name": "Gurdurr",
+    "frontend_name": "Gurdurr"
+  },
+  {
+    "id": 534,
+    "name": "Conkeldurr",
+    "PokeAPI_id": 534,
+    "PokeAPI_name": "Conkeldurr",
+    "Pokemondb_name": "Conkeldurr",
+    "frontend_name": "Conkeldurr"
+  },
+  {
+    "id": 535,
+    "name": "Tympole",
+    "PokeAPI_id": 535,
+    "PokeAPI_name": "Tympole",
+    "Pokemondb_name": "Tympole",
+    "frontend_name": "Tympole"
+  },
+  {
+    "id": 536,
+    "name": "Palpitoad",
+    "PokeAPI_id": 536,
+    "PokeAPI_name": "Palpitoad",
+    "Pokemondb_name": "Palpitoad",
+    "frontend_name": "Palpitoad"
+  },
+  {
+    "id": 537,
+    "name": "Seismitoad",
+    "PokeAPI_id": 537,
+    "PokeAPI_name": "Seismitoad",
+    "Pokemondb_name": "Seismitoad",
+    "frontend_name": "Seismitoad"
+  },
+  {
+    "id": 538,
+    "name": "Throh",
+    "PokeAPI_id": 538,
+    "PokeAPI_name": "Throh",
+    "Pokemondb_name": "Throh",
+    "frontend_name": "Throh"
+  },
+  {
+    "id": 539,
+    "name": "Sawk",
+    "PokeAPI_id": 539,
+    "PokeAPI_name": "Sawk",
+    "Pokemondb_name": "Sawk",
+    "frontend_name": "Sawk"
+  },
+  {
+    "id": 540,
+    "name": "Sewaddle",
+    "PokeAPI_id": 540,
+    "PokeAPI_name": "Sewaddle",
+    "Pokemondb_name": "Sewaddle",
+    "frontend_name": "Sewaddle"
+  },
+  {
+    "id": 541,
+    "name": "Swadloon",
+    "PokeAPI_id": 541,
+    "PokeAPI_name": "Swadloon",
+    "Pokemondb_name": "Swadloon",
+    "frontend_name": "Swadloon"
+  },
+  {
+    "id": 542,
+    "name": "Leavanny",
+    "PokeAPI_id": 542,
+    "PokeAPI_name": "Leavanny",
+    "Pokemondb_name": "Leavanny",
+    "frontend_name": "Leavanny"
+  },
+  {
+    "id": 543,
+    "name": "Venipede",
+    "PokeAPI_id": 543,
+    "PokeAPI_name": "Venipede",
+    "Pokemondb_name": "Venipede",
+    "frontend_name": "Venipede"
+  },
+  {
+    "id": 544,
+    "name": "Whirlipede",
+    "PokeAPI_id": 544,
+    "PokeAPI_name": "Whirlipede",
+    "Pokemondb_name": "Whirlipede",
+    "frontend_name": "Whirlipede"
+  },
+  {
+    "id": 545,
+    "name": "Scolipede",
+    "PokeAPI_id": 545,
+    "PokeAPI_name": "Scolipede",
+    "Pokemondb_name": "Scolipede",
+    "frontend_name": "Scolipede"
+  },
+  {
+    "id": 546,
+    "name": "Cottonee",
+    "PokeAPI_id": 546,
+    "PokeAPI_name": "Cottonee",
+    "Pokemondb_name": "Cottonee",
+    "frontend_name": "Cottonee"
+  },
+  {
+    "id": 547,
+    "name": "Whimsicott",
+    "PokeAPI_id": 547,
+    "PokeAPI_name": "Whimsicott",
+    "Pokemondb_name": "Whimsicott",
+    "frontend_name": "Whimsicott"
+  },
+  {
+    "id": 548,
+    "name": "Petilil",
+    "PokeAPI_id": 548,
+    "PokeAPI_name": "Petilil",
+    "Pokemondb_name": "Petilil",
+    "frontend_name": "Petilil"
+  },
+  {
+    "id": 549,
+    "name": "Lilligant",
+    "PokeAPI_id": 549,
+    "PokeAPI_name": "Lilligant",
+    "Pokemondb_name": "Lilligant",
+    "frontend_name": "Lilligant"
+  },
+  {
+    "id": 550,
+    "name": "Basculin",
+    "PokeAPI_id": 550,
+    "PokeAPI_name": "Basculin",
+    "Pokemondb_name": "Basculin",
+    "frontend_name": "Basculin"
+  },
+  {
+    "id": 551,
+    "name": "Sandile",
+    "PokeAPI_id": 551,
+    "PokeAPI_name": "Sandile",
+    "Pokemondb_name": "Sandile",
+    "frontend_name": "Sandile"
+  },
+  {
+    "id": 552,
+    "name": "Krokorok",
+    "PokeAPI_id": 552,
+    "PokeAPI_name": "Krokorok",
+    "Pokemondb_name": "Krokorok",
+    "frontend_name": "Krokorok"
+  },
+  {
+    "id": 553,
+    "name": "Krookodile",
+    "PokeAPI_id": 553,
+    "PokeAPI_name": "Krookodile",
+    "Pokemondb_name": "Krookodile",
+    "frontend_name": "Krookodile"
+  },
+  {
+    "id": 554,
+    "name": "Darumaka",
+    "PokeAPI_id": 554,
+    "PokeAPI_name": "Darumaka",
+    "Pokemondb_name": "Darumaka",
+    "frontend_name": "Darumaka"
+  },
+  {
+    "id": 555,
+    "name": "Darmanitan",
+    "PokeAPI_id": 555,
+    "PokeAPI_name": "Darmanitan",
+    "Pokemondb_name": "Darmanitan",
+    "frontend_name": "Darmanitan"
+  },
+  {
+    "id": 556,
+    "name": "Maractus",
+    "PokeAPI_id": 556,
+    "PokeAPI_name": "Maractus",
+    "Pokemondb_name": "Maractus",
+    "frontend_name": "Maractus"
+  },
+  {
+    "id": 557,
+    "name": "Dwebble",
+    "PokeAPI_id": 557,
+    "PokeAPI_name": "Dwebble",
+    "Pokemondb_name": "Dwebble",
+    "frontend_name": "Dwebble"
+  },
+  {
+    "id": 558,
+    "name": "Crustle",
+    "PokeAPI_id": 558,
+    "PokeAPI_name": "Crustle",
+    "Pokemondb_name": "Crustle",
+    "frontend_name": "Crustle"
+  },
+  {
+    "id": 559,
+    "name": "Scraggy",
+    "PokeAPI_id": 559,
+    "PokeAPI_name": "Scraggy",
+    "Pokemondb_name": "Scraggy",
+    "frontend_name": "Scraggy"
+  },
+  {
+    "id": 560,
+    "name": "Scrafty",
+    "PokeAPI_id": 560,
+    "PokeAPI_name": "Scrafty",
+    "Pokemondb_name": "Scrafty",
+    "frontend_name": "Scrafty"
+  },
+  {
+    "id": 561,
+    "name": "Sigilyph",
+    "PokeAPI_id": 561,
+    "PokeAPI_name": "Sigilyph",
+    "Pokemondb_name": "Sigilyph",
+    "frontend_name": "Sigilyph"
+  },
+  {
+    "id": 562,
+    "name": "Yamask",
+    "PokeAPI_id": 562,
+    "PokeAPI_name": "Yamask",
+    "Pokemondb_name": "Yamask",
+    "frontend_name": "Yamask"
+  },
+  {
+    "id": 563,
+    "name": "Cofagrigus",
+    "PokeAPI_id": 563,
+    "PokeAPI_name": "Cofagrigus",
+    "Pokemondb_name": "Cofagrigus",
+    "frontend_name": "Cofagrigus"
+  },
+  {
+    "id": 564,
+    "name": "Tirtouga",
+    "PokeAPI_id": 564,
+    "PokeAPI_name": "Tirtouga",
+    "Pokemondb_name": "Tirtouga",
+    "frontend_name": "Tirtouga"
+  },
+  {
+    "id": 565,
+    "name": "Carracosta",
+    "PokeAPI_id": 565,
+    "PokeAPI_name": "Carracosta",
+    "Pokemondb_name": "Carracosta",
+    "frontend_name": "Carracosta"
+  },
+  {
+    "id": 566,
+    "name": "Archen",
+    "PokeAPI_id": 566,
+    "PokeAPI_name": "Archen",
+    "Pokemondb_name": "Archen",
+    "frontend_name": "Archen"
+  },
+  {
+    "id": 567,
+    "name": "Archeops",
+    "PokeAPI_id": 567,
+    "PokeAPI_name": "Archeops",
+    "Pokemondb_name": "Archeops",
+    "frontend_name": "Archeops"
+  },
+  {
+    "id": 568,
+    "name": "Trubbish",
+    "PokeAPI_id": 568,
+    "PokeAPI_name": "Trubbish",
+    "Pokemondb_name": "Trubbish",
+    "frontend_name": "Trubbish"
+  },
+  {
+    "id": 569,
+    "name": "Garbodor",
+    "PokeAPI_id": 569,
+    "PokeAPI_name": "Garbodor",
+    "Pokemondb_name": "Garbodor",
+    "frontend_name": "Garbodor"
+  },
+  {
+    "id": 570,
+    "name": "Zorua",
+    "PokeAPI_id": 570,
+    "PokeAPI_name": "Zorua",
+    "Pokemondb_name": "Zorua",
+    "frontend_name": "Zorua"
+  },
+  {
+    "id": 571,
+    "name": "Zoroark",
+    "PokeAPI_id": 571,
+    "PokeAPI_name": "Zoroark",
+    "Pokemondb_name": "Zoroark",
+    "frontend_name": "Zoroark"
+  },
+  {
+    "id": 572,
+    "name": "Minccino",
+    "PokeAPI_id": 572,
+    "PokeAPI_name": "Minccino",
+    "Pokemondb_name": "Minccino",
+    "frontend_name": "Minccino"
+  },
+  {
+    "id": 573,
+    "name": "Cinccino",
+    "PokeAPI_id": 573,
+    "PokeAPI_name": "Cinccino",
+    "Pokemondb_name": "Cinccino",
+    "frontend_name": "Cinccino"
+  },
+  {
+    "id": 574,
+    "name": "Gothita",
+    "PokeAPI_id": 574,
+    "PokeAPI_name": "Gothita",
+    "Pokemondb_name": "Gothita",
+    "frontend_name": "Gothita"
+  },
+  {
+    "id": 575,
+    "name": "Gothorita",
+    "PokeAPI_id": 575,
+    "PokeAPI_name": "Gothorita",
+    "Pokemondb_name": "Gothorita",
+    "frontend_name": "Gothorita"
+  },
+  {
+    "id": 576,
+    "name": "Gothitelle",
+    "PokeAPI_id": 576,
+    "PokeAPI_name": "Gothitelle",
+    "Pokemondb_name": "Gothitelle",
+    "frontend_name": "Gothitelle"
+  },
+  {
+    "id": 577,
+    "name": "Solosis",
+    "PokeAPI_id": 577,
+    "PokeAPI_name": "Solosis",
+    "Pokemondb_name": "Solosis",
+    "frontend_name": "Solosis"
+  },
+  {
+    "id": 578,
+    "name": "Duosion",
+    "PokeAPI_id": 578,
+    "PokeAPI_name": "Duosion",
+    "Pokemondb_name": "Duosion",
+    "frontend_name": "Duosion"
+  },
+  {
+    "id": 579,
+    "name": "Reuniclus",
+    "PokeAPI_id": 579,
+    "PokeAPI_name": "Reuniclus",
+    "Pokemondb_name": "Reuniclus",
+    "frontend_name": "Reuniclus"
+  },
+  {
+    "id": 580,
+    "name": "Ducklett",
+    "PokeAPI_id": 580,
+    "PokeAPI_name": "Ducklett",
+    "Pokemondb_name": "Ducklett",
+    "frontend_name": "Ducklett"
+  },
+  {
+    "id": 581,
+    "name": "Swanna",
+    "PokeAPI_id": 581,
+    "PokeAPI_name": "Swanna",
+    "Pokemondb_name": "Swanna",
+    "frontend_name": "Swanna"
+  },
+  {
+    "id": 582,
+    "name": "Vanillite",
+    "PokeAPI_id": 582,
+    "PokeAPI_name": "Vanillite",
+    "Pokemondb_name": "Vanillite",
+    "frontend_name": "Vanillite"
+  },
+  {
+    "id": 583,
+    "name": "Vanillish",
+    "PokeAPI_id": 583,
+    "PokeAPI_name": "Vanillish",
+    "Pokemondb_name": "Vanillish",
+    "frontend_name": "Vanillish"
+  },
+  {
+    "id": 584,
+    "name": "Vanilluxe",
+    "PokeAPI_id": 584,
+    "PokeAPI_name": "Vanilluxe",
+    "Pokemondb_name": "Vanilluxe",
+    "frontend_name": "Vanilluxe"
+  },
+  {
+    "id": 585,
+    "name": "Deerling",
+    "PokeAPI_id": 585,
+    "PokeAPI_name": "Deerling",
+    "Pokemondb_name": "Deerling",
+    "frontend_name": "Deerling"
+  },
+  {
+    "id": 586,
+    "name": "Sawsbuck",
+    "PokeAPI_id": 586,
+    "PokeAPI_name": "Sawsbuck",
+    "Pokemondb_name": "Sawsbuck",
+    "frontend_name": "Sawsbuck"
+  },
+  {
+    "id": 587,
+    "name": "Emolga",
+    "PokeAPI_id": 587,
+    "PokeAPI_name": "Emolga",
+    "Pokemondb_name": "Emolga",
+    "frontend_name": "Emolga"
+  },
+  {
+    "id": 588,
+    "name": "Karrablast",
+    "PokeAPI_id": 588,
+    "PokeAPI_name": "Karrablast",
+    "Pokemondb_name": "Karrablast",
+    "frontend_name": "Karrablast"
+  },
+  {
+    "id": 589,
+    "name": "Escavalier",
+    "PokeAPI_id": 589,
+    "PokeAPI_name": "Escavalier",
+    "Pokemondb_name": "Escavalier",
+    "frontend_name": "Escavalier"
+  },
+  {
+    "id": 590,
+    "name": "Foongus",
+    "PokeAPI_id": 590,
+    "PokeAPI_name": "Foongus",
+    "Pokemondb_name": "Foongus",
+    "frontend_name": "Foongus"
+  },
+  {
+    "id": 591,
+    "name": "Amoonguss",
+    "PokeAPI_id": 591,
+    "PokeAPI_name": "Amoonguss",
+    "Pokemondb_name": "Amoonguss",
+    "frontend_name": "Amoonguss"
+  },
+  {
+    "id": 592,
+    "name": "Frillish",
+    "PokeAPI_id": 592,
+    "PokeAPI_name": "Frillish",
+    "Pokemondb_name": "Frillish",
+    "frontend_name": "Frillish"
+  },
+  {
+    "id": 593,
+    "name": "Jellicent",
+    "PokeAPI_id": 593,
+    "PokeAPI_name": "Jellicent",
+    "Pokemondb_name": "Jellicent",
+    "frontend_name": "Jellicent"
+  },
+  {
+    "id": 594,
+    "name": "Alomomola",
+    "PokeAPI_id": 594,
+    "PokeAPI_name": "Alomomola",
+    "Pokemondb_name": "Alomomola",
+    "frontend_name": "Alomomola"
+  },
+  {
+    "id": 595,
+    "name": "Joltik",
+    "PokeAPI_id": 595,
+    "PokeAPI_name": "Joltik",
+    "Pokemondb_name": "Joltik",
+    "frontend_name": "Joltik"
+  },
+  {
+    "id": 596,
+    "name": "Galvantula",
+    "PokeAPI_id": 596,
+    "PokeAPI_name": "Galvantula",
+    "Pokemondb_name": "Galvantula",
+    "frontend_name": "Galvantula"
+  },
+  {
+    "id": 597,
+    "name": "Ferroseed",
+    "PokeAPI_id": 597,
+    "PokeAPI_name": "Ferroseed",
+    "Pokemondb_name": "Ferroseed",
+    "frontend_name": "Ferroseed"
+  },
+  {
+    "id": 598,
+    "name": "Ferrothorn",
+    "PokeAPI_id": 598,
+    "PokeAPI_name": "Ferrothorn",
+    "Pokemondb_name": "Ferrothorn",
+    "frontend_name": "Ferrothorn"
+  },
+  {
+    "id": 599,
+    "name": "Klink",
+    "PokeAPI_id": 599,
+    "PokeAPI_name": "Klink",
+    "Pokemondb_name": "Klink",
+    "frontend_name": "Klink"
+  },
+  {
+    "id": 600,
+    "name": "Klang",
+    "PokeAPI_id": 600,
+    "PokeAPI_name": "Klang",
+    "Pokemondb_name": "Klang",
+    "frontend_name": "Klang"
+  },
+  {
+    "id": 601,
+    "name": "Klinklang",
+    "PokeAPI_id": 601,
+    "PokeAPI_name": "Klinklang",
+    "Pokemondb_name": "Klinklang",
+    "frontend_name": "Klinklang"
+  },
+  {
+    "id": 602,
+    "name": "Tynamo",
+    "PokeAPI_id": 602,
+    "PokeAPI_name": "Tynamo",
+    "Pokemondb_name": "Tynamo",
+    "frontend_name": "Tynamo"
+  },
+  {
+    "id": 603,
+    "name": "Eelektrik",
+    "PokeAPI_id": 603,
+    "PokeAPI_name": "Eelektrik",
+    "Pokemondb_name": "Eelektrik",
+    "frontend_name": "Eelektrik"
+  },
+  {
+    "id": 604,
+    "name": "Eelektross",
+    "PokeAPI_id": 604,
+    "PokeAPI_name": "Eelektross",
+    "Pokemondb_name": "Eelektross",
+    "frontend_name": "Eelektross"
+  },
+  {
+    "id": 605,
+    "name": "Elgyem",
+    "PokeAPI_id": 605,
+    "PokeAPI_name": "Elgyem",
+    "Pokemondb_name": "Elgyem",
+    "frontend_name": "Elgyem"
+  },
+  {
+    "id": 606,
+    "name": "Beheeyem",
+    "PokeAPI_id": 606,
+    "PokeAPI_name": "Beheeyem",
+    "Pokemondb_name": "Beheeyem",
+    "frontend_name": "Beheeyem"
+  },
+  {
+    "id": 607,
+    "name": "Litwick",
+    "PokeAPI_id": 607,
+    "PokeAPI_name": "Litwick",
+    "Pokemondb_name": "Litwick",
+    "frontend_name": "Litwick"
+  },
+  {
+    "id": 608,
+    "name": "Lampent",
+    "PokeAPI_id": 608,
+    "PokeAPI_name": "Lampent",
+    "Pokemondb_name": "Lampent",
+    "frontend_name": "Lampent"
+  },
+  {
+    "id": 609,
+    "name": "Chandelure",
+    "PokeAPI_id": 609,
+    "PokeAPI_name": "Chandelure",
+    "Pokemondb_name": "Chandelure",
+    "frontend_name": "Chandelure"
+  },
+  {
+    "id": 610,
+    "name": "Axew",
+    "PokeAPI_id": 610,
+    "PokeAPI_name": "Axew",
+    "Pokemondb_name": "Axew",
+    "frontend_name": "Axew"
+  },
+  {
+    "id": 611,
+    "name": "Fraxure",
+    "PokeAPI_id": 611,
+    "PokeAPI_name": "Fraxure",
+    "Pokemondb_name": "Fraxure",
+    "frontend_name": "Fraxure"
+  },
+  {
+    "id": 612,
+    "name": "Haxorus",
+    "PokeAPI_id": 612,
+    "PokeAPI_name": "Haxorus",
+    "Pokemondb_name": "Haxorus",
+    "frontend_name": "Haxorus"
+  },
+  {
+    "id": 613,
+    "name": "Cubchoo",
+    "PokeAPI_id": 613,
+    "PokeAPI_name": "Cubchoo",
+    "Pokemondb_name": "Cubchoo",
+    "frontend_name": "Cubchoo"
+  },
+  {
+    "id": 614,
+    "name": "Beartic",
+    "PokeAPI_id": 614,
+    "PokeAPI_name": "Beartic",
+    "Pokemondb_name": "Beartic",
+    "frontend_name": "Beartic"
+  },
+  {
+    "id": 615,
+    "name": "Cryogonal",
+    "PokeAPI_id": 615,
+    "PokeAPI_name": "Cryogonal",
+    "Pokemondb_name": "Cryogonal",
+    "frontend_name": "Cryogonal"
+  },
+  {
+    "id": 616,
+    "name": "Shelmet",
+    "PokeAPI_id": 616,
+    "PokeAPI_name": "Shelmet",
+    "Pokemondb_name": "Shelmet",
+    "frontend_name": "Shelmet"
+  },
+  {
+    "id": 617,
+    "name": "Accelgor",
+    "PokeAPI_id": 617,
+    "PokeAPI_name": "Accelgor",
+    "Pokemondb_name": "Accelgor",
+    "frontend_name": "Accelgor"
+  },
+  {
+    "id": 618,
+    "name": "Stunfisk",
+    "PokeAPI_id": 618,
+    "PokeAPI_name": "Stunfisk",
+    "Pokemondb_name": "Stunfisk",
+    "frontend_name": "Stunfisk"
+  },
+  {
+    "id": 619,
+    "name": "Mienfoo",
+    "PokeAPI_id": 619,
+    "PokeAPI_name": "Mienfoo",
+    "Pokemondb_name": "Mienfoo",
+    "frontend_name": "Mienfoo"
+  },
+  {
+    "id": 620,
+    "name": "Mienshao",
+    "PokeAPI_id": 620,
+    "PokeAPI_name": "Mienshao",
+    "Pokemondb_name": "Mienshao",
+    "frontend_name": "Mienshao"
+  },
+  {
+    "id": 621,
+    "name": "Druddigon",
+    "PokeAPI_id": 621,
+    "PokeAPI_name": "Druddigon",
+    "Pokemondb_name": "Druddigon",
+    "frontend_name": "Druddigon"
+  },
+  {
+    "id": 622,
+    "name": "Golett",
+    "PokeAPI_id": 622,
+    "PokeAPI_name": "Golett",
+    "Pokemondb_name": "Golett",
+    "frontend_name": "Golett"
+  },
+  {
+    "id": 623,
+    "name": "Golurk",
+    "PokeAPI_id": 623,
+    "PokeAPI_name": "Golurk",
+    "Pokemondb_name": "Golurk",
+    "frontend_name": "Golurk"
+  },
+  {
+    "id": 624,
+    "name": "Pawniard",
+    "PokeAPI_id": 624,
+    "PokeAPI_name": "Pawniard",
+    "Pokemondb_name": "Pawniard",
+    "frontend_name": "Pawniard"
+  },
+  {
+    "id": 625,
+    "name": "Bisharp",
+    "PokeAPI_id": 625,
+    "PokeAPI_name": "Bisharp",
+    "Pokemondb_name": "Bisharp",
+    "frontend_name": "Bisharp"
+  },
+  {
+    "id": 626,
+    "name": "Bouffalant",
+    "PokeAPI_id": 626,
+    "PokeAPI_name": "Bouffalant",
+    "Pokemondb_name": "Bouffalant",
+    "frontend_name": "Bouffalant"
+  },
+  {
+    "id": 627,
+    "name": "Rufflet",
+    "PokeAPI_id": 627,
+    "PokeAPI_name": "Rufflet",
+    "Pokemondb_name": "Rufflet",
+    "frontend_name": "Rufflet"
+  },
+  {
+    "id": 628,
+    "name": "Braviary",
+    "PokeAPI_id": 628,
+    "PokeAPI_name": "Braviary",
+    "Pokemondb_name": "Braviary",
+    "frontend_name": "Braviary"
+  },
+  {
+    "id": 629,
+    "name": "Vullaby",
+    "PokeAPI_id": 629,
+    "PokeAPI_name": "Vullaby",
+    "Pokemondb_name": "Vullaby",
+    "frontend_name": "Vullaby"
+  },
+  {
+    "id": 630,
+    "name": "Mandibuzz",
+    "PokeAPI_id": 630,
+    "PokeAPI_name": "Mandibuzz",
+    "Pokemondb_name": "Mandibuzz",
+    "frontend_name": "Mandibuzz"
+  },
+  {
+    "id": 631,
+    "name": "Heatmor",
+    "PokeAPI_id": 631,
+    "PokeAPI_name": "Heatmor",
+    "Pokemondb_name": "Heatmor",
+    "frontend_name": "Heatmor"
+  },
+  {
+    "id": 632,
+    "name": "Durant",
+    "PokeAPI_id": 632,
+    "PokeAPI_name": "Durant",
+    "Pokemondb_name": "Durant",
+    "frontend_name": "Durant"
+  },
+  {
+    "id": 633,
+    "name": "Deino",
+    "PokeAPI_id": 633,
+    "PokeAPI_name": "Deino",
+    "Pokemondb_name": "Deino",
+    "frontend_name": "Deino"
+  },
+  {
+    "id": 634,
+    "name": "Zweilous",
+    "PokeAPI_id": 634,
+    "PokeAPI_name": "Zweilous",
+    "Pokemondb_name": "Zweilous",
+    "frontend_name": "Zweilous"
+  },
+  {
+    "id": 635,
+    "name": "Hydreigon",
+    "PokeAPI_id": 635,
+    "PokeAPI_name": "Hydreigon",
+    "Pokemondb_name": "Hydreigon",
+    "frontend_name": "Hydreigon"
+  },
+  {
+    "id": 636,
+    "name": "Larvesta",
+    "PokeAPI_id": 636,
+    "PokeAPI_name": "Larvesta",
+    "Pokemondb_name": "Larvesta",
+    "frontend_name": "Larvesta"
+  },
+  {
+    "id": 637,
+    "name": "Volcarona",
+    "PokeAPI_id": 637,
+    "PokeAPI_name": "Volcarona",
+    "Pokemondb_name": "Volcarona",
+    "frontend_name": "Volcarona"
+  },
+  {
+    "id": 638,
+    "name": "Cobalion",
+    "PokeAPI_id": 638,
+    "PokeAPI_name": "Cobalion",
+    "Pokemondb_name": "Cobalion",
+    "frontend_name": "Cobalion"
+  },
+  {
+    "id": 639,
+    "name": "Terrakion",
+    "PokeAPI_id": 639,
+    "PokeAPI_name": "Terrakion",
+    "Pokemondb_name": "Terrakion",
+    "frontend_name": "Terrakion"
+  },
+  {
+    "id": 640,
+    "name": "Virizion",
+    "PokeAPI_id": 640,
+    "PokeAPI_name": "Virizion",
+    "Pokemondb_name": "Virizion",
+    "frontend_name": "Virizion"
+  },
+  {
+    "id": 641,
+    "name": "Tornadus",
+    "PokeAPI_id": 641,
+    "PokeAPI_name": "Tornadus",
+    "Pokemondb_name": "Tornadus",
+    "frontend_name": "Tornadus"
+  },
+  {
+    "id": 642,
+    "name": "Thundurus",
+    "PokeAPI_id": 642,
+    "PokeAPI_name": "Thundurus",
+    "Pokemondb_name": "Thundurus",
+    "frontend_name": "Thundurus"
+  },
+  {
+    "id": 643,
+    "name": "Reshiram",
+    "PokeAPI_id": 643,
+    "PokeAPI_name": "Reshiram",
+    "Pokemondb_name": "Reshiram",
+    "frontend_name": "Reshiram"
+  },
+  {
+    "id": 644,
+    "name": "Zekrom",
+    "PokeAPI_id": 644,
+    "PokeAPI_name": "Zekrom",
+    "Pokemondb_name": "Zekrom",
+    "frontend_name": "Zekrom"
+  },
+  {
+    "id": 645,
+    "name": "Landorus",
+    "PokeAPI_id": 645,
+    "PokeAPI_name": "Landorus",
+    "Pokemondb_name": "Landorus",
+    "frontend_name": "Landorus"
+  },
+  {
+    "id": 646,
+    "name": "Kyurem",
+    "PokeAPI_id": 646,
+    "PokeAPI_name": "Kyurem",
+    "Pokemondb_name": "Kyurem",
+    "frontend_name": "Kyurem"
+  },
+  {
+    "id": 647,
+    "name": "Keldeo",
+    "PokeAPI_id": 647,
+    "PokeAPI_name": "Keldeo",
+    "Pokemondb_name": "Keldeo",
+    "frontend_name": "Keldeo"
+  },
+  {
+    "id": 648,
+    "name": "Meloetta",
+    "PokeAPI_id": 648,
+    "PokeAPI_name": "Meloetta",
+    "Pokemondb_name": "Meloetta",
+    "frontend_name": "Meloetta"
+  },
+  {
+    "id": 649,
+    "name": "Genesect",
+    "PokeAPI_id": 649,
+    "PokeAPI_name": "Genesect",
+    "Pokemondb_name": "Genesect",
+    "frontend_name": "Genesect"
+  },
+  {
+    "id": 650,
+    "name": "Deoxys",
+    "PokeAPI_id": 650,
+    "PokeAPI_name": "Deoxys",
+    "Pokemondb_name": "Deoxys",
+    "frontend_name": "Deoxys"
+  },
+  {
+    "id": 651,
+    "name": "Deoxys",
+    "PokeAPI_id": 651,
+    "PokeAPI_name": "Deoxys",
+    "Pokemondb_name": "Deoxys",
+    "frontend_name": "Deoxys"
+  },
+  {
+    "id": 652,
+    "name": "Deoxys",
+    "PokeAPI_id": 652,
+    "PokeAPI_name": "Deoxys",
+    "Pokemondb_name": "Deoxys",
+    "frontend_name": "Deoxys"
+  },
+  {
+    "id": 653,
+    "name": "Wormadam",
+    "PokeAPI_id": 653,
+    "PokeAPI_name": "Wormadam",
+    "Pokemondb_name": "Wormadam",
+    "frontend_name": "Wormadam"
+  },
+  {
+    "id": 654,
+    "name": "Wormadam",
+    "PokeAPI_id": 654,
+    "PokeAPI_name": "Wormadam",
+    "Pokemondb_name": "Wormadam",
+    "frontend_name": "Wormadam"
+  },
+  {
+    "id": 655,
+    "name": "Shaymin",
+    "PokeAPI_id": 655,
+    "PokeAPI_name": "Shaymin",
+    "Pokemondb_name": "Shaymin",
+    "frontend_name": "Shaymin"
+  },
+  {
+    "id": 656,
+    "name": "Giratina",
+    "PokeAPI_id": 656,
+    "PokeAPI_name": "Giratina",
+    "Pokemondb_name": "Giratina",
+    "frontend_name": "Giratina"
+  },
+  {
+    "id": 657,
+    "name": "Rotom",
+    "PokeAPI_id": 657,
+    "PokeAPI_name": "Rotom",
+    "Pokemondb_name": "Rotom",
+    "frontend_name": "Rotom"
+  },
+  {
+    "id": 658,
+    "name": "Rotom",
+    "PokeAPI_id": 658,
+    "PokeAPI_name": "Rotom",
+    "Pokemondb_name": "Rotom",
+    "frontend_name": "Rotom"
+  },
+  {
+    "id": 659,
+    "name": "Rotom",
+    "PokeAPI_id": 659,
+    "PokeAPI_name": "Rotom",
+    "Pokemondb_name": "Rotom",
+    "frontend_name": "Rotom"
+  },
+  {
+    "id": 660,
+    "name": "Rotom",
+    "PokeAPI_id": 660,
+    "PokeAPI_name": "Rotom",
+    "Pokemondb_name": "Rotom",
+    "frontend_name": "Rotom"
+  },
+  {
+    "id": 661,
+    "name": "Rotom",
+    "PokeAPI_id": 661,
+    "PokeAPI_name": "Rotom",
+    "Pokemondb_name": "Rotom",
+    "frontend_name": "Rotom"
+  },
+  {
+    "id": 662,
+    "name": "Castform",
+    "PokeAPI_id": 662,
+    "PokeAPI_name": "Castform",
+    "Pokemondb_name": "Castform",
+    "frontend_name": "Castform"
+  },
+  {
+    "id": 663,
+    "name": "Castform",
+    "PokeAPI_id": 663,
+    "PokeAPI_name": "Castform",
+    "Pokemondb_name": "Castform",
+    "frontend_name": "Castform"
+  },
+  {
+    "id": 664,
+    "name": "Castform",
+    "PokeAPI_id": 664,
+    "PokeAPI_name": "Castform",
+    "Pokemondb_name": "Castform",
+    "frontend_name": "Castform"
+  },
+  {
+    "id": 665,
+    "name": "Basculin",
+    "PokeAPI_id": 665,
+    "PokeAPI_name": "Basculin",
+    "Pokemondb_name": "Basculin",
+    "frontend_name": "Basculin"
+  },
+  {
+    "id": 666,
+    "name": "Darmanitan",
+    "PokeAPI_id": 666,
+    "PokeAPI_name": "Darmanitan",
+    "Pokemondb_name": "Darmanitan",
+    "frontend_name": "Darmanitan"
+  },
+  {
+    "id": 667,
+    "name": "Meloetta",
+    "PokeAPI_id": 667,
+    "PokeAPI_name": "Meloetta",
+    "Pokemondb_name": "Meloetta",
+    "frontend_name": "Meloetta"
+  },
+  {
+    "id": 1000,
+    "name": "Pumpking",
+    "PokeAPI_id": 1000,
+    "PokeAPI_name": "Pumpking",
+    "Pokemondb_name": "Pumpking",
+    "frontend_name": "Pumpking"
+  },
+  {
+    "id": 1001,
+    "name": "Pumpking",
+    "PokeAPI_id": 1001,
+    "PokeAPI_name": "Pumpking",
+    "Pokemondb_name": "Pumpking",
+    "frontend_name": "Pumpking"
+  },
+  {
+    "id": 1002,
+    "name": "Pumpking",
+    "PokeAPI_id": 1002,
+    "PokeAPI_name": "Pumpking",
+    "Pokemondb_name": "Pumpking",
+    "frontend_name": "Pumpking"
+  },
+  {
+    "id": 1003,
+    "name": "Fighting Elfbot",
+    "PokeAPI_id": 1003,
+    "PokeAPI_name": "Fighting Elfbot",
+    "Pokemondb_name": "Fighting Elfbot",
+    "frontend_name": "Fighting Elfbot"
+  },
+  {
+    "id": 1004,
+    "name": "Flying Elfbot",
+    "PokeAPI_id": 1004,
+    "PokeAPI_name": "Flying Elfbot",
+    "Pokemondb_name": "Flying Elfbot",
+    "frontend_name": "Flying Elfbot"
+  },
+  {
+    "id": 1005,
+    "name": "Poison Elfbot",
+    "PokeAPI_id": 1005,
+    "PokeAPI_name": "Poison Elfbot",
+    "Pokemondb_name": "Poison Elfbot",
+    "frontend_name": "Poison Elfbot"
+  },
+  {
+    "id": 1006,
+    "name": "Ground Elfbot",
+    "PokeAPI_id": 1006,
+    "PokeAPI_name": "Ground Elfbot",
+    "Pokemondb_name": "Ground Elfbot",
+    "frontend_name": "Ground Elfbot"
+  },
+  {
+    "id": 1007,
+    "name": "Rock Elfbot",
+    "PokeAPI_id": 1007,
+    "PokeAPI_name": "Rock Elfbot",
+    "Pokemondb_name": "Rock Elfbot",
+    "frontend_name": "Rock Elfbot"
+  },
+  {
+    "id": 1008,
+    "name": "Bug Elfbot",
+    "PokeAPI_id": 1008,
+    "PokeAPI_name": "Bug Elfbot",
+    "Pokemondb_name": "Bug Elfbot",
+    "frontend_name": "Bug Elfbot"
+  },
+  {
+    "id": 1009,
+    "name": "Ghost Elfbot",
+    "PokeAPI_id": 1009,
+    "PokeAPI_name": "Ghost Elfbot",
+    "Pokemondb_name": "Ghost Elfbot",
+    "frontend_name": "Ghost Elfbot"
+  },
+  {
+    "id": 1010,
+    "name": "Steel Elfbot",
+    "PokeAPI_id": 1010,
+    "PokeAPI_name": "Steel Elfbot",
+    "Pokemondb_name": "Steel Elfbot",
+    "frontend_name": "Steel Elfbot"
+  },
+  {
+    "id": 1011,
+    "name": "Fire Elfbot",
+    "PokeAPI_id": 1011,
+    "PokeAPI_name": "Fire Elfbot",
+    "Pokemondb_name": "Fire Elfbot",
+    "frontend_name": "Fire Elfbot"
+  },
+  {
+    "id": 1012,
+    "name": "Water Elfbot",
+    "PokeAPI_id": 1012,
+    "PokeAPI_name": "Water Elfbot",
+    "Pokemondb_name": "Water Elfbot",
+    "frontend_name": "Water Elfbot"
+  },
+  {
+    "id": 1013,
+    "name": "Grass Elfbot",
+    "PokeAPI_id": 1013,
+    "PokeAPI_name": "Grass Elfbot",
+    "Pokemondb_name": "Grass Elfbot",
+    "frontend_name": "Grass Elfbot"
+  },
+  {
+    "id": 1014,
+    "name": "Electric Elfbot",
+    "PokeAPI_id": 1014,
+    "PokeAPI_name": "Electric Elfbot",
+    "Pokemondb_name": "Electric Elfbot",
+    "frontend_name": "Electric Elfbot"
+  },
+  {
+    "id": 1015,
+    "name": "Psychic Elfbot",
+    "PokeAPI_id": 1015,
+    "PokeAPI_name": "Psychic Elfbot",
+    "Pokemondb_name": "Psychic Elfbot",
+    "frontend_name": "Psychic Elfbot"
+  },
+  {
+    "id": 1016,
+    "name": "Ice Elfbot",
+    "PokeAPI_id": 1016,
+    "PokeAPI_name": "Ice Elfbot",
+    "Pokemondb_name": "Ice Elfbot",
+    "frontend_name": "Ice Elfbot"
+  },
+  {
+    "id": 1017,
+    "name": "Dragon Elfbot",
+    "PokeAPI_id": 1017,
+    "PokeAPI_name": "Dragon Elfbot",
+    "Pokemondb_name": "Dragon Elfbot",
+    "frontend_name": "Dragon Elfbot"
+  },
+  {
+    "id": 1018,
+    "name": "Dark Elfbot",
+    "PokeAPI_id": 1018,
+    "PokeAPI_name": "Dark Elfbot",
+    "Pokemondb_name": "Dark Elfbot",
+    "frontend_name": "Dark Elfbot"
+  },
+  {
+    "id": 1019,
+    "name": "Pumprince",
+    "PokeAPI_id": 1019,
+    "PokeAPI_name": "Pumprince",
+    "Pokemondb_name": "Pumprince",
+    "frontend_name": "Pumprince"
+  },
+  {
+    "id": 1020,
+    "name": "Pumprincess",
+    "PokeAPI_id": 1020,
+    "PokeAPI_name": "Pumprincess",
+    "Pokemondb_name": "Pumprincess",
+    "frontend_name": "Pumprincess"
+  },
+  {
+    "id": 1021,
+    "name": "Li'l Pump",
+    "PokeAPI_id": 1021,
+    "PokeAPI_name": "Li'l Pump",
+    "Pokemondb_name": "Li'l Pump",
+    "frontend_name": "Li'l Pump"
+  },
+  {
+    "id": 1022,
+    "name": "???",
+    "PokeAPI_id": 1022,
+    "PokeAPI_name": "???",
+    "Pokemondb_name": "???",
+    "frontend_name": "???"
+  },
+  {
+    "id": 1023,
+    "name": "Giratina",
+    "PokeAPI_id": 1023,
+    "PokeAPI_name": "Giratina",
+    "Pokemondb_name": "Giratina",
+    "frontend_name": "Giratina"
+  },
+  {
+    "id": 1024,
+    "name": "Nian",
+    "PokeAPI_id": 1024,
+    "PokeAPI_name": "Nian",
+    "Pokemondb_name": "Nian",
+    "frontend_name": "Nian"
+  },
+  {
+    "id": 1025,
+    "name": "Jumpeon",
+    "PokeAPI_id": 1025,
+    "PokeAPI_name": "Jumpeon",
+    "Pokemondb_name": "Jumpeon",
+    "frontend_name": "Jumpeon"
+  },
+  {
+    "id": 1026,
+    "name": "Circuitree",
+    "PokeAPI_id": 1026,
+    "PokeAPI_name": "Circuitree",
+    "Pokemondb_name": "Circuitree",
+    "frontend_name": "Circuitree"
+  },
+  {
+    "id": 1027,
+    "name": "Robosanta",
+    "PokeAPI_id": 1027,
+    "PokeAPI_name": "Robosanta",
+    "Pokemondb_name": "Robosanta",
+    "frontend_name": "Robosanta"
+  },
+  {
+    "id": 1028,
+    "name": "Mountain Muncher",
+    "PokeAPI_id": 1028,
+    "PokeAPI_name": "Mountain Muncher",
+    "Pokemondb_name": "Mountain Muncher",
+    "frontend_name": "Mountain Muncher"
+  },
+  {
+    "id": 1029,
+    "name": "Fighting Elfbot",
+    "PokeAPI_id": 1029,
+    "PokeAPI_name": "Fighting Elfbot",
+    "Pokemondb_name": "Fighting Elfbot",
+    "frontend_name": "Fighting Elfbot"
+  },
+  {
+    "id": 1030,
+    "name": "Flying Elfbot",
+    "PokeAPI_id": 1030,
+    "PokeAPI_name": "Flying Elfbot",
+    "Pokemondb_name": "Flying Elfbot",
+    "frontend_name": "Flying Elfbot"
+  },
+  {
+    "id": 1031,
+    "name": "Poison Elfbot",
+    "PokeAPI_id": 1031,
+    "PokeAPI_name": "Poison Elfbot",
+    "Pokemondb_name": "Poison Elfbot",
+    "frontend_name": "Poison Elfbot"
+  },
+  {
+    "id": 1032,
+    "name": "Ground Elfbot",
+    "PokeAPI_id": 1032,
+    "PokeAPI_name": "Ground Elfbot",
+    "Pokemondb_name": "Ground Elfbot",
+    "frontend_name": "Ground Elfbot"
+  },
+  {
+    "id": 1033,
+    "name": "Rock Elfbot",
+    "PokeAPI_id": 1033,
+    "PokeAPI_name": "Rock Elfbot",
+    "Pokemondb_name": "Rock Elfbot",
+    "frontend_name": "Rock Elfbot"
+  },
+  {
+    "id": 1034,
+    "name": "Bug Elfbot",
+    "PokeAPI_id": 1034,
+    "PokeAPI_name": "Bug Elfbot",
+    "Pokemondb_name": "Bug Elfbot",
+    "frontend_name": "Bug Elfbot"
+  },
+  {
+    "id": 1035,
+    "name": "Ghost Elfbot",
+    "PokeAPI_id": 1035,
+    "PokeAPI_name": "Ghost Elfbot",
+    "Pokemondb_name": "Ghost Elfbot",
+    "frontend_name": "Ghost Elfbot"
+  },
+  {
+    "id": 1036,
+    "name": "Steel Elfbot",
+    "PokeAPI_id": 1036,
+    "PokeAPI_name": "Steel Elfbot",
+    "Pokemondb_name": "Steel Elfbot",
+    "frontend_name": "Steel Elfbot"
+  },
+  {
+    "id": 1037,
+    "name": "Fire Elfbot",
+    "PokeAPI_id": 1037,
+    "PokeAPI_name": "Fire Elfbot",
+    "Pokemondb_name": "Fire Elfbot",
+    "frontend_name": "Fire Elfbot"
+  },
+  {
+    "id": 1038,
+    "name": "Water Elfbot",
+    "PokeAPI_id": 1038,
+    "PokeAPI_name": "Water Elfbot",
+    "Pokemondb_name": "Water Elfbot",
+    "frontend_name": "Water Elfbot"
+  },
+  {
+    "id": 1039,
+    "name": "Grass Elfbot",
+    "PokeAPI_id": 1039,
+    "PokeAPI_name": "Grass Elfbot",
+    "Pokemondb_name": "Grass Elfbot",
+    "frontend_name": "Grass Elfbot"
+  },
+  {
+    "id": 1040,
+    "name": "Electric Elfbot",
+    "PokeAPI_id": 1040,
+    "PokeAPI_name": "Electric Elfbot",
+    "Pokemondb_name": "Electric Elfbot",
+    "frontend_name": "Electric Elfbot"
+  },
+  {
+    "id": 1041,
+    "name": "Psychic Elfbot",
+    "PokeAPI_id": 1041,
+    "PokeAPI_name": "Psychic Elfbot",
+    "Pokemondb_name": "Psychic Elfbot",
+    "frontend_name": "Psychic Elfbot"
+  },
+  {
+    "id": 1042,
+    "name": "Ice Elfbot",
+    "PokeAPI_id": 1042,
+    "PokeAPI_name": "Ice Elfbot",
+    "Pokemondb_name": "Ice Elfbot",
+    "frontend_name": "Ice Elfbot"
+  },
+  {
+    "id": 1043,
+    "name": "Dragon Elfbot",
+    "PokeAPI_id": 1043,
+    "PokeAPI_name": "Dragon Elfbot",
+    "Pokemondb_name": "Dragon Elfbot",
+    "frontend_name": "Dragon Elfbot"
+  },
+  {
+    "id": 1044,
+    "name": "Dark Elfbot",
+    "PokeAPI_id": 1044,
+    "PokeAPI_name": "Dark Elfbot",
+    "Pokemondb_name": "Dark Elfbot",
+    "frontend_name": "Dark Elfbot"
+  },
+  {
+    "id": 1045,
+    "name": "Normal Elfbot",
+    "PokeAPI_id": 1045,
+    "PokeAPI_name": "Normal Elfbot",
+    "Pokemondb_name": "Normal Elfbot",
+    "frontend_name": "Normal Elfbot"
+  },
+  {
+    "id": 1046,
+    "name": "Normal Elfbot",
+    "PokeAPI_id": 1046,
+    "PokeAPI_name": "Normal Elfbot",
+    "Pokemondb_name": "Normal Elfbot",
+    "frontend_name": "Normal Elfbot"
+  },
+  {
+    "id": 1047,
+    "name": "Pumpaladin",
+    "PokeAPI_id": 1047,
+    "PokeAPI_name": "Pumpaladin",
+    "Pokemondb_name": "Pumpaladin",
+    "frontend_name": "Pumpaladin"
+  },
+  {
+    "id": 1048,
+    "name": "Pumpmage",
+    "PokeAPI_id": 1048,
+    "PokeAPI_name": "Pumpmage",
+    "Pokemondb_name": "Pumpmage",
+    "frontend_name": "Pumpmage"
+  },
+  {
+    "id": 1049,
+    "name": "Pumpreaper",
+    "PokeAPI_id": 1049,
+    "PokeAPI_name": "Pumpreaper",
+    "Pokemondb_name": "Pumpreaper",
+    "frontend_name": "Pumpreaper"
+  },
+  {
+    "id": 1050,
+    "name": "Botcracker",
+    "PokeAPI_id": 1050,
+    "PokeAPI_name": "Botcracker",
+    "Pokemondb_name": "Botcracker",
+    "frontend_name": "Botcracker"
+  },
+  {
+    "id": 1051,
+    "name": "Pumpthief",
+    "PokeAPI_id": 1051,
+    "PokeAPI_name": "Pumpthief",
+    "Pokemondb_name": "Pumpthief",
+    "frontend_name": "Pumpthief"
+  },
+  {
+    "id": 1052,
+    "name": "DEBUG_ST1000",
+    "PokeAPI_id": 1052,
+    "PokeAPI_name": "DEBUG_ST1000",
+    "Pokemondb_name": "DEBUG_ST1000",
+    "frontend_name": "DEBUG_ST1000"
+  }
+]
