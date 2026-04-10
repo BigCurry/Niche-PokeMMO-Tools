@@ -1,38 +1,29 @@
 import json
 
 # Input and output file paths
-INPUT_FILE = "monsters.json"
-OUTPUT_FILE = "dex_compatibility.json"
+input_file = "abilities-data.json"
+output_file = "filtered-abilities.json"
 
-def transform_data(data):
-    result = []
+# Load original JSON
+with open(input_file, "r", encoding="utf-8") as f:
+    data = json.load(f)
 
-    for entry in data:
-        new_entry = {
-            "id": entry["id"],
-            "name": entry["name"],
-            "PokeAPI_id": entry["id"],
-            "PokeAPI_name": entry["name"],
-            "Pokemondb_name": entry["name"],
-            "frontend_name": entry["name"],
-        }
-        result.append(new_entry)
+# Process data
+filtered_data = {}
 
-    return result
+for ability_key, ability in data.items():
+    filtered_data[ability_key] = {
+        "id": ability.get("id"),
+        "name": ability.get("name"),
+        "effect": {
+            "battle": ability.get("effect"),
+            "overworld": None
+        },
+        "pokemon_with_ability": ability.get("pokemon_with_ability", [])
+    }
 
-def main():
-    # Load original JSON
-    with open(INPUT_FILE, "r", encoding="utf-8") as f:
-        data = json.load(f)
+# Save new JSON
+with open(output_file, "w", encoding="utf-8") as f:
+    json.dump(filtered_data, f, indent=4, ensure_ascii=False)
 
-    # Transform data
-    new_data = transform_data(data)
-
-    # Save new JSON
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        json.dump(new_data, f, indent=2)
-
-    print(f"Saved transformed data to {OUTPUT_FILE}")
-
-if __name__ == "__main__":
-    main()
+print(f"Filtered data saved to {output_file}")

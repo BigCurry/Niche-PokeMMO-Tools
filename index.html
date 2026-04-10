@@ -371,10 +371,10 @@
             placeholder="Search Pokémon..."
           >
           <button id="toggleFilters" class="btn btn--gradient">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
             </svg>
-            Filters
+            <label style="font-size: 14px;">Filters</label>
           </button>
         </div>
 
@@ -416,9 +416,10 @@
                 </svg>
 
               </div>
-
-              <input id="filterLocation" class="mc-input" placeholder="Search location...">
-              <div id="locationDropdown" class="dropdown hidden"></div>
+              <div style="position: relative;width:100%">
+                <input id="filterLocation" class="dex-input" style="margin-top: 5px;" placeholder="Search location...">
+                <div id="locationDropdown" class="dropdown hidden" style="width:100%;"></div>
+              </div>
             </div>
 
           </div>
@@ -439,7 +440,9 @@
             <!-- ABILITY -->
             <div class="dex-filter-group">
               <div class="dex-filter-group-label"><label>Ability</label></div>
+              
               <input id="filterAbility" class="dex-input" placeholder="Search...">
+              <div id="abilityInfo" class="ability-info hidden"></div>
             </div>
 
             <!-- STATS -->

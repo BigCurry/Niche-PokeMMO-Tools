@@ -1895,6 +1895,7 @@ const PokedexTool = (() => {
   let ALL_LOCATIONS = [];
   let ALL_POKEMON = [];
   let LOCATION_DATA = [];
+  let ABILITY_DATA = [];
 
   let viewport; // top of initMapControls scope
   /* =============================================================
@@ -1942,15 +1943,17 @@ const filters = {
   }
 
   async function loadData() {
-    const [monRes, compatRes, locRes] = await Promise.all([
+    const [monRes, compatRes, locRes, abilityRes] = await Promise.all([
       fetch("./monsters.json"),
       fetch("./dex_compatibility.json"),
-      fetch("./locations.json") // ✅ NEW
+      fetch("./locations.json"),
+      fetch("./abilities.json") // ✅ NEW
     ]);
 
     data = await monRes.json();
     compat = await compatRes.json();
-    LOCATION_DATA = await locRes.json(); // ✅ NEW
+    LOCATION_DATA = await locRes.json();
+    ABILITY_DATA = await abilityRes.json(); // ✅ NEW
   }
 
 
@@ -2002,347 +2005,403 @@ const filters = {
     return filters.types.every(t => mon.types?.includes(t));
   }
 
-function matchLocation(mon) {
-  if (!filters.location) return true;
+  function matchLocation(mon) {
+    if (!filters.location) return true;
 
-  return mon._locations.some(loc =>
-    loc === filters.location ||
-    loc.includes(filters.location)
-  );
-}
+    const { name, region } = filters.location;
 
-function matchEgg(mon) {
-  if (!filters.eggGroups.length) return true;
+    return mon._locations.some(loc =>
+      loc.name === name && loc.region === region
+    );
+  }
 
-  return filters.eggGroups.some(e => mon.egg_groups?.includes(e));
-}
+  function matchEgg(mon) {
+    if (!filters.eggGroups.length) return true;
 
-function matchAbility(mon) {
-  if (!filters.ability) return true;
+    return filters.eggGroups.some(e => mon.egg_groups?.includes(e));
+  }
 
-  return [...mon._abilities].some(a =>
-    a.toLowerCase().includes(filters.ability)
-  );
-}
+  function matchAbility(mon) {
+    if (!filters.ability) return true;
 
-function matchStats(mon) {
-  const stats = mon.stats || {};
-  const bst = Object.values(stats).reduce((a,b)=>a+b,0);
+    return [...mon._abilities].some(a =>
+      a.toLowerCase().includes(filters.ability)
+    );
+  }
 
-  return Object.entries(filters.stats).every(([k, min]) => {
-    if (!min) return true;
+  function matchStats(mon) {
+    const stats = mon.stats || {};
+    const bst = Object.values(stats).reduce((a,b)=>a+b,0);
 
-    if (k === "bst") return bst >= min;
-    return (stats[k] || 0) >= min;
-  });
-}
+    return Object.entries(filters.stats).every(([k, min]) => {
+      if (!min) return true;
 
-function matchMoves(mon) {
-  const activeMoves = filters.moves.filter(Boolean);
-  if (!activeMoves.length) return true;
+      if (k === "bst") return bst >= min;
+      return (stats[k] || 0) >= min;
+    });
+  }
 
-  return activeMoves.every(m =>
-    [...mon._moveSet].some(move => move.includes(m))
-  );
-}
+  function matchMoves(mon) {
+    const activeMoves = filters.moves.filter(Boolean);
+    if (!activeMoves.length) return true;
 
-function preprocessData() {
-  data.forEach(mon => {
-    mon._moveSet = new Set((mon.moves || []).map(m => m.name.toLowerCase()));
-    mon._abilities = new Set((mon.abilities || []).map(a => a.name));
-    mon._locations = (mon.locations || []).map(l => l.location.toLowerCase());
-  });
-}
+    return activeMoves.every(m =>
+      [...mon._moveSet].some(move => move.includes(m))
+    );
+  }
 
-function initAdvancedFilters() {
-  buildTypePills();
-  buildEggPills();
-  buildMoveInputs();
-  buildAbilityAutocomplete();
-  buildMapRegions()
-  buildLocationFilter();
-  buildStatSliders();
-  enhancePokemonSearch();
-}
+  function preprocessData() {
+    data.forEach(mon => {
+      mon._moveSet = new Set((mon.moves || []).map(m => m.name.toLowerCase()));
+      mon._abilities = new Set((mon.abilities || []).map(a => a.name));
+      mon._locations = (mon.locations || []).map(l => ({
+        name: (l.location || "").toLowerCase(),
+        region: (l.region_name || "").toLowerCase()
+      }));
+    });
+  }
 
-function buildTypePills() {
-  const container = $("#typePills");
-  const types = [...new Set(data.flatMap(m => m.types || []))].sort();
+  function initAdvancedFilters() {
+    buildTypePills();
+    buildEggPills();
+    buildMoveInputs();
+    buildAbilityAutocomplete();
+    buildMapRegions()
+    buildLocationFilter();
+    buildStatSliders();
+    enhancePokemonSearch();
+  }
 
-  container.innerHTML = types.map(t => `
-    <div class="pill pill-type-${t.toLowerCase()}" data-type="${t}">
-      ${t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()}
-    </div>
-  `).join("");
+  function buildTypePills() {
+    const container = $("#typePills");
+    const types = [...new Set(data.flatMap(m => m.types || []))].sort();
 
-  container.querySelectorAll(".pill").forEach(pill => {
-    pill.onclick = () => {
-      const type = pill.dataset.type;
+    container.innerHTML = types.map(t => `
+      <div class="pill pill-type-${t.toLowerCase()}" data-type="${t}">
+        ${t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()}
+      </div>
+    `).join("");
 
-      if (filters.types.includes(type)) {
-        filters.types = filters.types.filter(t => t !== type);
-        pill.classList.remove("active");
-      } else {
-        if (filters.types.length >= 2) return;
-        filters.types.push(type);
-        pill.classList.add("active");
-      }
+    container.querySelectorAll(".pill").forEach(pill => {
+      pill.onclick = () => {
+        const type = pill.dataset.type;
 
-      applyFilters();
-    };
-  });
-}
+        if (filters.types.includes(type)) {
+          filters.types = filters.types.filter(t => t !== type);
+          pill.classList.remove("active");
+        } else {
+          if (filters.types.length >= 2) return;
+          filters.types.push(type);
+          pill.classList.add("active");
+        }
 
-function buildEggPills() {
-  const container = $("#eggPills");
-  const eggs = [...new Set(data.flatMap(m => m.egg_groups || []))].sort();
+        applyFilters();
+      };
+    });
+  }
 
-  container.innerHTML = eggs.map(e => `
-    <div class="pill egg-group-pill-color" data-egg="${e}">${e.replace(/\b\w/g, c => c.toUpperCase())}</div>
-  `).join("");
+  function buildEggPills() {
+    const container = $("#eggPills");
+    const eggs = [...new Set(data.flatMap(m => m.egg_groups || []))].sort();
 
-  container.querySelectorAll(".pill").forEach(pill => {
-    pill.onclick = () => {
-      const egg = pill.dataset.egg;
+    container.innerHTML = eggs.map(e => `
+      <div class="pill egg-group-pill-color" data-egg="${e}">${e.replace(/\b\w/g, c => c.toUpperCase())}</div>
+    `).join("");
 
-      if (filters.eggGroups.includes(egg)) {
-        filters.eggGroups = filters.eggGroups.filter(e => e !== egg);
-        pill.classList.remove("active");
-      } else {
-        if (filters.eggGroups.length >= 2) return;
-        filters.eggGroups.push(egg);
-        pill.classList.add("active");
-      }
+    container.querySelectorAll(".pill").forEach(pill => {
+      pill.onclick = () => {
+        const egg = pill.dataset.egg;
 
-      applyFilters();
-    };
-  });
-}
+        if (filters.eggGroups.includes(egg)) {
+          filters.eggGroups = filters.eggGroups.filter(e => e !== egg);
+          pill.classList.remove("active");
+        } else {
+          if (filters.eggGroups.length >= 2) return;
+          filters.eggGroups.push(egg);
+          pill.classList.add("active");
+        }
 
-function buildMoveInputs() {
-  const inputs = document.querySelectorAll("dex-input");
+        applyFilters();
+      };
+    });
+  }
 
-  inputs.forEach(input => {
-    const slot = Number(input.dataset.slot);
+  function buildMoveInputs() {
+    const inputs = document.querySelectorAll("dex-input");
 
-    attachAutocomplete(input, ALL_MOVES, (value) => {
-      filters.moves[slot] = value.toLowerCase();
+    inputs.forEach(input => {
+      const slot = Number(input.dataset.slot);
+
+      attachAutocomplete(input, ALL_MOVES, (value) => {
+        filters.moves[slot] = value.toLowerCase();
+        applyFilters();
+      });
+
+      input.addEventListener("input", () => {
+        filters.moves[slot] = input.value.toLowerCase();
+        applyFilters();
+      });
+    });
+  }
+
+  function buildAbilityAutocomplete() {
+    const input = $("#filterAbility");
+
+    attachAutocomplete(input, ALL_ABILITIES, (value) => {
+      filters.ability = value.toLowerCase();
+      renderAbilityInfo(value); // ✅ NEW
       applyFilters();
     });
 
     input.addEventListener("input", () => {
-      filters.moves[slot] = input.value.toLowerCase();
+      filters.ability = input.value.toLowerCase();
+      renderAbilityInfo(input.value); // ✅ NEW
       applyFilters();
     });
-  });
-}
+  }
 
-function buildAbilityAutocomplete() {
-  const input = $("#filterAbility");
+  function renderAbilityInfo(name) {
+    const container = $("#abilityInfo");
 
-  attachAutocomplete(input, ALL_ABILITIES, (value) => {
-    filters.ability = value.toLowerCase();
-    applyFilters();
-  });
+    const key = name
+      .toLowerCase()
+      .replace(/\s+/g, "-"); // ✅ normalize
 
-  input.addEventListener("input", () => {
-    filters.ability = input.value.toLowerCase();
-    applyFilters();
-  });
-}
+    const ability = ABILITY_DATA[key];
 
-function buildLocationFilter() {
-  const input = $("#filterLocation");
-  const dropdown = $("#locationDropdown");
-  /* ---------------------------
-     AUTOCOMPLETE DROPDOWN
-  --------------------------- */
-  input.addEventListener("input", () => {
-    const q = input.value.toLowerCase();
+    if (!ability) {
+      container.classList.add("hidden");
+      container.innerHTML = "";
+      return;
+    }
 
-    const matches = LOCATION_DATA.filter(l =>
-      l.name.toLowerCase().includes(q)
-    ).slice(0, 10);
+    const battle = ability.effect?.battle;
+    const overworld = ability.effect?.overworld;
 
-    dropdown.innerHTML = matches.map(l => `
-      <div class="dropdown-item" data-name="${l.name}">
-        ${l.name}
+    container.innerHTML = `
+      <div class="ability-box">
+        <div class="ability-title">Effects</div>
+
+        <div class="ability-section">
+          <div class="ability-subtitle">Overworld</div>
+          <div class="ability-text">
+            ${overworld || "None"}
+          </div>
+        </div>
+
+        <div class="ability-section">
+          <div class="ability-subtitle">Battle</div>
+          <div class="ability-text">
+            ${battle || "None"}
+          </div>
+        </div>
       </div>
-    `).join("");
+    `;
 
-    dropdown.classList.toggle("hidden", !matches.length);
-  });
+    container.classList.remove("hidden");
+  }
 
-  dropdown.addEventListener("click", (e) => {
-    const item = e.target.closest(".dropdown-item");
-    if (!item) return;
+  function buildLocationFilter() {
+    const input = $("#filterLocation");
+    const dropdown = $("#locationDropdown");
+    /* ---------------------------
+      AUTOCOMPLETE DROPDOWN
+    --------------------------- */
+    input.addEventListener("input", () => {
+      const q = input.value.toLowerCase();
 
-    const name = item.dataset.name;
-    selectLocation(name);
-    dropdown.classList.add("hidden");
-  });
+      const matches = LOCATION_DATA.filter(l => {
+        const name = l.name.toLowerCase();
+        const region = l.region.toLowerCase();
+        return name.includes(q) || region.includes(q);
+      }).slice(0, 10);
 
-}
+      dropdown.innerHTML = matches.map(l => `
+        <div class="dropdown-item" 
+            data-name="${l.name}" 
+            data-region="${l.region}">
+          ${l.name} (${l.region})
+        </div>
+      `).join("");
 
-function selectLocation(name) {
+      dropdown.classList.toggle("hidden", !matches.length);
+    });
+
+    dropdown.addEventListener("click", (e) => {
+      const item = e.target.closest(".dropdown-item");
+      if (!item) return;
+
+      const name = item.dataset.name;
+      const region = item.dataset.region;
+      
+      selectLocation(name);
+      dropdown.classList.add("hidden");
+    });
+
+  }
+
+  function selectLocation(name) {
     const loc = LOCATION_DATA.find(l => l.name === name);
     if (!loc) return;
 
-    $("#filterLocation").value = name;
-    filters.location = name.toLowerCase();
+    $("#filterLocation").value = `${loc.name} (${loc.region})`;
 
-    placePinFromRegion(loc); // ✅ SVG-aware
+    filters.location = {
+      name: loc.name.toLowerCase(),
+      region: loc.region.toLowerCase()
+    };
 
+    placePinFromRegion(loc);
     applyFilters();
   }
 
-function buildMapRegions() {
-  const container = document.getElementById("mapRegions");
-  container.innerHTML = "";
+  function buildMapRegions() {
+    const container = document.getElementById("mapRegions");
+    container.innerHTML = "";
 
-  LOCATION_DATA.forEach(loc => {
-    let el;
+    LOCATION_DATA.forEach(loc => {
+      let el;
 
-    if (loc.shape === "polygon") {
-      el = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-      el.setAttribute("points", loc.points);
-    }
+      if (loc.shape === "polygon") {
+        el = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+        el.setAttribute("points", loc.points);
+      }
 
-    el.classList.add("map-region");
-    el.dataset.name = loc.name;
+      el.classList.add("map-region");
+      el.dataset.name = loc.name;
 
-    el.addEventListener("click", () => {
-      selectLocation(loc.name);
+      el.addEventListener("click", () => {
+        selectLocation(loc.name);
+      });
+
+      container.appendChild(el);
     });
-
-    container.appendChild(el);
-  });
-}
-
-function initMapControls() {
-  const svg = document.getElementById("mapSvg");
-  viewport = document.getElementById("mapViewport");
-
-  let scale = 1;
-  let x = 0;
-  let y = 0;
-  let isDragging = false;
-  let startX, startY;
-
-  let lastDist = 0;
-  let lastMid = null;
-
-  function update() {
-    ({ x, y } = clamp(x, y, scale));
-    svg.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
-    svg.style.transformOrigin = "0 0";
   }
 
-  /* ZOOM */
-  viewport.addEventListener("wheel", (e) => {
-    e.preventDefault();
+  function initMapControls() {
+    const svg = document.getElementById("mapSvg");
+    viewport = document.getElementById("mapViewport");
 
-    const zoomIntensity = 0.1;
-    const delta = e.deltaY < 0 ? 1 : -1;
+    let scale = 1;
+    let x = 0;
+    let y = 0;
+    let isDragging = false;
+    let startX, startY;
 
-    const rect = viewport.getBoundingClientRect();
+    let lastDist = 0;
+    let lastMid = null;
 
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
-
-    const oldScale = scale;
-    const newScale = Math.max(1, Math.min(4, scale + delta * zoomIntensity));
-
-    // world position BEFORE zoom
-    const worldX = (mx - x) / oldScale;
-    const worldY = (my - y) / oldScale;
-
-    // apply zoom
-    scale = newScale;
-
-    // compute new pan
-    let newX = mx - worldX * scale;
-    let newY = my - worldY * scale;
-
-    // 🔥 ALWAYS clamp AFTER computing new position
-    ({ x: newX, y: newY } = clamp(newX, newY, scale));
-
-    x = newX;
-    y = newY;
-
-    update();
-  });
-
-  /* PAN */
-  viewport.addEventListener("mousedown", (e) => {
-    isDragging = true;
-    startX = e.clientX - x;
-    startY = e.clientY - y;
-    viewport.style.cursor = "grabbing";
-  });
-
-  window.addEventListener("mousemove", (e) => {
-    if (!isDragging) return;
-
-    x = e.clientX - startX;
-    y = e.clientY - startY;
-
-    update();
-  });
-
-  window.addEventListener("mouseup", () => {
-    isDragging = false;
-    viewport.style.cursor = "grab";
-  });
-
-  viewport.addEventListener("touchstart", (e) => {
-    if (e.touches.length === 2) {
-      lastDist = getTouchDistance(e);
-      lastMid = getTouchMidpoint(e);
+    function update() {
+      ({ x, y } = clamp(x, y, scale));
+      svg.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+      svg.style.transformOrigin = "0 0";
     }
-  }, { passive: false });
 
-  viewport.addEventListener("touchmove", (e) => {
-    if (e.touches.length === 2) {
+    /* ZOOM */
+    viewport.addEventListener("wheel", (e) => {
       e.preventDefault();
 
-      const newDist = getTouchDistance(e);
-      const newMid = getTouchMidpoint(e);
-
-      const zoomFactor = newDist / lastDist;
-      const newScale = Math.max(1, Math.min(4, scale * zoomFactor));
+      const zoomIntensity = 0.1;
+      const delta = e.deltaY < 0 ? 1 : -1;
 
       const rect = viewport.getBoundingClientRect();
-      const mx = newMid.x - rect.left;
-      const my = newMid.y - rect.top;
 
-      const worldX = (mx - x) / scale;
-      const worldY = (my - y) / scale;
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
 
-      lastDist = newDist;
-      lastMid = newMid;
+      const oldScale = scale;
+      const newScale = Math.max(1, Math.min(4, scale + delta * zoomIntensity));
 
+      // world position BEFORE zoom
+      const worldX = (mx - x) / oldScale;
+      const worldY = (my - y) / oldScale;
+
+      // apply zoom
       scale = newScale;
 
+      // compute new pan
       let newX = mx - worldX * scale;
       let newY = my - worldY * scale;
 
+      // 🔥 ALWAYS clamp AFTER computing new position
       ({ x: newX, y: newY } = clamp(newX, newY, scale));
 
       x = newX;
       y = newY;
 
       update();
-    }
-  }, { passive: false });
+    });
 
-  viewport.addEventListener("touchend", () => {
-    lastDist = 0;
-    lastMid = null;
-  });
+    /* PAN */
+    viewport.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      startX = e.clientX - x;
+      startY = e.clientY - y;
+      viewport.style.cursor = "grabbing";
+    });
 
-  initMapDevTools()
-}
+    window.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+
+      x = e.clientX - startX;
+      y = e.clientY - startY;
+
+      update();
+    });
+
+    window.addEventListener("mouseup", () => {
+      isDragging = false;
+      viewport.style.cursor = "grab";
+    });
+
+    viewport.addEventListener("touchstart", (e) => {
+      if (e.touches.length === 2) {
+        lastDist = getTouchDistance(e);
+        lastMid = getTouchMidpoint(e);
+      }
+    }, { passive: false });
+
+    viewport.addEventListener("touchmove", (e) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+
+        const newDist = getTouchDistance(e);
+        const newMid = getTouchMidpoint(e);
+
+        const zoomFactor = newDist / lastDist;
+        const newScale = Math.max(1, Math.min(4, scale * zoomFactor));
+
+        const rect = viewport.getBoundingClientRect();
+        const mx = newMid.x - rect.left;
+        const my = newMid.y - rect.top;
+
+        const worldX = (mx - x) / scale;
+        const worldY = (my - y) / scale;
+
+        lastDist = newDist;
+        lastMid = newMid;
+
+        scale = newScale;
+
+        let newX = mx - worldX * scale;
+        let newY = my - worldY * scale;
+
+        ({ x: newX, y: newY } = clamp(newX, newY, scale));
+
+        x = newX;
+        y = newY;
+
+        update();
+      }
+    }, { passive: false });
+
+    viewport.addEventListener("touchend", () => {
+      lastDist = 0;
+      lastMid = null;
+    });
+
+    initMapDevTools()
+  }
 
   function getTouchDistance(e) {
     const dx = e.touches[0].clientX - e.touches[1].clientX;
@@ -2356,456 +2415,471 @@ function initMapControls() {
       y: (e.touches[0].clientY + e.touches[1].clientY) / 2
     };
   }
-function clamp(x, y, scale) {
-  const rect = viewport.getBoundingClientRect();
 
-  // ✅ CONSTANT world size (from viewBox)
-  const worldWidth = 1662;
-  const worldHeight = 1174;
+  function clamp(x, y, scale) {
+    const rect = viewport.getBoundingClientRect();
 
-  // ✅ Convert SVG units → screen pixels ONCE
-  const baseScaleX = rect.width / worldWidth;
-  const baseScaleY = rect.height / worldHeight;
+    // ✅ CONSTANT world size (from viewBox)
+    const worldWidth = 1662;
+    const worldHeight = 1174;
 
-  // since preserveAspectRatio="none", both scale independently
-  const scaledWidth = worldWidth * baseScaleX * scale;
-  const scaledHeight = worldHeight * baseScaleY * scale;
+    // ✅ Convert SVG units → screen pixels ONCE
+    const baseScaleX = rect.width / worldWidth;
+    const baseScaleY = rect.height / worldHeight;
 
-  let minX, maxX, minY, maxY;
+    // since preserveAspectRatio="none", both scale independently
+    const scaledWidth = worldWidth * baseScaleX * scale;
+    const scaledHeight = worldHeight * baseScaleY * scale;
 
-  // X axis
-  if (scaledWidth <= rect.width) {
-    minX = maxX = (rect.width - scaledWidth) / 2;
-  } else {
-    minX = rect.width - scaledWidth;
-    maxX = 0;
-  }
+    let minX, maxX, minY, maxY;
 
-  // Y axis
-  if (scaledHeight <= rect.height) {
-    minY = maxY = (rect.height - scaledHeight) / 2;
-  } else {
-    minY = rect.height - scaledHeight;
-    maxY = 0;
-  }
-
-  return {
-    x: Math.min(maxX, Math.max(minX, x)),
-    y: Math.min(maxY, Math.max(minY, y))
-  };
-}
-
-function placePinFromRegion(loc) {
-  const points = loc.points.split(" ").map(p => p.split(",").map(Number));
-
-  // simple centroid
-  const cx = points.reduce((sum, p) => sum + p[0], 0) / points.length;
-  const cy = points.reduce((sum, p) => sum + p[1], 0) / points.length;
-
-  const pin = document.getElementById("mapPin");
-  pin.setAttribute("cx", cx);
-  pin.setAttribute("cy", cy);
-  pin.classList.remove("hidden");
-}
-
-function initMapDevTools() {
-  const svg = document.getElementById("mapSvg");
-
-  let devMode = false;
-  let drawing = false;
-  let currentPoints = [];
-
-  let polygons = [...LOCATION_DATA]; // preload existing
-
-  /* -------------------------
-     UI: COPY BUTTON
-  ------------------------- */
-  const copyBtn = document.createElement("button");
-  copyBtn.textContent = "Copy JSON";
-  Object.assign(copyBtn.style, {
-    position: "fixed",
-    bottom: "20px",
-    right: "20px",
-    zIndex: 9999,
-    padding: "8px 12px",
-    background: "#00c8ff",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-    display: "none"
-  });
-
-  document.body.appendChild(copyBtn);
-
-  copyBtn.onclick = () => {
-    const json = JSON.stringify(polygons, null, 2);
-    navigator.clipboard.writeText(json);
-    copyBtn.textContent = "Copied!";
-    setTimeout(() => copyBtn.textContent = "Copy JSON", 1000);
-  };
-
-  /* -------------------------
-     KEY CONTROLS
-  ------------------------- */
-  window.addEventListener("keydown", (e) => {
-    if (e.key.toLowerCase() === "d") {
-      devMode = !devMode;
-      copyBtn.style.display = devMode ? "block" : "none";
-      console.log("DEV MODE:", devMode);
+    // X axis
+    if (scaledWidth <= rect.width) {
+      minX = maxX = (rect.width - scaledWidth) / 2;
+    } else {
+      minX = rect.width - scaledWidth;
+      maxX = 0;
     }
 
-    if (!devMode) return;
-
-    if (e.key.toLowerCase() === "p") {
-      if (!drawing) {
-        // START DRAWING
-        drawing = true;
-        currentPoints = [];
-        console.log("Polygon start");
-      } else {
-        // FINISH DRAWING
-        drawing = false;
-        openPolygonForm(currentPoints);
-      }
+    // Y axis
+    if (scaledHeight <= rect.height) {
+      minY = maxY = (rect.height - scaledHeight) / 2;
+    } else {
+      minY = rect.height - scaledHeight;
+      maxY = 0;
     }
-  });
 
-  /* -------------------------
-     CLICK HANDLER
-  ------------------------- */
-  svg.addEventListener("click", (e) => {
-    if (!devMode || !drawing) return;
-
-    const pt = getSVGPoint(svg, e.clientX, e.clientY);
-
-    currentPoints.push([pt.x, pt.y]);
-
-    drawTempPoint(pt);
-    drawTempPolygon(currentPoints);
-  });
-
-  /* -------------------------
-     SVG POINT CONVERSION
-  ------------------------- */
-  function getSVGPoint(svg, clientX, clientY) {
-    const pt = svg.createSVGPoint();
-    pt.x = clientX;
-    pt.y = clientY;
-
-    return pt.matrixTransform(svg.getScreenCTM().inverse());
-  }
-
-  /* -------------------------
-     TEMP DRAWING
-  ------------------------- */
-  let tempPoly = null;
-
-  function drawTempPoint(pt) {
-    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    c.setAttribute("cx", pt.x);
-    c.setAttribute("cy", pt.y);
-    c.setAttribute("r", 4);
-    c.setAttribute("fill", "red");
-    svg.appendChild(c);
-  }
-
-  function drawTempPolygon(points) {
-    if (tempPoly) tempPoly.remove();
-
-    tempPoly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-    tempPoly.setAttribute(
-      "points",
-      points.map(p => p.join(",")).join(" ")
-    );
-    tempPoly.setAttribute("fill", "rgba(255,0,0,0.2)");
-    tempPoly.setAttribute("stroke", "red");
-
-    svg.appendChild(tempPoly);
-  }
-
-  /* -------------------------
-     FORM UI
-  ------------------------- */
-  function openPolygonForm(points) {
-    const modal = document.createElement("div");
-
-    Object.assign(modal.style, {
-      position: "fixed",
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
-      background: "#222",
-      padding: "20px",
-      zIndex: 10000,
-      borderRadius: "10px"
-    });
-
-    modal.innerHTML = `
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <input id="polyName" placeholder="Location name">
-        <input id="polyRegion" placeholder="Region">
-        <button id="savePoly">Save</button>
-      </div>
-    `;
-
-    document.body.appendChild(modal);
-
-    modal.querySelector("#savePoly").onclick = () => {
-      const name = modal.querySelector("#polyName").value;
-      const region = modal.querySelector("#polyRegion").value;
-
-      const polygon = {
-        name,
-        region,
-        shape: "polygon",
-        points: points.map(p => p.join(",")).join(" ")
-      };
-
-      polygons.push(polygon);
-
-      console.log("Saved:", polygon);
-
-      modal.remove();
-      clearTemp();
+    return {
+      x: Math.min(maxX, Math.max(minX, x)),
+      y: Math.min(maxY, Math.max(minY, y))
     };
   }
 
-  function clearTemp() {
-    currentPoints = [];
-    if (tempPoly) tempPoly.remove();
+  function placePinFromRegion(loc) {
+    const points = loc.points.split(" ").map(p => p.split(",").map(Number));
+
+    // simple centroid
+    const cx = points.reduce((sum, p) => sum + p[0], 0) / points.length;
+    const cy = points.reduce((sum, p) => sum + p[1], 0) / points.length;
+
+    const pin = document.getElementById("mapPin");
+    pin.setAttribute("cx", cx);
+    pin.setAttribute("cy", cy);
+    pin.classList.remove("hidden");
   }
-}
 
-const STAT_KEYS = ["hp","attack","defense","sp_attack","sp_defense","speed"];
+  function initMapDevTools() {
+    const svg = document.getElementById("mapSvg");
 
+    let devMode = false;
+    let drawing = false;
+    let currentPoints = [];
 
-function buildStatSliders() {
-  const container = $("#statFilters");
+    let polygons = [...LOCATION_DATA]; // preload existing
 
-  container.innerHTML = `
-    <div class="stat-wrapper">
+    /* -------------------------
+      UI: COPY BUTTON
+    ------------------------- */
+    const copyBtn = document.createElement("button");
+    copyBtn.textContent = "Copy JSON";
+    Object.assign(copyBtn.style, {
+      position: "fixed",
+      bottom: "20px",
+      right: "20px",
+      zIndex: 9999,
+      padding: "8px 12px",
+      background: "#00c8ff",
+      border: "none",
+      borderRadius: "6px",
+      cursor: "pointer",
+      display: "none"
+    });
 
-      <div class="stat-grid">
-        ${STAT_KEYS.map(stat => `
-          <div class="stat-filter">
-            <span>${stat.toUpperCase()}</span>
+    document.body.appendChild(copyBtn);
 
-            <input type="range" min="0" max="${MAX_STATS[stat]}" value="0" data-stat="${stat}">
-            <input type="number" min="0" max="${MAX_STATS[stat]}" value="0" data-stat="${stat}">
-          </div>
-        `).join("")}
-      </div>
+    copyBtn.onclick = () => {
+      const json = JSON.stringify(polygons, null, 2);
+      navigator.clipboard.writeText(json);
+      copyBtn.textContent = "Copied!";
+      setTimeout(() => copyBtn.textContent = "Copy JSON", 1000);
+    };
 
-      <div class="lock-column">
-        ${STAT_KEYS.map(stat => `
-          <button class="btn lock-btn" data-stat="${stat}">
-            🔓
-          </button>
-        `).join("")}
-      </div>
+    /* -------------------------
+      KEY CONTROLS
+    ------------------------- */
+    window.addEventListener("keydown", (e) => {
+      if (e.key.toLowerCase() === "d") {
+        devMode = !devMode;
+        copyBtn.style.display = devMode ? "block" : "none";
+        console.log("DEV MODE:", devMode);
+      }
 
-    </div>
-  `;
+      if (!devMode) return;
 
-  container.querySelectorAll("input").forEach(i =>
-    i.addEventListener("input", onStatInput)
-  );
-
-  container.querySelectorAll(".lock-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const stat = btn.dataset.stat;
-
-      if (filters.lockedStats.has(stat)) {
-        filters.lockedStats.delete(stat);
-        btn.textContent = "🔓";
-      } else {
-        filters.lockedStats.add(stat);
-        btn.textContent = "🔒";
+      if (e.key.toLowerCase() === "p") {
+        if (!drawing) {
+          // START DRAWING
+          drawing = true;
+          currentPoints = [];
+          console.log("Polygon start");
+        } else {
+          // FINISH DRAWING
+          drawing = false;
+          openPolygonForm(currentPoints);
+        }
       }
     });
-  });
-}
 
-function onStatInput(e) {
-  const stat = e.target.dataset.stat;
-  let value = Number(e.target.value);
+    /* -------------------------
+      CLICK HANDLER
+    ------------------------- */
+    svg.addEventListener("click", (e) => {
+      if (!devMode || !drawing) return;
 
-  if (filters.lockedStats.has(stat)) return;
+      const pt = getSVGPoint(svg, e.clientX, e.clientY);
 
-  filters.stats[stat] = value;
+      currentPoints.push([pt.x, pt.y]);
 
-  normalizeStats(stat);
+      drawTempPoint(pt);
+      drawTempPolygon(currentPoints);
+    });
 
-  syncInputs();
-  applyFilters();
-}
+    /* -------------------------
+      SVG POINT CONVERSION
+    ------------------------- */
+    function getSVGPoint(svg, clientX, clientY) {
+      const pt = svg.createSVGPoint();
+      pt.x = clientX;
+      pt.y = clientY;
 
-function getBST(stats) {
-  return STAT_KEYS.reduce((sum, k) => sum + (stats[k] || 0), 0);
-}
+      return pt.matrixTransform(svg.getScreenCTM().inverse());
+    }
 
-function normalizeStats(changedStat = null) {
-  const stats = filters.stats;
+    /* -------------------------
+      TEMP DRAWING
+    ------------------------- */
+    let tempPoly = null;
 
-  const keys = STAT_KEYS.filter(k => !filters.lockedStats.has(k));
+    function drawTempPoint(pt) {
+      const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      c.setAttribute("cx", pt.x);
+      c.setAttribute("cy", pt.y);
+      c.setAttribute("r", 4);
+      c.setAttribute("fill", "red");
+      svg.appendChild(c);
+    }
 
-  // locked stats are frozen
-  const lockedTotal = STAT_KEYS
-    .filter(k => filters.lockedStats.has(k))
-    .reduce((s, k) => s + stats[k], 0);
+    function drawTempPolygon(points) {
+      if (tempPoly) tempPoly.remove();
 
-  let freeTotal = keys.reduce((s, k) => s + stats[k], 0);
+      tempPoly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+      tempPoly.setAttribute(
+        "points",
+        points.map(p => p.join(",")).join(" ")
+      );
+      tempPoly.setAttribute("fill", "rgba(255,0,0,0.2)");
+      tempPoly.setAttribute("stroke", "red");
 
-  let maxFree = MAX_BST - lockedTotal;
+      svg.appendChild(tempPoly);
+    }
 
-  // if over budget → reduce evenly
-  if (freeTotal > maxFree) {
-    let overflow = freeTotal - maxFree;
+    /* -------------------------
+      FORM UI
+    ------------------------- */
+    function openPolygonForm(points) {
+      const modal = document.createElement("div");
 
-    while (overflow > 0) {
-      for (const k of keys) {
-        if (overflow === 0) break;
+      Object.assign(modal.style, {
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        background: "#222",
+        padding: "20px",
+        zIndex: 10000,
+        borderRadius: "10px"
+      });
 
-        if (stats[k] > 0) {
-          stats[k]--;
-          overflow--;
+      modal.innerHTML = `
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <input id="polyName" placeholder="Location name">
+          <input id="polyRegion" placeholder="Region">
+          <button id="savePoly">Save</button>
+        </div>
+      `;
+
+      document.body.appendChild(modal);
+
+      modal.querySelector("#savePoly").onclick = () => {
+        const name = modal.querySelector("#polyName").value;
+        const region = modal.querySelector("#polyRegion").value;
+
+        const polygon = {
+          name,
+          region,
+          shape: "polygon",
+          points: points.map(p => p.join(",")).join(" ")
+        };
+
+        polygons.push(polygon);
+
+        console.log("Saved:", polygon);
+
+        modal.remove();
+        clearTemp();
+      };
+    }
+
+    function clearTemp() {
+      currentPoints = [];
+      if (tempPoly) tempPoly.remove();
+    }
+  }
+
+  const STAT_KEYS = ["hp","attack","defense","sp_attack","sp_defense","speed"];
+
+  function buildStatSliders() {
+    const container = $("#statFilters");
+
+    container.innerHTML = `
+      <div class="stat-wrapper">
+
+        ${STAT_KEYS.map(stat => `
+          <div class="stat-row-filter">
+
+            <button class="lock-btn" data-stat="${stat}">
+              🔓
+            </button>
+
+            <span class="stat-label">
+              ${STAT_LABELS[stat] || stat.toUpperCase()}
+            </span>
+
+            <input 
+              type="range" 
+              min="0" 
+              max="${MAX_STATS[stat]}" 
+              value="0" 
+              data-stat="${stat}"
+            >
+
+            <input 
+              class="dex-input stat-input"
+              type="number" 
+              min="0" 
+              max="${MAX_STATS[stat]}" 
+              value="0" 
+              data-stat="${stat}"
+            >
+
+          </div>
+        `).join("")}
+
+      </div>
+    `;
+
+    container.querySelectorAll("input").forEach(i =>
+      i.addEventListener("input", onStatInput)
+    );
+
+    container.querySelectorAll(".lock-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const stat = btn.dataset.stat;
+        const row = btn.closest(".stat-row-filter");
+
+        if (filters.lockedStats.has(stat)) {
+          filters.lockedStats.delete(stat);
+          btn.textContent = "🔓";
+          
+          row.classList.remove("locked-row");
+          btn.classList.remove("active");
+        } else {
+          filters.lockedStats.add(stat);
+          btn.textContent = "🔒";
+
+          row.classList.add("locked-row");
+          btn.classList.add("active");
+        }
+      });
+    });
+  }
+
+  function onStatInput(e) {
+    const stat = e.target.dataset.stat;
+    let value = Number(e.target.value);
+
+    if (filters.lockedStats.has(stat)) return;
+
+    filters.stats[stat] = value;
+
+    normalizeStats(stat);
+
+    syncInputs();
+    applyFilters();
+  }
+
+  function normalizeStats(changedStat = null) {
+    const stats = filters.stats;
+
+    const keys = STAT_KEYS.filter(k => !filters.lockedStats.has(k));
+
+    // locked stats are frozen
+    const lockedTotal = STAT_KEYS
+      .filter(k => filters.lockedStats.has(k))
+      .reduce((s, k) => s + stats[k], 0);
+
+    let freeTotal = keys.reduce((s, k) => s + stats[k], 0);
+
+    let maxFree = MAX_BST - lockedTotal;
+
+    // if over budget → reduce evenly
+    if (freeTotal > maxFree) {
+      let overflow = freeTotal - maxFree;
+
+      while (overflow > 0) {
+        for (const k of keys) {
+          if (overflow === 0) break;
+
+          if (stats[k] > 0) {
+            stats[k]--;
+            overflow--;
+          }
         }
       }
     }
-  }
 
-  // enforce per-stat caps
-  for (const k of STAT_KEYS) {
-    stats[k] = Math.max(0, Math.min(MAX_STATS[k], stats[k]));
-  }
-}
-
-function syncInputs() {
-  document.querySelectorAll(".stat-filter input").forEach(input => {
-    const stat = input.dataset.stat;
-    input.value = filters.stats[stat];
-  });
-}
-
-filters.lockedStats = new Set();
-
-function toggleLock(stat) {
-  if (filters.lockedStats.has(stat)) {
-    filters.lockedStats.delete(stat);
-  } else {
-    filters.lockedStats.add(stat);
-  }
-}
-
-function buildAutocompletePools() {
-  const moves = new Set();
-  const abilities = new Set();
-  const locations = new Set();
-  const pokemon = new Set();
-
-  data.forEach(mon => {
-    pokemon.add(mon.name);
-
-    (mon.moves || []).forEach(m => moves.add(m.name));
-    (mon.abilities || []).forEach(a => abilities.add(a.name));
-    (mon.locations || []).forEach(l => locations.add(l.location));
-  });
-
-  ALL_MOVES = [...moves].sort();
-  ALL_ABILITIES = [...abilities].sort();
-  ALL_LOCATIONS = [...locations].sort();
-  ALL_POKEMON = [...pokemon].sort();
-}
-
-function attachAutocomplete(input, dataList, onSelect) {
-  const wrapper = document.createElement("div");
-  wrapper.className = "autocomplete-wrapper";
-
-  input.parentNode.insertBefore(wrapper, input);
-  wrapper.appendChild(input);
-
-  const dropdown = document.createElement("div");
-  dropdown.className = "autocomplete-dropdown hidden";
-  wrapper.appendChild(dropdown);
-
-  let currentFocus = -1;
-
-  input.addEventListener("input", () => {
-    const val = input.value.toLowerCase();
-
-    dropdown.innerHTML = "";
-    currentFocus = -1;
-
-    if (!val) {
-      dropdown.classList.add("hidden");
-      return;
+    // enforce per-stat caps
+    for (const k of STAT_KEYS) {
+      stats[k] = Math.max(0, Math.min(MAX_STATS[k], stats[k]));
     }
+  }
 
-    const matches = dataList
-      .filter(item => item.toLowerCase().includes(val))
-      .slice(0, 50);
+  function syncInputs() {
+    document.querySelectorAll(".stat-row-filter input").forEach(input => {
+      const stat = input.dataset.stat;
+      input.value = filters.stats[stat];
+    });
+  }
 
-    if (!matches.length) {
-      dropdown.classList.add("hidden");
-      return;
+  filters.lockedStats = new Set();
+
+  function toggleLock(stat) {
+    if (filters.lockedStats.has(stat)) {
+      filters.lockedStats.delete(stat);
+    } else {
+      filters.lockedStats.add(stat);
     }
+  }
 
-    matches.forEach(item => {
-      const div = document.createElement("div");
-      div.className = "autocomplete-item";
-      div.textContent = item;
+  function buildAutocompletePools() {
+    const moves = new Set();
+    const abilities = new Set();
+    const locations = new Set();
+    const pokemon = new Set();
 
-      div.onclick = () => {
-        input.value = item;
-        dropdown.classList.add("hidden");
-        onSelect(item);
-      };
+    data.forEach(mon => {
+      pokemon.add(mon.name);
 
-      dropdown.appendChild(div);
+      (mon.moves || []).forEach(m => moves.add(m.name));
+      (mon.abilities || []).forEach(a => abilities.add(a.name));
+      (mon.locations || []).forEach(l => locations.add(l.location));
     });
 
-    dropdown.classList.remove("hidden");
-  });
-
-  input.addEventListener("keydown", (e) => {
-    const items = dropdown.querySelectorAll(".autocomplete-item");
-
-    if (e.key === "ArrowDown") {
-      currentFocus++;
-      highlight(items);
-    } else if (e.key === "ArrowUp") {
-      currentFocus--;
-      highlight(items);
-    } else if (e.key === "Enter") {
-      e.preventDefault();
-      if (items[currentFocus]) items[currentFocus].click();
-    }
-  });
-
-  function highlight(items) {
-    items.forEach(i => i.classList.remove("active"));
-
-    if (currentFocus >= items.length) currentFocus = 0;
-    if (currentFocus < 0) currentFocus = items.length - 1;
-
-    if (items[currentFocus]) {
-      items[currentFocus].classList.add("active");
-    }
+    ALL_MOVES = [...moves].sort();
+    ALL_ABILITIES = [...abilities].sort();
+    ALL_LOCATIONS = [...locations].sort();
+    ALL_POKEMON = [...pokemon].sort();
   }
 
-  document.addEventListener("click", (e) => {
-    if (!wrapper.contains(e.target)) {
-      dropdown.classList.add("hidden");
-    }
-  });
-}
+  function attachAutocomplete(input, dataList, onSelect) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "autocomplete-wrapper";
 
-function enhancePokemonSearch() {
-  attachAutocomplete(searchInput, ALL_POKEMON, (value) => {
-    searchInput.value = value;
-    applyFilters();
-  });
-}
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.appendChild(input);
+
+    const dropdown = document.createElement("div");
+    dropdown.className = "autocomplete-dropdown hidden";
+    wrapper.appendChild(dropdown);
+
+    let currentFocus = -1;
+
+    input.addEventListener("input", () => {
+      const val = input.value.toLowerCase();
+
+      dropdown.innerHTML = "";
+      currentFocus = -1;
+
+      if (!val) {
+        dropdown.classList.add("hidden");
+        return;
+      }
+
+      const matches = dataList
+        .filter(item => item.toLowerCase().includes(val))
+        .slice(0, 50);
+
+      if (!matches.length) {
+        dropdown.classList.add("hidden");
+        return;
+      }
+
+      matches.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "autocomplete-item";
+        div.textContent = item;
+
+        div.onclick = () => {
+          input.value = item;
+          dropdown.classList.add("hidden");
+          onSelect(item);
+        };
+
+        dropdown.appendChild(div);
+      });
+
+      dropdown.classList.remove("hidden");
+    });
+
+    input.addEventListener("keydown", (e) => {
+      const items = dropdown.querySelectorAll(".autocomplete-item");
+
+      if (e.key === "ArrowDown") {
+        currentFocus++;
+        highlight(items);
+      } else if (e.key === "ArrowUp") {
+        currentFocus--;
+        highlight(items);
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        if (items[currentFocus]) items[currentFocus].click();
+      }
+    });
+
+    function highlight(items) {
+      items.forEach(i => i.classList.remove("active"));
+
+      if (currentFocus >= items.length) currentFocus = 0;
+      if (currentFocus < 0) currentFocus = items.length - 1;
+
+      if (items[currentFocus]) {
+        items[currentFocus].classList.add("active");
+      }
+    }
+
+    document.addEventListener("click", (e) => {
+      if (!wrapper.contains(e.target)) {
+        dropdown.classList.add("hidden");
+      }
+    });
+  }
+
+  function enhancePokemonSearch() {
+    attachAutocomplete(searchInput, ALL_POKEMON, (value) => {
+      searchInput.value = value;
+      applyFilters();
+    });
+  }
 
   function renderGrid() {
     grid.innerHTML = "";

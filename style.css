@@ -6,7 +6,6 @@
   --accent:#2b7cff;
   --accentT: color-mix(in srgb, var(--accent) 20%, transparent);
   --accentG: linear-gradient(90deg,var(--accent) 0%, var(--altAccent) 100%);
-  --accentGT: linear-gradient(90deg,var(--accentT) 0%, var(--altAccentT) 100%);
   --altAccent:#ff52fc;
   --altAccentT:color-mix(in srgb, var(--altAccent) 20%, transparent);
   --danger:#c24;
@@ -23,7 +22,6 @@ body.dark{
   --accent:#488eff;
   --accentT: color-mix(in srgb, var(--accent) 20%, transparent);
   --accentG: linear-gradient(90deg,var(--accent) 0%, var(--altAccent) 100%);
-  --accentGT: linear-gradient(90deg,var(--accentT) 0%, var(--altAccentT) 100%);
   --altAccent:#ca00c6;
   --altAccentT:color-mix(in srgb, var(--altAccent) 20%, transparent);
 }
@@ -41,7 +39,7 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
   align-items:center;
   gap:12px;
   padding:0 16px;
-  background:var(--panel);
+  background: color-mix(in srgb, var(--panel) 95%, transparent);
   z-index:500;
 }
 
@@ -144,7 +142,7 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
     color-mix(in srgb, var(--altAccent) 60%, var(--panel)) 100%
   );
   color:var(--text);
-  transform:scale(1.05);
+  transform:scale(0.95);
 }
 
 .btn--dexModal{
@@ -1239,7 +1237,7 @@ body.pory-full #poryBackground {
 
 .egg-group-pill-color {
   color: var(--text);
-  background: var(--accentGT);
+  background: linear-gradient(90deg,var(--accentT) 0%, var(--altAccentT) 100%);
 }
 
 .moves-grid {
@@ -1251,8 +1249,11 @@ body.pory-full #poryBackground {
 .dex-input {
   background: var(--panel);
   border: 1px solid var(--accent);
+  border-radius: 5px;
+  padding: 10px;
   color: var(--text);
   width: 100%;
+  display: block;
 }
 
 .dex-filters-panel {
@@ -1335,49 +1336,79 @@ body.pory-full #poryBackground {
 
 .minimap {
   background: var(--accentT);
-  display:flex;
   display: flex;
   flex-direction: column;   /* keeps input below map */
   align-items: center; 
   border-radius: 8px;
+  padding: 5px;
 }
 
 .stat-wrapper {
-  display: grid;
-  grid-template-columns: 1fr 60px;
-  gap: 10px;
-  align-items: start;
-}
-
-.stat-grid {
   display: flex;
   flex-direction: column;
+  gap: 6px;
 }
 
-.lock-column {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding-top: 2px;
-}
-
-.stat-filter {
+/* Each row */
+.stat-row-filter {
   display: grid;
-  grid-template-columns: 60px 1fr;
-  gap: 5px;
-  margin-bottom: 4px;
+  grid-template-columns: 40px 40px 1fr 70px;
+  gap: 8px;
+  padding: 2px;
+  align-items: center;
+  border-radius: 10px;
 }
 
+@media (max-width: 500px) {
+  .stat-row-filter {
+    grid-template-columns: 40px 30px 1fr 70px;
+    gap: 4px;
+  }
+}
+
+/* Lock button */
 .lock-btn {
-  justify-self: start;
-  width: fit-content;
-  height: 32px;
-  padding: 0 8px;
+  width: 30px;
+  height: 30px;
   border-radius: 8px;
   border: none;
-  background: var(--accent);
+  background: var(--accentT);
   color: #fff;
   cursor: pointer;
+}
+
+.lock-btn:has(+ .stat-label) {
+  transition: 0.2s;
+}
+
+.lock-btn.active {
+  background: var(--accent);
+}
+
+.lock-btn:active {
+  background: color-mix(in srgb, var(--accentT) 90%, var(--panel));
+  transform: scale(0.95);
+}
+
+.locked-row {
+  background: var(--accentT);
+}
+
+/* Label */
+.stat-label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Slider */
+.stat-row-filter input[type="range"] {
+  width: 100%;
+  min-width: 0; /* 🔥 IMPORTANT for shrinking */
+}
+
+/* Number input */
+.stat-input {
+  width: 100%;
 }
 
 .autocomplete-wrapper {
@@ -1459,6 +1490,9 @@ body.pory-full #poryBackground {
   max-height: 200px;
   overflow-y: auto;
   z-index: 10;
+  top: 100%;
+  left: 0;
+  width: 100%;
 }
 
 .dropdown-item {
@@ -1468,4 +1502,39 @@ body.pory-full #poryBackground {
 
 .dropdown-item:hover {
   background: #444;
+}
+
+.ability-info {
+  margin-top: 10px;
+}
+
+.ability-box {
+  border: 1px solid var(--border-color, #444);
+  border-radius: 10px;
+  padding: 10px;
+  background: var(--altAccentT);
+}
+
+.ability-title {
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.ability-section {
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 6px;
+  margin-top: 6px;
+  background: var(--accentT);
+}
+
+.ability-subtitle {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+
+.ability-text {
+  font-size: 0.9rem;
+  line-height: 1.3;
 }
