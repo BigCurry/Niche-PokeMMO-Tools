@@ -362,9 +362,9 @@
   <section id="pokedexTool" class="toolSection" style="display:none;">
 
     <div class="encounter-controls pokedex-controls">
-      <div class="encounter-top">
+      <div class="dex-top">
         <!-- Row 1 -->
-        <div class="encounter-top-1">
+        <div class="dex-top-1">
           <input 
             id="pokedexSearch"
             class="mc-input dex-search-mon-bar dex-input"
@@ -429,12 +429,15 @@
             <!-- MOVES -->
             <div class="dex-filter-group">
               <div class="dex-filter-group-label"><label>Moves</label></div>
+              
               <div class="moves-grid">
                 <input class="dex-input" placeholder="Search..." data-slot="0">
                 <input class="dex-input" placeholder="Search..." data-slot="1">
                 <input class="dex-input" placeholder="Search..." data-slot="2">
                 <input class="dex-input" placeholder="Search..." data-slot="3">
               </div>
+
+              <div id="moveInfoContainer"></div>
             </div>
 
             <!-- ABILITY -->

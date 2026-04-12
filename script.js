@@ -1894,30 +1894,34 @@ const PokedexTool = (() => {
   let ALL_ABILITIES = [];
   let ALL_LOCATIONS = [];
   let ALL_POKEMON = [];
+
   let LOCATION_DATA = [];
   let ABILITY_DATA = [];
+  let MOVE_DATA = {};
 
   let viewport; // top of initMapControls scope
   /* =============================================================
      const
   ============================================================= */
 
-const filters = {
-  types: [],
-  eggGroups: [],
-  ability: "",
-  moves: ["", "", "", ""],
-  location: "",
-  stats: {
-    hp: 0,
-    attack: 0,
-    defense: 0,
-    sp_attack: 0,
-    sp_defense: 0,
-    speed: 0
-  },
-  lockedStats: new Set()
-};
+  const filters = {
+    types: [],
+    eggGroups: [],
+    ability: "",
+    moves: ["", "", "", ""],
+    location: "",
+    stats: {
+      hp: 0,
+      attack: 0,
+      defense: 0,
+      sp_attack: 0,
+      sp_defense: 0,
+      speed: 0
+    },
+    lockedStats: new Set()
+  };
+
+  filters.lockedStats = new Set();
 
   /* =============================================================
      INIT
@@ -1943,17 +1947,19 @@ const filters = {
   }
 
   async function loadData() {
-    const [monRes, compatRes, locRes, abilityRes] = await Promise.all([
+    const [monRes, compatRes, locRes, abilityRes, moveRes] = await Promise.all([
       fetch("./monsters.json"),
       fetch("./dex_compatibility.json"),
       fetch("./locations.json"),
-      fetch("./abilities.json") // ✅ NEW
+      fetch("./abilities.json"),
+      fetch("./moves.json") // ✅ NEW
     ]);
 
     data = await monRes.json();
     compat = await compatRes.json();
     LOCATION_DATA = await locRes.json();
-    ABILITY_DATA = await abilityRes.json(); // ✅ NEW
+    ABILITY_DATA = await abilityRes.json();
+    MOVE_DATA = await moveRes.json(); // ✅ NEW
   }
 
 
@@ -2127,21 +2133,152 @@ const filters = {
   }
 
   function buildMoveInputs() {
-    const inputs = document.querySelectorAll("dex-input");
+    const inputs = document.querySelectorAll(".moves-grid .dex-input");
 
     inputs.forEach(input => {
       const slot = Number(input.dataset.slot);
 
       attachAutocomplete(input, ALL_MOVES, (value) => {
         filters.moves[slot] = value.toLowerCase();
+        renderMoveInfo(); // ✅ NEW
         applyFilters();
       });
 
       input.addEventListener("input", () => {
         filters.moves[slot] = input.value.toLowerCase();
+        renderMoveInfo(); // ✅ NEW
         applyFilters();
       });
     });
+  }
+
+  function normalizeMoveName(name) {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "-");
+  }
+
+  const MOVE_CLASS_SVGS = {
+    physical: `
+      <svg viewBox="0 0 100 100" class="move-class-svg physical">
+        <polygon fill="#e74c3c" points="
+          50,5 58,28 82,18 72,40 95,50 72,60
+          82,82 58,72 50,95 42,72 18,82 28,60
+          5,50 28,40 18,18 42,28
+        "/>
+      </svg>
+    `,
+    special: `
+      <svg viewBox="0 0 100 100" class="move-class-svg special">
+        <defs>
+          <mask id="ringMask">
+            <rect width="100" height="100" fill="white"/>
+            <circle cx="50" cy="50" r="40" fill="white"/>
+            <circle cx="50" cy="50" r="32" fill="black"/>
+            <circle cx="50" cy="50" r="24" fill="white"/>
+            <circle cx="50" cy="50" r="16" fill="black"/>
+            <circle cx="50" cy="50" r="8" fill="white"/>
+          </mask>
+        </defs>
+        <circle cx="50" cy="50" r="40" fill="#3498db" mask="url(#ringMask)"/>
+      </svg>
+    `,
+    status: `
+      <svg viewBox="0 0 100 100" class="move-class-svg status">
+        <defs>
+          <mask id="yinMask">
+            <rect width="100" height="100" fill="white"/>
+            <path d="
+              M50 10
+              A40 40 0 0 1 50 90
+              A20 20 0 0 0 50 50
+              A20 20 0 0 1 50 10
+            " fill="black"/>
+          </mask>
+        </defs>
+        <circle cx="50" cy="50" r="45" fill="#fff" mask="url(#yinMask)"/>
+      </svg>
+    `
+  };
+  
+  function renderMoveInfo() {
+    const container = $("#moveInfoContainer");
+
+    const activeMoves = filters.moves.filter(Boolean);
+
+    if (!activeMoves.length) {
+      container.innerHTML = "";
+      return;
+    }
+
+    container.innerHTML = activeMoves.map(name => {
+      const key = normalizeMoveName(name);
+      const move = MOVE_DATA[key];
+
+      if (!move) return "";
+
+      const info = move.info || {};
+      const price = move.Price || {};
+
+      return `
+        <div class="move-box">
+
+          <div class="move-header">
+
+            <div class="move-title">
+              ${formatMoveName(key)}
+            </div>
+
+            <div class="move-header-right">
+
+              ${info.type ? `
+                <span class="move-type-width type-badge type-${info.type}">
+                  ${info.type.charAt(0).toUpperCase() + info.type.slice(1).toLowerCase()}
+                </span>
+              ` : ""}
+
+              ${info.damage_class ? `
+                <div class="move-class-icon" title="${info.damage_class}">
+                  ${MOVE_CLASS_SVGS[info.damage_class]}
+                </div>
+              ` : ""}
+
+            </div>
+
+          </div>
+
+          <div class="move-info-grid">
+            ${info.power ? `<div><b>Power:</b> ${info.power}</div>` : ""}
+            ${info.pp ? `<div><b>PP:</b> ${info.pp}</div>` : ""}
+            ${info.accuracy ? `<div><b>Accuracy:</b> ${info.accuracy}</div>` : ""}
+            ${info.priority ? `<div><b>Priority:</b> ${info.priority}</div>` : ""}
+            ${info.short_effect ? `
+              <div class="move-effect">
+                ${info.short_effect.replace("$effect_chance", info.effect_chance ?? "")}
+              </div>
+            ` : ""}
+
+          </div>
+
+          <div class="move-price">
+            ${price.yen ? `<span>¥ ${price.yen}</span>` : ""}
+            ${price.bp ? `<span>${price.bp} BP</span>` : ""}
+            ${price.hs ? `<span>${price.hs} HS</span>` : ""}
+          </div>
+
+          <div class="move-icons">
+            ${move.TM ? `<span class="icon tm">📀</span>` : ""}
+            ${move.Vendor ? `<span class="icon vendor">🏪</span>` : ""}
+            ${(move.modifiers || [])
+              .filter(Boolean)
+              .map(m => `<span class="icon mod">${m}</span>`)
+              .join("")}
+          </div>
+
+        </div>
+      `;
+    }).join("");
   }
 
   function buildAbilityAutocomplete() {
@@ -2182,17 +2319,17 @@ const filters = {
       <div class="ability-box">
         <div class="ability-title">Effects</div>
 
-        <div class="ability-section">
-          <div class="ability-subtitle">Overworld</div>
+        <div class="ability-section ability-section-overworld">
+          <div class="ability-subtitle ability-subtitle-overworld">Overworld</div>
           <div class="ability-text">
-            ${overworld || "None"}
+            ${overworld || "No effect"}
           </div>
         </div>
 
-        <div class="ability-section">
-          <div class="ability-subtitle">Battle</div>
+        <div class="ability-section ability-section-battle">
+          <div class="ability-subtitle ability-subtitle-battle">Battle</div>
           <div class="ability-text">
-            ${battle || "None"}
+            ${battle || "No effect"}
           </div>
         </div>
       </div>
@@ -2636,8 +2773,6 @@ const filters = {
     }
   }
 
-  const STAT_KEYS = ["hp","attack","defense","sp_attack","sp_defense","speed"];
-
   function buildStatSliders() {
     const container = $("#statFilters");
 
@@ -2761,14 +2896,10 @@ const filters = {
     });
   }
 
-  filters.lockedStats = new Set();
-
-  function toggleLock(stat) {
-    if (filters.lockedStats.has(stat)) {
-      filters.lockedStats.delete(stat);
-    } else {
-      filters.lockedStats.add(stat);
-    }
+  function formatMoveName(key) {
+    return key
+      .replace(/-/g, " ")
+      .replace(/\b\w/g, c => c.toUpperCase());
   }
 
   function buildAutocompletePools() {
@@ -2780,9 +2911,13 @@ const filters = {
     data.forEach(mon => {
       pokemon.add(mon.name);
 
-      (mon.moves || []).forEach(m => moves.add(m.name));
       (mon.abilities || []).forEach(a => abilities.add(a.name));
       (mon.locations || []).forEach(l => locations.add(l.location));
+    });
+
+    // 🔥 use MOVE_DATA instead of mon.moves
+    Object.keys(MOVE_DATA).forEach(key => {
+      moves.add(formatMoveName(key));
     });
 
     ALL_MOVES = [...moves].sort();
@@ -3135,6 +3270,13 @@ const filters = {
      STATS
   ============================================================= */
 
+  const STAT_KEYS = ["hp","attack","defense","sp_attack","sp_defense","speed"];
+
+  const STAT_LABELS = {
+    hp: "HP", attack: "Atk", defense: "Def",
+    speed: "Spe", sp_attack: "SpA", sp_defense: "SpD"
+  };
+  
   const MAX_STATS = {
     hp: 255, attack: 180, defense: 230,
     speed: 180, sp_attack: 180, sp_defense: 230
@@ -3187,11 +3329,6 @@ const filters = {
     if (ratio < 0.8) return "#bfff00";
     return "#1aff00";
   }
-
-  const STAT_LABELS = {
-    hp: "HP", attack: "Atk", defense: "Def",
-    speed: "Spe", sp_attack: "SpA", sp_defense: "SpD"
-  };
 
 
   /* =============================================================

@@ -1,0 +1,212 @@
+{
+        "Trick-Or-Treat": {
+        "id": 1000,
+        "name": "Trick-Or-Treat",
+        "info": null,
+        "modifiers": [
+            null
+        ],
+        "TM": null,
+        "Vendor": null,
+        "Price": {
+            "yen": null,
+            "bp": null,
+            "hs": null
+        }
+    },
+    "Fever Dreams": {
+        "id": 1001,
+        "name": "Fever Dreams",
+        "info": null,
+        "modifiers": [
+            null
+        ],
+        "TM": null,
+        "Vendor": null,
+        "Price": {
+            "yen": null,
+            "bp": null,
+            "hs": null
+        }
+    },
+    "Grim Harvest": {
+        "id": 1004,
+        "name": "Grim Harvest",
+        "info": null,
+        "modifiers": [
+            null
+        ],
+        "TM": null,
+        "Vendor": null,
+        "Price": {
+            "yen": null,
+            "bp": null,
+            "hs": null
+        }
+    },
+    "Phantom Strike": {
+        "id": 1006,
+        "name": "Phantom Strike",
+        "info": null,
+        "modifiers": [
+            null
+        ],
+        "TM": null,
+        "Vendor": null,
+        "Price": {
+            "yen": null,
+            "bp": null,
+            "hs": null
+        }
+    },
+    "Soul Drain": {
+        "id": 1007,
+        "name": "Soul Drain",
+        "info": null,
+        "modifiers": [
+            null
+        ],
+        "TM": null,
+        "Vendor": null,
+        "Price": {
+            "yen": null,
+            "bp": null,
+            "hs": null
+        }
+    },
+    "Berserk": {
+        "id": 1008,
+        "name": "Berserk",
+        "info": null,
+        "modifiers": [
+            null
+        ],
+        "TM": null,
+        "Vendor": null,
+        "Price": {
+            "yen": null,
+            "bp": null,
+            "hs": null
+        }
+    },
+    "Kaboom!": {
+        "id": 1009,
+        "name": "Kaboom!",
+        "info": null,
+        "modifiers": [
+            null
+        ],
+        "TM": null,
+        "Vendor": null,
+        "Price": {
+            "yen": null,
+            "bp": null,
+            "hs": null
+        }
+    },
+    "Spirit Away": {
+        "id": 1010,
+        "name": "Spirit Away",
+        "info": null,
+        "modifiers": [
+            null
+        ],
+        "TM": null,
+        "Vendor": null,
+        "Price": {
+            "yen": null,
+            "bp": null,
+            "hs": null
+        }
+    },
+    "Greedy Gulp": {
+        "id": 1011,
+        "name": "Greedy Gulp",
+        "info": null,
+        "modifiers": [
+            null
+        ],
+        "TM": null,
+        "Vendor": null,
+        "Price": {
+            "yen": null,
+            "bp": null,
+            "hs": null
+        }
+    },
+    "Ghastly Vision": {
+        "id": 1012,
+        "name": "Ghastly Vision",
+        "info": null,
+        "modifiers": [
+            null
+        ],
+        "TM": null,
+        "Vendor": null,
+        "Price": {
+            "yen": null,
+            "bp": null,
+            "hs": null
+        }
+    },
+    "Miasma": {
+        "id": 1013,
+        "name": "Miasma",
+        "info": null,
+        "modifiers": [
+            null
+        ],
+        "TM": null,
+        "Vendor": null,
+        "Price": {
+            "yen": null,
+            "bp": null,
+            "hs": null
+        }
+    },
+    "Drag Below": {
+        "id": 1014,
+        "name": "Drag Below",
+        "info": null,
+        "modifiers": [
+            null
+        ],
+        "TM": null,
+        "Vendor": null,
+        "Price": {
+            "yen": null,
+            "bp": null,
+            "hs": null
+        }
+    },
+    "Bounce Higher!": {
+        "id": 1017,
+        "name": "Bounce Higher!",
+        "info": null,
+        "modifiers": [
+            null
+        ],
+        "TM": null,
+        "Vendor": null,
+        "Price": {
+            "yen": null,
+            "bp": null,
+            "hs": null
+        }
+    },
+    "Bounce Really High!!": {
+        "id": 1018,
+        "name": "Bounce Really High!!",
+        "info": null,
+        "modifiers": [
+            null
+        ],
+        "TM": null,
+        "Vendor": null,
+        "Price": {
+            "yen": null,
+            "bp": null,
+            "hs": null
+        }
+    }
+}
