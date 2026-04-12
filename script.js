@@ -1979,6 +1979,17 @@ const PokedexTool = (() => {
     modal.addEventListener("click", (e) => {
       if (e.target === modal) closeModal();
     });
+
+    document.querySelectorAll(".reset-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        resetFilter(btn.dataset.reset);
+      });
+    });
+
+    $("#resetAllBtn").onclick = () => {
+      ["types","egg","location","moves","ability","stats"]
+        .forEach(resetFilter);
+    };
   }
 
   /* =============================================================
@@ -2003,6 +2014,7 @@ const PokedexTool = (() => {
     });
 
     renderGrid();
+    updateResetButtons();
   }
 
   function matchTypes(mon) {
@@ -3007,6 +3019,83 @@ const PokedexTool = (() => {
         dropdown.classList.add("hidden");
       }
     });
+  }
+
+  function resetFilter(type) {
+    switch (type) {
+      case "types":
+        filters.types = [];
+        $$("#typePills .pill").forEach(p => p.classList.remove("active"));
+        break;
+
+      case "egg":
+        filters.eggGroups = [];
+        $$("#eggPills .pill").forEach(p => p.classList.remove("active"));
+        break;
+
+      case "location":
+        filters.location = "";
+        $("#filterLocation").value = "";
+        $("#mapPin")?.classList.add("hidden");
+        break;
+
+      case "moves":
+        filters.moves = ["", "", "", ""];
+        document.querySelectorAll(".moves-grid input").forEach(i => i.value = "");
+        $("#moveInfoContainer").innerHTML = "";
+        break;
+
+      case "ability":
+        filters.ability = "";
+        $("#filterAbility").value = "";
+        $("#abilityInfo").classList.add("hidden");
+        break;
+
+      case "stats":
+        filters.stats = {
+          hp: 0, attack: 0, defense: 0,
+          sp_attack: 0, sp_defense: 0, speed: 0
+        };
+        filters.lockedStats.clear();
+
+        document.querySelectorAll(".stat-input").forEach(i => i.value = 0);
+        document.querySelectorAll('input[type="range"]').forEach(i => i.value = 0);
+        document.querySelectorAll(".lock-btn").forEach(b => {
+          b.textContent = "🔓";
+          b.classList.remove("active");
+        });
+        break;
+    }
+
+    applyFilters();
+    updateResetButtons();
+  }
+
+  function isFilterActive(type) {
+    switch (type) {
+      case "types": return filters.types.length > 0;
+      case "egg": return filters.eggGroups.length > 0;
+      case "location": return !!filters.location;
+      case "moves": return filters.moves.some(Boolean);
+      case "ability": return !!filters.ability;
+      case "stats":
+        return Object.values(filters.stats).some(v => v > 0)
+          || filters.lockedStats.size > 0;
+    }
+  }
+
+  function updateResetButtons() {
+    let anyActive = false;
+
+    document.querySelectorAll(".reset-btn").forEach(btn => {
+      const active = isFilterActive(btn.dataset.reset);
+
+      btn.classList.toggle("hidden", !active);
+
+      if (active) anyActive = true;
+    });
+
+    $("#resetAllBtn").classList.toggle("hidden", !anyActive);
   }
 
   function enhancePokemonSearch() {
