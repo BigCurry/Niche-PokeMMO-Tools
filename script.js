@@ -1923,6 +1923,13 @@ const PokedexTool = (() => {
 
   filters.lockedStats = new Set();
 
+
+  const MAX_BASE_ID = 649;
+
+  // ✅ manually allow specific IDs ≥ 650 (non-forms, special cases)
+  const ID_OVERRIDE = new Set([
+    1052
+  ]);
   /* =============================================================
      INIT
   ============================================================= */
@@ -1993,16 +2000,24 @@ const PokedexTool = (() => {
   }
 
   /* =============================================================
-     FILTERING + GRID
+     FILTERING
   ============================================================= */
 
   function applyFilters() {
     const q = searchInput.value.toLowerCase();
-    const showForms = $("#showFormsToggle")?.checked;
 
     filtered = data.filter(mon => {
-      if (q && !mon.name.toLowerCase().includes(q)) return false;
 
+      // 🔥 HARD FILTER FIRST (this is the key fix)
+      if (!isEligible(mon)) return false;
+
+      // 🔍 search
+      const passesSearch = !q || mon.name.toLowerCase().includes(q);
+      if (!passesSearch) return false;
+
+      // 🔥 NO MORE showForms restriction — variants always allowed
+
+      // 🔧 filters
       if (!matchTypes(mon)) return false;
       if (!matchEgg(mon)) return false;
       if (!matchAbility(mon)) return false;
@@ -3098,6 +3113,11 @@ const PokedexTool = (() => {
     $("#resetAllBtn").classList.toggle("hidden", !anyActive);
   }
 
+
+  /* =============================================================
+     GRID
+  ============================================================= */
+
   function enhancePokemonSearch() {
     attachAutocomplete(searchInput, ALL_POKEMON, (value) => {
       searchInput.value = value;
@@ -3121,20 +3141,62 @@ const PokedexTool = (() => {
     const card = document.createElement("div");
     card.className = "poke-card";
 
-    const id = String(mon.id).padStart(3, "0");
+    const base = getBaseForm(mon);
+    const baseId = String(base.id).padStart(3, "0");
+
+    const isVariant = mon.id !== base.id;
 
     card.innerHTML = `
-      <img src="pory pokedex images/pokedex_webp/Pokedex_${id}.webp">
-      <div class="sr-only">${mon.name}</div>
+      <div class="poke-card-inner ${isVariant ? "variant" : ""}">
+        <img src="pory pokedex images/pokedex_webp/Pokedex_${baseId}.webp">
+        
+        ${isVariant ? `<div class="variant-badge">Variant</div>` : ""}
+
+        <div class="sr-only">${mon.name}</div>
+      </div>
     `;
 
     const img = card.querySelector("img");
-    applyImageFallback(img, mon.id, id);
+    applyImageFallback(img, base.id, baseId);
 
     card.onclick = () => openModal(card, mon);
+
     return card;
   }
 
+  /* Processing IDs above 649 */
+  function isBasePokemon(mon) {
+    return mon.id <= MAX_BASE_ID;
+  }
+
+  function isAllowedOverride(mon) {
+    return ID_OVERRIDE.has(mon.id);
+  }
+
+  function isVariant(mon) {
+    return data.some(base =>
+      base.id <= MAX_BASE_ID &&
+      base.forms?.some(f => f.id === mon.id)
+    );
+  }
+
+  function isEligible(mon) {
+    return (
+      mon.id <= MAX_BASE_ID ||   // base Pokémon
+      isVariant(mon) ||          // ALL variants always allowed
+      isAllowedOverride(mon)     // manual overrides
+    );
+  }
+
+  // 🔥 find base form (assumes forms array exists)
+  function getBaseForm(mon) {
+    if (mon.id <= MAX_BASE_ID) return mon;
+
+    // find a Pokémon that lists this as a form
+    return data.find(base =>
+      base.forms?.some(f => f.id === mon.id)
+    ) || mon;
+  }
 
   /* =============================================================
      IMAGE HANDLING

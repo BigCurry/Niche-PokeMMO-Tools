@@ -1701,3 +1701,24 @@ body.pory-full #poryBackground {
 .reset-btn:active {
   transform: scale(0.95);
 }
+
+.poke-card-inner {
+  position: relative;
+}
+
+.variant-badge {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  font-size: 10px;
+  padding: 2px 6px;
+  background: rgba(0,0,0,0.7);
+  border-radius: 6px;
+  color: #fff;
+  pointer-events: none;
+}
+
+/* optional: subtle glow */
+.poke-card-inner.variant {
+  outline: 1px solid rgba(255,255,255,0.2);
+}
