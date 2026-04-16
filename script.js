@@ -1904,6 +1904,49 @@ const PokedexTool = (() => {
      const
   ============================================================= */
 
+  const MOVE_CLASS_SVGS = {
+    physical: `
+      <svg viewBox="0 0 100 100" class="move-class-svg physical">
+        <polygon fill="#e74c3c" points="
+          50,5 58,28 82,18 72,40 95,50 72,60
+          82,82 58,72 50,95 42,72 18,82 28,60
+          5,50 28,40 18,18 42,28
+        "/>
+      </svg>
+    `,
+    special: `
+      <svg viewBox="0 0 100 100" class="move-class-svg special">
+        <defs>
+          <mask id="ringMask">
+            <rect width="100" height="100" fill="white"/>
+            <circle cx="50" cy="50" r="40" fill="white"/>
+            <circle cx="50" cy="50" r="32" fill="black"/>
+            <circle cx="50" cy="50" r="24" fill="white"/>
+            <circle cx="50" cy="50" r="16" fill="black"/>
+            <circle cx="50" cy="50" r="8" fill="white"/>
+          </mask>
+        </defs>
+        <circle cx="50" cy="50" r="40" fill="#3498db" mask="url(#ringMask)"/>
+      </svg>
+    `,
+    status: `
+      <svg viewBox="0 0 100 100" class="move-class-svg status">
+        <defs>
+          <mask id="yinMask">
+            <rect width="100" height="100" fill="white"/>
+            <path d="
+              M50 10
+              A40 40 0 0 1 50 90
+              A20 20 0 0 0 50 50
+              A20 20 0 0 1 50 10
+            " fill="black"/>
+          </mask>
+        </defs>
+        <circle cx="50" cy="50" r="45" fill="#fff" mask="url(#yinMask)"/>
+      </svg>
+    `
+  };
+
   const filters = {
     types: [],
     eggGroups: [],
@@ -2027,6 +2070,8 @@ const PokedexTool = (() => {
 
       return true;
     });
+
+    filtered = groupByBase(filtered);
 
     renderGrid();
     updateResetButtons();
@@ -2185,49 +2230,6 @@ const PokedexTool = (() => {
       .trim()
       .replace(/\s+/g, "-");
   }
-
-  const MOVE_CLASS_SVGS = {
-    physical: `
-      <svg viewBox="0 0 100 100" class="move-class-svg physical">
-        <polygon fill="#e74c3c" points="
-          50,5 58,28 82,18 72,40 95,50 72,60
-          82,82 58,72 50,95 42,72 18,82 28,60
-          5,50 28,40 18,18 42,28
-        "/>
-      </svg>
-    `,
-    special: `
-      <svg viewBox="0 0 100 100" class="move-class-svg special">
-        <defs>
-          <mask id="ringMask">
-            <rect width="100" height="100" fill="white"/>
-            <circle cx="50" cy="50" r="40" fill="white"/>
-            <circle cx="50" cy="50" r="32" fill="black"/>
-            <circle cx="50" cy="50" r="24" fill="white"/>
-            <circle cx="50" cy="50" r="16" fill="black"/>
-            <circle cx="50" cy="50" r="8" fill="white"/>
-          </mask>
-        </defs>
-        <circle cx="50" cy="50" r="40" fill="#3498db" mask="url(#ringMask)"/>
-      </svg>
-    `,
-    status: `
-      <svg viewBox="0 0 100 100" class="move-class-svg status">
-        <defs>
-          <mask id="yinMask">
-            <rect width="100" height="100" fill="white"/>
-            <path d="
-              M50 10
-              A40 40 0 0 1 50 90
-              A20 20 0 0 0 50 50
-              A20 20 0 0 1 50 10
-            " fill="black"/>
-          </mask>
-        </defs>
-        <circle cx="50" cy="50" r="45" fill="#fff" mask="url(#yinMask)"/>
-      </svg>
-    `
-  };
   
   function renderMoveInfo() {
     const container = $("#moveInfoContainer");
@@ -3150,7 +3152,7 @@ const PokedexTool = (() => {
       <div class="poke-card-inner ${isVariant ? "variant" : ""}">
         <img src="pory pokedex images/pokedex_webp/Pokedex_${baseId}.webp">
         
-        ${isVariant ? `<div class="variant-badge">Variant</div>` : ""}
+        ${isVariant ? `<div class="variant-badge">Form: ${buildTypeBadges(mon.types)}</div>` : ""}
 
         <div class="sr-only">${mon.name}</div>
       </div>
@@ -3196,6 +3198,48 @@ const PokedexTool = (() => {
     return data.find(base =>
       base.forms?.some(f => f.id === mon.id)
     ) || mon;
+  }
+
+  function groupByBase(list) {
+    const map = new Map();
+
+    list.forEach(mon => {
+      const base = getBaseForm(mon);
+      const baseId = base.id;
+
+      if (!map.has(baseId)) {
+        map.set(baseId, {
+          base: null,
+          variants: []
+        });
+      }
+
+      const entry = map.get(baseId);
+
+      if (mon.id === baseId) {
+        entry.base = mon;
+      } else {
+        entry.variants.push(mon);
+      }
+    });
+
+    // 🔥 Flatten into ordered list
+    const result = [];
+
+    [...map.entries()]
+      .sort((a, b) => a[0] - b[0]) // sort by base ID
+      .forEach(([_, group]) => {
+        if (group.base) {
+          result.push(group.base);
+        }
+
+        // optional: sort variants (by ID or name)
+        group.variants.sort((a, b) => a.id - b.id);
+
+        result.push(...group.variants);
+      });
+
+    return result;
   }
 
   /* =============================================================

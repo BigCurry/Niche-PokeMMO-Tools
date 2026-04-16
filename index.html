@@ -365,26 +365,24 @@
       <div class="dex-top">
         <!-- Row 1 -->
         <div class="dex-top-1">
-          <input 
-            id="pokedexSearch"
-            class="mc-input dex-search-mon-bar dex-input"
-            placeholder="Search Pokémon..."
-          >
-          <button id="toggleFilters" class="btn btn--gradient">
-            <svg width="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-            </svg>
-            <label style="font-size: 14px;">Filters</label>
-          </button>
+          <input id="pokedexSearch" class="mc-input dex-search-mon-bar dex-input" placeholder="Search Pokémon...">
+
+          <div class="filterbtn-wrapper">
+            <button id="toggleFilters" class="btn btn--gradient">
+              <svg width="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+              </svg>
+              <label style="font-size: 14px;">Filters</label>
+            </button>
+
+            <button id="resetAllBtn" class="reset-all-btn hidden">
+              ⟳
+            </button>
+          </div>
         </div>
 
         <!-- Row 2 (filters panel) -->
         <div id="dexfiltersPanel" class="dex-filters-panel collapsed">
-          <div class="dex-filter-global">
-            <button id="resetAllBtn" class="reset-all-btn hidden">
-              ⟳ Reset All 
-            </button>
-          </div>
           <div class="dex-filter-row-2 dex-filter-full">
             <!-- TYPES -->
             <div class="dex-filter-group">

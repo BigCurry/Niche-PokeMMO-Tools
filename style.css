@@ -813,9 +813,58 @@ body.pory-full #poryBackground {
 
 .pokedex-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 10px;
   padding: 10px;
+  /* Default for mobile: 2 columns */
+  grid-template-columns: repeat(1, 1fr);
+}
+
+@media (min-width: 300px) {
+  .pokedex-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 600px) {
+  .pokedex-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+@media (min-width: 1500px) {
+  .pokedex-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+@media (min-width: 2000px) {
+  .pokedex-grid {
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  }
+}
+
+@media (min-width: 3000px) {
+  .pokedex-grid {
+    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+  }
+}
+
+@media (min-width: 4000px) {
+  .pokedex-grid {
+    grid-template-columns: repeat(auto-fill, minmax(700px, 1fr));
+  }
+}
+
+@media (min-width: 6000px) {
+  .pokedex-grid {
+    grid-template-columns: repeat(auto-fill, minmax(900px, 1fr));
+  }
+}
+
+@media (min-width: 10000px) {
+  .pokedex-grid {
+    grid-template-columns: repeat(auto-fill, minmax(1000px, 1fr));
+  }
 }
 
 .pokedex-layout {
@@ -830,17 +879,17 @@ body.pory-full #poryBackground {
 ============================================================= */
 
 .poke-card {
-  background: color-mix(in srgb, var(--panel) 20%, transparent);
+  background: var(--altAccentT);
   border-radius: 9999px;
-  padding: 8px 8px 5px;
+  padding: 8px;
   cursor: pointer;
   text-align: center;
-  transition: transform 0.15s ease, background 0.15s ease;
+  transition: transform 0.2s ease-in;
 }
 
 .poke-card:hover {
   transform: scale(1.1);
-  background: color-mix(in srgb, var(--accent) 40%, transparent);
+  background: var(--accentG);
 }
 
 .poke-card img {
@@ -1137,9 +1186,9 @@ body.pory-full #poryBackground {
 ============================================================= */
 
 .type-badge {
-  padding: 3px 8px;
+  padding: 1px 6px;
   border-radius: 999px;
-  font-size: 0.7rem;
+  font-size: 0.5rem;
   margin-right: 4px;
   color: white;
 }
@@ -1677,21 +1726,28 @@ body.pory-full #poryBackground {
   color: white;
   border-radius: 6px;
   cursor: pointer;
-  padding: 2px 6px;
 }
 
 .reset-all-btn {
   position: absolute;
-  top: -5px;
-  right: -5px;
+
+  top: 8px; 
+  right: 0;
+  transform: translate(25%, -50%); /* Shifts it "out and up" relative to the corner */
+  
+  z-index: 10;
+  white-space: nowrap; /* Prevents text from wrapping if it's small */
 
   border: none;
-  background: red;
+  background: var(--danger);
   color: white;
-  padding: 10px 10px;
-  padding-right: 15px;
-  border-radius: 8px;
+  border-radius: 20px;
   cursor: pointer;
+}
+
+.filterbtn-wrapper {
+  position: relative;
+  display: inline-block; /* Keeps the wrapper tight around the button */
 }
 
 .hidden {
@@ -1703,22 +1759,23 @@ body.pory-full #poryBackground {
 }
 
 .poke-card-inner {
+  background: black;
+  border-radius: 999px;
   position: relative;
+}
+
+.poke-card-inner.variant {
+  background: #585858;
 }
 
 .variant-badge {
   position: absolute;
   bottom: 4px;
-  right: 4px;
+  right: 10px;
   font-size: 10px;
-  padding: 2px 6px;
-  background: rgba(0,0,0,0.7);
-  border-radius: 6px;
-  color: #fff;
+  padding: 0.5em;
+  background: color-mix(in srgb, black 80%, transparent);
+  border-radius: 20px;
+  color: white;
   pointer-events: none;
-}
-
-/* optional: subtle glow */
-.poke-card-inner.variant {
-  outline: 1px solid rgba(255,255,255,0.2);
 }
