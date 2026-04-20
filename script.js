@@ -39,22 +39,46 @@ const routeToTool = Object.fromEntries(
   Object.entries(toolRoutes).map(([k, v]) => [v, k])
 );
 
-function getRoute() {
-  const hash = window.location.hash.replace("#", "");
-  const path = window.location.pathname;
+function getRouteData() {
+  const hash = window.location.hash.replace(/^#/, "");
+  const parts = hash.split("/").filter(Boolean);
 
-  // prefer hash if present (better for GitHub Pages / static hosting)
-  const raw = hash || path;
+  return {
+    section: parts[0] || "",
+    tool: parts[1] || "about",
+    param: parts[2] || null
+  };
+}
 
-  const parts = raw.split("/").filter(Boolean);
+async function handleRoute() {
+  const { tool, param } = getRouteData();
 
-  // supports:
-  // /tools/encounter-data
-  // encounter-data
-  // #/tools/encounter-data
-  const last = parts[parts.length - 1];
+  const toolId = routeToTool[tool] || "aboutPage";
 
-  return last || "about";
+  showTool(toolId);
+
+  if (toolId === "pokedexTool") {
+    await handleDexRoute(param);
+  }
+}
+
+async function handleDexRoute(param) {
+  // wait until dex tool finished loading
+  await PokedexTool.ready;
+
+  // normal dex page
+  if (!param) {
+    PokedexTool.closeFromRouter();
+    return;
+  }
+
+  // try modal deep-link
+  const success = PokedexTool.openFromSlug(param);
+
+  // invalid slug -> fallback to dex home
+  if (!success) {
+    window.location.hash = "/tools/dex";
+  }
 }
 
 function navigateToTool(toolId, push = true) {
@@ -68,10 +92,7 @@ function navigateToTool(toolId, push = true) {
 }
 
 function initRouter() {
-  const route = getRoute();
-  const tool = routeToTool[route] || "aboutPage";
-
-  showTool(tool);
+  handleRoute();
 }
 
 /* =============================================================
@@ -85,17 +106,8 @@ function initToolsSwitcher() {
     navigateToTool(tool);
   });
 
-  window.addEventListener("popstate", () => {
-    const route = getRoute();
-    const tool = routeToTool[route] || "aboutPage";
-    showTool(tool);
-  });
-
-  window.addEventListener("hashchange", () => {
-    const route = getRoute();
-    const tool = routeToTool[route] || "aboutPage";
-    showTool(tool);
-  });
+  window.addEventListener("hashchange", handleRoute);
+  window.addEventListener("popstate", handleRoute);
 }
 
 function showTool(tool) {
@@ -1883,6 +1895,9 @@ const PokedexTool = (() => {
      STATE
   ============================================================= */
 
+  let readyResolve;
+  const ready = new Promise(r => readyResolve = r);
+
   let data = [];
   let compat = [];
   let filtered = [];
@@ -1899,11 +1914,93 @@ const PokedexTool = (() => {
   let ABILITY_DATA = [];
   let MOVE_DATA = {};
 
-  let viewport; // top of initMapControls scope
+  let viewport;
   /* =============================================================
      const
   ============================================================= */
+  const TYPE_CHART = {
+      normal: { fighting: 2, ghost: 0 },
 
+      fire: {
+        water: 2, ground: 2, rock: 2,
+        fire: 0.5, grass: 0.5, ice: 0.5, bug: 0.5, steel: 0.5
+      },
+
+      water: {
+        electric: 2, grass: 2,
+        fire: 0.5, water: 0.5, ice: 0.5, steel: 0.5
+      },
+
+      grass: {
+        fire: 2, ice: 2, poison: 2, flying: 2, bug: 2,
+        water: 0.5, electric: 0.5, grass: 0.5, ground: 0.5
+      },
+
+      electric: {
+        ground: 2,
+        electric: 0.5, flying: 0.5, steel: 0.5
+      },
+
+      ice: {
+        fire: 2, fighting: 2, rock: 2, steel: 2,
+        ice: 0.5
+      },
+
+      fighting: {
+        flying: 2, psychic: 2,
+        bug: 0.5, rock: 0.5, dark: 0.5
+      },
+
+      poison: {
+        ground: 2, psychic: 2,
+        grass: 0.5, fighting: 0.5, poison: 0.5, bug: 0.5
+      },
+
+      ground: {
+        water: 2, grass: 2, ice: 2,
+        poison: 0.5, rock: 0.5, electric: 0
+      },
+
+      flying: {
+        electric: 2, ice: 2, rock: 2,
+        grass: 0.5, fighting: 0.5, bug: 0.5, ground: 0
+      },
+
+      psychic: {
+        bug: 2, ghost: 2, dark: 2,
+        fighting: 0.5, psychic: 0.5
+      },
+
+      bug: {
+        fire: 2, flying: 2, rock: 2,
+        grass: 0.5, fighting: 0.5, ground: 0.5
+      },
+
+      rock: {
+        water: 2, grass: 2, fighting: 2, ground: 2, steel: 2,
+        normal: 0.5, fire: 0.5, poison: 0.5, flying: 0.5
+      },
+
+      ghost: {
+        ghost: 2, dark: 2,
+        poison: 0.5, bug: 0.5, normal: 0, fighting: 0
+      },
+
+      dragon: {
+        ice: 2, dragon: 2,
+        fire: 0.5, water: 0.5, grass: 0.5, electric: 0.5
+      },
+
+      dark: {
+        fighting: 2, bug: 2,
+        ghost: 0.5, dark: 0.5, psychic: 0
+      },
+
+      steel: {
+        fire: 2, fighting: 2, ground: 2,
+        normal: 0.5, grass: 0.5, ice: 0.5, flying: 0.5, psychic: 0.5, bug: 0.5, rock: 0.5, ghost: 0.5, dragon: 0.5, dark: 0.5, steel: 0.5, poison: 0
+      }
+  };
   const MOVE_CLASS_SVGS = {
     physical: `
       <svg viewBox="0 0 100 100" class="move-class-svg physical">
@@ -1987,6 +2084,8 @@ const PokedexTool = (() => {
     bindEvents();
     preloadImages();
     applyFilters();
+
+    readyResolve();
   }
 
   function cacheDOM() {
@@ -3152,7 +3251,7 @@ const PokedexTool = (() => {
       <div class="poke-card-inner ${isVariant ? "variant" : ""}">
         <img src="pory pokedex images/pokedex_webp/Pokedex_${baseId}.webp">
         
-        ${isVariant ? `<div class="variant-badge">Form: ${buildTypeBadges(mon.types)}</div>` : ""}
+        ${isVariant ? `<div class="variant-badge">Form: ${buildVariantTypeBadges(mon.types)}</div>` : ""}
 
         <div class="sr-only">${mon.name}</div>
       </div>
@@ -3164,6 +3263,12 @@ const PokedexTool = (() => {
     card.onclick = () => openModal(card, mon);
 
     return card;
+  }
+
+  function buildVariantTypeBadges(types = []) {
+    return [...new Set(types)].map(t =>
+      `<span class="type-badge-variant type-${t.toLowerCase()}">${t}</span>`
+    ).join("");
   }
 
   /* Processing IDs above 649 */
@@ -3300,22 +3405,30 @@ const PokedexTool = (() => {
   }
 
   function showModal(mon) {
+    updateURL(mon);
+    
     modal.classList.remove("hidden");
     modalBody.innerHTML = buildModal(mon);
 
     initTabs();
-    initFormsDropdown(mon);
+    initFormsList(mon); // ✅ new
     bindEvolutionClicks();
+    bindSummaryAbilities();
   }
 
   function closeModal() {
     modal.classList.add("hidden");
+
+    if (window.location.hash !== "#/tools/dex") {
+      window.location.hash = "/tools/dex";
+    }
   }
 
   function switchForm(id) {
     const mon = data.find(m => m.id === id);
     if (!mon) return;
 
+    updateURL(mon);
     updateModal(mon);
   }
 
@@ -3344,29 +3457,39 @@ const PokedexTool = (() => {
     `;
   }
 
-  function buildLeftPanel(mon, hasForms) {
-    return `
-      <div class="pokedex-left">
+function buildLeftPanel(mon) {
+  const forms = mon.forms?.length
+    ? mon.forms
+    : [mon];
 
-        <div class="pokedex-header">
-          <div id="pokedexName" class="pokedex-name">
-            ${mon.name} ${hasForms ? "▼" : ""}
-          </div>
-          <div id="formsDropdown" class="forms-grid hidden"></div>
-        </div>
+  return `
+    <div class="pokedex-left">
 
-        <img id="mainImage"
-          class="pokedex-modal-image-main"
-          src="${getAnimatedSprite(mon.id)}"
-          onerror="this.src='sprites/pokemon/0.png'">
-
-        <div id="stats">
-          ${buildStats(mon)}
-        </div>
-
+      <div class="pokedex-name">
+        ${mon.name}
       </div>
-    `;
-  }
+
+      <img id="mainImage"
+        class="pokedex-modal-image-main"
+        src="${getAnimatedSprite(mon.id)}"
+        onerror="this.src='sprites/pokemon/0.png'">
+
+      <div class="forms-list">
+        ${forms.map(f => `
+          <div class="form-btn ${f.id === mon.id ? "active" : ""}" data-id="${f.id}">
+            <img src="sprites/pokemon/${f.id}.png">
+            <span>${f.name}</span>
+          </div>
+        `).join("")}
+      </div>
+
+      <div id="stats">
+        ${buildStats(mon)}
+      </div>
+
+    </div>
+  `;
+}
 
   function buildRightPanel(mon) {
     return `
@@ -3374,17 +3497,12 @@ const PokedexTool = (() => {
 
         <div class="tabs">
           <div class="tab active" data-tab="summary">Summary</div>
-          <div class="tab" data-tab="evolutions">Evolutions</div>
           <div class="tab" data-tab="moves">Moves</div>
           <div class="tab" data-tab="locations">Locations</div>
         </div>
 
         <div id="summary" class="tab-content active">
           ${buildSummary(mon)}
-        </div>
-
-        <div class="tab-content" id="evolutions">
-          ${buildEvolutions(mon)}
         </div>
 
         <div id="moves" class="tab-content">
@@ -3530,26 +3648,83 @@ const PokedexTool = (() => {
      SUMMARY 
   ============================================================= */
 
-  function buildSummary(mon) {
-  const abilities = (mon.abilities || [])
-    .map(a => a.name)
-    .filter(a => a && a !== "--");
-
-  const uniqueAbilities = [...new Set(abilities)];
-
-  const held = (mon.held_items || [])
-    .map(i => i.name || i)
-    .filter(Boolean);
+function buildSummary(mon) {
+  const abilities = getUniqueAbilities(mon);
+  const held = getHeldItems(mon);
 
   return `
-    <div><b>Types:</b> ${buildTypeBadges(mon.types)}</div>
-    <div><b>Height:</b> ${mon.height}</div>
-    <div><b>Weight:</b> ${mon.weight}</div>
-    <div><b>Abilities:</b> ${uniqueAbilities.join(", ") || "None"}</div>
-    <div><b>Held Items:</b> ${held.join(", ") || "None"}</div>
+    <div class="summary-grid">
 
-    <h3>Type Effectiveness</h3>
-    ${buildTypeChart(mon)}
+      <!-- TYPES -->
+      <div class="summary-card">
+        <h3>Typing</h3>
+
+        <div class="summary-types">
+          ${buildTypeBadges(mon.types)}
+        </div>
+
+        ${buildTypeChart(mon)}
+      </div>
+
+
+      <!-- ABILITIES -->
+      <div class="summary-card">
+        <h3>Abilities</h3>
+
+        <div class="ability-list">
+          ${abilities.length
+            ? abilities.map(a => `
+              <button class="summary-chip ability-chip"
+                data-ability="${a}">
+                ${a}
+              </button>
+            `).join("")
+            : "None"}
+        </div>
+
+        <div id="summaryAbilityInfo"></div>
+      </div>
+
+
+      <!-- HEIGHT / WEIGHT -->
+      <div class="summary-card">
+        <h3>Body</h3>
+
+        <div><b>Height:</b> ${mon.height}</div>
+        <div><b>Weight:</b> ${mon.weight}</div>
+
+        <div class="compare-links">
+          <button class="summary-chip">Compare Height</button>
+          <button class="summary-chip">Compare Weight</button>
+        </div>
+      </div>
+
+
+      <!-- HELD ITEMS -->
+      <div class="summary-card">
+        <h3>Held Items</h3>
+
+        <div class="item-list">
+          ${held.length
+            ? held.map(i => `
+              <button class="summary-chip held-chip"
+                data-item="${i}">
+                ${i}
+              </button>
+            `).join("")
+            : "None"}
+        </div>
+      </div>
+
+
+      <!-- EVOLUTIONS -->
+      <div class="summary-card summary-evo-card">
+        <h3>Evolutions</h3>
+
+        ${buildHorizontalEvolution(mon)}
+      </div>
+
+    </div>
   `;
 }
 
@@ -3584,32 +3759,6 @@ const PokedexTool = (() => {
     `;
   }
 
-  const TYPE_CHART = {
-    normal: { fighting: 2, ghost: 0 },
-
-    fire: {
-      water: 2, ground: 2, rock: 2,
-      fire: 0.5, grass: 0.5, ice: 0.5, bug: 0.5, steel: 0.5, fairy: 0.5
-    },
-
-    water: {
-      electric: 2, grass: 2,
-      fire: 0.5, water: 0.5, ice: 0.5, steel: 0.5
-    },
-
-    grass: {
-      fire: 2, ice: 2, poison: 2, flying: 2, bug: 2,
-      water: 0.5, electric: 0.5, grass: 0.5, ground: 0.5
-    },
-
-    electric: {
-      ground: 2,
-      electric: 0.5, flying: 0.5, steel: 0.5
-    },
-
-    // 👉 fill out the rest gradually (you can expand later)
-  };
-
   function getTypeEffectiveness(types = []) {
     const result = {};
 
@@ -3618,7 +3767,7 @@ const PokedexTool = (() => {
 
       types.forEach(defType => {
         const chart = TYPE_CHART[defType.toLowerCase()] || {};
-        multiplier *= chart[attackingType] || 1;
+        multiplier *= chart[attackingType] ?? 1;
       });
 
       result[attackingType] = multiplier;
@@ -3633,24 +3782,90 @@ const PokedexTool = (() => {
     const immune = [];
 
     Object.entries(effects).forEach(([type, val]) => {
-      if (val === 0) immune.push(type);
-      else if (val > 1) weak.push(type);
-      else if (val < 1) resist.push(type);
+      if (val === 0) immune.push(capitalize(type));
+      else if (val > 1) weak.push(capitalize(type));
+      else if (val < 1) resist.push(capitalize(type));
     });
 
     return { weak, resist, immune };
+  }
+
+  function bindSummaryAbilities() {
+    modalBody.querySelectorAll(".ability-chip").forEach(btn => {
+      btn.onclick = () => {
+        renderInlineAbilityInfo(btn.dataset.ability);
+      };
+    });
+  }
+
+  function renderInlineAbilityInfo(name) {
+    const key = name.toLowerCase().replace(/\s+/g, "-");
+    const ability = ABILITY_DATA[key];
+
+    const box = $("#summaryAbilityInfo");
+    if (!box || !ability) return;
+
+    box.innerHTML = `
+      <div class="ability-inline-box">
+        <div><b>Battle:</b> ${ability.effect?.battle || "None"}</div>
+        <div><b>Overworld:</b> ${ability.effect?.overworld || "None"}</div>
+      </div>
+    `;
   }
   /* =============================================================
      EVOLUTION TREE
   ============================================================= */
 
-  function buildEvolutions(mon) {
-    const tree = buildEvolutionTree();
-    const root = findEvolutionRoot(mon, tree);
-    if (!root) return "<div>No evolutions</div>";
+function buildHorizontalEvolution(mon) {
+  const tree = buildEvolutionTree();
+  const root = findEvolutionRoot(mon, tree);
 
-    return `<div class="evo-tree">${renderEvolutionNode(root, mon.id)}</div>`;
+  if (!root) return "None";
+
+  const chain = flattenEvolutionChain(root);
+
+  return `
+    <div class="horizontal-evo-chain">
+      ${chain.map((entry, i) => `
+        <div class="horizontal-evo-step">
+
+          <div class="evo-node ${entry.mon.id === mon.id ? "active" : ""}"
+               data-id="${entry.mon.id}">
+            <img src="sprites/pokemon/${entry.mon.id}.png">
+            <div>${entry.mon.name}</div>
+          </div>
+
+          ${i < chain.length - 1 ? `
+            <div class="horizontal-evo-arrow">
+              ➜
+              <div class="evo-cond">
+                ${formatEvolutionMethod(chain[i + 1].method)}
+              </div>
+            </div>
+          ` : ""}
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function flattenEvolutionChain(root) {
+  const result = [];
+
+  function walk(node, method = null) {
+    result.push({
+      mon: node.mon,
+      method
+    });
+
+    if (node.children[0]) {
+      walk(node.children[0].node, node.children[0].method);
+    }
   }
+
+  walk(root);
+  return result;
+}
 
   function buildEvolutionTree() {
     const map = new Map();
@@ -3784,28 +3999,14 @@ const PokedexTool = (() => {
      FORMS
   ============================================================= */
 
-  function initFormsDropdown(mon) {
-    if (!mon.forms || mon.forms.length <= 1) return;
-
-    const nameEl = $("#pokedexName");
-    const dropdown = $("#formsDropdown");
-
-    nameEl.onclick = () => dropdown.classList.toggle("hidden");
-
-    dropdown.innerHTML = mon.forms.map(f => `
-      <div class="form-option" data-id="${f.id}">
-        <img src="sprites/pokemon/${f.id}.png">
-        <div>${f.name}</div>
-      </div>
-    `).join("");
-
-    dropdown.querySelectorAll(".form-option").forEach(el => {
-      el.onclick = (e) => {
-        e.stopPropagation();
-        switchForm(Number(el.dataset.id));
-      };
-    });
-  }
+function initFormsList(mon) {
+  modalBody.querySelectorAll(".form-btn").forEach(btn => {
+    btn.onclick = () => {
+      const id = Number(btn.dataset.id);
+      switchForm(id);
+    };
+  });
+}
 
 
   /* =============================================================
@@ -3824,12 +4025,76 @@ const PokedexTool = (() => {
     next();
   }
 
+    /* =============================================================
+     MISC
+  ============================================================= */
 
+  function openFromRoute(id) {
+    const mon = data.find(m => m.id === id);
+    if (!mon) return;
+
+    showModal(mon);
+  }
+
+  function closeFromRouter() {
+    if (!modal) modal = $("#pokedexModal");
+    if (!modal) return;
+
+    modal.classList.add("hidden");
+  }
+
+  function openFromSlug(slug) {
+    if (!modal) modal = $("#pokedexModal");
+    if (!modalBody) modalBody = $("#modalBody");
+
+    if (!slug || !data.length) return false;
+    if (!slug) return false;
+
+    const match = slug.match(/^(.*)_(\d+)$/);
+    if (!match) return false;
+
+    const urlName = match[1]
+      .toLowerCase()
+      .replace(/-/g, " ")
+      .trim();
+
+    const id = Number(match[2]);
+
+    const mon = data.find(m => m.id === id);
+
+    if (!mon) return false;
+
+    const realName = mon.name.toLowerCase().trim();
+
+    // require BOTH correct id and matching name
+    if (realName !== urlName) return false;
+
+    showModal(mon);
+    return true;
+  }
+
+  function updateURL(mon) {
+    const slug =
+      mon.name
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^\w-]/g, "");
+
+    const target = `/tools/dex/${slug}_${mon.id}`;
+
+    if (window.location.hash !== `#${target}`) {
+      window.location.hash = target;
+    }
+  }
+
+  function capitalize(word) {
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+  }
   /* =============================================================
      PUBLIC API
   ============================================================= */
 
-  return { load, switchForm };
+  return { load, ready, switchForm , openFromSlug, closeFromRouter};
 
 })();
 
@@ -3839,16 +4104,18 @@ const PokedexTool = (() => {
 document.addEventListener("DOMContentLoaded", async () => {
 
   initToolsSwitcher();
-  initRouter()
   initThemeToggle();
   initAboutPage()
+  initRouter()
+
+  PoryBackground.setup();
+  document.body.classList.add("pory-active");
 
   MoveChecker.load();
   EncounterTool.load();
   VideoFrameTool.init();
-  PoryBackground.setup();
   ColorTextTool.load();
-  PokedexTool.load();
+  await PokedexTool.load();
 
-  document.body.classList.add("pory-active");
+
 });

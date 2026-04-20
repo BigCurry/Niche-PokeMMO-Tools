@@ -146,7 +146,12 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
 }
 
 .btn--dexModal{
-  position:sticky
+  position:absolute;
+  top: var(--topbar-h)
+}
+
+.btn--dexModal:hover{
+  background: var(--danger)
 }
 
 /* Lists */
@@ -905,11 +910,12 @@ body.pory-full #poryBackground {
 .pokedex-modal {
   position: fixed;
   inset: 0;
+  z-index: 9999;
+  padding-top: var(--topbar-h);
+
+  background: var(--bg);
   display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 999;
+  flex-direction: column;
 }
 
 .pokedex-modal.hidden {
@@ -917,21 +923,38 @@ body.pory-full #poryBackground {
 }
 
 .pokedex-modal-content {
-  width: min(fit-content, 90%);
-  max-height: 85vh;
-  overflow-y: auto;
-  padding: 20px;
-  border-radius: 16px;
-  position: relative;
-
-  background: var(--panel);
-  animation: fadeIn 0.2s ease;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
+/* layout inside modal */
+.pokedex-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  height: 100%;
+}
+
+/* left panel */
+.pokedex-left {
+  padding: 16px;
+  border-right: 1px solid rgba(255,255,255,0.1);
+  overflow-y: auto;
+}
+
+/* right panel */
+.pokedex-right {
+  padding: 16px;
+  overflow-y: auto;
+}
+
+/* close button */
 #closeModal {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: calc(var(--topbar-h) + 15px);
+  right: 12px;
+  z-index: 10;
 }
 
 @keyframes fadeIn {
@@ -943,16 +966,6 @@ body.pory-full #poryBackground {
 /* =============================================================
    LEFT PANEL
 ============================================================= */
-
-.pokedex-left {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  position: sticky;
-  top: 10px;
-  align-self: start;
-}
 
 .pokedex-header {
   position: relative;
@@ -1005,57 +1018,37 @@ body.pory-full #poryBackground {
    FORMS DROPDOWN
 ============================================================= */
 
-#formsDropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-
-  background: var(--panel);
-  padding: 10px;
-  border-radius: 10px;
-  z-index: 10;
-
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.forms-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, 80px);
+.forms-list {
+  display: flex;
+  flex-direction: column;
   gap: 8px;
   margin-top: 10px;
 }
 
-.form-option {
-  text-align: center;
-  padding: 5px;
+.form-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 6px;
   border-radius: 8px;
   cursor: pointer;
+
+  background: var(--panel);
 }
 
-.form-option:hover {
-  background: rgba(0,0,0,0.1);
-}
-
-.form-option.active {
-  outline: 2px solid #00e5ff;
-  background: rgba(0,229,255,0.15);
-}
-
-.form-option img {
-  width: 100%;
+.form-btn img {
+  width: 40px;
   image-rendering: crisp-edges;
 }
 
+.form-btn.active {
+  outline: 2px solid var(--accent);
+}
 
 /* =============================================================
    RIGHT PANEL + TABS
 ============================================================= */
-
-.pokedex-right {
-  display: flex;
-  flex-direction: column;
-}
 
 .tabs {
   display: flex;
@@ -1186,6 +1179,14 @@ body.pory-full #poryBackground {
 ============================================================= */
 
 .type-badge {
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  margin-right: 4px;
+  color: white;
+}
+
+.type-badge-variant {
   padding: 1px 6px;
   border-radius: 999px;
   font-size: 0.5rem;
@@ -1778,4 +1779,43 @@ body.pory-full #poryBackground {
   border-radius: 20px;
   color: white;
   pointer-events: none;
+}
+
+.summary-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:14px;
+}
+
+.summary-card{
+  background:#1f1f1f;
+  padding:14px;
+  border-radius:12px;
+}
+
+.summary-chip{
+  padding:6px 10px;
+  border:none;
+  border-radius:999px;
+  cursor:pointer;
+  margin:4px;
+}
+
+.horizontal-evo-chain{
+  display:flex;
+  gap:18px;
+  align-items:flex-start;
+  flex-wrap:wrap;
+}
+
+.horizontal-evo-arrow{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  font-size:18px;
+}
+
+.evo-cond{
+  font-size:12px;
+  opacity:.8;
 }

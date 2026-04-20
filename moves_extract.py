@@ -37,4 +37,4 @@ def extract_moves(input_file, output_file):
 
 
 # Usage
-extract_moves("monsters.json", "moves.json")
+extract_moves("monsters.json", "moves_extracted.json")

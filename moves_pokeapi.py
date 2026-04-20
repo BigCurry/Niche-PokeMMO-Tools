@@ -77,7 +77,7 @@ def main():
     # sort by ID
     sorted_moves = dict(sorted(moves_dict.items(), key=lambda x: x[1]["id"]))
 
-    with open("moves.json", "w", encoding="utf-8") as f:
+    with open("moves_extracted.json", "w", encoding="utf-8") as f:
         json.dump(sorted_moves, f, indent=4)
 
 
