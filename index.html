@@ -35,7 +35,7 @@
         <span class="linkLabel">Team Pory</span>
       </a>
 
-    </div>
+  </section>
   </div>
   <button id="darkToggle" class="btn btn--ghost togglelightdark">🌙</button>
 </header>
@@ -102,7 +102,6 @@
         <button id="addLineBtn" class="btn">➕ Add Line</button>
         <button id="resetBtn" class="btn btn--secondary">Reset</button>
       </div>
-    </div>
 
     <h3>Live Preview</h3>
     <div id="preview" class="preview"></div>
@@ -194,7 +193,6 @@
         </div>
         <button id="encounterFiltersBtn" class="btn btn--secondary">🝖 Filters</button>
       </div>
-    </div>
     <div id="encounterFilters" class="filters-panel collapsed">
       <h4>Rarity</h4>
       <div id="rarityFilters" class="mc-filters"></div>
@@ -484,14 +482,14 @@
 
     <div id="pokedexGrid" class="pokedex-grid"></div>
 
-    <!-- FULLSCREEN MODAL -->
-    <div id="pokedexModal" class="pokedex-modal hidden">
+  </section>
+
+  <!-- DEX DETAIL -->
+  <section id="pokedexModal" class="toolSection pokedex-modal" style="display:none;">
       <div class="pokedex-modal-content">
-        <button id="closeModal" class="btn btn--panel .btn--dexModal">✕</button>
+        <button id="closeModal" class="btn btn--panel btn--dexModal" aria-label="Close dex entry">✕</button>
         <div id="modalBody"></div>
       </div>
-    </div>
-
   </section>
 </main>
 

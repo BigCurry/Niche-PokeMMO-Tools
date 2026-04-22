@@ -53,13 +53,14 @@ function getRouteData() {
 async function handleRoute() {
   const { tool, param } = getRouteData();
 
-  const toolId = routeToTool[tool] || "aboutPage";
-
-  showTool(toolId);
-
-  if (toolId === "pokedexTool") {
+  if (tool === "dex") {
+    showTool(param ? "pokedexModal" : "pokedexTool");
     await handleDexRoute(param);
+    return;
   }
+
+  const toolId = routeToTool[tool] || "aboutPage";
+  showTool(toolId);
 }
 
 async function handleDexRoute(param) {
@@ -117,9 +118,10 @@ function showTool(tool) {
   document.getElementById(tool).style.display = "block";
 
   $$(".tool-list__item").forEach(li => li.classList.remove("active"));
-  document.querySelector(`[data-tool="${tool}"]`)?.classList.add("active");
+  const activeTool = tool === "pokedexModal" ? "pokedexTool" : tool;
+  document.querySelector(`[data-tool="${activeTool}"]`)?.classList.add("active");
 
-  const bgSections = ["encounterTool", "colorTextTool", "poryBackground", "moveChecker", "videoFrameTool", "aboutPage", "pokedexTool"];
+  const bgSections = ["encounterTool", "colorTextTool", "poryBackground", "moveChecker", "videoFrameTool", "aboutPage", "pokedexTool", "pokedexModal"];
 
   if (bgSections.includes(tool)) {
     PoryBackground.show();
@@ -1903,6 +1905,9 @@ const PokedexTool = (() => {
   let filtered = [];
 
   let grid, modal, modalBody;
+  let summaryEvoResizeObserver = null;
+  let summaryEvoLayoutFrame = 0;
+  let summaryEvoCleanup = [];
 
   let searchInput;
   let ALL_MOVES = [];
@@ -2124,10 +2129,6 @@ const PokedexTool = (() => {
     };
 
     $("#closeModal").onclick = closeModal;
-
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) closeModal();
-    });
 
     document.querySelectorAll(".reset-btn").forEach(btn => {
       btn.addEventListener("click", () => {
@@ -3375,7 +3376,7 @@ const PokedexTool = (() => {
 
   function openModal(card, mon) {
     animateCardToModal(card);
-    setTimeout(() => showModal(mon), 250);
+    setTimeout(() => updateURL(mon), 250);
   }
 
   function animateCardToModal(card) {
@@ -3405,23 +3406,18 @@ const PokedexTool = (() => {
   }
 
   function showModal(mon) {
-    updateURL(mon);
-    
-    modal.classList.remove("hidden");
+    disconnectSummaryEvolutionTree();
     modalBody.innerHTML = buildModal(mon);
 
     initTabs();
     initFormsList(mon); // ✅ new
     bindEvolutionClicks();
     bindSummaryAbilities();
+    initSummaryEvolutionTree();
   }
 
   function closeModal() {
-    modal.classList.add("hidden");
-
-    if (window.location.hash !== "#/tools/dex") {
-      window.location.hash = "/tools/dex";
-    }
+    navigateToTool("pokedexTool");
   }
 
   function switchForm(id) {
@@ -3429,7 +3425,6 @@ const PokedexTool = (() => {
     if (!mon) return;
 
     updateURL(mon);
-    updateModal(mon);
   }
 
   function updateModal(mon) {
@@ -3458,9 +3453,7 @@ const PokedexTool = (() => {
   }
 
 function buildLeftPanel(mon) {
-  const forms = mon.forms?.length
-    ? mon.forms
-    : [mon];
+  const forms = getAlternateForms(mon);
 
   return `
     <div class="pokedex-left">
@@ -3474,14 +3467,16 @@ function buildLeftPanel(mon) {
         src="${getAnimatedSprite(mon.id)}"
         onerror="this.src='sprites/pokemon/0.png'">
 
-      <div class="forms-list">
-        ${forms.map(f => `
-          <div class="form-btn ${f.id === mon.id ? "active" : ""}" data-id="${f.id}">
-            <img src="sprites/pokemon/${f.id}.png">
-            <span>${f.name}</span>
-          </div>
-        `).join("")}
-      </div>
+      ${forms.length ? `
+        <div class="forms-list">
+          ${forms.map(f => `
+            <button type="button" class="form-btn" data-id="${f.id}" aria-label="Open ${f.name}">
+              <img src="sprites/pokemon/${f.id}.png" onerror="this.onerror=null; this.src='sprites/pokemon/0.png';">
+              <span class="form-name">${f.name}</span>
+            </button>
+          `).join("")}
+        </div>
+      ` : ""}
 
       <div id="stats">
         ${buildStats(mon)}
@@ -3536,6 +3531,12 @@ function buildLeftPanel(mon) {
 
         const target = document.getElementById(tab.dataset.tab);
         if (target) target.classList.add("active");
+
+        if (tab.dataset.tab === "summary") {
+          initSummaryEvolutionTree();
+        } else {
+          disconnectSummaryEvolutionTree();
+        }
       };
     });
   }
@@ -3557,12 +3558,15 @@ function buildLeftPanel(mon) {
   }
 
   function updateSections(mon) {
+    disconnectSummaryEvolutionTree();
     $("#stats").innerHTML = buildStats(mon);
     $("#summary").innerHTML = buildSummary(mon);
     $("#moves").innerHTML = buildMoves(mon);
     $("#locations").innerHTML = buildLocations(mon);
     $("#evolutions").innerHTML = buildEvolutions(mon);
     bindEvolutionClicks();
+    bindSummaryAbilities();
+    initSummaryEvolutionTree();
   }
 
 
@@ -3651,6 +3655,7 @@ function buildLeftPanel(mon) {
 function buildSummary(mon) {
   const abilities = getUniqueAbilities(mon);
   const held = getHeldItems(mon);
+  const evolutionMarkup = buildHorizontalEvolution(mon);
 
   return `
     <div class="summary-grid">
@@ -3717,12 +3722,13 @@ function buildSummary(mon) {
       </div>
 
 
-      <!-- EVOLUTIONS -->
-      <div class="summary-card summary-evo-card">
-        <h3>Evolutions</h3>
+      ${evolutionMarkup ? `
+        <div class="summary-card summary-evo-card">
+          <h3>Evolutions</h3>
 
-        ${buildHorizontalEvolution(mon)}
-      </div>
+          ${evolutionMarkup}
+        </div>
+      ` : ""}
 
     </div>
   `;
@@ -3816,37 +3822,40 @@ function buildSummary(mon) {
      EVOLUTION TREE
   ============================================================= */
 
-function buildHorizontalEvolution(mon) {
+function getHorizontalEvolutionPaths(mon) {
   const tree = buildEvolutionTree();
   const root = findEvolutionRoot(mon, tree);
 
-  if (!root) return "None";
+  if (!root) return [];
+
+  return collectEvolutionPaths(root).filter(path => path.length > 1);
+}
+
+function collectEvolutionPaths(node, method = null) {
+  if (!node) return [];
+
+  const current = {
+    mon: node.mon,
+    method
+  };
+
+  if (!node.children.length) {
+    return [[current]];
+  }
+
+  return node.children.flatMap(child =>
+    collectEvolutionPaths(child.node, child.method).map(path => [current, ...path])
+  );
+}
+
+function getHorizontalEvolutionChain(mon) {
+  const tree = buildEvolutionTree();
+  const root = findEvolutionRoot(mon, tree);
+
+  if (!root) return null;
 
   const chain = flattenEvolutionChain(root);
-
-  return `
-    <div class="horizontal-evo-chain">
-      ${chain.map((entry, i) => `
-        <div class="horizontal-evo-step">
-
-          <div class="evo-node ${entry.mon.id === mon.id ? "active" : ""}"
-               data-id="${entry.mon.id}">
-            <img src="sprites/pokemon/${entry.mon.id}.png">
-            <div>${entry.mon.name}</div>
-          </div>
-
-          ${i < chain.length - 1 ? `
-            <div class="horizontal-evo-arrow">
-              ➜
-              <div class="evo-cond">
-                ${formatEvolutionMethod(chain[i + 1].method)}
-              </div>
-            </div>
-          ` : ""}
-        </div>
-      `).join("")}
-    </div>
-  `;
+  return chain.length > 1 ? chain : null;
 }
 
 function flattenEvolutionChain(root) {
@@ -3865,6 +3874,212 @@ function flattenEvolutionChain(root) {
 
   walk(root);
   return result;
+}
+
+function buildHorizontalEvolution(mon) {
+  const tree = buildEvolutionTree();
+  const root = findEvolutionRoot(mon, tree);
+
+  if (!root || !hasEvolutionDescendants(root)) return "";
+
+  return `
+    <div class="summary-evo-tree">
+      <div class="summary-evo-scale">
+        <svg class="summary-evo-lines" aria-hidden="true" focusable="false"></svg>
+        <div class="summary-evo-root">
+          ${renderSummaryEvolutionBranch(root, mon.id)}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function hasEvolutionDescendants(node) {
+  return Boolean(node?.children?.length);
+}
+
+function renderSummaryEvolutionBranch(node, currentId, incomingMethod = null) {
+  return `
+    <div class="summary-evo-branch" data-node-id="${node.mon.id}">
+      <div class="evo-node ${node.mon.id === currentId ? "active" : ""}" data-id="${node.mon.id}">
+        <img src="sprites/pokemon/${node.mon.id}.png" alt="${node.mon.name}">
+        <div>${node.mon.name}</div>
+      </div>
+
+      ${incomingMethod ? `
+        <div class="evo-cond">
+          ${formatEvolutionMethod(incomingMethod)}
+        </div>
+      ` : ""}
+
+      ${node.children.length ? `
+        <div class="summary-evo-children${node.children.length > 1 ? " summary-evo-children--branching" : ""}">
+          ${node.children.map(child => renderSummaryEvolutionBranch(child.node, currentId, child.method)).join("")}
+        </div>
+      ` : ""}
+    </div>
+  `;
+}
+
+function initSummaryEvolutionTree() {
+  disconnectSummaryEvolutionTree();
+
+  const tree = modalBody?.querySelector(".summary-evo-tree");
+  if (!tree) return;
+
+  const card = tree.closest(".summary-evo-card") || tree;
+  const root = tree.querySelector(".summary-evo-root");
+  if (!root) return;
+
+  const layout = () => {
+    if (summaryEvoLayoutFrame) cancelAnimationFrame(summaryEvoLayoutFrame);
+
+    summaryEvoLayoutFrame = requestAnimationFrame(() => {
+      summaryEvoLayoutFrame = 0;
+      if (!tree.isConnected) return;
+      layoutSummaryEvolutionTree(tree);
+    });
+  };
+
+  layout();
+
+  if (document.readyState !== "complete") {
+    const handleWindowLoad = () => layout();
+    window.addEventListener("load", handleWindowLoad, { once: true });
+    summaryEvoCleanup.push(() => {
+      window.removeEventListener("load", handleWindowLoad);
+    });
+  }
+
+  tree.querySelectorAll("img").forEach(img => {
+    if (img.complete) return;
+
+    const handleImageReady = () => layout();
+    img.addEventListener("load", handleImageReady, { once: true });
+    img.addEventListener("error", handleImageReady, { once: true });
+
+    summaryEvoCleanup.push(() => {
+      img.removeEventListener("load", handleImageReady);
+      img.removeEventListener("error", handleImageReady);
+    });
+  });
+
+  if (typeof ResizeObserver === "function") {
+    summaryEvoResizeObserver = new ResizeObserver(layout);
+    summaryEvoResizeObserver.observe(card);
+    summaryEvoResizeObserver.observe(root);
+  }
+}
+
+function disconnectSummaryEvolutionTree() {
+  if (summaryEvoLayoutFrame) {
+    cancelAnimationFrame(summaryEvoLayoutFrame);
+    summaryEvoLayoutFrame = 0;
+  }
+
+  if (summaryEvoResizeObserver) {
+    summaryEvoResizeObserver.disconnect();
+    summaryEvoResizeObserver = null;
+  }
+
+  summaryEvoCleanup.forEach(cleanup => cleanup());
+  summaryEvoCleanup = [];
+}
+
+function layoutSummaryEvolutionTree(tree) {
+  const scale = tree.querySelector(".summary-evo-scale");
+  const root = tree.querySelector(".summary-evo-root");
+  const svg = tree.querySelector(".summary-evo-lines");
+  if (!scale || !root || !svg) return;
+
+  tree.style.height = "";
+  scale.style.transform = "none";
+  scale.style.width = "";
+  scale.style.height = "";
+
+  const contentWidth = Math.ceil(root.scrollWidth);
+  const contentHeight = Math.ceil(root.scrollHeight);
+
+  if (!contentWidth || !contentHeight) return;
+
+  scale.style.width = `${contentWidth}px`;
+  scale.style.height = `${contentHeight}px`;
+
+  svg.setAttribute("width", String(contentWidth));
+  svg.setAttribute("height", String(contentHeight));
+  svg.setAttribute("viewBox", `0 0 ${contentWidth} ${contentHeight}`);
+
+  drawSummaryEvolutionConnectors(scale, root, svg);
+
+  const treeStyles = getComputedStyle(tree);
+  const availableWidth =
+    tree.clientWidth
+    - parseFloat(treeStyles.paddingLeft || "0")
+    - parseFloat(treeStyles.paddingRight || "0");
+
+  const scaleFactor = availableWidth > 0
+    ? Math.min(1, availableWidth / contentWidth)
+    : 1;
+
+  scale.style.transform = `scale(${scaleFactor})`;
+  tree.style.height = `${Math.ceil(contentHeight * scaleFactor)}px`;
+}
+
+function drawSummaryEvolutionConnectors(scale, root, svg) {
+  const defs = `
+    <defs>
+      <marker id="summaryEvoArrowhead" viewBox="0 0 10 10" refX="9" refY="15"
+        markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+        <path d="M0 0L10 5L0 10Z"></path>
+      </marker>
+    </defs>
+  `;
+
+  const scaleRect = scale.getBoundingClientRect();
+  const paths = [];
+
+  root.querySelectorAll(".summary-evo-branch").forEach(branch => {
+    const parentNode = getDirectBranchNode(branch);
+    const childBranches = getDirectChildBranches(branch);
+
+    if (!parentNode || !childBranches.length) return;
+
+    const parentRect = parentNode.getBoundingClientRect();
+    const startX = parentRect.left + parentRect.width / 2 - scaleRect.left;
+    const startY = parentRect.bottom - scaleRect.top;
+
+    childBranches.forEach(childBranch => {
+      const childNode = getDirectBranchNode(childBranch);
+      if (!childNode) return;
+
+      const childRect = childNode.getBoundingClientRect();
+      const endX = childRect.left + childRect.width / 2 - scaleRect.left;
+      const endY = childRect.top - scaleRect.top;
+      const curve = Math.max(12, (endY - startY) * 0.3);
+
+      paths.push(`
+        <path class="summary-evo-line"
+          d="M ${startX} ${startY} C ${startX} ${startY + curve}, ${endX} ${endY - curve}, ${endX} ${endY}"
+          marker-end=""></path>
+      `);
+    });
+  });
+
+  svg.innerHTML = defs + paths.join("");
+}
+
+function getDirectBranchNode(branch) {
+  return Array.from(branch.children).find(el => el.classList.contains("evo-node")) || null;
+}
+
+function getDirectChildBranches(branch) {
+  const children = Array.from(branch.children)
+    .find(el => el.classList.contains("summary-evo-children"));
+
+  if (!children) return [];
+
+  return Array.from(children.children)
+    .filter(el => el.classList.contains("summary-evo-branch"));
 }
 
   function buildEvolutionTree() {
@@ -3952,9 +4167,15 @@ function flattenEvolutionChain(root) {
   function formatEvolutionMethod(e) {
     if (!e) return "";
     if (e.type === "LEVEL") return `Lv ${e.val}`;
-    if (e.type === "ITEM") return `Use ${e.val}`;
+    if (e.type === "ITEM") return `Use ${e.item_name || e.val}`;
+    if (e.type === "ITEM_MALE") return `Male + ${e.item_name || e.val}`;
+    if (e.type === "ITEM_FEMALE") return `Female + ${e.item_name || e.val}`;
     if (e.type === "TRADE") return "Trade";
     if (e.type === "FRIENDSHIP") return "Friendship";
+    if (e.type === "HAPPINESS_DAY") return "Friendship (Day)";
+    if (e.type === "HAPPINESS_NIGHT") return "Friendship (Night)";
+    if (e.type === "LEVEL_LOCATION_2") return "Level at Moss Rock";
+    if (e.type === "LEVEL_LOCATION_3") return "Level at Ice Rock";
     return `${e.type} ${e.val || ""}`;
   }
 
@@ -3995,11 +4216,31 @@ function flattenEvolutionChain(root) {
       .join("") || "<div>No locations</div>";
   }
 
+  function getAlternateForms(mon) {
+    const base = getBaseForm(mon);
+    const forms = Array.isArray(base.forms) ? base.forms : [];
+
+    if (forms.length <= 1) return [];
+
+    const seen = new Set();
+
+    return forms.filter(form => {
+      if (!form || typeof form.id !== "number") return false;
+      if (form.id === mon.id) return false;
+
+      const key = `${form.id}:${form.name || ""}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+
+      return true;
+    });
+  }
+
   /* =============================================================
      FORMS
   ============================================================= */
 
-function initFormsList(mon) {
+function initFormsList() {
   modalBody.querySelectorAll(".form-btn").forEach(btn => {
     btn.onclick = () => {
       const id = Number(btn.dataset.id);
@@ -4037,14 +4278,11 @@ function initFormsList(mon) {
   }
 
   function closeFromRouter() {
-    if (!modal) modal = $("#pokedexModal");
-    if (!modal) return;
-
-    modal.classList.add("hidden");
+    disconnectSummaryEvolutionTree();
+    if (!modalBody) modalBody = $("#modalBody");
   }
 
   function openFromSlug(slug) {
-    if (!modal) modal = $("#pokedexModal");
     if (!modalBody) modalBody = $("#modalBody");
 
     if (!slug || !data.length) return false;
@@ -4053,10 +4291,7 @@ function initFormsList(mon) {
     const match = slug.match(/^(.*)_(\d+)$/);
     if (!match) return false;
 
-    const urlName = match[1]
-      .toLowerCase()
-      .replace(/-/g, " ")
-      .trim();
+    const urlName = match[1].toLowerCase().trim();
 
     const id = Number(match[2]);
 
@@ -4064,21 +4299,25 @@ function initFormsList(mon) {
 
     if (!mon) return false;
 
-    const realName = mon.name.toLowerCase().trim();
-
     // require BOTH correct id and matching name
-    if (realName !== urlName) return false;
+    if (slugifyMonName(mon.name) !== urlName) return false;
 
     showModal(mon);
     return true;
   }
 
+  function slugifyMonName(name) {
+    return name
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/[^\w-]/g, "");
+  }
+
   function updateURL(mon) {
-    const slug =
-      mon.name
-        .toLowerCase()
-        .replace(/\s+/g, "-")
-        .replace(/[^\w-]/g, "");
+    const slug = slugifyMonName(mon.name);
 
     const target = `/tools/dex/${slug}_${mon.id}`;
 

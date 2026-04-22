@@ -908,14 +908,7 @@ body.pory-full #poryBackground {
 ============================================================= */
 
 .pokedex-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  padding-top: var(--topbar-h);
-
   background: var(--bg);
-  display: flex;
-  flex-direction: column;
 }
 
 .pokedex-modal.hidden {
@@ -923,37 +916,46 @@ body.pory-full #poryBackground {
 }
 
 .pokedex-modal-content {
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: calc(100vh - var(--topbar-h) - 32px);
   overflow: hidden;
 }
 
 /* layout inside modal */
 .pokedex-layout {
   display: grid;
-  grid-template-columns: 320px 1fr;
-  height: 100%;
+  grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+  min-height: 100%;
 }
 
 /* left panel */
 .pokedex-left {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   padding: 16px;
   border-right: 1px solid rgba(255,255,255,0.1);
+  min-width: 0;
   overflow-y: auto;
 }
 
 /* right panel */
 .pokedex-right {
   padding: 16px;
+  min-width: 0;
   overflow-y: auto;
 }
 
 /* close button */
 #closeModal {
   position: absolute;
-  top: calc(var(--topbar-h) + 15px);
-  right: 12px;
+  top: 8px;
+  right: 8px;
   z-index: 10;
 }
 
@@ -976,11 +978,6 @@ body.pory-full #poryBackground {
   border-radius: 6px;
   font-size: 1.2rem;
   font-weight: bold;
-  cursor: pointer;
-}
-
-.pokedex-name:hover {
-  background: rgba(255,255,255,0.1);
 }
 
 
@@ -999,16 +996,16 @@ body.pory-full #poryBackground {
   display: block;
   margin: 0 auto;
 
-  width: 20vw;
-  max-width: 180px;
-  max-height: 20vw;
+  width: min(100%, 220px);
+  max-width: 220px;
+  max-height: clamp(140px, 26vw, 220px);
 
   height: auto;
   object-fit: contain;
   image-rendering: crisp-edges;
 
-  background: linear-gradient(90deg,color-mix(in srgb, var(--accent)50%, transparent) 0%, color-mix(in srgb, var(--altAccent)50%, transparent) 100%);
-  border: 1px solid var(--accent);
+  background: linear-gradient(0deg,color-mix(in srgb, var(--accent)50%, transparent) 0%, color-mix(in srgb, var(--altAccent)50%, transparent) 100%);
+  border: 1px inset var(--panel);
   border-radius: 20px;
   padding: 10px;
 }
@@ -1019,31 +1016,67 @@ body.pory-full #poryBackground {
 ============================================================= */
 
 .forms-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+  gap: 5px;
 }
 
 .form-btn {
   display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: flex-start;
+  width: 100%;
   gap: 8px;
-
-  padding: 6px;
+  min-height: 124px;
+  padding: 10px 8px;
   border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.08);
+  appearance: none;
   cursor: pointer;
-
-  background: var(--panel);
+  background: color-mix(in srgb, var(--panel) 88%, transparent);
+  color: inherit;
+  font: inherit;
 }
 
 .form-btn img {
-  width: 40px;
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
   image-rendering: crisp-edges;
+}
+
+.form-name {
+  font-size: 0.78rem;
+  line-height: 1.2;
+  text-align: center;
+  opacity: 0.62;
+}
+
+.form-btn:hover {
+  border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--panel));
 }
 
 .form-btn.active {
   outline: 2px solid var(--accent);
+}
+
+@media (max-width: 900px) {
+  .pokedex-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .pokedex-left {
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 20px;
+  }
+
+  .pokedex-right {
+    padding-top: 0;
+  }
 }
 
 /* =============================================================
@@ -1788,9 +1821,13 @@ body.pory-full #poryBackground {
 }
 
 .summary-card{
-  background:#1f1f1f;
+  background: var(--panel);
   padding:14px;
   border-radius:12px;
+}
+
+.summary-evo-card{
+  grid-column: span 2;
 }
 
 .summary-chip{
@@ -1801,21 +1838,141 @@ body.pory-full #poryBackground {
   margin:4px;
 }
 
-.horizontal-evo-chain{
-  display:flex;
-  gap:18px;
-  align-items:flex-start;
-  flex-wrap:wrap;
+.summary-evo-tree{
+  position:relative;
+  width:100%;
+  overflow:hidden;
+  padding:2px 0;
+  display: flex;
+  justify-content: center;
 }
 
-.horizontal-evo-arrow{
+.summary-evo-scale{
+  position:relative;
+  transform-origin:top center;
+  flex-shrink: 0;
+}
+
+.summary-evo-lines{
+  position:absolute;
+  inset:0;
+  overflow:visible;
+  pointer-events:none;
+  z-index:0;
+}
+
+.summary-evo-line{
+  fill:none;
+  stroke: color-mix(in srgb, var(--text) 78%, transparent);
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  stroke-width:2.5;
+}
+
+.summary-evo-lines marker path{
+  fill: color-mix(in srgb, var(--text) 78%, transparent);
+}
+
+.summary-evo-root{
+  position:relative;
+  display:flex;
+  justify-content:center;
+  width:max-content;
+  z-index:1;
+}
+
+.summary-evo-branch{
   display:flex;
   flex-direction:column;
   align-items:center;
-  font-size:18px;
+  gap:6px;
+  min-width:max-content;
+  text-align:center;
+}
+
+.summary-evo-children{
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  gap:clamp(12px, 2vw, 20px);
+  margin-top:18px;
+}
+
+.summary-evo-tree .evo-node{
+  min-width:84px;
+  padding:4px 8px;
+}
+
+.summary-evo-tree .evo-node img{
+  display:block;
+  width:56px;
+  height:56px;
+  margin:0 auto;
+  object-fit:contain;
+}
+
+.summary-evo-tree .evo-node div:last-child{
+  font-size:.82rem;
+  line-height:1.15;
+}
+
+.horizontal-evo-family{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.horizontal-evo-chain{
+  display:flex;
+  gap:0;
+  align-items:flex-start;
+  overflow-x:auto;
+  padding:4px;
+}
+
+.horizontal-evo-step{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  flex:0 0 auto;
+}
+
+.horizontal-evo-node-wrap{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.horizontal-evo-arrow{
+  width:72px;
+  height:24px;
+  flex:0 0 72px;
+}
+
+.horizontal-evo-arrow svg{
+  display:block;
+  width:100%;
+  height:100%;
+}
+
+.horizontal-evo-arrow path{
+  fill:none;
+  stroke: color-mix(in srgb, var(--text) 78%, transparent);
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  stroke-width:2.5;
 }
 
 .evo-cond{
-  font-size:12px;
+  font-size:11px;
   opacity:.8;
+  line-height:1.15;
+  min-height:13px;
+  margin-top:2px;
+  max-width:96px;
+  text-align:center;
+}
+
+.evo-cond--empty{
+  visibility:hidden;
 }
