@@ -759,7 +759,7 @@ body.pory-full #poryBackground {
 /* Responsive cards */
 .about-card {
   flex: 1 1 320px;   /* grows, shrinks, base width */
-  max-width: 700px;  /* prevents huge stretching */
+  max-width: 100vw;  /* prevents huge stretching */
   min-width: 320px;  /* prevents squishing */
   max-height: 700px;
   overflow: hidden;
@@ -778,8 +778,13 @@ body.pory-full #poryBackground {
   flex: 1;
   min-height: 200px;
   border-top: 1px solid rgba(0,0,0,0.1);
+  border-radius: 10px;
   padding-top: 0px;
   overflow: auto;
+}
+
+.about-card-row{
+  flex: 2 1 600px;
 }
 
 /* Make embedded tools cleaner */
@@ -789,9 +794,13 @@ body.pory-full #poryBackground {
 
 /* Prevent giant tables from breaking layout */
 .about-card table {
-  font-size: 0.85rem;
+  font-size: 0.5rem;
 }
 
+.jumpTool {
+  margin-top: auto;
+  background: var(--accentG);
+}
 /* =============================================================
    LAYOUT
 ============================================================= */
@@ -1971,12 +1980,14 @@ body.pory-full #poryBackground {
 
 .evo-cond{
   font-size:11px;
-  opacity:.8;
+  opacity:1;
   line-height:1.15;
   min-height:13px;
   margin-top:2px;
   max-width:96px;
   text-align:center;
+  background: var(--panel);
+  padding: 2px;
 }
 
 .evo-cond--empty{

@@ -117,6 +117,10 @@ function showTool(tool) {
   $$(".toolSection").forEach(s => s.style.display = "none");
   document.getElementById(tool).style.display = "block";
 
+  if (tool === "aboutPage") {
+    document.dispatchEvent(new Event("about:mount"));
+  }
+
   $$(".tool-list__item").forEach(li => li.classList.remove("active"));
   const activeTool = tool === "pokedexModal" ? "pokedexTool" : tool;
   document.querySelector(`[data-tool="${activeTool}"]`)?.classList.add("active");
@@ -192,6 +196,7 @@ function initAboutPage() {
 
   // 🔥 LISTEN FOR GLOBAL UNMOUNT SIGNAL
   document.addEventListener("about:unmount", unmountTools);
+  document.addEventListener("about:mount", mountTools);
 
   // Sidebar clicks
   $("#toolList").addEventListener("click", (e) => {
@@ -213,15 +218,7 @@ function initAboutPage() {
   // Jump buttons
   $$(".jumpTool").forEach(btn => {
     btn.addEventListener("click", () => {
-      const tool = btn.dataset.tool;
-
-      unmountTools();
-
-      $$(".toolSection").forEach(s => s.style.display = "none");
-      document.getElementById(tool).style.display = "block";
-
-      $$(".tool-list__item").forEach(li => li.classList.remove("active"));
-      document.querySelector(`[data-tool="${tool}"]`).classList.add("active");
+      navigateToTool(btn.dataset.tool);
     });
   });
 }
