@@ -1830,6 +1830,12 @@ body.pory-full #poryBackground {
   grid-column: span 2;
 }
 
+@media (max-width: 590px) {
+  .summary-evo-card {
+    grid-column: span 1;
+  }
+}
+
 .summary-chip{
   padding:6px 10px;
   border:none;
