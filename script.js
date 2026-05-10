@@ -1907,6 +1907,7 @@ const PokedexTool = (() => {
   let summaryEvoCleanup = [];
 
   let searchInput;
+  let browserFindHighlightedCard = null;
   let ALL_MOVES = [];
   let ALL_ABILITIES = [];
   let ALL_LOCATIONS = [];
@@ -1915,6 +1916,7 @@ const PokedexTool = (() => {
   let LOCATION_DATA = [];
   let ABILITY_DATA = [];
   let MOVE_DATA = {};
+  let MOVE_DATA_BY_ID = new Map();
 
   let viewport;
   /* =============================================================
@@ -2072,6 +2074,20 @@ const PokedexTool = (() => {
   const ID_OVERRIDE = new Set([
     1052
   ]);
+
+  const BODY_MOVE_KEYS = new Set([
+    "low-kick",
+    "grass-knot",
+    "heavy-slam",
+    "heat-crash",
+    "sky-drop",
+    "autotomize"
+  ]);
+
+  const BODY_WEIGHT_ABILITIES = new Set([
+    "Heavy Metal",
+    "Light Metal"
+  ]);
   /* =============================================================
      INIT
   ============================================================= */
@@ -2111,6 +2127,11 @@ const PokedexTool = (() => {
     LOCATION_DATA = await locRes.json();
     ABILITY_DATA = await abilityRes.json();
     MOVE_DATA = await moveRes.json(); // ✅ NEW
+    MOVE_DATA_BY_ID = new Map(
+      Object.values(MOVE_DATA)
+        .filter(move => move?.id)
+        .map(move => [move.id, move])
+    );
   }
 
 
@@ -2120,6 +2141,7 @@ const PokedexTool = (() => {
 
   function bindEvents() {
     searchInput.addEventListener("input", applyFilters);
+    document.addEventListener("selectionchange", syncBrowserFindHighlight);
 
     $("#toggleFilters").onclick = () => {
       $("#dexfiltersPanel").classList.toggle("collapsed");
@@ -2338,73 +2360,232 @@ const PokedexTool = (() => {
       return;
     }
 
-    container.innerHTML = activeMoves.map(name => {
-      const key = normalizeMoveName(name);
-      const move = MOVE_DATA[key];
+    container.innerHTML = activeMoves.map(name => buildMoveInfoBox(name)).join("");
+    bindBodyMoveTools(container);
+  }
 
-      if (!move) return "";
+  function getMoveData(move) {
+    if (!move) return null;
 
-      const info = move.info || {};
-      const price = move.Price || {};
+    if (typeof move === "object") {
+      if (move.id && MOVE_DATA_BY_ID.has(move.id)) return MOVE_DATA_BY_ID.get(move.id);
+      if (move.name) return getMoveData(move.name);
+      return null;
+    }
 
+    const normalized = normalizeMoveName(move);
+    const camelSplit = move
+      .replace(/([a-z])([A-Z])/g, "$1-$2")
+      .toLowerCase();
+
+    return MOVE_DATA[normalized] || MOVE_DATA[normalizeMoveName(camelSplit)] || null;
+  }
+
+  function buildMoveInfoBox(move, options = {}) {
+    const dataEntry = getMoveData(move);
+
+    if (!dataEntry) {
+      const fallbackName = typeof move === "object" ? move.name : move;
       return `
         <div class="move-box">
-
-          <div class="move-header">
-
-            <div class="move-title">
-              ${formatMoveName(key)}
-            </div>
-
-            <div class="move-header-right">
-
-              ${info.type ? `
-                <span class="move-type-width type-badge type-${info.type}">
-                  ${info.type.charAt(0).toUpperCase() + info.type.slice(1).toLowerCase()}
-                </span>
-              ` : ""}
-
-              ${info.damage_class ? `
-                <div class="move-class-icon" title="${info.damage_class}">
-                  ${MOVE_CLASS_SVGS[info.damage_class]}
-                </div>
-              ` : ""}
-
-            </div>
-
-          </div>
-
-          <div class="move-info-grid">
-            ${info.power ? `<div><b>Power:</b> ${info.power}</div>` : ""}
-            ${info.pp ? `<div><b>PP:</b> ${info.pp}</div>` : ""}
-            ${info.accuracy ? `<div><b>Accuracy:</b> ${info.accuracy}</div>` : ""}
-            ${info.priority ? `<div><b>Priority:</b> ${info.priority}</div>` : ""}
-            ${info.short_effect ? `
-              <div class="move-effect">
-                ${info.short_effect.replace("$effect_chance", info.effect_chance ?? "")}
-              </div>
-            ` : ""}
-
-          </div>
-
-          <div class="move-price">
-            ${price.yen ? `<span>¥ ${price.yen}</span>` : ""}
-            ${price.bp ? `<span>${price.bp} BP</span>` : ""}
-            ${price.hs ? `<span>${price.hs} HS</span>` : ""}
-          </div>
-
-          <div class="move-icons">
-            ${move.TM ? `<span class="icon tm">📀</span>` : ""}
-            ${move.Vendor ? `<span class="icon vendor">🏪</span>` : ""}
-            ${(move.modifiers || [])
-              .filter(Boolean)
-              .map(m => `<span class="icon mod">${m}</span>`)
-              .join("")}
-          </div>
-
+          <div class="move-title">${fallbackName || "Move"}</div>
+          <div class="move-effect">No move details found.</div>
         </div>
       `;
-    }).join("");
+    }
+
+    const info = dataEntry.info || {};
+    const price = dataEntry.Price || {};
+    const displayName = formatMoveName(dataEntry.name || normalizeMoveName(typeof move === "object" ? move.name : move));
+
+    return `
+      <div class="move-box${options.compact ? " move-box--compact" : ""}">
+        <div class="move-header">
+          <div class="move-title">${displayName}</div>
+
+          <div class="move-header-right">
+            ${options.removable ? `
+              <button type="button"
+                class="modal-move-remove"
+                data-index="${options.index}"
+                aria-label="Remove ${displayName} from selected moves">
+                &times;
+              </button>
+            ` : ""}
+
+            ${info.type ? `
+              <span class="move-type-width type-badge type-${info.type}">
+                ${info.type.charAt(0).toUpperCase() + info.type.slice(1).toLowerCase()}
+              </span>
+            ` : ""}
+
+            ${info.damage_class ? `
+              <div class="move-class-icon" title="${info.damage_class}">
+                ${MOVE_CLASS_SVGS[info.damage_class]}
+              </div>
+            ` : ""}
+          </div>
+        </div>
+
+        <div class="move-info-grid">
+          ${info.power ? `<div><b>Power:</b> ${info.power}</div>` : ""}
+          ${info.pp ? `<div><b>PP:</b> ${info.pp}</div>` : ""}
+          ${info.accuracy ? `<div><b>Accuracy:</b> ${info.accuracy}</div>` : ""}
+          ${info.priority ? `<div><b>Priority:</b> ${info.priority}</div>` : ""}
+          ${info.short_effect ? `
+            <div class="move-effect">
+              ${info.short_effect.replace("$effect_chance", info.effect_chance ?? "")}
+            </div>
+          ` : ""}
+        </div>
+
+        <div class="move-price">
+          ${price.yen ? `<span>¥ ${price.yen}</span>` : ""}
+          ${price.bp ? `<span>${price.bp} BP</span>` : ""}
+          ${price.hs ? `<span>${price.hs} HS</span>` : ""}
+        </div>
+
+        <div class="move-icons">
+          ${dataEntry.TM ? `<span class="icon tm">TM</span>` : ""}
+          ${dataEntry.Vendor ? `<span class="icon vendor">Vendor</span>` : ""}
+          ${(dataEntry.modifiers || [])
+            .filter(Boolean)
+            .map(m => `<span class="icon mod">${m}</span>`)
+            .join("")}
+        </div>
+
+        ${buildBodyMoveTool(dataEntry, options.contextMon)}
+      </div>
+    `;
+  }
+
+  function buildBodyMoveTool(move, contextMon = null) {
+    const key = move?.name;
+    if (!BODY_MOVE_KEYS.has(key)) return "";
+
+    if (key === "heavy-slam" || key === "heat-crash") {
+      const attackers = getMoveLearners(key);
+      const selectedAttacker = contextMon && canLearnMove(contextMon, key)
+        ? contextMon
+        : attackers[0];
+      const selectedTarget = data.find(mon => isEligible(mon) && mon.weight > 0 && mon.id !== selectedAttacker?.id)
+        || data.find(mon => isEligible(mon) && mon.weight > 0)
+        || data[0];
+
+      return `
+        <div class="body-move-tool" data-move="${key}">
+          <div class="body-move-tool-title">Body interaction</div>
+          <div class="body-move-select-grid">
+            <label>
+              <span>Attacker</span>
+              <select class="body-move-attacker">
+                ${buildPokemonOptions(attackers, selectedAttacker?.id)}
+              </select>
+            </label>
+            <label>
+              <span>Target</span>
+              <select class="body-move-target">
+                ${buildPokemonOptions(getBodyEligiblePokemon(), selectedTarget?.id)}
+              </select>
+            </label>
+          </div>
+          <div class="body-move-result">
+            ${renderBodyMoveResult(key, selectedTarget, selectedAttacker)}
+          </div>
+        </div>
+      `;
+    }
+
+    const selectedMon = contextMon || data.find(mon => isEligible(mon) && mon.weight > 0) || data[0];
+
+    return `
+      <div class="body-move-tool" data-move="${key}">
+        <div class="body-move-tool-head">
+          <div class="body-move-tool-title">Body interaction</div>
+          <select class="body-move-target">
+            ${buildPokemonOptions(getBodyEligiblePokemon(), selectedMon?.id)}
+          </select>
+        </div>
+        <div class="body-move-result">
+          ${renderBodyMoveResult(key, selectedMon, contextMon)}
+        </div>
+      </div>
+    `;
+  }
+
+  function bindBodyMoveTools(root = document) {
+    root.querySelectorAll(".body-move-tool").forEach(tool => {
+      const targetSelect = tool.querySelector(".body-move-target");
+      const attackerSelect = tool.querySelector(".body-move-attacker");
+      const result = tool.querySelector(".body-move-result");
+      if (!targetSelect || !result || targetSelect.dataset.bound) return;
+
+      const render = () => {
+        const selectedTarget = data.find(mon => mon.id === Number(targetSelect.value));
+        const selectedAttacker = attackerSelect
+          ? data.find(mon => mon.id === Number(attackerSelect.value))
+          : null;
+        result.innerHTML = renderBodyMoveResult(tool.dataset.move, selectedTarget, selectedAttacker);
+      };
+
+      targetSelect.dataset.bound = "true";
+      targetSelect.addEventListener("change", render);
+
+      if (attackerSelect) {
+        attackerSelect.dataset.bound = "true";
+        attackerSelect.addEventListener("change", render);
+      }
+    });
+  }
+
+  function renderBodyMoveResult(moveKey, selectedMon, userMon = null) {
+    if (!selectedMon) return "Select a Pokemon.";
+
+    const selectedWeight = getWeightKg(selectedMon);
+    const selectedBaseWeight = getWeightKg(selectedMon);
+    const selectedHeight = getHeightM(selectedMon);
+    const variants = getWeightVariants(selectedMon);
+
+    if (moveKey === "low-kick" || moveKey === "grass-knot") {
+      return `
+        <div><b>${selectedMon.name}</b>: ${formatKg(selectedWeight)} base weight</div>
+        <div>Power against this target: <b>${getWeightTierPower(selectedWeight)}</b></div>
+        ${variants.map(v => `<div>${v.label}: ${formatKg(v.weight)} gives <b>${getWeightTierPower(v.weight)}</b> power.</div>`).join("")}
+      `;
+    }
+
+    if (moveKey === "heavy-slam" || moveKey === "heat-crash") {
+      if (userMon) {
+        const userWeight = getWeightKg(userMon);
+        return `
+          <div><b>${userMon.name}</b> into <b>${selectedMon.name}</b></div>
+          <div>${formatKg(userWeight)} vs ${formatKg(selectedWeight)}: <b>${getWeightRatioPower(userWeight, selectedWeight)} power</b></div>
+          ${getWeightVariants(userMon).map(v => `<div>${v.label} user weight: ${formatKg(v.weight)} gives <b>${getWeightRatioPower(v.weight, selectedWeight)}</b> power.</div>`).join("")}
+          ${variants.map(v => `<div>${v.label} target weight: ${formatKg(v.weight)} gives <b>${getWeightRatioPower(userWeight, v.weight)}</b> power.</div>`).join("")}
+        `;
+      }
+
+      return `
+        <div><b>${selectedMon.name}</b>: ${formatKg(selectedWeight)} target weight</div>
+        <div>Attacker weight needed: ${formatKg(selectedWeight * 2)} / ${formatKg(selectedWeight * 3)} / ${formatKg(selectedWeight * 4)} / ${formatKg(selectedWeight * 5)} for 60/80/100/120 power.</div>
+      `;
+    }
+
+    if (moveKey === "sky-drop") {
+      return `
+        <div><b>${selectedMon.name}</b>: ${formatKg(selectedWeight)}, ${formatMeters(selectedHeight)}</div>
+        <div>Sky Drop: <b>${getSkyDropResult(selectedMon)}</b></div>
+      `;
+    }
+
+    if (moveKey === "autotomize") {
+      return `
+        <div><b>${selectedMon.name}</b>: ${formatKg(selectedBaseWeight)} base weight</div>
+        <div>After Autotomize: <b>${formatKg(selectedBaseWeight / 2)}</b> in this tool's current move data model.</div>
+      `;
+    }
+
+    return "";
   }
 
   function buildAbilityAutocomplete() {
@@ -3226,6 +3407,7 @@ const PokedexTool = (() => {
 
   function renderGrid() {
     grid.innerHTML = "";
+    browserFindHighlightedCard = null;
     const frag = document.createDocumentFragment();
 
     filtered.forEach(mon => {
@@ -3234,6 +3416,21 @@ const PokedexTool = (() => {
     });
 
     grid.appendChild(frag);
+  }
+
+  function syncBrowserFindHighlight() {
+    const selection = document.getSelection();
+    const selectedNode = selection?.rangeCount ? selection.anchorNode : null;
+    const selectedText = selection?.toString().trim();
+    const card = selectedText && selectedNode?.parentElement
+      ? selectedNode.parentElement.closest(".poke-card")
+      : null;
+
+    if (card === browserFindHighlightedCard) return;
+
+    browserFindHighlightedCard?.classList.remove("find-highlight");
+    browserFindHighlightedCard = grid?.contains(card) ? card : null;
+    browserFindHighlightedCard?.classList.add("find-highlight");
   }
 
   function createCard(mon) {
@@ -3410,6 +3607,8 @@ const PokedexTool = (() => {
     initFormsList(mon); // ✅ new
     bindEvolutionClicks();
     bindSummaryAbilities();
+    bindModalMoves(mon);
+    bindBodySummaryTools();
     initSummaryEvolutionTree();
   }
 
@@ -3534,6 +3733,10 @@ function buildLeftPanel(mon) {
         } else {
           disconnectSummaryEvolutionTree();
         }
+
+        if (tab.dataset.tab === "moves") {
+          $("#modalMoveSearch")?.focus();
+        }
       };
     });
   }
@@ -3563,6 +3766,8 @@ function buildLeftPanel(mon) {
     $("#evolutions").innerHTML = buildEvolutions(mon);
     bindEvolutionClicks();
     bindSummaryAbilities();
+    bindModalMoves(mon);
+    bindBodySummaryTools();
     initSummaryEvolutionTree();
   }
 
@@ -3688,18 +3893,7 @@ function buildSummary(mon) {
       </div>
 
 
-      <!-- HEIGHT / WEIGHT -->
-      <div class="summary-card">
-        <h3>Body</h3>
-
-        <div><b>Height:</b> ${mon.height}</div>
-        <div><b>Weight:</b> ${mon.weight}</div>
-
-        <div class="compare-links">
-          <button class="summary-chip">Compare Height</button>
-          <button class="summary-chip">Compare Weight</button>
-        </div>
-      </div>
+      ${buildBodySummary(mon)}
 
 
       <!-- HELD ITEMS -->
@@ -3730,6 +3924,181 @@ function buildSummary(mon) {
     </div>
   `;
 }
+
+  function buildBodySummary(mon) {
+    const baseWeight = getWeightKg(mon);
+    const height = getHeightM(mon);
+    const weightVariants = getWeightVariants(mon);
+    const lowKickPower = getWeightTierPower(baseWeight);
+    const crashLearners = getBodyCrashLearners();
+    const defaultCrashAttacker = crashLearners.find(attacker => attacker.id !== mon.id) || crashLearners[0];
+    const crashPower = defaultCrashAttacker
+      ? getWeightRatioPower(getWeightKg(defaultCrashAttacker), baseWeight)
+      : null;
+
+    return `
+      <div class="summary-card body-summary-card">
+        <h3>Body</h3>
+
+        <div class="body-measure-grid">
+          <div class="body-measure">
+            <span>Height</span>
+            <b>${formatMeters(height)}</b>
+          </div>
+          <div class="body-measure">
+            <span>Weight</span>
+            <b>${formatKg(baseWeight)}</b>
+          </div>
+          <div class="body-measure">
+            <span>Effective Weight</span>
+            <b>${weightVariants.length ? "Ability dependent" : formatKg(baseWeight)}</b>
+          </div>
+        </div>
+
+        ${weightVariants.length ? `
+          <div class="body-note">
+            ${weightVariants.map(v => `<b>${v.label}</b>: ${formatKg(v.weight)}`).join(" · ")}
+          </div>
+        ` : ""}
+
+        <div class="body-mechanics">
+          <div>
+            <b>Sky Drop:</b>
+            ${getSkyDropResult(mon)}
+          </div>
+          <div>
+            <b>Grass Knot:</b>
+            ${lowKickPower} base power
+          </div>
+          <div>
+            <b>Low Kick:</b>
+            ${lowKickPower} base power
+          </div>
+          <div class="body-summary-matchup" data-target-id="${mon.id}">
+            <label>
+              <b>Heat Crash / Heavy Slam:</b>
+              Against
+              <select class="body-summary-attacker">
+                ${buildPokemonOptions(crashLearners, defaultCrashAttacker?.id)}
+              </select>
+            </label>
+            <span class="body-summary-result">
+              ${defaultCrashAttacker ? `damages at ${crashPower} base power` : "no eligible attackers found"}
+            </span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function bindBodySummaryTools() {
+    modalBody.querySelectorAll(".body-summary-matchup").forEach(tool => {
+      const select = tool.querySelector(".body-summary-attacker");
+      const result = tool.querySelector(".body-summary-result");
+      if (!select || !result || select.dataset.bound) return;
+
+      select.dataset.bound = "true";
+      select.addEventListener("change", () => {
+        const attacker = data.find(mon => mon.id === Number(select.value));
+        const target = data.find(mon => mon.id === Number(tool.dataset.targetId));
+        const power = attacker && target
+          ? getWeightRatioPower(getWeightKg(attacker), getWeightKg(target))
+          : null;
+        result.textContent = power ? `damages at ${power} base power` : "no matchup data";
+      });
+    });
+  }
+
+  function getWeightKg(mon) {
+    return (Number(mon?.weight) || 0) / 10;
+  }
+
+  function getHeightM(mon) {
+    return (Number(mon?.height) || 0) / 10;
+  }
+
+  function getWeightVariants(mon) {
+    const weight = getWeightKg(mon);
+    const abilities = getUniqueAbilities(mon);
+    const variants = [];
+
+    if (abilities.includes("Heavy Metal")) variants.push({ label: "Heavy Metal", weight: weight * 2 });
+    if (abilities.includes("Light Metal")) variants.push({ label: "Light Metal", weight: weight / 2 });
+
+    return variants;
+  }
+
+  function getSkyDropResult(mon) {
+    const tooHeavy = getWeightKg(mon) >= 200;
+    const isFlying = (mon.types || []).some(type => type.toLowerCase() === "flying");
+
+    return tooHeavy || isFlying ? "No effect" : "Full damage";
+  }
+
+  function getBodyEligiblePokemon() {
+    return data.filter(mon => isEligible(mon) && mon.weight > 0);
+  }
+
+  function canLearnMove(mon, moveKey) {
+    return (mon.moves || []).some(move => normalizeMoveName(move.name) === moveKey);
+  }
+
+  function getMoveLearners(moveKey) {
+    return getBodyEligiblePokemon().filter(mon => canLearnMove(mon, moveKey));
+  }
+
+  function getBodyCrashLearners() {
+    const seen = new Set();
+
+    return ["heat-crash", "heavy-slam"].flatMap(key => getMoveLearners(key))
+      .filter(mon => {
+        if (seen.has(mon.id)) return false;
+        seen.add(mon.id);
+        return true;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  function buildPokemonOptions(pokemon, selectedId) {
+    return pokemon.map(mon => `
+      <option value="${mon.id}" ${selectedId === mon.id ? "selected" : ""}>
+        ${mon.name}
+      </option>
+    `).join("");
+  }
+
+  function getWeightTierPower(weightKg) {
+    if (weightKg <= 10) return 20;
+    if (weightKg <= 25) return 40;
+    if (weightKg <= 50) return 60;
+    if (weightKg <= 100) return 80;
+    if (weightKg <= 200) return 100;
+    return 120;
+  }
+
+  function getWeightRatioPower(userWeightKg, targetWeightKg) {
+    if (!targetWeightKg) return 120;
+
+    const ratio = userWeightKg / targetWeightKg;
+    if (ratio >= 5) return 120;
+    if (ratio >= 4) return 100;
+    if (ratio >= 3) return 80;
+    if (ratio >= 2) return 60;
+    return 40;
+  }
+
+  function formatKg(kg) {
+    return `${formatCompactNumber(kg)} kg`;
+  }
+
+  function formatMeters(meters) {
+    return `${formatCompactNumber(meters)} m`;
+  }
+
+  function formatCompactNumber(value) {
+    if (!Number.isFinite(value)) return "0";
+    return Number.isInteger(value) ? String(value) : value.toFixed(1).replace(/\.0$/, "");
+  }
 
   function buildTypeBadges(types = []) {
     return [...new Set(types)].map(t =>
@@ -3899,15 +4268,14 @@ function renderSummaryEvolutionBranch(node, currentId, incomingMethod = null) {
   return `
     <div class="summary-evo-branch" data-node-id="${node.mon.id}">
       <div class="evo-node ${node.mon.id === currentId ? "active" : ""}" data-id="${node.mon.id}">
+        ${incomingMethod ? `
+          <div class="evo-cond">
+            ${formatEvolutionMethod(incomingMethod)}
+          </div>
+        ` : ""}
         <img src="sprites/pokemon/${node.mon.id}.png" alt="${node.mon.name}">
         <div>${node.mon.name}</div>
       </div>
-
-      ${incomingMethod ? `
-        <div class="evo-cond">
-          ${formatEvolutionMethod(incomingMethod)}
-        </div>
-      ` : ""}
 
       ${node.children.length ? `
         <div class="summary-evo-children${node.children.length > 1 ? " summary-evo-children--branching" : ""}">
@@ -3989,18 +4357,27 @@ function layoutSummaryEvolutionTree(tree) {
   const svg = tree.querySelector(".summary-evo-lines");
   if (!scale || !root || !svg) return;
 
+  const contentPadding = {
+    top: 8,
+    right: 8,
+    bottom: 20,
+    left: 8
+  };
+
   tree.style.height = "";
   scale.style.transform = "none";
   scale.style.width = "";
   scale.style.height = "";
+  root.style.transform = "none";
 
-  const contentWidth = Math.ceil(root.scrollWidth);
-  const contentHeight = Math.ceil(root.scrollHeight);
+  const contentWidth = Math.ceil(root.scrollWidth) + contentPadding.left + contentPadding.right;
+  const contentHeight = Math.ceil(root.scrollHeight) + contentPadding.top + contentPadding.bottom;
 
   if (!contentWidth || !contentHeight) return;
 
   scale.style.width = `${contentWidth}px`;
   scale.style.height = `${contentHeight}px`;
+  root.style.transform = `translate(${contentPadding.left}px, ${contentPadding.top}px)`;
 
   svg.setAttribute("width", String(contentWidth));
   svg.setAttribute("height", String(contentHeight));
@@ -4173,6 +4550,9 @@ function getDirectChildBranches(branch) {
     if (e.type === "HAPPINESS_NIGHT") return "Friendship (Night)";
     if (e.type === "LEVEL_LOCATION_2") return "Level at Moss Rock";
     if (e.type === "LEVEL_LOCATION_3") return "Level at Ice Rock";
+    if (e.type === "ATK_LESS_THAN_DEF") return `ATK < DEF at Lv ${e.val}`;
+    if (e.type === "ATK_GREATER_THAN_DEF") return `ATK > DEF at Lv ${e.val}`;
+    if (e.type === "ATK_EQUAL_TO_DEF") return `ATK = DEF at Lv ${e.val}`;
     return `${e.type} ${e.val || ""}`;
   }
 
@@ -4181,21 +4561,181 @@ function getDirectChildBranches(branch) {
   ============================================================= */
 
   function buildMoves(mon) {
-    const grouped = {};
+    const moves = [...(mon.moves || [])].sort(compareLearnsetMoves);
+    const methods = getMoveMethods(moves);
 
-    (mon.moves || []).forEach(m => {
-      if (!grouped[m.type]) grouped[m.type] = [];
-      grouped[m.type].push(m);
+    if (!moves.length) return "<div>No moves</div>";
+
+    return `
+      <div class="modal-moves">
+        <div class="modal-moves-toolbar">
+          <input id="modalMoveSearch" class="dex-input modal-move-search" placeholder="Search moves...">
+          <div class="modal-move-methods">
+            <button type="button" class="modal-move-method active" data-method="all">All</button>
+            ${methods.map(method => `
+              <button type="button" class="modal-move-method" data-method="${method}">
+                ${formatMoveMethod(method)}
+              </button>
+            `).join("")}
+          </div>
+        </div>
+
+        <div class="modal-moves-body">
+          <div class="modal-move-list" role="list">
+            ${moves.map((move, index) => buildModalMoveRow(move, index)).join("")}
+            <div class="modal-move-empty hidden">No matching moves</div>
+          </div>
+
+          <div id="modalMoveInfo" class="modal-move-info"></div>
+        </div>
+      </div>
+    `;
+  }
+
+  function compareLearnsetMoves(a, b) {
+    const typeCompare = getMoveMethodOrder(a.type) - getMoveMethodOrder(b.type);
+    if (typeCompare) return typeCompare;
+
+    const levelCompare = (a.level || 0) - (b.level || 0);
+    if (levelCompare) return levelCompare;
+
+    return a.name.localeCompare(b.name);
+  }
+
+  function getMoveMethodOrder(type = "") {
+    const order = ["level", "EVOLVE", "PREVO", "TM??", "TUTOR", "EGG", "SPECIAL"];
+    const index = order.indexOf(type);
+    return index === -1 ? order.length : index;
+  }
+
+  function formatMoveMethod(type = "") {
+    const labels = {
+      level: "Level",
+      "TM??": "TM",
+      TUTOR: "Tutor",
+      EGG: "Egg",
+      EVOLVE: "Evolve",
+      PREVO: "Pre-evo",
+      SPECIAL: "Special"
+    };
+
+    return labels[type] || formatMoveName(String(type).toLowerCase());
+  }
+
+  function getMoveMethods(moves) {
+    return [...new Set(moves.map(move => move.type).filter(Boolean))]
+      .sort((a, b) => getMoveMethodOrder(a) - getMoveMethodOrder(b));
+  }
+
+  function buildModalMoveRow(move, index) {
+    const dataEntry = getMoveData(move);
+    const info = dataEntry?.info || {};
+
+    return `
+      <button type="button"
+        class="modal-move-row${index === 0 ? " active" : ""}"
+        data-index="${index}"
+        data-method="${move.type || ""}"
+        data-name="${move.name.toLowerCase()}">
+        <span class="modal-move-name">${move.name}</span>
+        <span class="modal-move-meta">
+          ${info.type ? `<span class="type-badge move-type-width type-${info.type}">${capitalize(info.type)}</span>` : ""}
+          <span class="modal-move-learn">${formatModalMoveLearnMethod(move)}</span>
+        </span>
+      </button>
+    `;
+  }
+
+  function formatModalMoveLearnMethod(move) {
+    if (move.type === "level") return move.level ? `Level ${move.level}` : "Level";
+    return formatMoveMethod(move.type);
+  }
+
+  function bindModalMoves(mon) {
+    const container = $("#moves");
+    const search = $("#modalMoveSearch");
+    const info = $("#modalMoveInfo");
+    if (!container || !search || !info) return;
+
+    const moves = [...(mon.moves || [])].sort(compareLearnsetMoves);
+    let activeMethod = "all";
+
+    const rows = [...container.querySelectorAll(".modal-move-row")];
+    const methodButtons = [...container.querySelectorAll(".modal-move-method")];
+    const emptyState = container.querySelector(".modal-move-empty");
+    const selectedIndices = new Set(rows.length ? [0] : []);
+
+    const renderSelectedMoveInfo = () => {
+      const selectedMoves = [...selectedIndices]
+        .sort((a, b) => a - b)
+        .map(index => moves[index])
+        .filter(Boolean);
+
+      info.innerHTML = selectedMoves.length
+        ? [...selectedIndices]
+          .sort((a, b) => a - b)
+          .map(index => buildMoveInfoBox(moves[index], { removable: true, index, contextMon: mon }))
+          .join("")
+        : `<div class="modal-move-info-empty">Select one or more moves to compare details.</div>`;
+
+      bindBodyMoveTools(info);
+    };
+
+    const toggleMove = (row) => {
+      const index = Number(row.dataset.index);
+      const isSelected = selectedIndices.has(index);
+
+      if (isSelected) {
+        selectedIndices.delete(index);
+        row.classList.remove("active");
+      } else {
+        selectedIndices.add(index);
+        row.classList.add("active");
+      }
+
+      renderSelectedMoveInfo();
+    };
+
+    const applyModalMoveFilters = () => {
+      const q = search.value.trim().toLowerCase();
+      let firstVisible = null;
+
+      rows.forEach(row => {
+        const matchesMethod = activeMethod === "all" || row.dataset.method === activeMethod;
+        const matchesSearch = !q || row.dataset.name.includes(q);
+        const visible = matchesMethod && matchesSearch;
+
+        row.classList.toggle("hidden", !visible);
+        if (visible && !firstVisible) firstVisible = row;
+      });
+
+      emptyState?.classList.toggle("hidden", Boolean(firstVisible));
+    };
+
+    rows.forEach(row => {
+      row.addEventListener("click", () => toggleMove(row));
     });
 
-    return Object.entries(grouped).map(([type, moves]) => `
-      <div class="move-group">
-        <h4>${type}</h4>
-        ${moves.map(m => `
-          <div>${m.name}${m.level ? " (Lv " + m.level + ")" : ""}</div>
-        `).join("")}
-      </div>
-    `).join("");
+    methodButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        activeMethod = button.dataset.method;
+        methodButtons.forEach(item => item.classList.toggle("active", item === button));
+        applyModalMoveFilters();
+      });
+    });
+
+    info.addEventListener("click", (e) => {
+      const removeButton = e.target.closest(".modal-move-remove");
+      if (!removeButton) return;
+
+      const index = Number(removeButton.dataset.index);
+      selectedIndices.delete(index);
+      rows[index]?.classList.remove("active");
+      renderSelectedMoveInfo();
+    });
+
+    search.addEventListener("input", applyModalMoveFilters);
+    renderSelectedMoveInfo();
   }
 
 
