@@ -197,25 +197,55 @@
             <button id="deleteColumnPreset" class="btn btn--tertiary" style="min-height: 0px;">Delete</button>
           </div>
         </div>
-        <button id="encounterFiltersBtn" class="btn btn--secondary">🝖 Filters</button>
+        <button id="encounterFiltersBtn" class="btn btn--gradient">
+          <svg width="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+          </svg>
+          <label style="font-size: 14px;">Filters</label>
+        </button>
       </div>
-    <div id="encounterFilters" class="filters-panel collapsed">
-      <h4>Rarity</h4>
-      <div id="rarityFilters" class="mc-filters"></div>
+      <div id="encounterFilters" class="dex-filters-panel encounter-filters-panel collapsed">
+        <div class="dex-filter-row-2 dex-filter-full">
+          <div class="dex-filter-group">
+            <div class="dex-filter-group-label">
+              <label>Rarity</label>
+            </div>
+            <div id="rarityFilters" class="mc-filters encounter-filter-pills"></div>
+          </div>
 
-      <h4>Region</h4>
-      <div id="regionFilters" class="mc-filters"></div>
+          <div class="dex-filter-group">
+            <div class="dex-filter-group-label">
+              <label>Region</label>
+            </div>
+            <div id="regionFilters" class="mc-filters encounter-filter-pills"></div>
+          </div>
+        </div>
 
-      <h4>Season</h4>
-      <div id="seasonFilters" class="mc-filters"></div>
+        <div class="dex-filter-row-2 dex-filter-full">
+          <div class="dex-filter-group">
+            <div class="dex-filter-group-label">
+              <label>Season</label>
+            </div>
+            <div id="seasonFilters" class="mc-filters encounter-filter-pills"></div>
+          </div>
 
-      <h4>Time of Day</h4>
-      <div id="timeFilters" class="mc-filters"></div>
+          <div class="dex-filter-group">
+            <div class="dex-filter-group-label">
+              <label>Time of Day</label>
+            </div>
+            <div id="timeFilters" class="mc-filters encounter-filter-pills"></div>
+          </div>
+        </div>
 
-      <h4>Columns</h4>
-      <div id="columnFilters" class="mc-filters"></div>
+        <div class="dex-filter-group dex-filter-full">
+          <div class="dex-filter-group-label">
+            <label>Columns</label>
+          </div>
+          <div id="columnFilters" class="mc-filters encounter-column-pills"></div>
+        </div>
 
-      <button id="clearEncounterFilters" class="btn btn--tertiary" style="min-height: 5px; min-width: 100%; margin-top: 8px;">Clear Filters</button>
+        <button id="clearEncounterFilters" class="btn btn--tertiary encounter-clear-filters">Clear Filters</button>
+      </div>
     </div>
 
     <div id="encounterTableWrapper" class="scrollable-table">

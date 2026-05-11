@@ -819,6 +819,7 @@ const EncounterTool = (() => {
     vals.forEach(v => {
       filters[key][v] = "none";
       const l = document.createElement("label");
+      l.className = "encounter-filter-pill";
       l.innerHTML = `<span class="filter-box">◯</span> ${v}`;
       l.onclick = () => {
         filters[key][v] =
@@ -827,6 +828,8 @@ const EncounterTool = (() => {
         l.querySelector("span").textContent =
           filters[key][v] === "none" ? "◯" :
           filters[key][v] === "include" ? "✔" : "✖";
+        l.classList.toggle("include", filters[key][v] === "include");
+        l.classList.toggle("exclude", filters[key][v] === "exclude");
         update();
       };
       $(el).appendChild(l);
@@ -839,6 +842,7 @@ const EncounterTool = (() => {
 
     Object.keys(columns).forEach(c => {
       const l = document.createElement("label");
+      l.className = "encounter-column-pill";
       l.innerHTML = `
         <input type="checkbox" data-col="${c}" ${columns[c] ? "checked" : ""}>
         ${c}
@@ -1052,6 +1056,9 @@ const EncounterTool = (() => {
 
     $$("#encounterFilters .filter-box").forEach(box => {
       box.textContent = "◯";
+    });
+    $$("#encounterFilters .encounter-filter-pill").forEach(label => {
+      label.classList.remove("include", "exclude");
     });
 
     // Reset columns to DEFAULTS (important)
@@ -3892,10 +3899,6 @@ function buildSummary(mon) {
         <div id="summaryAbilityInfo"></div>
       </div>
 
-
-      ${buildBodySummary(mon)}
-
-
       <!-- HELD ITEMS -->
       <div class="summary-card">
         <h3>Held Items</h3>
@@ -3912,6 +3915,7 @@ function buildSummary(mon) {
         </div>
       </div>
 
+      ${buildBodySummary(mon)}
 
       ${evolutionMarkup ? `
         <div class="summary-card summary-evo-card">
@@ -3968,22 +3972,19 @@ function buildSummary(mon) {
           </div>
           <div>
             <b>Grass Knot:</b>
-            ${lowKickPower} base power
+            ${lowKickPower} power
           </div>
           <div>
             <b>Low Kick:</b>
-            ${lowKickPower} base power
+            ${lowKickPower} power
           </div>
           <div class="body-summary-matchup" data-target-id="${mon.id}">
-            <label>
-              <b>Heat Crash / Heavy Slam:</b>
-              Against
-              <select class="body-summary-attacker">
-                ${buildPokemonOptions(crashLearners, defaultCrashAttacker?.id)}
-              </select>
-            </label>
+            <b>Heat Crash / Heavy Slam:</b> Against
+            <select class="body-summary-attacker">
+              ${buildPokemonOptions(crashLearners, defaultCrashAttacker?.id)}
+            </select>
             <span class="body-summary-result">
-              ${defaultCrashAttacker ? `damages at ${crashPower} base power` : "no eligible attackers found"}
+              ${defaultCrashAttacker ? `damages at <b>${crashPower}</b> power` : "no eligible attackers found"}
             </span>
           </div>
         </div>
@@ -4004,7 +4005,7 @@ function buildSummary(mon) {
         const power = attacker && target
           ? getWeightRatioPower(getWeightKg(attacker), getWeightKg(target))
           : null;
-        result.textContent = power ? `damages at ${power} base power` : "no matchup data";
+        result.textContent = power ? `damages at ${power} base power` : "no eligible attackers found";
       });
     });
   }
