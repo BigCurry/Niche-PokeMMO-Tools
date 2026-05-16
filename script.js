@@ -1924,6 +1924,7 @@ const PokedexTool = (() => {
   let ABILITY_DATA = [];
   let MOVE_DATA = {};
   let MOVE_DATA_BY_ID = new Map();
+  let BREEDING_CHAINS = {};
 
   let viewport;
   /* =============================================================
@@ -2121,24 +2122,26 @@ const PokedexTool = (() => {
   }
 
   async function loadData() {
-    const [monRes, compatRes, locRes, abilityRes, moveRes] = await Promise.all([
+    const [monRes, compatRes, locRes, abilityRes, moveRes, chainRes] = await Promise.all([
       fetch("./monsters.json"),
       fetch("./dex_compatibility.json"),
       fetch("./locations.json"),
       fetch("./abilities.json"),
-      fetch("./moves.json") // ✅ NEW
+      fetch("./moves.json"),
+      fetch("./breeding_chains.json")
     ]);
 
     data = await monRes.json();
     compat = await compatRes.json();
     LOCATION_DATA = await locRes.json();
     ABILITY_DATA = await abilityRes.json();
-    MOVE_DATA = await moveRes.json(); // ✅ NEW
+    MOVE_DATA = await moveRes.json();
     MOVE_DATA_BY_ID = new Map(
       Object.values(MOVE_DATA)
         .filter(move => move?.id)
         .map(move => [move.id, move])
     );
+    BREEDING_CHAINS = await chainRes.json();
   }
 
 
@@ -2462,6 +2465,8 @@ const PokedexTool = (() => {
         </div>
 
         ${buildBodyMoveTool(dataEntry, options.contextMon)}
+
+        ${buildEggMoveBreedingChains(options.contextMon, move)}
       </div>
     `;
   }
@@ -2593,6 +2598,223 @@ const PokedexTool = (() => {
     }
 
     return "";
+  }
+
+  function buildEggMoveBreedingChains(mon, move) {
+    if (!mon || !move || move.type !== "EGG") return "";
+
+    const rawChains = getBreedingChains(mon.name, move.id);
+    const chains = mergeBreedingChains(rawChains);
+
+    if (!chains.length) {
+      return `
+        <div class="move-breeding-section">
+          <div class="move-breeding-title">Breeding Chains</div>
+          <div class="move-breeding-empty">No breeding chains available.</div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="move-breeding-section">
+        <div class="move-breeding-title">
+          Breeding Chains
+          <span class="move-breeding-count">(${chains.length})</span>
+        </div>
+
+        <div class="move-breeding-list">
+          ${chains.map((chain, index) => buildBreedingChainCard(chain, index)).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  function buildBreedingChainCard(chain, index) {
+    const steps = Array.isArray(chain)
+      ? chain
+      : getBreedingChainSteps({ merged: chain });
+
+    if (!steps.length) return "";
+
+    return `
+      <div class="breeding-chain-card">
+        <div class="breeding-chain-title">
+          Chain ${index + 1}
+        </div>
+
+        <div class="breeding-chain-flow">
+          ${steps.map((step, stepIndex) => `
+            <div class="breeding-chain-step">
+              <img class="chain-img" src="sprites/pokemon/${step.id}.png" alt="${step.name}">
+              
+              <div class="breeding-chain-mon">
+                ${formatMoveName(step.name)}
+              </div>
+
+              <div class="breeding-chain-method">
+                ${formatBreedingMethod(step.method)}
+              </div>
+            </div>
+
+            ${stepIndex < steps.length - 1 ? `
+              <div class="breeding-chain-arrow">→</div>
+            ` : ""}
+          `).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  function getBreedingChains(monName, moveId) {
+    if (!monName || !moveId) {
+      console.error("No monName or moveId to find breeding chains");
+      return [];
+    }
+
+    const monChains = BREEDING_CHAINS?.[String(monName).toLowerCase()];
+
+    if (!Array.isArray(monChains)) {
+      console.error("No breeding chains found for:", monName);
+      return [];
+    }
+
+    for (const entry of monChains) {
+      const move = entry?.egg_moves?.find(
+        m => Number(m.move_id) === Number(moveId)
+      );
+
+      if (move?.chains?.length) {
+        return move.chains;
+      }
+    }
+
+    return [];
+  }
+
+  function mergeBreedingChains(chains) {
+    if (!Array.isArray(chains)) return [];
+
+    const merged = new Map();
+
+    for (const chain of chains) {
+      const root = Object.values(chain)?.[0];
+      if (!root?.donor) continue;
+
+      // clone so we don't mutate original data
+      const normalized = structuredClone(root);
+
+      // remove donor level from signature generation
+      const donorMethodType = normalized.donor.method?.type || "";
+
+      // keep track of donor levels separately
+      const donorLevel =
+        donorMethodType === "level"
+          ? Number(normalized.donor.method?.val)
+          : null;
+
+      // signature ignores donor level
+      const signatureRoot = structuredClone(normalized);
+
+      if (signatureRoot.donor?.method) {
+        signatureRoot.donor.method.val = null;
+      }
+
+      const signature = JSON.stringify(signatureRoot);
+
+      if (!merged.has(signature)) {
+        // initialize
+        if (donorMethodType === "level") {
+          normalized.donor.method.val = donorLevel != null
+            ? [donorLevel]
+            : [];
+        }
+
+        merged.set(signature, normalized);
+        continue;
+      }
+
+      // merge donor levels
+      const existing = merged.get(signature);
+
+      if (
+        donorMethodType === "level" &&
+        donorLevel != null
+      ) {
+        const levels = existing.donor.method.val;
+
+        if (!levels.includes(donorLevel)) {
+          levels.push(donorLevel);
+          levels.sort((a, b) => a - b);
+        }
+      }
+    }
+
+    return [...merged.values()];
+  }
+
+  function formatBreedingMethod(method) {
+    if (!method) return "Unknown";
+
+    switch (method.type) {
+      case "level": {
+        const levels = Array.isArray(method.val)
+          ? method.val
+          : [method.val];
+
+        return `Level ${levels.join(", ")}`;
+      }
+
+      case "breed":
+        return "Breed";
+
+      case "tm":
+        return `TM ${method.val || ""}`.trim();
+
+      case "tutor":
+        return "Tutor";
+
+      default:
+        return capitalize(method.type || "Unknown");
+    }
+  }
+
+  function getBreedingChainSteps(chain) {
+    if (!chain || typeof chain !== "object") return [];
+
+    const root = Object.values(chain)[0];
+    if (!root) return [];
+
+    const ordered = [];
+
+    // donor first
+    if (root.donor) {
+      ordered.push({
+        role: "donor",
+        ...root.donor
+      });
+    }
+
+    // then intermediary receivers
+    // then receiver_final last
+    Object.keys(root)
+      .filter(key => key.startsWith("receiver"))
+      .sort((a, b) => {
+        if (a === "receiver_final") return 1;
+        if (b === "receiver_final") return -1;
+
+        const aNum = Number(a.split("_")[1] || 0);
+        const bNum = Number(b.split("_")[1] || 0);
+
+        return aNum - bNum;
+      })
+      .forEach(key => {
+        ordered.push({
+          role: key,
+          ...root[key]
+        });
+      });
+
+    return ordered;
   }
 
   function buildAbilityAutocomplete() {
@@ -4738,7 +4960,6 @@ function getDirectChildBranches(branch) {
     search.addEventListener("input", applyModalMoveFilters);
     renderSelectedMoveInfo();
   }
-
 
   /* =============================================================
     LOCATIONS

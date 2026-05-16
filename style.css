@@ -2320,3 +2320,121 @@ body.pory-full #poryBackground {
 .evo-cond--empty{
   visibility:hidden;
 }
+
+.move-breeding-section {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--muted);
+}
+
+.move-breeding-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.move-breeding-count {
+  opacity: 0.7;
+  font-weight: 600;
+}
+
+.move-breeding-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 350px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.breeding-chain-card {
+  border-radius: 10px;
+  padding: 10px;
+  background: color-mix(in srgb, var(--text) 5%, transparent);
+}
+
+.breeding-chain-title {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  opacity: 0.8;
+}
+
+.breeding-chain-flow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.breeding-chain-step {
+  flex: 1 1 0;
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 8px;
+  border-radius: 8px;
+
+  background: color-mix(in srgb, var(--text) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text) 5%, transparent);;
+
+  text-align: center;
+  overflow: hidden;
+}
+
+.breeding-chain-mon {
+  width: 100%;
+
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 4px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.breeding-chain-method {
+  width: 100%;
+
+  font-size: 11px;
+  opacity: 0.7;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.breeding-chain-arrow {
+  flex: 0 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 16px;
+  opacity: 0.6;
+  font-weight: 700;
+
+  user-select: none;
+}
+
+.move-breeding-empty {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.chain-img {
+  width: fit-content;
+  object-fit: contain;
+  image-rendering: pixelated;
+  margin-bottom: 4px;
+  flex-shrink: 0;
+}
