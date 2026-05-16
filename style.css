@@ -2367,7 +2367,7 @@ body.pory-full #poryBackground {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: clamp(2px, 0.5vw, 6px);
 }
 
 .breeding-chain-step {
@@ -2379,7 +2379,7 @@ body.pory-full #poryBackground {
   align-items: center;
   justify-content: center;
 
-  padding: 8px;
+  padding: clamp(2px, 0.6vw, 8px);
   border-radius: 8px;
 
   background: color-mix(in srgb, var(--text) 5%, transparent);
@@ -2392,9 +2392,11 @@ body.pory-full #poryBackground {
 .breeding-chain-mon {
   width: 100%;
 
-  font-size: 12px;
+  font-size: clamp(8px, 0.8vw, 12px);
   font-weight: 700;
   margin-bottom: 4px;
+
+  line-height: 1.1;
 
   white-space: nowrap;
   overflow: hidden;
@@ -2404,8 +2406,10 @@ body.pory-full #poryBackground {
 .breeding-chain-method {
   width: 100%;
 
-  font-size: 11px;
+  font-size: clamp(7px, 0.7vw, 11px);
   opacity: 0.7;
+
+  line-height: 1.1;
 
   white-space: nowrap;
   overflow: hidden;
@@ -2432,9 +2436,10 @@ body.pory-full #poryBackground {
 }
 
 .chain-img {
-  width: fit-content;
+  width: clamp(20px, 10vw, 100px);
+  height: clamp(20px, 10vw, 100px);
   object-fit: contain;
   image-rendering: pixelated;
   margin-bottom: 4px;
-  flex-shrink: 0;
+  flex-shrink: 1;
 }
