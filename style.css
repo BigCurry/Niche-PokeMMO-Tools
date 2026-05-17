@@ -2386,34 +2386,31 @@ body.pory-full #poryBackground {
   border: 1px solid color-mix(in srgb, var(--text) 5%, transparent);;
 
   text-align: center;
-  overflow: hidden;
 }
 
 .breeding-chain-mon {
   width: 100%;
 
-  font-size: clamp(8px, 0.8vw, 12px);
+  font-size: clamp(4px, 1.6vw, 12px);
   font-weight: 700;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 
   line-height: 1.1;
 
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .breeding-chain-method {
   width: 100%;
 
-  font-size: clamp(7px, 0.7vw, 11px);
+  font-size: clamp(4px, 1.6vw, 11px);
   opacity: 0.7;
 
   line-height: 1.1;
 
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .breeding-chain-arrow {
