@@ -2353,7 +2353,11 @@ body.pory-full #poryBackground {
 .breeding-chain-card {
   border-radius: 10px;
   padding: 10px;
+
   background: color-mix(in srgb, var(--text) 5%, transparent);
+
+  /* enable container queries */
+  container-type: inline-size;
 }
 
 .breeding-chain-title {
@@ -2365,9 +2369,11 @@ body.pory-full #poryBackground {
 
 .breeding-chain-flow {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: clamp(2px, 0.5vw, 6px);
+  align-items: stretch;
+  flex-wrap: nowrap;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
 }
 
 .breeding-chain-step {
@@ -2379,22 +2385,18 @@ body.pory-full #poryBackground {
   align-items: center;
   justify-content: center;
 
-  padding: clamp(2px, 0.6vw, 8px);
+  padding: 6px;
   border-radius: 8px;
 
   background: color-mix(in srgb, var(--text) 5%, transparent);
-  border: 1px solid color-mix(in srgb, var(--text) 5%, transparent);;
+  border: 1px solid color-mix(in srgb, var(--text) 5%, transparent);
 
   text-align: center;
 }
 
 .breeding-chain-mon {
   width: 100%;
-
-  font-size: clamp(4px, 1.6vw, 12px);
   font-weight: 700;
-  margin-bottom: 2px;
-
   line-height: 1.1;
 
   word-break: break-word;
@@ -2403,10 +2405,7 @@ body.pory-full #poryBackground {
 
 .breeding-chain-method {
   width: 100%;
-
-  font-size: clamp(4px, 1.6vw, 11px);
   opacity: 0.7;
-
   line-height: 1.1;
 
   word-break: break-word;
@@ -2420,7 +2419,6 @@ body.pory-full #poryBackground {
   align-items: center;
   justify-content: center;
 
-  font-size: 16px;
   opacity: 0.6;
   font-weight: 700;
 
@@ -2433,10 +2431,96 @@ body.pory-full #poryBackground {
 }
 
 .chain-img {
-  width: clamp(20px, 10vw, 100px);
-  height: clamp(20px, 10vw, 100px);
   object-fit: contain;
   image-rendering: pixelated;
   margin-bottom: 4px;
   flex-shrink: 1;
+}
+
+/* large cards */
+@container (min-width: 500px) {
+  .breeding-chain-mon {
+    font-size: 12px;
+  }
+
+  .breeding-chain-method {
+    font-size: 11px;
+  }
+
+  .chain-img {
+    width: 100px;
+    height: 100px;
+  }
+
+  .breeding-chain-arrow {
+    font-size: 16px;
+  }
+}
+
+/* medium cards */
+@container (max-width: 499px) {
+  .breeding-chain-mon {
+    font-size: 10px;
+  }
+
+  .breeding-chain-method {
+    font-size: 9px;
+  }
+
+  .chain-img {
+    width: 70px;
+    height: 70px;
+  }
+
+  .breeding-chain-arrow {
+    font-size: 14px;
+  }
+}
+
+/* small cards */
+@container (max-width: 300px) {
+  .breeding-chain-mon {
+    font-size: 8px;
+  }
+
+  .breeding-chain-method {
+    font-size: 7px;
+  }
+
+  .chain-img {
+    width: 60px;
+    height: 60px;
+  }
+
+  .breeding-chain-arrow {
+    font-size: 11px;
+  }
+
+  .breeding-chain-step {
+    padding: 3px;
+  }
+}
+
+/* extremely narrow */
+@container (max-width: 200px) {
+  .breeding-chain-mon {
+    font-size: 6px;
+  }
+
+  .breeding-chain-method {
+    font-size: 5px;
+  }
+
+  .chain-img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .breeding-chain-arrow {
+    font-size: 8px;
+  }
+
+  .breeding-chain-step {
+    padding: 2px;
+  }
 }
