@@ -1308,6 +1308,75 @@ body.pory-full #poryBackground {
   text-align: center;
 }
 
+.modal-locations {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-location-filter-group {
+  display: grid;
+  gap: 5px;
+}
+
+.modal-location-filter-label,
+.modal-location-subtitle {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.modal-location-list {
+  max-height: 520px;
+}
+
+.modal-location-row.hidden {
+  display: none;
+}
+
+.modal-location-detail {
+  display: grid;
+  gap: 10px;
+}
+
+.modal-location-detail-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.modal-location-subsection {
+  border-top: 1px solid color-mix(in srgb, var(--muted) 30%, transparent);
+  display: grid;
+  gap: 6px;
+  padding-top: 8px;
+}
+
+.modal-location-evs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.modal-location-evs span {
+  border: 1px solid color-mix(in srgb, var(--muted) 30%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--panel) 80%, var(--bg));
+  font-size: 0.78rem;
+  padding: 5px 6px;
+  text-align: center;
+}
+
+.modal-location-evs span.active {
+  border-color: var(--accent);
+  background: var(--accentT);
+}
+
+.modal-location-moves {
+  color: var(--text);
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
 .body-move-tool {
   border-top: 1px solid color-mix(in srgb, var(--muted) 35%, transparent);
   margin-top: 10px;
@@ -1373,6 +1442,11 @@ body.pory-full #poryBackground {
 
   .modal-move-info {
     position: static;
+  }
+
+  .modal-location-detail-grid,
+  .modal-location-evs {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -2412,6 +2486,22 @@ body.pory-full #poryBackground {
   overflow-wrap: anywhere;
 }
 
+.breeding-chain-step--variants {
+  position: relative;
+}
+
+.breeding-chain-variant {
+  width: 100%;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.breeding-chain-variant.active {
+  display: flex;
+}
+
 .breeding-chain-arrow {
   flex: 0 0 auto;
 
@@ -2423,6 +2513,33 @@ body.pory-full #poryBackground {
   font-weight: 700;
 
   user-select: none;
+}
+
+.breeding-chain-variant-control {
+  position: absolute;
+  top: 4px;
+  z-index: 1;
+  width: 20px;
+  height: 20px;
+  border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--bg) 75%, transparent);
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.breeding-chain-variant-control--prev {
+  left: 4px;
+}
+
+.breeding-chain-variant-control--next {
+  right: 4px;
+}
+
+.breeding-chain-variant-control:hover {
+  background: color-mix(in srgb, var(--accent) 35%, var(--bg));
 }
 
 .move-breeding-empty {

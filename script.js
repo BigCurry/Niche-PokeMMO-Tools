@@ -1925,6 +1925,11 @@ const PokedexTool = (() => {
   let MOVE_DATA = {};
   let MOVE_DATA_BY_ID = new Map();
   let BREEDING_CHAINS = {};
+  let breedingChainVariantTimer = null;
+  let breedingChainVariantPausedUntil = 0;
+  let pokemonById = new Map();
+  let evolutionParentById = new Map();
+  let evolutionFamilyRootById = new Map();
 
   let viewport;
   /* =============================================================
@@ -2096,6 +2101,9 @@ const PokedexTool = (() => {
     "Heavy Metal",
     "Light Metal"
   ]);
+
+  const BREEDING_VARIANT_INTERVAL_MS = 1500;
+  const BREEDING_VARIANT_MANUAL_PAUSE_MS = 10000;
   /* =============================================================
      INIT
   ============================================================= */
@@ -2258,6 +2266,26 @@ const PokedexTool = (() => {
   }
 
   function preprocessData() {
+    pokemonById = new Map(data.map(mon => [mon.id, mon]));
+    evolutionParentById = new Map();
+    evolutionFamilyRootById = new Map();
+
+    data.forEach(mon => {
+      (mon.evolutions || []).forEach(evolution => {
+        evolutionParentById.set(evolution.id, mon.id);
+      });
+    });
+
+    data.forEach(mon => {
+      evolutionFamilyRootById.set(mon.id, getEvolutionFamilyRootId(mon.id));
+
+      (mon.forms || []).forEach(form => {
+        if (typeof form.id === "number") {
+          evolutionFamilyRootById.set(form.id, getEvolutionFamilyRootId(mon.id));
+        }
+      });
+    });
+
     data.forEach(mon => {
       mon._moveSet = new Set((mon.moves || []).map(m => m.name.toLowerCase()));
       mon._abilities = new Set((mon.abilities || []).map(a => a.name));
@@ -2372,6 +2400,7 @@ const PokedexTool = (() => {
 
     container.innerHTML = activeMoves.map(name => buildMoveInfoBox(name)).join("");
     bindBodyMoveTools(container);
+    bindBreedingChainVariationCycling(container);
   }
 
   function getMoveData(move) {
@@ -2603,8 +2632,8 @@ const PokedexTool = (() => {
   function buildEggMoveBreedingChains(mon, move) {
     if (!mon || !move || move.type !== "EGG") return "";
 
-    const rawChains = getBreedingChains(mon.name, move.id);
-    const chains = mergeBreedingChains(rawChains);
+    const rawChains = getBreedingChains(move._eggMoveSourceMonName || mon.name, move.id);
+    const chains = prepareBreedingChainDisplay(rawChains);
 
     if (!chains.length) {
       return `
@@ -2644,23 +2673,68 @@ const PokedexTool = (() => {
 
         <div class="breeding-chain-flow">
           ${steps.map((step, stepIndex) => `
-            <div class="breeding-chain-step">
-              <img class="chain-img" src="sprites/pokemon/${step.id}.png" alt="${step.name}">
-              
-              <div class="breeding-chain-mon">
-                ${formatMoveName(step.name)}
-              </div>
-
-              <div class="breeding-chain-method">
-                ${formatBreedingMethod(step.method)}
-              </div>
-            </div>
+            ${buildBreedingChainStep(step)}
 
             ${stepIndex < steps.length - 1 ? `
               <div class="breeding-chain-arrow">→</div>
             ` : ""}
           `).join("")}
         </div>
+      </div>
+    `;
+  }
+
+  function buildBreedingChainStep(step) {
+    const variants = Array.isArray(step?.variants) ? step.variants : null;
+
+    if (variants?.length) {
+      const label = variants.map(variant => formatMoveName(variant.name)).join(" / ");
+
+      return `
+        <div class="breeding-chain-step breeding-chain-step--variants"
+          data-breeding-variant-step
+          title="${label}">
+          <button type="button"
+            class="breeding-chain-variant-control breeding-chain-variant-control--prev"
+            data-breeding-variant-control="prev"
+            aria-label="Previous variation">
+            &lt;
+          </button>
+          <button type="button"
+            class="breeding-chain-variant-control breeding-chain-variant-control--next"
+            data-breeding-variant-control="next"
+            aria-label="Next variation">
+            &gt;
+          </button>
+          ${variants.map((variant, index) => `
+            <div class="breeding-chain-variant${index === 0 ? " active" : ""}">
+              ${buildBreedingChainVariantContent(variant)}
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    return `
+      <div class="breeding-chain-step">
+        ${buildBreedingChainVariantContent(step)}
+      </div>
+    `;
+  }
+
+  function buildBreedingChainVariantContent(step) {
+    return `
+      <img class="chain-img"
+        src="sprites/pokemon/${step.id}.png"
+        alt="${step.name}"
+        onerror="this.onerror=function(){this.onerror=null;this.src='sprites/pokemon/0.png';};this.src='sprites/pokemon/Unused/${step.id}.png';">
+
+      <div class="breeding-chain-mon">
+        ${formatMoveName(step.name)}
+      </div>
+
+      <div class="breeding-chain-method">
+        ${formatBreedingMethod(step.method)}
       </div>
     `;
   }
@@ -2750,6 +2824,279 @@ const PokedexTool = (() => {
     }
 
     return [...merged.values()];
+  }
+
+  function prepareBreedingChainDisplay(chains) {
+    if (!Array.isArray(chains)) return [];
+
+    const directGroups = new Map();
+
+    chains.forEach((chain, index) => {
+      const steps = getBreedingChainSteps(chain);
+      if (steps.length !== 2) return;
+
+      const donor = steps[0];
+      const receiver = steps[1];
+      const key = `${getBreedingEvolutionFamilyIdentity(donor)}>${getBreedingStepIdentity(receiver)}`;
+
+      if (!directGroups.has(key)) {
+        directGroups.set(key, []);
+      }
+
+      directGroups.get(key).push({ chain, index, steps });
+    });
+
+    const consumedDirectIndices = new Set();
+    const directDisplays = [];
+
+    for (const group of directGroups.values()) {
+      if (group.length <= 1) continue;
+
+      const variants = [];
+      const variantsByPokemon = new Map();
+
+      for (const entry of group) {
+        const variant = entry.steps[0];
+        const identity = getBreedingStepIdentity(variant);
+
+        if (!variantsByPokemon.has(identity)) {
+          variantsByPokemon.set(identity, { ...variant, method: structuredClone(variant.method) });
+          continue;
+        }
+
+        mergeBreedingStepMethods(variantsByPokemon.get(identity), variant);
+      }
+
+      variants.push(...variantsByPokemon.values());
+
+      if (variants.length <= 1 || !areSameEvolutionFamilyBreedingVariants(variants)) continue;
+
+      group.forEach(entry => consumedDirectIndices.add(entry.index));
+
+      directDisplays.push({
+        order: Math.min(...group.map(entry => entry.index)),
+        steps: [
+          { variants },
+          { ...group[0].steps[1] }
+        ]
+      });
+    }
+
+    const remainingChains = chains.filter((_, index) => !consumedDirectIndices.has(index));
+    const remainingDisplays = groupBreedingChainVariations(mergeBreedingChains(remainingChains))
+      .map((steps, index) => ({
+        order: chains.length + index,
+        steps
+      }));
+
+    return [
+      ...directDisplays,
+      ...remainingDisplays
+    ]
+      .sort((a, b) => a.order - b.order)
+      .map(display => display.steps);
+  }
+
+  function groupBreedingChainVariations(chains) {
+    if (!Array.isArray(chains)) return [];
+
+    const chainSteps = chains
+      .map(chain => getBreedingChainSteps({ merged: chain }))
+      .filter(steps => steps.length);
+
+    const groupedBySignature = new Map();
+    const assigned = new Set();
+
+    chainSteps.forEach((steps, chainIndex) => {
+      for (let variantIndex = 0; variantIndex < steps.length - 1; variantIndex++) {
+        const signature = steps
+          .map((step, index) => index === variantIndex
+            ? getBreedingVariantSignatureToken(step, steps.length)
+            : getBreedingStepIdentity(step))
+          .join(">");
+        const key = `${steps.length}|${variantIndex}|${signature}`;
+
+        if (!groupedBySignature.has(key)) {
+          groupedBySignature.set(key, {
+            variantIndex,
+            chainIndices: []
+          });
+        }
+
+        groupedBySignature.get(key).chainIndices.push(chainIndex);
+      }
+    });
+
+    const groups = [...groupedBySignature.values()]
+      .filter(group => group.chainIndices.length > 1)
+      .sort((a, b) => b.chainIndices.length - a.chainIndices.length);
+
+    const groupedDisplays = new Map();
+
+    for (const group of groups) {
+      const availableIndices = group.chainIndices.filter(index => !assigned.has(index));
+      if (availableIndices.length <= 1) continue;
+
+      const baseSteps = chainSteps[availableIndices[0]].map(step => ({ ...step }));
+      const variants = [];
+      const seenVariants = new Set();
+
+      for (const chainIndex of availableIndices) {
+        const variant = chainSteps[chainIndex][group.variantIndex];
+        const identity = getBreedingVariantIdentity(variant);
+
+        if (seenVariants.has(identity)) continue;
+
+        seenVariants.add(identity);
+        variants.push({ ...variant });
+      }
+
+      if (variants.length <= 1) continue;
+      if (baseSteps.length === 2 && !areSameEvolutionFamilyBreedingVariants(variants)) continue;
+
+      availableIndices.forEach(index => assigned.add(index));
+
+      baseSteps[group.variantIndex] = {
+        variants
+      };
+      groupedDisplays.set(Math.min(...availableIndices), baseSteps);
+    }
+
+    const displayChains = [];
+
+    chainSteps.forEach((steps, index) => {
+      if (groupedDisplays.has(index)) {
+        displayChains.push(groupedDisplays.get(index));
+      } else if (!assigned.has(index)) {
+        displayChains.push(steps);
+      }
+    });
+
+    return displayChains;
+  }
+
+  function getBreedingStepIdentity(step) {
+    return `${step?.id ?? ""}|${step?.name ?? ""}`;
+  }
+
+  function getBreedingVariantSignatureToken(step, chainLength) {
+    if (chainLength === 2) {
+      return `family:${getBreedingEvolutionFamilyIdentity(step)}`;
+    }
+
+    return "*";
+  }
+
+  function getBreedingSpeciesIdentity(step) {
+    return String(step?.name || "").trim().toLowerCase();
+  }
+
+  function getBreedingEvolutionFamilyIdentity(step) {
+    const id = Number(step?.id);
+
+    if (Number.isFinite(id) && evolutionFamilyRootById.has(id)) {
+      return `id:${evolutionFamilyRootById.get(id)}`;
+    }
+
+    return `name:${getBreedingSpeciesIdentity(step)}`;
+  }
+
+  function getBreedingVariantIdentity(step) {
+    return `${getBreedingStepIdentity(step)}|${JSON.stringify(step?.method || {})}`;
+  }
+
+  function areSameEvolutionFamilyBreedingVariants(variants) {
+    const families = new Set(variants.map(getBreedingEvolutionFamilyIdentity));
+    return families.size === 1;
+  }
+
+  function mergeBreedingStepMethods(target, source) {
+    const targetMethod = target?.method;
+    const sourceMethod = source?.method;
+
+    if (!targetMethod || !sourceMethod) return;
+    if (targetMethod.type !== sourceMethod.type) return;
+
+    if (targetMethod.type === "level") {
+      const levels = [
+        ...(Array.isArray(targetMethod.val) ? targetMethod.val : [targetMethod.val]),
+        ...(Array.isArray(sourceMethod.val) ? sourceMethod.val : [sourceMethod.val])
+      ]
+        .map(Number)
+        .filter(Number.isFinite);
+
+      targetMethod.val = [...new Set(levels)].sort((a, b) => a - b);
+    }
+  }
+
+  function getEvolutionFamilyRootId(monId) {
+    let current = monId;
+    const seen = new Set();
+
+    while (evolutionParentById.has(current) && !seen.has(current)) {
+      seen.add(current);
+      current = evolutionParentById.get(current);
+    }
+
+    return current;
+  }
+
+  function bindBreedingChainVariationCycling(root = document) {
+    const variantSteps = root.querySelectorAll("[data-breeding-variant-step]");
+
+    root.querySelectorAll("[data-breeding-variant-control]").forEach(button => {
+      if (button.dataset.bound) return;
+
+      button.dataset.bound = "true";
+      button.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const step = button.closest("[data-breeding-variant-step]");
+        const direction = button.dataset.breedingVariantControl === "prev" ? -1 : 1;
+
+        breedingChainVariantPausedUntil = Date.now() + BREEDING_VARIANT_MANUAL_PAUSE_MS;
+        cycleBreedingVariantStep(step, direction);
+      });
+    });
+
+    if (!variantSteps.length && !document.querySelector("[data-breeding-variant-step]")) {
+      clearInterval(breedingChainVariantTimer);
+      breedingChainVariantTimer = null;
+      return;
+    }
+
+    if (breedingChainVariantTimer) return;
+
+    breedingChainVariantTimer = setInterval(() => {
+      const steps = document.querySelectorAll("[data-breeding-variant-step]");
+
+      if (!steps.length) {
+        clearInterval(breedingChainVariantTimer);
+        breedingChainVariantTimer = null;
+        breedingChainVariantPausedUntil = 0;
+        return;
+      }
+
+      if (Date.now() < breedingChainVariantPausedUntil) return;
+
+      steps.forEach(step => {
+        cycleBreedingVariantStep(step, 1);
+      });
+    }, BREEDING_VARIANT_INTERVAL_MS);
+  }
+
+  function cycleBreedingVariantStep(step, direction) {
+    if (!step) return;
+
+    const variants = [...step.querySelectorAll(".breeding-chain-variant")];
+    if (variants.length <= 1) return;
+
+    const activeIndex = Math.max(0, variants.findIndex(variant => variant.classList.contains("active")));
+    const nextIndex = (activeIndex + direction + variants.length) % variants.length;
+
+    variants[activeIndex]?.classList.remove("active");
+    variants[nextIndex].classList.add("active");
   }
 
   function formatBreedingMethod(method) {
@@ -3837,6 +4184,7 @@ const PokedexTool = (() => {
     bindEvolutionClicks();
     bindSummaryAbilities();
     bindModalMoves(mon);
+    bindModalLocations(mon);
     bindBodySummaryTools();
     initSummaryEvolutionTree();
   }
@@ -3966,6 +4314,10 @@ function buildLeftPanel(mon) {
         if (tab.dataset.tab === "moves") {
           $("#modalMoveSearch")?.focus();
         }
+
+        if (tab.dataset.tab === "locations") {
+          $("#modalLocationSearch")?.focus();
+        }
       };
     });
   }
@@ -3996,6 +4348,7 @@ function buildLeftPanel(mon) {
     bindEvolutionClicks();
     bindSummaryAbilities();
     bindModalMoves(mon);
+    bindModalLocations(mon);
     bindBodySummaryTools();
     initSummaryEvolutionTree();
   }
@@ -4784,7 +5137,7 @@ function getDirectChildBranches(branch) {
   ============================================================= */
 
   function buildMoves(mon) {
-    const moves = [...(mon.moves || [])].sort(compareLearnsetMoves);
+    const moves = getModalMoves(mon);
     const methods = getMoveMethods(moves);
 
     if (!moves.length) return "<div>No moves</div>";
@@ -4850,6 +5203,45 @@ function getDirectChildBranches(branch) {
       .sort((a, b) => getMoveMethodOrder(a) - getMoveMethodOrder(b));
   }
 
+  function getModalMoves(mon) {
+    if (!mon) return [];
+
+    const moves = (mon.moves || []).map(move => ({ ...move }));
+    const seenEggMoves = new Set(
+      moves
+        .filter(move => move.type === "EGG")
+        .map(move => getLearnsetMoveKey(move))
+    );
+
+    const familyRoot = getEvolutionFamilyRootMon(mon);
+
+    if (familyRoot && familyRoot.id !== mon.id) {
+      (familyRoot.moves || [])
+        .filter(move => move.type === "EGG")
+        .forEach(move => {
+          const key = getLearnsetMoveKey(move);
+          if (seenEggMoves.has(key)) return;
+
+          seenEggMoves.add(key);
+          moves.push({
+            ...move,
+            _eggMoveSourceMonName: familyRoot.name
+          });
+        });
+    }
+
+    return moves.sort(compareLearnsetMoves);
+  }
+
+  function getLearnsetMoveKey(move) {
+    return String(move?.id || normalizeMoveName(move?.name || ""));
+  }
+
+  function getEvolutionFamilyRootMon(mon) {
+    const rootId = evolutionFamilyRootById.get(mon.id);
+    return pokemonById.get(rootId) || mon;
+  }
+
   function buildModalMoveRow(move, index) {
     const dataEntry = getMoveData(move);
     const info = dataEntry?.info || {};
@@ -4880,7 +5272,7 @@ function getDirectChildBranches(branch) {
     const info = $("#modalMoveInfo");
     if (!container || !search || !info) return;
 
-    const moves = [...(mon.moves || [])].sort(compareLearnsetMoves);
+    const moves = getModalMoves(mon);
     let activeMethod = "all";
 
     const rows = [...container.querySelectorAll(".modal-move-row")];
@@ -4902,6 +5294,7 @@ function getDirectChildBranches(branch) {
         : `<div class="modal-move-info-empty">Select one or more moves to compare details.</div>`;
 
       bindBodyMoveTools(info);
+      bindBreedingChainVariationCycling(info);
     };
 
     const toggleMove = (row) => {
@@ -4966,13 +5359,318 @@ function getDirectChildBranches(branch) {
   ============================================================= */
 
   function buildLocations(mon) {
-    return (mon.locations || [])
-      .map(l => `
-        <div class="location-row">
-          ${l.region_name} - ${l.location}
+    const encounters = getModalLocationEncounters(mon);
+    const regions = getModalLocationFilterValues(encounters, encounter => encounter.loc.region_name);
+    const rarities = getModalLocationFilterValues(encounters, encounter => encounter.loc.rarity);
+
+    if (!encounters.length) return "<div>No locations</div>";
+
+    return `
+      <div class="modal-locations">
+        <div class="modal-moves-toolbar">
+          <input id="modalLocationSearch" class="dex-input modal-move-search" placeholder="Search locations...">
+
+          <div class="modal-location-filter-group">
+            <div class="modal-location-filter-label">Region</div>
+            <div class="modal-move-methods">
+              <button type="button" class="modal-move-method modal-location-filter active" data-filter="region" data-value="all">All</button>
+              ${regions.map(region => `
+                <button type="button" class="modal-move-method modal-location-filter" data-filter="region" data-value="${region}">
+                  ${region}
+                </button>
+              `).join("")}
+            </div>
+          </div>
+
+          <div class="modal-location-filter-group">
+            <div class="modal-location-filter-label">Rarity</div>
+            <div class="modal-move-methods">
+              <button type="button" class="modal-move-method modal-location-filter active" data-filter="rarity" data-value="all">All</button>
+              ${rarities.map(rarity => `
+                <button type="button" class="modal-move-method modal-location-filter" data-filter="rarity" data-value="${rarity}">
+                  ${rarity}
+                </button>
+              `).join("")}
+            </div>
+          </div>
         </div>
-      `)
-      .join("") || "<div>No locations</div>";
+
+        <div class="modal-moves-body">
+          <div class="modal-move-list modal-location-list" role="list">
+            ${encounters.map((encounter, index) => buildModalLocationRow(encounter, index)).join("")}
+            <div class="modal-move-empty modal-location-empty hidden">No matching locations</div>
+          </div>
+
+          <div id="modalLocationInfo" class="modal-move-info modal-location-info"></div>
+        </div>
+      </div>
+    `;
+  }
+
+  function getModalLocationEncounters(mon) {
+    return (mon.locations || [])
+      .map(loc => {
+        const parsed = parseModalLocationSeasonTime(loc.location || "");
+        const evs = getModalLocationEvs(mon);
+        const evTotal = Object.values(evs).reduce((sum, val) => sum + val, 0);
+        const exp = calcModalLocationExp(mon.yields?.exp || 0, loc.min_level || 0, mon.id);
+        const isHorde = String(loc.rarity || "").toLowerCase() === "horde";
+
+        return {
+          mon,
+          loc,
+          parsed,
+          seasonLabels: [...parsed.seasons].map(formatEncounterSeasonToken),
+          timeLabels: [...parsed.times].map(formatEncounterTimeToken),
+          exp,
+          horde: isHorde ? `${exp * 3} / ${exp * 5}` : "",
+          evs,
+          evTotal,
+          moves: getEncounterMovesForLevel(mon, loc.max_level)
+        };
+      })
+      .sort(compareModalLocationEncounters);
+  }
+
+  function compareModalLocationEncounters(a, b) {
+    return (a.loc.region_name || "").localeCompare(b.loc.region_name || "")
+      || a.parsed.clean.localeCompare(b.parsed.clean)
+      || (a.loc.min_level || 0) - (b.loc.min_level || 0)
+      || (a.loc.rarity || "").localeCompare(b.loc.rarity || "");
+  }
+
+  function getModalLocationFilterValues(encounters, getter) {
+    return [...new Set(encounters.map(getter).filter(Boolean))]
+      .sort((a, b) => String(a).localeCompare(String(b)));
+  }
+
+  function buildModalLocationRow(encounter, index) {
+    const suffix = getModalLocationTimingLabel(encounter);
+
+    return `
+      <button type="button"
+        class="modal-move-row modal-location-row${index === 0 ? " active" : ""}"
+        data-index="${index}"
+        data-region="${encounter.loc.region_name || ""}"
+        data-rarity="${encounter.loc.rarity || ""}"
+        data-name="${[
+          encounter.loc.region_name,
+          encounter.parsed.clean,
+          encounter.loc.type,
+          encounter.loc.rarity,
+          suffix
+        ].filter(Boolean).join(" ").toLowerCase()}">
+        <span class="modal-move-name">${encounter.parsed.clean || "Unknown Location"}</span>
+        <span class="modal-move-meta">
+          <span>${encounter.loc.region_name || "Unknown Region"}</span>
+          <span>Lv ${encounter.loc.min_level || "?"}-${encounter.loc.max_level || "?"}</span>
+          ${encounter.loc.type ? `<span>${encounter.loc.type}</span>` : ""}
+          ${encounter.loc.rarity ? `<span>${encounter.loc.rarity}</span>` : ""}
+          ${suffix ? `<span>${suffix}</span>` : ""}
+        </span>
+      </button>
+    `;
+  }
+
+  function bindModalLocations(mon) {
+    const container = $("#locations");
+    const search = $("#modalLocationSearch");
+    const info = $("#modalLocationInfo");
+    if (!container || !search || !info) return;
+
+    const encounters = getModalLocationEncounters(mon);
+    const rows = [...container.querySelectorAll(".modal-location-row")];
+    const filterButtons = [...container.querySelectorAll(".modal-location-filter")];
+    const emptyState = container.querySelector(".modal-location-empty");
+    const activeFilters = {
+      region: "all",
+      rarity: "all"
+    };
+    let selectedIndex = rows.length ? 0 : -1;
+
+    const renderSelectedLocationInfo = () => {
+      const encounter = encounters[selectedIndex];
+      info.innerHTML = encounter
+        ? buildModalLocationInfo(encounter)
+        : `<div class="modal-move-info-empty">Select a location to inspect encounter details.</div>`;
+    };
+
+    const selectRow = (index) => {
+      selectedIndex = index;
+      rows.forEach(row => row.classList.toggle("active", Number(row.dataset.index) === selectedIndex));
+      renderSelectedLocationInfo();
+    };
+
+    const applyLocationFilters = () => {
+      const q = search.value.trim().toLowerCase();
+      let firstVisible = null;
+
+      rows.forEach(row => {
+        const matchesSearch = !q || row.dataset.name.includes(q);
+        const matchesRegion = activeFilters.region === "all" || row.dataset.region === activeFilters.region;
+        const matchesRarity = activeFilters.rarity === "all" || row.dataset.rarity === activeFilters.rarity;
+        const visible = matchesSearch && matchesRegion && matchesRarity;
+
+        row.classList.toggle("hidden", !visible);
+        if (visible && !firstVisible) firstVisible = row;
+      });
+
+      emptyState?.classList.toggle("hidden", Boolean(firstVisible));
+
+      if (firstVisible && (selectedIndex < 0 || rows[selectedIndex]?.classList.contains("hidden"))) {
+        selectRow(Number(firstVisible.dataset.index));
+      }
+    };
+
+    rows.forEach(row => {
+      row.addEventListener("click", () => selectRow(Number(row.dataset.index)));
+    });
+
+    filterButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        const filter = button.dataset.filter;
+        activeFilters[filter] = button.dataset.value;
+
+        filterButtons
+          .filter(item => item.dataset.filter === filter)
+          .forEach(item => item.classList.toggle("active", item === button));
+
+        applyLocationFilters();
+      });
+    });
+
+    search.addEventListener("input", applyLocationFilters);
+    renderSelectedLocationInfo();
+  }
+
+  function buildModalLocationInfo(encounter) {
+    const timing = getModalLocationTimingLabel(encounter) || "Any time";
+
+    return `
+      <div class="move-box modal-location-detail">
+        <div class="move-header">
+          <div class="move-title">${encounter.parsed.clean || "Unknown Location"}</div>
+          <div class="move-header-right">
+            ${encounter.loc.rarity ? `<span class="icon mod">${encounter.loc.rarity}</span>` : ""}
+          </div>
+        </div>
+
+        <div class="move-info-grid modal-location-detail-grid">
+          <div><b>Region:</b> ${encounter.loc.region_name || "Unknown"}</div>
+          <div><b>Level:</b> ${encounter.loc.min_level || "?"} - ${encounter.loc.max_level || "?"}</div>
+          ${encounter.loc.type ? `<div><b>Encounter:</b> ${encounter.loc.type}</div>` : ""}
+          <div><b>Timing:</b> ${timing}</div>
+          <div><b>EXP:</b> ${encounter.exp || "Unknown"}</div>
+          <div><b>Horde EXP:</b> ${encounter.horde || "N/A"}</div>
+          <div><b>EV Total:</b> ${encounter.evTotal || "None"}</div>
+        </div>
+
+        <div class="modal-location-subsection">
+          <div class="modal-location-subtitle">EV Yield</div>
+          <div class="modal-location-evs">
+            ${Object.entries(encounter.evs).map(([stat, value]) => `
+              <span class="${value ? "active" : ""}">${formatStatLabel(stat)} ${value || "-"}</span>
+            `).join("")}
+          </div>
+        </div>
+
+        <div class="modal-location-subsection">
+          <div class="modal-location-subtitle">Likely Moves at Max Level</div>
+          <div class="modal-location-moves">${encounter.moves || "No level-up moves listed."}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function getModalLocationEvs(mon) {
+    const yields = mon.yields || {};
+
+    return {
+      hp: yields.ev_hp || 0,
+      attack: yields.ev_attack || 0,
+      defense: yields.ev_defense || 0,
+      sp_attack: yields.ev_sp_attack || 0,
+      sp_defense: yields.ev_sp_defense || 0,
+      speed: yields.ev_speed || 0
+    };
+  }
+
+  function calcModalLocationExp(base, lvl, monID) {
+    const mysteryTerm = 1.25;
+    const mysteryIDs = [10, 16, 19, 43, 52, 54, 56, 58, 63, 66, 69, 79, 111, 118, 161, 187, 191, 193, 504, 506, 509, 517, 519];
+    const exp = Math.ceil((base * lvl / 7));
+
+    return mysteryIDs.includes(monID)
+      ? Math.ceil(exp * mysteryTerm)
+      : exp;
+  }
+
+  function getEncounterMovesForLevel(mon, lvl) {
+    return (mon.moves || [])
+      .filter(move => move.type === "level" && Number(move.level) <= Number(lvl))
+      .sort((a, b) => (a.level || 0) - (b.level || 0))
+      .map(move => move.name)
+      .slice(-4)
+      .join(", ");
+  }
+
+  function parseModalLocationSeasonTime(str) {
+    const out = {
+      seasons: new Set(),
+      times: new Set(),
+      clean: str
+    };
+    const match = String(str).match(/\(([^)]+)\)$/);
+
+    if (!match) return out;
+
+    match[1].split("/").forEach(token => {
+      const normalized = token.trim().toUpperCase();
+
+      if (normalized.startsWith("SEASON")) {
+        out.seasons.add(normalized);
+      } else if (["MORNING", "DAY", "NIGHT"].includes(normalized)) {
+        out.times.add(normalized);
+      }
+    });
+
+    out.clean = String(str).replace(/\s*\([^)]+\)$/, "");
+    return out;
+  }
+
+  function formatEncounterSeasonToken(token) {
+    return {
+      SEASON0: "Spring",
+      SEASON1: "Summer",
+      SEASON2: "Fall",
+      SEASON3: "Winter"
+    }[token] || token;
+  }
+
+  function formatEncounterTimeToken(token) {
+    return {
+      MORNING: "Morning",
+      DAY: "Day",
+      NIGHT: "Night"
+    }[token] || token;
+  }
+
+  function getModalLocationTimingLabel(encounter) {
+    return [
+      ...encounter.seasonLabels,
+      ...encounter.timeLabels
+    ].join(" / ");
+  }
+
+  function formatStatLabel(stat) {
+    return {
+      hp: "HP",
+      attack: "Atk",
+      defense: "Def",
+      sp_attack: "SpA",
+      sp_defense: "SpD",
+      speed: "Spe"
+    }[stat] || stat;
   }
 
   function getAlternateForms(mon) {

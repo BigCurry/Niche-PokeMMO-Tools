@@ -386,6 +386,134 @@ def build_chain(path, donor_method):
     return chain
 
 # ============================================================
+# EVOLUTION / SORT HELPERS
+# ============================================================
+
+evolution_parent = {}
+
+for mon in monsters:
+
+    for evo in mon.get("evolutions", []):
+
+        evolution_parent[evo["id"]] = mon["id"]
+
+
+def get_species_root(mon_id):
+    """
+    Returns the base/root species id for an evolution line.
+    """
+
+    current = mon_id
+
+    while current in evolution_parent:
+        current = evolution_parent[current]
+
+    return current
+
+
+def get_evolution_depth(mon_id):
+    """
+    Returns stage depth within its evolution line.
+
+    Example:
+        Bulbasaur -> 0
+        Ivysaur   -> 1
+        Venusaur  -> 2
+    """
+
+    depth = 0
+    current = mon_id
+
+    while current in evolution_parent:
+        current = evolution_parent[current]
+        depth += 1
+
+    return depth
+
+
+def extract_chain_path(chain):
+    """
+    Converts chain dict into ordered list of pokemon entries.
+
+    donor -> receiver_# -> receiver_final
+    """
+
+    path = [chain["donor"]]
+
+    intermediary_keys = sorted([
+        k for k in chain.keys()
+        if k.startswith("receiver_")
+        and k != "receiver_final"
+    ])
+
+    for key in intermediary_keys:
+        path.append(chain[key])
+
+    path.append(chain["receiver_final"])
+
+    return path
+
+
+def chain_sort_key(chain):
+    """
+    Sorting priority:
+
+    1. Smaller chain length first
+    2. Species line precedence
+    3. Evolution order within same species line
+    4. Dex number ascending
+    """
+
+    path = extract_chain_path(chain)
+
+    # ----------------------------------------
+    # Chain length
+    # ----------------------------------------
+
+    chain_length = len(path)
+
+    # ----------------------------------------
+    # Species signature
+    #
+    # Same evolution families cluster together
+    # before dex ordering.
+    # ----------------------------------------
+
+    species_signature = tuple(
+        get_species_root(mon["id"])
+        for mon in path
+    )
+
+    # ----------------------------------------
+    # Evolution depth signature
+    #
+    # Ensures:
+    # Bulbasaur < Ivysaur < Venusaur
+    # within same family
+    # ----------------------------------------
+
+    evolution_signature = tuple(
+        get_evolution_depth(mon["id"])
+        for mon in path
+    )
+
+    # ----------------------------------------
+    # Dex ordering fallback
+    # ----------------------------------------
+
+    dex_signature = tuple(
+        mon["id"]
+        for mon in path
+    )
+
+    return (
+        chain_length,
+        species_signature,
+        evolution_signature,
+        dex_signature
+    )
+
+# ============================================================
 # CHAIN SEARCH
 # ============================================================
 
@@ -521,6 +649,12 @@ def find_breeding_chains(target_mon, move_id):
         seen.add(serialized)
 
         unique.append(chain)
+
+    # ========================================================
+    # SORT
+    # ========================================================
+
+    unique.sort(key=chain_sort_key)
 
     return unique[:MAX_CHAINS_PER_MOVE]
 
