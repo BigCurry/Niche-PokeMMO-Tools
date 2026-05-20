@@ -52,7 +52,7 @@ OUTPUT_FILE = "breeding_chains.json"
 # ============================================================
 
 MAX_CHAIN_LENGTH = 4
-MAX_CHAINS_PER_MOVE = 20
+MAX_CHAINS_PER_MOVE = 100
 
 # ============================================================
 # LOAD DATA
@@ -573,8 +573,6 @@ def find_breeding_chains(target_mon, move_id):
 
         queue = deque([[donor]])
 
-        visited = {donor["id"]}
-
         shortest_found = None
 
         while queue and len(results) < MAX_CHAINS_PER_MOVE:
@@ -586,24 +584,35 @@ def find_breeding_chains(target_mon, move_id):
             current_name = normalize_name(current["name"])
 
             # ------------------------------------------------
-            # Depth Limiting
+            # Current depth
+            # ------------------------------------------------
+
+            current_depth = len(path)
+
+            # ------------------------------------------------
+            # Stop exploring deeper-than-shortest paths
             # ------------------------------------------------
 
             if shortest_found is not None:
 
-                if len(path) > shortest_found:
-                    break
+                if current_depth > shortest_found:
+                    continue
 
-            if len(path) > MAX_CHAIN_LENGTH:
+            # ------------------------------------------------
+            # Max depth limit
+            # ------------------------------------------------
+
+            if current_depth > MAX_CHAIN_LENGTH:
                 continue
 
             # ------------------------------------------------
-            # Can Breed Into Target
+            # Found shortest-valid endpoint
             # ------------------------------------------------
 
             if current["_egg_group_set"] & target_groups:
 
-                shortest_found = len(path)
+                if shortest_found is None:
+                    shortest_found = current_depth
 
                 full_path = path + [target_mon]
 
@@ -617,15 +626,20 @@ def find_breeding_chains(target_mon, move_id):
                 continue
 
             # ------------------------------------------------
-            # Expand
+            # Expand neighbors
             # ------------------------------------------------
 
             for neighbor in breed_graph[current_name]:
 
-                if neighbor["id"] in visited:
-                    continue
+                # --------------------------------------------
+                # PATH-LOCAL cycle prevention only
+                # --------------------------------------------
 
-                visited.add(neighbor["id"])
+                if any(
+                    p["id"] == neighbor["id"]
+                    for p in path
+                ):
+                    continue
 
                 queue.append(path + [neighbor])
 
