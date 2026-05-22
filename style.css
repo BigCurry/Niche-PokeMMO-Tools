@@ -1892,6 +1892,43 @@ body.pory-full #poryBackground {
   display: none;
 }
 
+.minimap {
+  display: grid;
+  gap: 8px;
+}
+
+.map-controls {
+  display: grid;
+  grid-template-columns: minmax(150px, 220px) minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+}
+
+.map-region-select {
+  margin: 0;
+}
+
+.map-zoom-control {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(100px, 1fr) 44px;
+  gap: 8px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.map-zoom-control input[type="range"] {
+  width: 100%;
+  min-width: 0;
+}
+
+.map-zoom-control output {
+  color: var(--text);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 .map-viewport {
   width: 100%;
   max-width:1000px;
@@ -1902,6 +1939,8 @@ body.pory-full #poryBackground {
   background: #111;
   position: relative;
   cursor: grab;
+  touch-action: none;
+  user-select: none;
 }
 
 #mapSvg {
@@ -1928,6 +1967,113 @@ body.pory-full #poryBackground {
   fill: red;
   stroke: white;
   stroke-width: 2;
+  pointer-events: none;
+}
+
+@media (max-width: 680px) {
+  .map-controls {
+    grid-template-columns: 1fr;
+  }
+}
+
+.map-editor-toolbar {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--panel) 92%, transparent);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+
+.map-editor-toolbar .btn {
+  min-height: 32px;
+  padding: 6px 10px;
+}
+
+.map-editor-toolbar .btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.map-editor-status {
+  min-width: 96px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.map-viewport.map-editor-drawing {
+  cursor: crosshair;
+}
+
+.map-editor-temp-layer {
+  pointer-events: none;
+}
+
+.map-editor-temp-polygon {
+  fill: rgba(255, 82, 82, 0.22);
+  stroke: #ff5252;
+  stroke-width: 3;
+}
+
+.map-editor-point {
+  fill: #ff5252;
+  stroke: #fff;
+  stroke-width: 2;
+}
+
+.map-editor-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(0,0,0,0.45);
+}
+
+.map-editor-modal-panel {
+  width: min(360px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+}
+
+.map-editor-modal-title {
+  font-weight: 700;
+}
+
+.map-editor-modal-panel label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.map-editor-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.map-editor-copy-buffer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
   pointer-events: none;
 }
 
@@ -2432,6 +2578,7 @@ body.pory-full #poryBackground {
 
   /* enable container queries */
   container-type: inline-size;
+  container-name: breeding-card;
 }
 
 .breeding-chain-title {
@@ -2466,6 +2613,9 @@ body.pory-full #poryBackground {
   border: 1px solid color-mix(in srgb, var(--text) 5%, transparent);
 
   text-align: center;
+
+  container-type: inline-size;
+  container-name: breeding-step;
 }
 
 .breeding-chain-mon {
@@ -2554,16 +2704,8 @@ body.pory-full #poryBackground {
   flex-shrink: 1;
 }
 
-/* large cards */
-@container (min-width: 500px) {
-  .breeding-chain-mon {
-    font-size: 12px;
-  }
-
-  .breeding-chain-method {
-    font-size: 11px;
-  }
-
+/* CARD-LEVEL QUERIES */
+@container breeding-card (min-width: 500px) {
   .chain-img {
     width: 100px;
     height: 100px;
@@ -2574,16 +2716,7 @@ body.pory-full #poryBackground {
   }
 }
 
-/* medium cards */
-@container (max-width: 499px) {
-  .breeding-chain-mon {
-    font-size: 10px;
-  }
-
-  .breeding-chain-method {
-    font-size: 9px;
-  }
-
+@container breeding-card (max-width: 499px) {
   .chain-img {
     width: 70px;
     height: 70px;
@@ -2594,16 +2727,7 @@ body.pory-full #poryBackground {
   }
 }
 
-/* small cards */
-@container (max-width: 300px) {
-  .breeding-chain-mon {
-    font-size: 8px;
-  }
-
-  .breeding-chain-method {
-    font-size: 7px;
-  }
-
+@container breeding-card (max-width: 300px) {
   .chain-img {
     width: 60px;
     height: 60px;
@@ -2618,16 +2742,7 @@ body.pory-full #poryBackground {
   }
 }
 
-/* extremely narrow */
-@container (max-width: 200px) {
-  .breeding-chain-mon {
-    font-size: 6px;
-  }
-
-  .breeding-chain-method {
-    font-size: 5px;
-  }
-
+@container breeding-card (max-width: 200px) {
   .chain-img {
     width: 50px;
     height: 50px;
@@ -2639,5 +2754,99 @@ body.pory-full #poryBackground {
 
   .breeding-chain-step {
     padding: 2px;
+  }
+}
+
+/* STEP-LEVEL QUERIES */
+@container breeding-step (min-width: 70px) {
+  .breeding-chain-mon {
+    font-size: 12px;
+  }
+
+  .breeding-chain-method {
+    font-size: 11px;
+  }
+}
+
+@container breeding-step (max-width: 69px) {
+  .breeding-chain-mon {
+    font-size: 10px;
+  }
+
+  .breeding-chain-method {
+    font-size: 9px;
+  }
+}
+
+@container breeding-step (max-width: 50px) {
+  .breeding-chain-mon {
+    font-size: 7px;
+  }
+
+  .breeding-chain-method {
+    font-size: 6px;
+  }
+}
+
+@container breeding-step (max-width: 40px) {
+  .breeding-chain-mon {
+    font-size: 6px;
+  }
+
+  .breeding-chain-method {
+    font-size: 5px;
+  }
+
+  .chain-img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .breeding-chain-variant-control {
+    width: 15px;
+    height: 15px;
+    font-size: 5px;
+  }
+}
+
+@container breeding-step (max-width: 30px) {
+  .breeding-chain-mon {
+    font-size: 3px;
+  }
+
+  .breeding-chain-method {
+    font-size: 3px;
+  }
+
+  .chain-img {
+    width: 30px;
+    height: 30px;
+  }
+
+  .breeding-chain-variant-control {
+    width: 10px;
+    height: 10px;
+    font-size: 2px;
+  }
+}
+
+@container breeding-step (max-width: 20px) {
+  .breeding-chain-mon {
+    font-size: 2px;
+  }
+
+  .breeding-chain-method {
+    font-size: 2px;
+  }
+
+  .chain-img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .breeding-chain-variant-control {
+    width: 5px;
+    height: 5px;
+    font-size: 2px;
   }
 }

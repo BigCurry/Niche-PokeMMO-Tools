@@ -445,6 +445,16 @@
             </div>
             
             <div class="minimap">
+              <div class="map-controls">
+                <select id="mapRegionSelect" class="dex-input map-region-select" aria-label="Map region">
+                  <option value="">All regions</option>
+                </select>
+                <label class="map-zoom-control">
+                  <span>Zoom</span>
+                  <input id="mapZoomSlider" type="range" min="0" max="500" step="1" value="0">
+                  <output id="mapZoomValue" for="mapZoomSlider">0%</output>
+                </label>
+              </div>
               <div class="map-viewport" id="mapViewport">
 
                 <svg id="mapSvg" viewBox="0 0 1662 1174" preserveAspectRatio="none">

@@ -69,6 +69,8 @@ with open(MONSTERS_FILE, "r", encoding="utf-8") as f:
 def normalize_name(name):
     return name.lower().strip()
 
+def normalize_egg_group(group):
+    return str(group).strip().lower()
 
 def is_genderless(mon):
     return mon.get("gender_ratio") == 255
@@ -79,17 +81,21 @@ def is_female_only(mon):
 
 
 def can_donate(mon):
+
+    effective_groups = get_effective_egg_groups(mon)
+
     return (
         not is_genderless(mon)
         and not is_female_only(mon)
-        and mon.get("egg_groups")
+        and len(effective_groups) > 0
+        and CANNOT_BREED_GROUP not in effective_groups
     )
 
 
 def can_receive(mon):
     return (
         not is_genderless(mon)
-        and mon.get("egg_groups")
+        and len(get_effective_egg_groups(mon)) > 0
     )
 
 
@@ -185,12 +191,139 @@ def get_donor_method(mon, move_id):
 
 
 # ============================================================
+# BREEDABLE EGG GROUP HELPERS
+# ============================================================
+
+CANNOT_BREED_GROUP = "cannot breed"
+
+mons_by_id = {
+    mon["id"]: mon
+    for mon in monsters
+}
+
+# ------------------------------------------------------------
+# Build forward evolution lookup
+#
+# baby -> evolution
+# ------------------------------------------------------------
+
+next_evolution = {}
+
+for mon in monsters:
+
+    for evo in mon.get("evolutions", []):
+
+        next_evolution[mon["id"]] = evo["id"]
+
+def get_first_breedable_evolution(mon):
+    """
+    Returns the first evolution that has usable egg groups.
+    """
+
+    current = mon
+
+    visited = set()
+
+    while current:
+
+        current_id = current["id"]
+
+        if current_id in visited:
+            break
+
+        visited.add(current_id)
+
+        groups = [
+            normalize_egg_group(g)
+            for g in current.get("egg_groups", [])
+        ]
+
+        if (
+            groups
+            and CANNOT_BREED_GROUP not in groups
+        ):
+            return current
+
+        next_id = next_evolution.get(current_id)
+
+        if not next_id:
+            break
+
+        current = mons_by_id.get(next_id)
+
+    return None
+
+
+def get_effective_egg_groups(mon):
+    """
+    Returns the usable breeding egg groups.
+
+    Baby Pokémon inherit the egg groups of the first
+    breedable evolution in their evolution line.
+    """
+
+    egg_groups = [
+        normalize_egg_group(g)
+        for g in mon.get("egg_groups", [])
+    ]
+    
+
+    if not egg_groups:
+        return []
+
+    # --------------------------------------------------------
+    # Already breedable
+    # --------------------------------------------------------
+
+    if CANNOT_BREED_GROUP not in egg_groups:
+        return egg_groups
+
+    # --------------------------------------------------------
+    # Traverse forward evolutions
+    # --------------------------------------------------------
+
+    current_id = mon["id"]
+
+    visited = set()
+
+    while current_id in next_evolution:
+
+        if current_id in visited:
+            break
+
+        visited.add(current_id)
+
+        current_id = next_evolution[current_id]
+
+        evo_mon = mons_by_id.get(current_id)
+
+        if not evo_mon:
+            break
+
+        evo_groups = [
+            normalize_egg_group(g)
+            for g in evo_mon.get("egg_groups", [])
+        ]
+
+        if (
+            evo_groups
+            and CANNOT_BREED_GROUP not in evo_groups
+        ):
+            return evo_groups
+
+    return []
+
+# ============================================================
 # PRECOMPUTE EGG GROUP SETS
 # ============================================================
 
 for mon in monsters:
-    mon["_egg_group_set"] = set(mon.get("egg_groups", []))
 
+    mon["_effective_egg_groups"] = get_effective_egg_groups(mon)
+
+    mon["_egg_group_set"] = set(
+        mon["_effective_egg_groups"]
+    )
 # ============================================================
 # LOOKUPS
 # ============================================================
@@ -216,7 +349,7 @@ for mon in monsters:
     if not can_receive(mon):
         continue
 
-    for group in mon.get("egg_groups", []):
+    for group in mon["_effective_egg_groups"]:
 
         egg_group_index[group].append(mon)
 
@@ -252,7 +385,32 @@ for mon in monsters:
 
         if move_type == "EGG":
 
+            # ------------------------------------------------
+            # Standard breedable species
+            # ------------------------------------------------
+
             move_receivers[move_id].add(mon["id"])
+
+            # ------------------------------------------------
+            # Propagate egg move legality backwards
+            # to baby Pokémon
+            # ------------------------------------------------
+
+            for baby in monsters:
+
+                baby_groups = baby.get("egg_groups", [])
+
+                if CANNOT_BREED_GROUP not in baby_groups:
+                    continue
+
+                evo = get_first_breedable_evolution(baby)
+
+                if not evo:
+                    continue
+
+                if evo["id"] == mon["id"]:
+
+                    move_receivers[move_id].add(baby["id"])
 
         # ----------------------------------------------------
         # Natural Donors
@@ -327,7 +485,7 @@ def build_move_graph(move_id):
 
         neighbors = {}
 
-        for group in mon.get("egg_groups", []):
+        for group in mon.get("_effective_egg_groups", []):
 
             for other in egg_group_index[group]:
 
@@ -542,15 +700,6 @@ def find_breeding_chains(target_mon, move_id):
         # Prevent self-loops
         if donor["id"] == target_mon["id"]:
             continue
-
-        # ====================================================
-        # SMEARGLE RESTRICTION
-        # ====================================================
-
-        if donor_name == "smeargle":
-
-            if "field" not in target_groups:
-                continue
 
         # ====================================================
         # DIRECT BREED

@@ -3,6 +3,7 @@
    ============================================================= */
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => Array.from(document.querySelectorAll(s));
+const ENABLE_MAP_POINT_EDITOR = false;
 
 /* =============================================================
    Link Dropdown
@@ -1932,6 +1933,19 @@ const PokedexTool = (() => {
   let evolutionFamilyRootById = new Map();
 
   let viewport;
+  let mapSvgEl;
+  let mapZoomSlider;
+  let mapZoomValue;
+  let mapRegionSelect;
+  let mapScale = 1;
+  let mapX = 0;
+  let mapY = 0;
+  let mapSuppressLocationClickUntil = 0;
+
+  const MAP_WORLD_WIDTH = 1662;
+  const MAP_WORLD_HEIGHT = 1174;
+  const MAP_MIN_SCALE = 1;
+  const MAP_MAX_SCALE = 6;
   /* =============================================================
      const
   ============================================================= */
@@ -2301,6 +2315,7 @@ const PokedexTool = (() => {
     buildEggPills();
     buildMoveInputs();
     buildAbilityAutocomplete();
+    buildMapRegionSelect();
     buildMapRegions()
     buildLocationFilter();
     buildStatSliders();
@@ -2632,7 +2647,8 @@ const PokedexTool = (() => {
   function buildEggMoveBreedingChains(mon, move) {
     if (!mon || !move || move.type !== "EGG") return "";
 
-    const rawChains = getBreedingChains(move._eggMoveSourceMonName || mon.name, move.id);
+    const chainSourceMon = move._eggMoveSourceMonName || getEvolutionFamilyRootMon(mon)?.name || mon.name;
+    const rawChains = getBreedingChains(chainSourceMon, move.id);
     const chains = prepareBreedingChainDisplay(rawChains);
 
     if (!chains.length) {
@@ -3254,17 +3270,22 @@ const PokedexTool = (() => {
       const name = item.dataset.name;
       const region = item.dataset.region;
       
-      selectLocation(name);
+      selectLocation(name, region);
       dropdown.classList.add("hidden");
     });
 
   }
 
-  function selectLocation(name) {
-    const loc = LOCATION_DATA.find(l => l.name === name);
+  function selectLocation(name, region) {
+    if (!name || !region) return;
+
+    const loc = LOCATION_DATA.find(l =>
+      l.name === name && l.region === region
+    );
     if (!loc) return;
 
     $("#filterLocation").value = `${loc.name} (${loc.region})`;
+    syncMapRegionSelect(loc.region);
 
     filters.location = {
       name: loc.name.toLowerCase(),
@@ -3272,7 +3293,33 @@ const PokedexTool = (() => {
     };
 
     placePinFromRegion(loc);
+    zoomMapToRegion(loc.region);
     applyFilters();
+  }
+
+  function buildMapRegionSelect() {
+    mapRegionSelect = document.getElementById("mapRegionSelect");
+    if (!mapRegionSelect) return;
+
+    const regions = [...new Set(LOCATION_DATA.map(loc => loc.region).filter(Boolean))].sort();
+    mapRegionSelect.innerHTML = `
+      <option value="">All regions</option>
+      ${regions.map(region => `<option value="${region}">${region}</option>`).join("")}
+    `;
+
+    mapRegionSelect.addEventListener("change", () => {
+      if (mapRegionSelect.value) {
+        zoomMapToRegion(mapRegionSelect.value);
+      } else {
+        setMapZoomPercent(0);
+      }
+    });
+  }
+
+  function syncMapRegionSelect(region) {
+    mapRegionSelect = mapRegionSelect || document.getElementById("mapRegionSelect");
+    if (!mapRegionSelect) return;
+    mapRegionSelect.value = region || "";
   }
 
   function buildMapRegions() {
@@ -3287,11 +3334,18 @@ const PokedexTool = (() => {
         el.setAttribute("points", loc.points);
       }
 
+      if (!el) return;
+
       el.classList.add("map-region");
       el.dataset.name = loc.name;
+      el.dataset.region = loc.region;
 
       el.addEventListener("click", () => {
-        selectLocation(loc.name);
+        if (Date.now() < mapSuppressLocationClickUntil) {
+          return;
+        }
+
+        selectLocation(loc.name, loc.region);
       });
 
       container.appendChild(el);
@@ -3301,21 +3355,27 @@ const PokedexTool = (() => {
   function initMapControls() {
     const svg = document.getElementById("mapSvg");
     viewport = document.getElementById("mapViewport");
+    mapSvgEl = svg;
+    mapZoomSlider = document.getElementById("mapZoomSlider");
+    mapZoomValue = document.getElementById("mapZoomValue");
+    mapRegionSelect = document.getElementById("mapRegionSelect");
 
-    let scale = 1;
-    let x = 0;
-    let y = 0;
     let isDragging = false;
     let startX, startY;
+    let dragStartClientX = 0;
+    let dragStartClientY = 0;
 
     let lastDist = 0;
     let lastMid = null;
 
     function update() {
-      ({ x, y } = clamp(x, y, scale));
-      svg.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
-      svg.style.transformOrigin = "0 0";
+      updateMapTransform();
     }
+
+    mapZoomSlider?.addEventListener("input", () => {
+      setMapZoomPercent(Number(mapZoomSlider.value));
+      if (Number(mapZoomSlider.value) === 0) syncMapRegionSelect("");
+    });
 
     /* ZOOM */
     viewport.addEventListener("wheel", (e) => {
@@ -3329,25 +3389,25 @@ const PokedexTool = (() => {
       const mx = e.clientX - rect.left;
       const my = e.clientY - rect.top;
 
-      const oldScale = scale;
-      const newScale = Math.max(1, Math.min(4, scale + delta * zoomIntensity));
+      const oldScale = mapScale;
+      const newScale = Math.max(MAP_MIN_SCALE, Math.min(MAP_MAX_SCALE, mapScale + delta * zoomIntensity));
 
       // world position BEFORE zoom
-      const worldX = (mx - x) / oldScale;
-      const worldY = (my - y) / oldScale;
+      const worldX = (mx - mapX) / oldScale;
+      const worldY = (my - mapY) / oldScale;
 
       // apply zoom
-      scale = newScale;
+      mapScale = newScale;
 
       // compute new pan
-      let newX = mx - worldX * scale;
-      let newY = my - worldY * scale;
+      let newX = mx - worldX * mapScale;
+      let newY = my - worldY * mapScale;
 
       // 🔥 ALWAYS clamp AFTER computing new position
-      ({ x: newX, y: newY } = clamp(newX, newY, scale));
+      ({ x: newX, y: newY } = clamp(newX, newY, mapScale));
 
-      x = newX;
-      y = newY;
+      mapX = newX;
+      mapY = newY;
 
       update();
     });
@@ -3355,16 +3415,22 @@ const PokedexTool = (() => {
     /* PAN */
     viewport.addEventListener("mousedown", (e) => {
       isDragging = true;
-      startX = e.clientX - x;
-      startY = e.clientY - y;
+      dragStartClientX = e.clientX;
+      dragStartClientY = e.clientY;
+      startX = e.clientX - mapX;
+      startY = e.clientY - mapY;
       viewport.style.cursor = "grabbing";
     });
 
     window.addEventListener("mousemove", (e) => {
       if (!isDragging) return;
 
-      x = e.clientX - startX;
-      y = e.clientY - startY;
+      if (Math.hypot(e.clientX - dragStartClientX, e.clientY - dragStartClientY) > 5) {
+        mapSuppressLocationClickUntil = Date.now() + 350;
+      }
+
+      mapX = e.clientX - startX;
+      mapY = e.clientY - startY;
 
       update();
     });
@@ -3376,8 +3442,16 @@ const PokedexTool = (() => {
 
     viewport.addEventListener("touchstart", (e) => {
       if (e.touches.length === 2) {
+        isDragging = false;
+        mapSuppressLocationClickUntil = Date.now() + 350;
         lastDist = getTouchDistance(e);
         lastMid = getTouchMidpoint(e);
+      } else if (e.touches.length === 1) {
+        isDragging = true;
+        dragStartClientX = e.touches[0].clientX;
+        dragStartClientY = e.touches[0].clientY;
+        startX = e.touches[0].clientX - mapX;
+        startY = e.touches[0].clientY - mapY;
       }
     }, { passive: false });
 
@@ -3389,38 +3463,146 @@ const PokedexTool = (() => {
         const newMid = getTouchMidpoint(e);
 
         const zoomFactor = newDist / lastDist;
-        const newScale = Math.max(1, Math.min(4, scale * zoomFactor));
+        const newScale = Math.max(MAP_MIN_SCALE, Math.min(MAP_MAX_SCALE, mapScale * zoomFactor));
 
         const rect = viewport.getBoundingClientRect();
         const mx = newMid.x - rect.left;
         const my = newMid.y - rect.top;
 
-        const worldX = (mx - x) / scale;
-        const worldY = (my - y) / scale;
+        const worldX = (mx - mapX) / mapScale;
+        const worldY = (my - mapY) / mapScale;
 
         lastDist = newDist;
         lastMid = newMid;
 
-        scale = newScale;
+        mapScale = newScale;
 
-        let newX = mx - worldX * scale;
-        let newY = my - worldY * scale;
+        let newX = mx - worldX * mapScale;
+        let newY = my - worldY * mapScale;
 
-        ({ x: newX, y: newY } = clamp(newX, newY, scale));
+        ({ x: newX, y: newY } = clamp(newX, newY, mapScale));
 
-        x = newX;
-        y = newY;
+        mapX = newX;
+        mapY = newY;
 
+        update();
+      } else if (e.touches.length === 1 && isDragging) {
+        e.preventDefault();
+        if (Math.hypot(e.touches[0].clientX - dragStartClientX, e.touches[0].clientY - dragStartClientY) > 5) {
+          mapSuppressLocationClickUntil = Date.now() + 350;
+        }
+        mapX = e.touches[0].clientX - startX;
+        mapY = e.touches[0].clientY - startY;
         update();
       }
     }, { passive: false });
 
     viewport.addEventListener("touchend", () => {
+      isDragging = false;
       lastDist = 0;
       lastMid = null;
     });
 
+    update();
     initMapDevTools()
+  }
+
+  function updateMapTransform() {
+    if (!mapSvgEl || !viewport) return;
+
+    ({ x: mapX, y: mapY } = clamp(mapX, mapY, mapScale));
+    mapSvgEl.style.transform = `translate(${mapX}px, ${mapY}px) scale(${mapScale})`;
+    mapSvgEl.style.transformOrigin = "0 0";
+    syncMapZoomControls();
+  }
+
+  function syncMapZoomControls() {
+    const zoomPercent = Math.round((mapScale - MAP_MIN_SCALE) * 100);
+
+    if (mapZoomSlider && Number(mapZoomSlider.value) !== zoomPercent) {
+      mapZoomSlider.value = zoomPercent;
+    }
+
+    if (mapZoomValue) {
+      mapZoomValue.value = `${zoomPercent}%`;
+      mapZoomValue.textContent = `${zoomPercent}%`;
+    }
+  }
+
+  function setMapZoomPercent(percent) {
+    const nextScale = MAP_MIN_SCALE + Math.max(0, Math.min(500, percent)) / 100;
+    zoomMapToScale(nextScale);
+  }
+
+  function zoomMapToScale(nextScale, focusPoint = null) {
+    if (!viewport) return;
+
+    const rect = viewport.getBoundingClientRect();
+    const mx = focusPoint ? focusPoint.clientX - rect.left : rect.width / 2;
+    const my = focusPoint ? focusPoint.clientY - rect.top : rect.height / 2;
+    const clampedScale = Math.max(MAP_MIN_SCALE, Math.min(MAP_MAX_SCALE, nextScale));
+
+    const worldX = (mx - mapX) / mapScale;
+    const worldY = (my - mapY) / mapScale;
+
+    mapScale = clampedScale;
+    mapX = mx - worldX * mapScale;
+    mapY = my - worldY * mapScale;
+
+    updateMapTransform();
+  }
+
+  function zoomMapToRegion(region) {
+    if (!viewport || !region) return;
+
+    const bounds = getMapRegionBounds(region);
+    if (!bounds) return;
+
+    const rect = viewport.getBoundingClientRect();
+    const baseScaleX = rect.width / MAP_WORLD_WIDTH;
+    const baseScaleY = rect.height / MAP_WORLD_HEIGHT;
+    const padding = Math.min(rect.width, rect.height) * 0.12;
+    const regionWidth = Math.max(1, bounds.maxX - bounds.minX) * baseScaleX;
+    const regionHeight = Math.max(1, bounds.maxY - bounds.minY) * baseScaleY;
+    const fitScale = Math.min(
+      (rect.width - padding * 2) / regionWidth,
+      (rect.height - padding * 2) / regionHeight
+    );
+
+    mapScale = Math.max(MAP_MIN_SCALE, Math.min(MAP_MAX_SCALE, fitScale));
+    mapX = rect.width / 2 - ((bounds.minX + bounds.maxX) / 2) * baseScaleX * mapScale;
+    mapY = rect.height / 2 - ((bounds.minY + bounds.maxY) / 2) * baseScaleY * mapScale;
+
+    syncMapRegionSelect(region);
+    updateMapTransform();
+  }
+
+  function getMapRegionBounds(region) {
+    const regionLocations = LOCATION_DATA.filter(loc => loc.region === region && loc.points);
+    if (!regionLocations.length) return null;
+
+    return regionLocations.reduce((bounds, loc) => {
+      parseMapPoints(loc.points).forEach(([px, py]) => {
+        bounds.minX = Math.min(bounds.minX, px);
+        bounds.maxX = Math.max(bounds.maxX, px);
+        bounds.minY = Math.min(bounds.minY, py);
+        bounds.maxY = Math.max(bounds.maxY, py);
+      });
+      return bounds;
+    }, {
+      minX: Infinity,
+      maxX: -Infinity,
+      minY: Infinity,
+      maxY: -Infinity
+    });
+  }
+
+  function parseMapPoints(points) {
+    return points
+      .trim()
+      .split(/\s+/)
+      .map(point => point.split(",").map(Number))
+      .filter(([px, py]) => Number.isFinite(px) && Number.isFinite(py));
   }
 
   function getTouchDistance(e) {
@@ -3440,8 +3622,8 @@ const PokedexTool = (() => {
     const rect = viewport.getBoundingClientRect();
 
     // ✅ CONSTANT world size (from viewBox)
-    const worldWidth = 1662;
-    const worldHeight = 1174;
+    const worldWidth = MAP_WORLD_WIDTH;
+    const worldHeight = MAP_WORLD_HEIGHT;
 
     // ✅ Convert SVG units → screen pixels ONCE
     const baseScaleX = rect.width / worldWidth;
@@ -3476,7 +3658,8 @@ const PokedexTool = (() => {
   }
 
   function placePinFromRegion(loc) {
-    const points = loc.points.split(" ").map(p => p.split(",").map(Number));
+    const points = parseMapPoints(loc.points || "");
+    if (!points.length) return;
 
     // simple centroid
     const cx = points.reduce((sum, p) => sum + p[0], 0) / points.length;
@@ -3489,170 +3672,255 @@ const PokedexTool = (() => {
   }
 
   function initMapDevTools() {
-    const svg = document.getElementById("mapSvg");
+    if (!ENABLE_MAP_POINT_EDITOR) return;
 
-    let devMode = false;
+    const svg = document.getElementById("mapSvg");
+    const viewport = document.getElementById("mapViewport");
+    const regions = document.getElementById("mapRegions");
+
     let drawing = false;
     let currentPoints = [];
+    let tempLayer = null;
+    let statusText = null;
 
-    let polygons = [...LOCATION_DATA]; // preload existing
+    const polygons = LOCATION_DATA;
 
-    /* -------------------------
-      UI: COPY BUTTON
-    ------------------------- */
-    const copyBtn = document.createElement("button");
-    copyBtn.textContent = "Copy JSON";
-    Object.assign(copyBtn.style, {
-      position: "fixed",
-      bottom: "20px",
-      right: "20px",
-      zIndex: 9999,
-      padding: "8px 12px",
-      background: "#00c8ff",
-      border: "none",
-      borderRadius: "6px",
-      cursor: "pointer",
-      display: "none"
-    });
+    const toolbar = document.createElement("div");
+    toolbar.className = "map-editor-toolbar";
+    toolbar.innerHTML = `
+      <button type="button" class="btn btn--panel" data-action="draw">Add Points</button>
+      <button type="button" class="btn btn--panel" data-action="done" disabled>Done</button>
+      <button type="button" class="btn btn--panel" data-action="cancel" disabled>Cancel</button>
+      <button type="button" class="btn btn--panel" data-action="copy">Copy JSON</button>
+      <span class="map-editor-status">Idle</span>
+    `;
+    viewport.appendChild(toolbar);
 
-    document.body.appendChild(copyBtn);
+    const drawBtn = toolbar.querySelector('[data-action="draw"]');
+    const doneBtn = toolbar.querySelector('[data-action="done"]');
+    const cancelBtn = toolbar.querySelector('[data-action="cancel"]');
+    const copyToolbarBtn = toolbar.querySelector('[data-action="copy"]');
+    statusText = toolbar.querySelector(".map-editor-status");
 
-    copyBtn.onclick = () => {
-      const json = JSON.stringify(polygons, null, 2);
-      navigator.clipboard.writeText(json);
-      copyBtn.textContent = "Copied!";
-      setTimeout(() => copyBtn.textContent = "Copy JSON", 1000);
-    };
+    toolbar.addEventListener("click", (e) => {
+      const action = e.target.closest("button")?.dataset.action;
+      if (!action) return;
 
-    /* -------------------------
-      KEY CONTROLS
-    ------------------------- */
-    window.addEventListener("keydown", (e) => {
-      if (e.key.toLowerCase() === "d") {
-        devMode = !devMode;
-        copyBtn.style.display = devMode ? "block" : "none";
-        console.log("DEV MODE:", devMode);
-      }
-
-      if (!devMode) return;
-
-      if (e.key.toLowerCase() === "p") {
-        if (!drawing) {
-          // START DRAWING
-          drawing = true;
-          currentPoints = [];
-          console.log("Polygon start");
-        } else {
-          // FINISH DRAWING
-          drawing = false;
-          openPolygonForm(currentPoints);
-        }
+      if (action === "draw") {
+        startDrawing();
+      } else if (action === "done") {
+        finishDrawing();
+      } else if (action === "cancel") {
+        cancelDrawing();
+      } else if (action === "copy") {
+        copyLocationsJson(copyToolbarBtn);
       }
     });
 
-    /* -------------------------
-      CLICK HANDLER
-    ------------------------- */
+    viewport.addEventListener("mousedown", (e) => {
+      if (!drawing || e.target.closest(".map-editor-toolbar")) return;
+      e.preventDefault();
+      e.stopPropagation();
+    }, true);
+
     svg.addEventListener("click", (e) => {
-      if (!devMode || !drawing) return;
+      if (!drawing || e.target.closest(".map-editor-toolbar")) return;
 
+      e.preventDefault();
+      e.stopImmediatePropagation();
       const pt = getSVGPoint(svg, e.clientX, e.clientY);
 
       currentPoints.push([pt.x, pt.y]);
+      drawTempShape();
+      updateEditorState();
+    }, true);
 
-      drawTempPoint(pt);
-      drawTempPolygon(currentPoints);
-    });
+    function startDrawing() {
+      drawing = true;
+      currentPoints = [];
+      ensureTempLayer();
+      tempLayer.replaceChildren();
+      viewport.classList.add("map-editor-drawing");
+      updateEditorState();
+    }
 
-    /* -------------------------
-      SVG POINT CONVERSION
-    ------------------------- */
-    function getSVGPoint(svg, clientX, clientY) {
-      const pt = svg.createSVGPoint();
+    function finishDrawing() {
+      if (currentPoints.length < 3) {
+        statusText.textContent = "Add at least 3 points";
+        return;
+      }
+
+      drawing = false;
+      viewport.classList.remove("map-editor-drawing");
+      updateEditorState();
+      openPolygonForm([...currentPoints]);
+    }
+
+    function cancelDrawing() {
+      drawing = false;
+      viewport.classList.remove("map-editor-drawing");
+      clearTemp();
+      updateEditorState();
+    }
+
+    async function copyLocationsJson(button) {
+      const previousText = button.textContent;
+      const json = JSON.stringify(polygons, null, 2);
+
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(json);
+        } else {
+          fallbackCopyText(json);
+        }
+        button.textContent = "Copied";
+      } catch (err) {
+        try {
+          fallbackCopyText(json);
+          button.textContent = "Copied";
+        } catch (fallbackErr) {
+          console.warn("Clipboard write failed.", err, fallbackErr);
+          button.textContent = "Copy failed";
+        }
+      }
+
+      setTimeout(() => {
+        button.textContent = previousText;
+      }, 1200);
+    }
+
+    function fallbackCopyText(text) {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.className = "map-editor-copy-buffer";
+      document.body.appendChild(textarea);
+      textarea.select();
+      const copied = document.execCommand("copy");
+      textarea.remove();
+      if (!copied) throw new Error("Copy command was rejected.");
+    }
+
+    function updateEditorState() {
+      drawBtn.disabled = drawing;
+      doneBtn.disabled = !drawing;
+      cancelBtn.disabled = !drawing;
+      statusText.textContent = drawing
+        ? `${currentPoints.length} point${currentPoints.length === 1 ? "" : "s"} selected`
+        : "Idle";
+    }
+
+    function getSVGPoint(svgEl, clientX, clientY) {
+      const pt = svgEl.createSVGPoint();
       pt.x = clientX;
       pt.y = clientY;
 
-      return pt.matrixTransform(svg.getScreenCTM().inverse());
+      return pt.matrixTransform(svgEl.getScreenCTM().inverse());
     }
 
-    /* -------------------------
-      TEMP DRAWING
-    ------------------------- */
-    let tempPoly = null;
-
-    function drawTempPoint(pt) {
-      const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-      c.setAttribute("cx", pt.x);
-      c.setAttribute("cy", pt.y);
-      c.setAttribute("r", 4);
-      c.setAttribute("fill", "red");
-      svg.appendChild(c);
+    function ensureTempLayer() {
+      if (tempLayer) return;
+      tempLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      tempLayer.classList.add("map-editor-temp-layer");
+      svg.appendChild(tempLayer);
     }
 
-    function drawTempPolygon(points) {
-      if (tempPoly) tempPoly.remove();
+    function drawTempShape() {
+      ensureTempLayer();
+      tempLayer.replaceChildren();
 
-      tempPoly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-      tempPoly.setAttribute(
-        "points",
-        points.map(p => p.join(",")).join(" ")
-      );
-      tempPoly.setAttribute("fill", "rgba(255,0,0,0.2)");
-      tempPoly.setAttribute("stroke", "red");
+      if (currentPoints.length > 1) {
+        const tempPoly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+        tempPoly.setAttribute("points", pointsToString(currentPoints));
+        tempPoly.classList.add("map-editor-temp-polygon");
+        tempLayer.appendChild(tempPoly);
+      }
 
-      svg.appendChild(tempPoly);
+      currentPoints.forEach(([x, y], index) => {
+        const point = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        point.setAttribute("cx", x);
+        point.setAttribute("cy", y);
+        point.setAttribute("r", 5);
+        point.classList.add("map-editor-point");
+        point.dataset.index = index + 1;
+        tempLayer.appendChild(point);
+      });
     }
 
-    /* -------------------------
-      FORM UI
-    ------------------------- */
     function openPolygonForm(points) {
       const modal = document.createElement("div");
-
-      Object.assign(modal.style, {
-        position: "fixed",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        background: "#222",
-        padding: "20px",
-        zIndex: 10000,
-        borderRadius: "10px"
-      });
+      modal.className = "map-editor-modal";
 
       modal.innerHTML = `
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <input id="polyName" placeholder="Location name">
-          <input id="polyRegion" placeholder="Region">
-          <button id="savePoly">Save</button>
-        </div>
+        <form class="map-editor-modal-panel">
+          <div class="map-editor-modal-title">New Location</div>
+          <label>
+            <span>Location Name</span>
+            <input id="polyName" class="dex-input" autocomplete="off" required>
+          </label>
+          <label>
+            <span>Region</span>
+            <input id="polyRegion" class="dex-input" autocomplete="off" required>
+          </label>
+          <div class="map-editor-modal-actions">
+            <button type="button" class="btn btn--secondary" data-action="discard">Discard</button>
+            <button type="submit" class="btn">Save</button>
+          </div>
+        </form>
       `;
 
       document.body.appendChild(modal);
+      modal.querySelector("#polyName").focus();
 
-      modal.querySelector("#savePoly").onclick = () => {
-        const name = modal.querySelector("#polyName").value;
-        const region = modal.querySelector("#polyRegion").value;
+      modal.querySelector('[data-action="discard"]').addEventListener("click", () => {
+        modal.remove();
+        clearTemp();
+        updateEditorState();
+      });
+
+      modal.querySelector("form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const name = modal.querySelector("#polyName").value.trim();
+        const region = modal.querySelector("#polyRegion").value.trim();
+        if (!name || !region) return;
 
         const polygon = {
           name,
           region,
           shape: "polygon",
-          points: points.map(p => p.join(",")).join(" ")
+          points: pointsToString(points)
         };
 
         polygons.push(polygon);
-
-        console.log("Saved:", polygon);
+        addMapRegionElement(polygon);
+        selectLocation(polygon.name, polygon.region);
 
         modal.remove();
         clearTemp();
-      };
+        updateEditorState();
+      });
+    }
+
+    function addMapRegionElement(loc) {
+      const el = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+      el.setAttribute("points", loc.points);
+      el.classList.add("map-region");
+      el.dataset.name = loc.name;
+      el.dataset.region = loc.region;
+      el.addEventListener("click", () => {
+        if (Date.now() < mapSuppressLocationClickUntil) return;
+        selectLocation(loc.name, loc.region);
+      });
+      regions.appendChild(el);
+    }
+
+    function pointsToString(points) {
+      return points.map(([x, y]) => `${x},${y}`).join(" ");
     }
 
     function clearTemp() {
       currentPoints = [];
-      if (tempPoly) tempPoly.remove();
+      tempLayer?.replaceChildren();
     }
   }
 
@@ -3908,6 +4176,8 @@ const PokedexTool = (() => {
         filters.location = "";
         $("#filterLocation").value = "";
         $("#mapPin")?.classList.add("hidden");
+        syncMapRegionSelect("");
+        setMapZoomPercent(0);
         break;
 
       case "moves":
