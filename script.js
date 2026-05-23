@@ -3,7 +3,7 @@
    ============================================================= */
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => Array.from(document.querySelectorAll(s));
-const ENABLE_MAP_POINT_EDITOR = false;
+const ENABLE_MAP_POINT_EDITOR = true;
 
 /* =============================================================
    Link Dropdown
@@ -3246,11 +3246,26 @@ const PokedexTool = (() => {
     input.addEventListener("input", () => {
       const q = input.value.toLowerCase();
 
-      const matches = LOCATION_DATA.filter(l => {
-        const name = l.name.toLowerCase();
-        const region = l.region.toLowerCase();
-        return name.includes(q) || region.includes(q);
-      }).slice(0, 10);
+      // dedupe by name + region
+      const unique = new Map();
+
+      LOCATION_DATA.forEach(loc => {
+        const name = loc.name.toLowerCase();
+        const region = loc.region.toLowerCase();
+
+        if (
+          name.includes(q) ||
+          region.includes(q)
+        ) {
+          const key = `${name}__${region}`;
+
+          if (!unique.has(key)) {
+            unique.set(key, loc);
+          }
+        }
+      });
+
+      const matches = [...unique.values()].slice(0, 10);
 
       dropdown.innerHTML = matches.map(l => `
         <div class="dropdown-item" 
@@ -3279,21 +3294,26 @@ const PokedexTool = (() => {
   function selectLocation(name, region) {
     if (!name || !region) return;
 
-    const loc = LOCATION_DATA.find(l =>
-      l.name === name && l.region === region
+    // ALL matching locations
+    const matches = LOCATION_DATA.filter(l =>
+      l.name === name &&
+      l.region === region
     );
-    if (!loc) return;
 
-    $("#filterLocation").value = `${loc.name} (${loc.region})`;
-    syncMapRegionSelect(loc.region);
+    if (!matches.length) return;
+
+    $("#filterLocation").value = `${name} (${region})`;
+
+    syncMapRegionSelect(region);
 
     filters.location = {
-      name: loc.name.toLowerCase(),
-      region: loc.region.toLowerCase()
+      name: name.toLowerCase(),
+      region: region.toLowerCase()
     };
 
-    placePinFromRegion(loc);
-    zoomMapToRegion(loc.region);
+    highlightLocations(matches);
+    zoomMapToLocations(matches);
+
     applyFilters();
   }
 
@@ -3322,6 +3342,26 @@ const PokedexTool = (() => {
     mapRegionSelect.value = region || "";
   }
 
+  function clearLocationHighlights() {
+    document.querySelectorAll(".map-region.active-location")
+      .forEach(el => el.classList.remove("active-location"));
+  }
+
+  function highlightLocations(locations) {
+    clearLocationHighlights();
+
+    locations.forEach(loc => {
+      document.querySelectorAll(".map-region").forEach(el => {
+        if (
+          el.dataset.name === loc.name &&
+          el.dataset.region === loc.region
+        ) {
+          el.classList.add("active-location");
+        }
+      });
+    });
+  }
+
   function buildMapRegions() {
     const container = document.getElementById("mapRegions");
     container.innerHTML = "";
@@ -3340,7 +3380,25 @@ const PokedexTool = (() => {
       el.dataset.name = loc.name;
       el.dataset.region = loc.region;
 
-      el.addEventListener("click", () => {
+      el.addEventListener("click", (e) => {
+
+        // EDIT MODE
+        if (
+          ENABLE_MAP_POINT_EDITOR &&
+          document.getElementById("mapViewport")
+            ?.classList.contains("map-editor-editing")
+        ) {
+
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+
+          window.__beginPolygonEdit?.(loc, el);
+
+          return;
+        }
+
+        // NORMAL CLICK
         if (Date.now() < mapSuppressLocationClickUntil) {
           return;
         }
@@ -3577,6 +3635,41 @@ const PokedexTool = (() => {
     updateMapTransform();
   }
 
+  function zoomMapToLocations(locations) {
+    if (!viewport || !locations?.length) return;
+
+    const bounds = getLocationsBounds(locations);
+    if (!bounds) return;
+
+    const rect = viewport.getBoundingClientRect();
+
+    const baseScaleX = rect.width / MAP_WORLD_WIDTH;
+    const baseScaleY = rect.height / MAP_WORLD_HEIGHT;
+
+    const padding = Math.min(rect.width, rect.height) * 0.15;
+
+    const width = Math.max(1, bounds.maxX - bounds.minX) * baseScaleX;
+    const height = Math.max(1, bounds.maxY - bounds.minY) * baseScaleY;
+
+    const fitScale = Math.min(
+      (rect.width - padding * 2) / width,
+      (rect.height - padding * 2) / height
+    );
+
+    mapScale = Math.max(
+      MAP_MIN_SCALE,
+      Math.min(MAP_MAX_SCALE, fitScale)
+    );
+
+    const centerX = (bounds.minX + bounds.maxX) / 2;
+    const centerY = (bounds.minY + bounds.maxY) / 2;
+
+    mapX = rect.width / 2 - centerX * baseScaleX * mapScale;
+    mapY = rect.height / 2 - centerY * baseScaleY * mapScale;
+
+    updateMapTransform();
+  }
+
   function getMapRegionBounds(region) {
     const regionLocations = LOCATION_DATA.filter(loc => loc.region === region && loc.points);
     if (!regionLocations.length) return null;
@@ -3595,6 +3688,41 @@ const PokedexTool = (() => {
       minY: Infinity,
       maxY: -Infinity
     });
+  }
+
+  function getLocationsBounds(locations) {
+    const allPoints = [];
+
+    locations.forEach(loc => {
+      parseMapPoints(loc.points || "")
+        .forEach(point => allPoints.push(point));
+    });
+
+    if (!allPoints.length) return null;
+
+    return allPoints.reduce((bounds, [px, py]) => {
+      bounds.minX = Math.min(bounds.minX, px);
+      bounds.maxX = Math.max(bounds.maxX, px);
+      bounds.minY = Math.min(bounds.minY, py);
+      bounds.maxY = Math.max(bounds.maxY, py);
+
+      return bounds;
+    }, {
+      minX: Infinity,
+      maxX: -Infinity,
+      minY: Infinity,
+      maxY: -Infinity
+    });
+  }
+
+  function getMapLocationCenter(loc) {
+    const points = parseMapPoints(loc.points || "");
+    if (!points.length) return null;
+
+    return {
+      x: points.reduce((sum, p) => sum + p[0], 0) / points.length,
+      y: points.reduce((sum, p) => sum + p[1], 0) / points.length
+    };
   }
 
   function parseMapPoints(points) {
@@ -3658,16 +3786,12 @@ const PokedexTool = (() => {
   }
 
   function placePinFromRegion(loc) {
-    const points = parseMapPoints(loc.points || "");
-    if (!points.length) return;
-
-    // simple centroid
-    const cx = points.reduce((sum, p) => sum + p[0], 0) / points.length;
-    const cy = points.reduce((sum, p) => sum + p[1], 0) / points.length;
+    const center = getMapLocationCenter(loc);
+    if (!center) return;
 
     const pin = document.getElementById("mapPin");
-    pin.setAttribute("cx", cx);
-    pin.setAttribute("cy", cy);
+    pin.setAttribute("cx", center.x);
+    pin.setAttribute("cy", center.y);
     pin.classList.remove("hidden");
   }
 
@@ -3682,6 +3806,10 @@ const PokedexTool = (() => {
     let currentPoints = [];
     let tempLayer = null;
     let statusText = null;
+    let editingPolygon = null;
+    let editingPoints = [];
+    let dragPointIndex = -1;
+    let editLayer = null;
 
     const polygons = LOCATION_DATA;
 
@@ -3689,6 +3817,7 @@ const PokedexTool = (() => {
     toolbar.className = "map-editor-toolbar";
     toolbar.innerHTML = `
       <button type="button" class="btn btn--panel" data-action="draw">Add Points</button>
+      <button type="button" class="btn btn--panel" data-action="edit">Edit Location</button>
       <button type="button" class="btn btn--panel" data-action="done" disabled>Done</button>
       <button type="button" class="btn btn--panel" data-action="cancel" disabled>Cancel</button>
       <button type="button" class="btn btn--panel" data-action="copy">Copy JSON</button>
@@ -3697,6 +3826,7 @@ const PokedexTool = (() => {
     viewport.appendChild(toolbar);
 
     const drawBtn = toolbar.querySelector('[data-action="draw"]');
+    const editBtn = toolbar.querySelector('[data-action="edit"]');
     const doneBtn = toolbar.querySelector('[data-action="done"]');
     const cancelBtn = toolbar.querySelector('[data-action="cancel"]');
     const copyToolbarBtn = toolbar.querySelector('[data-action="copy"]');
@@ -3708,10 +3838,16 @@ const PokedexTool = (() => {
 
       if (action === "draw") {
         startDrawing();
+      } else if (action === "edit") {
+        startEditMode();
       } else if (action === "done") {
-        finishDrawing();
+        if (editingPolygon) {
+          finishEditing();
+        } else {
+          finishDrawing();
+        }
       } else if (action === "cancel") {
-        cancelDrawing();
+        cancelEditing();
       } else if (action === "copy") {
         copyLocationsJson(copyToolbarBtn);
       }
@@ -3734,6 +3870,31 @@ const PokedexTool = (() => {
       drawTempShape();
       updateEditorState();
     }, true);
+
+    svg.addEventListener("mousedown", (e) => {
+      const point = e.target.closest(".map-editor-edit-point");
+
+      if (!point || !editingPolygon) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      dragPointIndex = Number(point.dataset.index);
+    }, true);
+
+    window.addEventListener("mousemove", (e) => {
+      if (dragPointIndex === -1 || !editingPolygon) return;
+
+      const pt = getSVGPoint(svg, e.clientX, e.clientY);
+
+      editingPoints[dragPointIndex] = [pt.x, pt.y];
+
+      drawEditHandles();
+    });
+
+    window.addEventListener("mouseup", () => {
+      dragPointIndex = -1;
+    });
 
     function startDrawing() {
       drawing = true;
@@ -3760,6 +3921,67 @@ const PokedexTool = (() => {
       drawing = false;
       viewport.classList.remove("map-editor-drawing");
       clearTemp();
+      updateEditorState();
+    }
+    function startEditMode() {
+      drawing = false;
+      editingPolygon = null;
+      editingPoints = [];
+      viewport.classList.add("map-editor-editing");
+
+      statusText.textContent = "Click a polygon to edit";
+    }
+
+    function beginPolygonEdit(loc, el) {
+      editingPolygon = {
+        data: loc,
+        element: el
+      };
+
+      editingPoints = parseMapPoints(loc.points);
+
+      ensureEditLayer();
+      drawEditHandles();
+
+      doneBtn.disabled = false;
+      cancelBtn.disabled = false;
+
+      statusText.textContent =
+        `Editing ${loc.name}`;
+    }
+
+    window.__beginPolygonEdit = beginPolygonEdit;
+
+    function finishEditing() {
+      if (!editingPolygon) return;
+
+      const newPoints = pointsToString(editingPoints);
+
+      editingPolygon.data.points = newPoints;
+      editingPolygon.element.setAttribute("points", newPoints);
+
+      clearEditLayer();
+
+      editingPolygon = null;
+      editingPoints = [];
+
+      viewport.classList.remove("map-editor-editing");
+
+      updateEditorState();
+    }
+
+    function cancelEditing() {
+      drawing = false;
+
+      clearTemp();
+      clearEditLayer();
+
+      editingPolygon = null;
+      editingPoints = [];
+
+      viewport.classList.remove("map-editor-editing");
+      viewport.classList.remove("map-editor-drawing");
+
       updateEditorState();
     }
 
@@ -3802,12 +4024,19 @@ const PokedexTool = (() => {
     }
 
     function updateEditorState() {
-      drawBtn.disabled = drawing;
-      doneBtn.disabled = !drawing;
-      cancelBtn.disabled = !drawing;
-      statusText.textContent = drawing
-        ? `${currentPoints.length} point${currentPoints.length === 1 ? "" : "s"} selected`
-        : "Idle";
+      drawBtn.disabled = drawing || !!editingPolygon;
+      editBtn.disabled = drawing || !!editingPolygon;
+      doneBtn.disabled = !drawing && !editingPolygon;
+      cancelBtn.disabled = !drawing && !editingPolygon;
+      if (editingPolygon) {
+        statusText.textContent =
+          `Editing ${editingPolygon.data.name}`;
+      } else if (drawing) {
+        statusText.textContent =
+          `${currentPoints.length} point${currentPoints.length === 1 ? "" : "s"} selected`;
+      } else {
+        statusText.textContent = "Idle";
+      }
     }
 
     function getSVGPoint(svgEl, clientX, clientY) {
@@ -3823,6 +4052,59 @@ const PokedexTool = (() => {
       tempLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
       tempLayer.classList.add("map-editor-temp-layer");
       svg.appendChild(tempLayer);
+    }
+
+    function ensureEditLayer() {
+      if (editLayer) return;
+
+      editLayer = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "g"
+      );
+
+      editLayer.classList.add("map-editor-edit-layer");
+
+      svg.appendChild(editLayer);
+    }
+
+    function clearEditLayer() {
+      editLayer?.replaceChildren();
+    }
+
+    function drawEditHandles() {
+      if (!editingPolygon) return;
+
+      clearEditLayer();
+
+      const poly = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "polygon"
+      );
+
+      poly.setAttribute(
+        "points",
+        pointsToString(editingPoints)
+      );
+
+      poly.classList.add("map-editor-temp-polygon");
+
+      editLayer.appendChild(poly);
+
+      editingPoints.forEach(([x, y], index) => {
+        const point = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "circle"
+        );
+
+        point.setAttribute("cx", x);
+        point.setAttribute("cy", y);
+        point.setAttribute("r", 3);
+
+        point.classList.add("map-editor-edit-point");
+        point.dataset.index = index;
+
+        editLayer.appendChild(point);
+      });
     }
 
     function drawTempShape() {
@@ -3907,8 +4189,19 @@ const PokedexTool = (() => {
       el.classList.add("map-region");
       el.dataset.name = loc.name;
       el.dataset.region = loc.region;
-      el.addEventListener("click", () => {
+      el.addEventListener("click", (e) => {
+        if (editingPolygon !== null ||
+            viewport.classList.contains("map-editor-editing")) {
+
+          e.preventDefault();
+          e.stopPropagation();
+
+          beginPolygonEdit(loc, el);
+          return;
+        }
+
         if (Date.now() < mapSuppressLocationClickUntil) return;
+
         selectLocation(loc.name, loc.region);
       });
       regions.appendChild(el);

@@ -1064,9 +1064,10 @@ body.pory-full #poryBackground {
 
   width: min(100%, 220px);
   max-width: 220px;
-  max-height: clamp(140px, 26vw, 220px);
+  max-height: clamp(200px, 26vw, 220px);
 
   height: auto;
+  min-height: 200px;
   object-fit: contain;
   image-rendering: crisp-edges;
 
@@ -1788,6 +1789,7 @@ body.pory-full #poryBackground {
   flex-direction: column;   /* keeps input below map */
   align-items: center; 
   border-radius: 8px;
+  gap: 8px;
   padding: 5px;
 }
 
@@ -1892,11 +1894,6 @@ body.pory-full #poryBackground {
   display: none;
 }
 
-.minimap {
-  display: grid;
-  gap: 8px;
-}
-
 .map-controls {
   display: grid;
   grid-template-columns: minmax(150px, 220px) minmax(0, 1fr);
@@ -1911,7 +1908,7 @@ body.pory-full #poryBackground {
 .map-zoom-control {
   min-width: 0;
   display: grid;
-  grid-template-columns: auto minmax(100px, 1fr) 44px;
+  grid-template-columns: auto minmax(100px, 1fr) 22px;
   gap: 8px;
   align-items: center;
   color: var(--muted);
@@ -1962,12 +1959,10 @@ body.pory-full #poryBackground {
   fill: rgba(0, 200, 255, 0.35);
 }
 
-/* pin */
-.map-pin {
-  fill: red;
+.map-region.active-location {
+  fill: rgba(255,255,255,0.25);
   stroke: white;
   stroke-width: 2;
-  pointer-events: none;
 }
 
 @media (max-width: 680px) {
@@ -2002,7 +1997,7 @@ body.pory-full #poryBackground {
 }
 
 .map-editor-status {
-  min-width: 96px;
+  min-width: 150px;
   color: var(--muted);
   font-size: 0.85rem;
 }
@@ -2075,6 +2070,25 @@ body.pory-full #poryBackground {
   height: 1px;
   opacity: 0;
   pointer-events: none;
+}
+
+.map-editor-edit-point {
+  fill: #4da3ff;
+  stroke: white;
+  stroke-width: 2;
+  cursor: move;
+}
+
+.map-editor-editing .map-region {
+  cursor: pointer;
+}
+
+.map-editor-edit-layer {
+  pointer-events: none;
+}
+
+.map-editor-edit-point {
+  pointer-events: all;
 }
 
 .dropdown {

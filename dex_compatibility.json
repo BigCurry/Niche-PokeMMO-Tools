@@ -5194,7 +5194,7 @@
   {
     "id": 650,
     "name": "Deoxys",
-    "PokeAPI_id": 650,
+    "PokeAPI_id": "386-attack",
     "PokeAPI_name": "Deoxys",
     "Pokemondb_name": "Deoxys",
     "frontend_name": "Deoxys"
@@ -5202,7 +5202,7 @@
   {
     "id": 651,
     "name": "Deoxys",
-    "PokeAPI_id": 651,
+    "PokeAPI_id": "386-defense",
     "PokeAPI_name": "Deoxys",
     "Pokemondb_name": "Deoxys",
     "frontend_name": "Deoxys"
@@ -5210,7 +5210,7 @@
   {
     "id": 652,
     "name": "Deoxys",
-    "PokeAPI_id": 652,
+    "PokeAPI_id": "386-speed",
     "PokeAPI_name": "Deoxys",
     "Pokemondb_name": "Deoxys",
     "frontend_name": "Deoxys"
@@ -5218,7 +5218,7 @@
   {
     "id": 653,
     "name": "Wormadam",
-    "PokeAPI_id": 653,
+    "PokeAPI_id": "413-sandy",
     "PokeAPI_name": "Wormadam",
     "Pokemondb_name": "Wormadam",
     "frontend_name": "Wormadam"
@@ -5226,7 +5226,7 @@
   {
     "id": 654,
     "name": "Wormadam",
-    "PokeAPI_id": 654,
+    "PokeAPI_id": "413-trash",
     "PokeAPI_name": "Wormadam",
     "Pokemondb_name": "Wormadam",
     "frontend_name": "Wormadam"
@@ -5234,7 +5234,7 @@
   {
     "id": 655,
     "name": "Shaymin",
-    "PokeAPI_id": 655,
+    "PokeAPI_id": "492-sky",
     "PokeAPI_name": "Shaymin",
     "Pokemondb_name": "Shaymin",
     "frontend_name": "Shaymin"
@@ -5242,7 +5242,7 @@
   {
     "id": 656,
     "name": "Giratina",
-    "PokeAPI_id": 656,
+    "PokeAPI_id": "487-origin",
     "PokeAPI_name": "Giratina",
     "Pokemondb_name": "Giratina",
     "frontend_name": "Giratina"
@@ -5250,7 +5250,7 @@
   {
     "id": 657,
     "name": "Rotom",
-    "PokeAPI_id": 657,
+    "PokeAPI_id": "479-heat",
     "PokeAPI_name": "Rotom",
     "Pokemondb_name": "Rotom",
     "frontend_name": "Rotom"
@@ -5258,7 +5258,7 @@
   {
     "id": 658,
     "name": "Rotom",
-    "PokeAPI_id": 658,
+    "PokeAPI_id": "479-wash",
     "PokeAPI_name": "Rotom",
     "Pokemondb_name": "Rotom",
     "frontend_name": "Rotom"
@@ -5266,7 +5266,7 @@
   {
     "id": 659,
     "name": "Rotom",
-    "PokeAPI_id": 659,
+    "PokeAPI_id": "479-frost",
     "PokeAPI_name": "Rotom",
     "Pokemondb_name": "Rotom",
     "frontend_name": "Rotom"
@@ -5274,7 +5274,7 @@
   {
     "id": 660,
     "name": "Rotom",
-    "PokeAPI_id": 660,
+    "PokeAPI_id": "479-fan",
     "PokeAPI_name": "Rotom",
     "Pokemondb_name": "Rotom",
     "frontend_name": "Rotom"
@@ -5282,7 +5282,7 @@
   {
     "id": 661,
     "name": "Rotom",
-    "PokeAPI_id": 661,
+    "PokeAPI_id": "479-mow",
     "PokeAPI_name": "Rotom",
     "Pokemondb_name": "Rotom",
     "frontend_name": "Rotom"
@@ -5290,7 +5290,7 @@
   {
     "id": 662,
     "name": "Castform",
-    "PokeAPI_id": 662,
+    "PokeAPI_id": "351-sunny",
     "PokeAPI_name": "Castform",
     "Pokemondb_name": "Castform",
     "frontend_name": "Castform"
@@ -5298,7 +5298,7 @@
   {
     "id": 663,
     "name": "Castform",
-    "PokeAPI_id": 663,
+    "PokeAPI_id": "351-rainy",
     "PokeAPI_name": "Castform",
     "Pokemondb_name": "Castform",
     "frontend_name": "Castform"
@@ -5306,7 +5306,7 @@
   {
     "id": 664,
     "name": "Castform",
-    "PokeAPI_id": 664,
+    "PokeAPI_id": "351-snowy",
     "PokeAPI_name": "Castform",
     "Pokemondb_name": "Castform",
     "frontend_name": "Castform"
@@ -5330,7 +5330,7 @@
   {
     "id": 667,
     "name": "Meloetta",
-    "PokeAPI_id": 667,
+    "PokeAPI_id": "648-pirouette",
     "PokeAPI_name": "Meloetta",
     "Pokemondb_name": "Meloetta",
     "frontend_name": "Meloetta"
