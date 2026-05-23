@@ -3,7 +3,7 @@
    ============================================================= */
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => Array.from(document.querySelectorAll(s));
-const ENABLE_MAP_POINT_EDITOR = true;
+const ENABLE_MAP_POINT_EDITOR = false;
 
 /* =============================================================
    Link Dropdown
