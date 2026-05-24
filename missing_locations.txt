@@ -1,0 +1,89 @@
+Hoenn, MIRAGE TOWER
+Hoenn, MIRAGE TOWER (Day/Morning)
+Hoenn, MIRAGE TOWER (Night)
+Hoenn, NEW MAUVILLE
+Hoenn, PETALBURG WOODS
+Hoenn, PETALBURG WOODS (Day/Morning)
+Hoenn, RUSTURF TUNNEL
+Hoenn, SAFARI ZONE
+Hoenn, SCORCHED SLAB
+Hoenn, SEAFLOOR CAVERN
+Hoenn, SEALED CHAMBER
+Hoenn, SHOAL CAVE
+Hoenn, SHOAL CAVE (SEASON0)
+Hoenn, SHOAL CAVE (SEASON1)
+Hoenn, SHOAL CAVE (SEASON1/Night)
+Hoenn, SHOAL CAVE (SEASON2)
+Hoenn, SHOAL CAVE (SEASON3)
+Hoenn, SKY PILLAR
+Hoenn, SKY PILLAR (Night)
+Hoenn, UNDERWATER
+Johto, Cliff Cave
+Johto, Cliff Cave (Night)
+Johto, Cliff Edge Gate
+Johto, Pokéathlon Dome
+Johto, Team Rocket HQ
+Kanto, ALTERING CAVE
+Kanto, DILFORD CHAMBER
+Kanto, LIPTOO CHAMBER
+Kanto, MONEAN CHAMBER
+Kanto, RIXY CHAMBER
+Kanto, S.S. ANNE
+Kanto, SCUFIB CHAMBER
+Kanto, VIAPOIS CHAMBER
+Kanto, WEEPTH CHAMBER
+Sinnoh, Great Marsh
+Sinnoh, Great Marsh (Day/Morning)
+Sinnoh, Great Marsh (Night)
+Sinnoh, Honey Tree
+Sinnoh, Lake Acuity
+Sinnoh, Lake Acuity (Night)
+Sinnoh, Lake Acuity (SEASON0)
+Sinnoh, Lake Acuity (SEASON0/Night)
+Sinnoh, Lake Acuity (SEASON1)
+Sinnoh, Lake Acuity (SEASON1/Night)
+Sinnoh, Lake Acuity (SEASON2)
+Sinnoh, Lake Acuity (SEASON2/Night)
+Sinnoh, Lake Acuity (SEASON3)
+Sinnoh, Lake Acuity (SEASON3/Night)
+Sinnoh, Lake Valor
+Sinnoh, Lake Valor (Night)
+Sinnoh, Lake Valor (SEASON0)
+Sinnoh, Lake Valor (SEASON1)
+Sinnoh, Lake Valor (SEASON2)
+Sinnoh, Lake Valor (SEASON3)
+Sinnoh, Lake Verity
+Sinnoh, Lake Verity (SEASON0)
+Sinnoh, Lake Verity (SEASON1)
+Sinnoh, Lake Verity (SEASON2)
+Sinnoh, Lake Verity (SEASON3)
+Sinnoh, Maniac Tunnel
+Sinnoh, Old Chateau
+Sinnoh, Oreburgh Gate
+Sinnoh, Oreburgh Mine
+Sinnoh, Ravaged Path
+Sinnoh, Ruin Maniac Cave
+Sinnoh, Sendoff Spring
+Sinnoh, Sendoff Spring (Night)
+Sinnoh, Sendoff Spring (SEASON0)
+Sinnoh, Sendoff Spring (SEASON1)
+Sinnoh, Sendoff Spring (SEASON2)
+Sinnoh, Sendoff Spring (SEASON3)
+Sinnoh, Snowpoint Temple
+Sinnoh, Snowpoint Temple (SEASON0)
+Sinnoh, Snowpoint Temple (SEASON1)
+Sinnoh, Snowpoint Temple (SEASON2)
+Sinnoh, Snowpoint Temple (SEASON3)
+Sinnoh, Solaceon Ruins
+Sinnoh, Trophy Garden
+Sinnoh, Trophy Garden (SEASON0)
+Sinnoh, Trophy Garden (SEASON1)
+Sinnoh, Trophy Garden (SEASON2)
+Sinnoh, Trophy Garden (SEASON3)
+Sinnoh, Turnback Cave
+Sinnoh, Wayward Cave
+Unova, Guidance Chamber
+Unova, Icirrus City
+Unova, Moor of Icirrus
+Unova, Striaton City
+Unova, Trial Chamber

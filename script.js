@@ -3,7 +3,7 @@
    ============================================================= */
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => Array.from(document.querySelectorAll(s));
-const ENABLE_MAP_POINT_EDITOR = true;
+const ENABLE_MAP_POINT_EDITOR = false;
 
 /* =============================================================
    Link Dropdown
@@ -4098,7 +4098,7 @@ const PokedexTool = (() => {
 
         point.setAttribute("cx", x);
         point.setAttribute("cy", y);
-        point.setAttribute("r", 3);
+        point.setAttribute("r", 1);
 
         point.classList.add("map-editor-edit-point");
         point.dataset.index = index;
@@ -4122,7 +4122,7 @@ const PokedexTool = (() => {
         const point = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         point.setAttribute("cx", x);
         point.setAttribute("cy", y);
-        point.setAttribute("r", 5);
+        point.setAttribute("r", 2);
         point.classList.add("map-editor-point");
         point.dataset.index = index + 1;
         tempLayer.appendChild(point);

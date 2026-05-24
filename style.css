@@ -1895,10 +1895,23 @@ body.pory-full #poryBackground {
 }
 
 .map-controls {
-  display: grid;
-  grid-template-columns: minmax(150px, 220px) minmax(0, 1fr);
+  display: flex;
   gap: 8px;
   align-items: center;
+  width: 100%; /* Ensures it takes the entire row */
+}
+
+/* Target the first child element (the one you wanted between 150px-220px) */
+.map-controls > :first-child {
+  width: min-content; /* Adjust or remove if it still forces a wrap on tiny screens */
+  flex-shrink: 0;   /* Prevents this element from squishing */
+}
+
+/* Target the second child element */
+.map-controls > :last-child {
+  flex-grow: 1;    /* Takes up all remaining space */
+  min-width: 0;    /* Allows it to shrink small enough without overflowing */
+  margin-right: 10px;
 }
 
 .map-region-select {
@@ -1928,7 +1941,7 @@ body.pory-full #poryBackground {
 
 .map-viewport {
   width: 100%;
-  max-width:1000px;
+  max-width: clamp(1000px, 80vmin, 5000px);
   align-items: center;
   aspect-ratio: 1662 / 1174; /* ✅ keeps correct proportions */
   overflow: hidden;
@@ -1938,6 +1951,7 @@ body.pory-full #poryBackground {
   cursor: grab;
   touch-action: none;
   user-select: none;
+  image-rendering: crisp-edges
 }
 
 #mapSvg {
@@ -1948,21 +1962,21 @@ body.pory-full #poryBackground {
 
 /* regions */
 .map-region {
-  fill: rgba(0, 200, 255, 0.15);
-  stroke: rgba(0, 200, 255, 0.8);
-  stroke-width: 2;
+  fill: rgba(230, 0, 255, 0);
+  stroke: rgb(0, 0, 0, 0.1);
+  stroke-width: 0.25;
   cursor: pointer;
   transition: 0.15s;
 }
 
 .map-region:hover {
-  fill: rgba(0, 200, 255, 0.35);
+  fill: rgba(255, 255, 0, 0.5)
 }
 
 .map-region.active-location {
-  fill: rgba(255,255,255,0.25);
-  stroke: white;
-  stroke-width: 2;
+  fill: rgba(255, 255, 0, 0.5);
+  stroke: yellow;
+  stroke-width: 0.5;
 }
 
 @media (max-width: 680px) {
@@ -1974,7 +1988,7 @@ body.pory-full #poryBackground {
 .map-editor-toolbar {
   position: absolute;
   left: 8px;
-  bottom: 8px;
+  top: 8px;
   z-index: 5;
   display: flex;
   flex-wrap: wrap;
@@ -2013,13 +2027,13 @@ body.pory-full #poryBackground {
 .map-editor-temp-polygon {
   fill: rgba(255, 82, 82, 0.22);
   stroke: #ff5252;
-  stroke-width: 3;
+  stroke-width: 0.5;
 }
 
 .map-editor-point {
   fill: #ff5252;
   stroke: #fff;
-  stroke-width: 2;
+  stroke-width: 0.5;
 }
 
 .map-editor-modal {
