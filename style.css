@@ -1332,6 +1332,75 @@ body.pory-full #poryBackground {
   max-height: 520px;
 }
 
+.modal-location-map-shell {
+  display: grid;
+  gap: 8px;
+}
+
+.modal-location-map-controls {
+  align-items: center;
+}
+
+.modal-location-map-viewport {
+  max-width: none;
+  border-radius: 8px;
+}
+
+.modal-location-info-map-viewport {
+  width: calc(40vmin*1662 / 1174);
+  height: 40vmin;
+  aspect-ratio: 1662 / 1174;
+  overflow: hidden;
+  border-radius: 0px;
+  background: var(--panel);
+  position: relative;
+  justify-self: center;
+}
+
+.modal-location-info-map-svg {
+  width: 100%;
+  height: 100%;
+  transform-origin: 0 0;
+}
+
+#modalLocationMapSvg {
+  width: 100%;
+  height: 100%;
+  transform-origin: 0 0;
+}
+
+.modal-location-map-region {
+  fill: color-mix(in srgb, var(--accent) 42%, transparent);
+  stroke: color-mix(in srgb, var(--accent) 80%, #000);
+  stroke-width: 0.45;
+}
+
+.modal-location-map-region:hover,
+.modal-location-map-region.selected-location {
+  fill: rgba(255, 255, 0, 0.62);
+  stroke: yellow;
+  stroke-width: 0.7;
+}
+
+.modal-location-info-map-pin,
+.modal-location-map-pin {
+  cursor: pointer;
+  fill: #d70b0b;
+  fill-rule: evenodd;
+  stroke: #fff;
+  stroke-width: 2;
+  paint-order: stroke fill;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.45));
+}
+
+.modal-location-info-map-pin.selected-location,
+.modal-location-map-pin.selected-location {
+  fill: #ff2b2b;
+  stroke: #ffe766;
+  stroke-width: 3;
+}
+
 .modal-location-row.hidden {
   display: none;
 }
@@ -1376,6 +1445,34 @@ body.pory-full #poryBackground {
   color: var(--text);
   font-size: 0.86rem;
   line-height: 1.35;
+}
+
+.modal-location-variations {
+  display: grid;
+  gap: 6px;
+}
+
+.modal-location-variation {
+  border: 1px solid color-mix(in srgb, var(--muted) 28%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--panel) 82%, var(--bg));
+  display: grid;
+  gap: 4px;
+  padding: 7px 8px;
+}
+
+.modal-location-variation-time {
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.modal-location-variation-meta {
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  font-size: 0.78rem;
+  line-height: 1.3;
 }
 
 .body-move-tool {
@@ -1793,6 +1890,102 @@ body.pory-full #poryBackground {
   padding: 5px;
 }
 
+.map-toggle-button {
+  align-self: center;
+  width: min(100%, calc(10vmin * 1662 / 1174));
+  height: 10vmin;
+  aspect-ratio: 1662 / 1174;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: 10px;
+  background-color: #111;
+  background-image: url("maps/World Map.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  color: transparent;
+  cursor: pointer;
+  font: inherit;
+  overflow: hidden;
+  padding: 0;
+  position: relative;
+  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.map-toggle-button::before {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.38), rgba(0, 0, 0, 0.08));
+  content: "";
+  inset: 0;
+  opacity: 0.65;
+  pointer-events: none;
+  position: absolute;
+  transition: opacity 0.15s ease;
+}
+
+.map-toggle-button::after {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 999px;
+  color: #fff;
+  content: "⤢";
+  display: flex;
+  font-size: clamp(1rem, 2.5vmin, 1.6rem);
+  height: 2.1em;
+  justify-content: center;
+  left: 50%;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  width: 2.1em;
+}
+
+.map-toggle-button:hover,
+.map-toggle-button:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent);
+  transform: translateY(-1px);
+}
+
+.map-toggle-button:hover::before,
+.map-toggle-button:focus-visible::before {
+  opacity: 0.35;
+}
+
+.map-toggle-button:hover::after,
+.map-toggle-button:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.map-viewport-collapse {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  z-index: 5;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--panel) 88%, var(--bg));
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 1.25rem;
+  line-height: 1;
+  opacity: 0.94;
+  padding: 0;
+  transition: transform 0.15s ease, opacity 0.15s ease, border-color 0.15s ease;
+}
+
+.map-viewport-collapse:hover,
+.map-viewport-collapse:focus-visible {
+  border-color: var(--accent);
+  opacity: 1;
+  transform: scale(1.05);
+}
+
 .stat-wrapper {
   display: flex;
   flex-direction: column;
@@ -1895,42 +2088,88 @@ body.pory-full #poryBackground {
 }
 
 .map-controls {
+  position: absolute;
+  z-index: 4;
+  top: 8px;
+  left: 8px;
   display: flex;
+  font-size: 14px;
   gap: 8px;
   align-items: center;
-  width: 100%; /* Ensures it takes the entire row */
+  width: calc(100% - 16px);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--panel) 88%, transparent);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  opacity: 1;
+  padding: 4px;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+  cursor: default;
+  touch-action: none;
+  flex-wrap: nowrap;
 }
 
-/* Target the first child element (the one you wanted between 150px-220px) */
-.map-controls > :first-child {
-  width: min-content; /* Adjust or remove if it still forces a wrap on tiny screens */
-  flex-shrink: 0;   /* Prevents this element from squishing */
+.map-viewport.map-is-panning .map-controls:not(:hover):not(:focus-within):not(.map-controls-dragging) {
+  opacity: 0.10;
 }
 
-/* Target the second child element */
-.map-controls > :last-child {
-  flex-grow: 1;    /* Takes up all remaining space */
-  min-width: 0;    /* Allows it to shrink small enough without overflowing */
-  margin-right: 10px;
+.map-controls:hover,
+.map-controls:focus-within,
+.map-controls.map-controls-dragging {
+  background: color-mix(in srgb, var(--panel) 96%, transparent);
+  opacity: 1;
 }
 
-.map-region-select {
-  margin: 0;
+.map-controls-handle {
+  align-self: stretch;
+  border: 1px solid color-mix(in srgb, var(--muted) 35%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  color: var(--muted);
+  cursor: move;
+  flex: 0 0 15px;
+  font: inherit;
+}
+
+.map-controls-handle:hover,
+.map-controls-handle:focus-visible {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.map-controls > .map-region-select {
+  max-width: 100px;
+  padding: 1vmin;
+  width: min-content;
+  font-size: inherit;
+}
+
+.map-controls > .map-zoom-control {
+  flex: 1 1 auto;
+  margin-right: 20px;
+}
+
+.map-controls > div > .dex-input {
+  flex: 1 1 auto;
+  padding: 1vmin;
+  font-size: inherit;
 }
 
 .map-zoom-control {
   min-width: 0;
   display: grid;
   grid-template-columns: auto minmax(100px, 1fr) 22px;
-  gap: 8px;
+  gap: 5px;
   align-items: center;
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: inherit;
 }
 
 .map-zoom-control input[type="range"] {
   width: 100%;
   min-width: 0;
+  margin: 0;
+  max-height: 10px
 }
 
 .map-zoom-control output {
@@ -1979,16 +2218,63 @@ body.pory-full #poryBackground {
   stroke-width: 0.5;
 }
 
-@media (max-width: 680px) {
+@media (max-width: 900px) {
   .map-controls {
-    grid-template-columns: 1fr;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 800px) {
+  .map-controls {
+    font-size: 11px;
+  }
+
+  .map-controls > .map-zoom-control {
+    flex: 1 1 auto;
+    margin-right: 15px;
+  }
+}
+
+@media (max-width: 700px) {
+  .map-controls {
+    font-size: 10px;
+  }
+
+  .map-controls > .map-zoom-control {
+    flex: 1 1 auto;
+    margin-right: 10px;
+  }
+}
+
+@media (max-width: 600px) {
+  .map-controls {
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 500px) {
+  .map-controls {
+    font-size: 8px;
+    gap: 4px;
+  }
+}
+
+@media (max-width: 400px) {
+  .map-controls {
+    font-size: 7px;
+  }
+}
+
+@media (max-width: 300px) {
+  .map-controls {
+    font-size: 6px;
   }
 }
 
 .map-editor-toolbar {
   position: absolute;
   left: 8px;
-  top: 8px;
+  bottom: 8px;
   z-index: 5;
   display: flex;
   flex-wrap: wrap;

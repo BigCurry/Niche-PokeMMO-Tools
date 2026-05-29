@@ -3,7 +3,7 @@
    ============================================================= */
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => Array.from(document.querySelectorAll(s));
-const ENABLE_MAP_POINT_EDITOR = false;
+const ENABLE_MAP_POINT_EDITOR = true;
 
 /* =============================================================
    Link Dropdown
@@ -1937,15 +1937,26 @@ const PokedexTool = (() => {
   let mapZoomSlider;
   let mapZoomValue;
   let mapRegionSelect;
+  let mapViewportToggleButton;
   let mapScale = 1;
   let mapX = 0;
   let mapY = 0;
   let mapSuppressLocationClickUntil = 0;
+  let modalLocationMapState = null;
+  let modalLocationMapCleanup = null;
+  let modalLocationMapToggleButton;
 
   const MAP_WORLD_WIDTH = 1662;
   const MAP_WORLD_HEIGHT = 1174;
   const MAP_MIN_SCALE = 1;
   const MAP_MAX_SCALE = 6;
+  const MAP_REGION_VIEWPORTS = {
+    Hoenn: { from: { x: 553.92, y: 34.05 }, to: { x: 1005.49, y: 277.89 } },
+    Johto: { from: { x: 1180.33, y: 439.45 }, to: { x: 1614.03, y: 671.92 } },
+    Kanto: { from: { x: 520.36, y: 844.31 }, to: { x: 1029.02, y: 1162.37 } },
+    Sinnoh: { from: { x: 30.1, y: 369.6 }, to: { x: 442, y: 699.4 } },
+    Unova: { from: { x: 595.75, y: 382.58 }, to: { x: 1052.02, y: 715.16 } }
+  };
   /* =============================================================
      const
   ============================================================= */
@@ -3342,6 +3353,61 @@ const PokedexTool = (() => {
     mapRegionSelect.value = region || "";
   }
 
+  function refreshMainMapViewport() {
+    if (!viewport || viewport.classList.contains("hidden")) return;
+
+    const selectedLocation = filters.location?.name && filters.location?.region
+      ? LOCATION_DATA.filter(loc =>
+          loc.name.toLowerCase() === filters.location.name &&
+          loc.region.toLowerCase() === filters.location.region
+        )
+      : [];
+
+    if (selectedLocation.length) {
+      zoomMapToLocations(selectedLocation);
+      return;
+    }
+
+    if (mapRegionSelect?.value) {
+      zoomMapToRegion(mapRegionSelect.value);
+      return;
+    }
+
+    setMapZoomPercent(0);
+  }
+
+  function getViewportFitScale(rect, bounds, paddingRatio = 0.08) {
+    const baseScaleX = rect.width / MAP_WORLD_WIDTH;
+    const baseScaleY = rect.height / MAP_WORLD_HEIGHT;
+    const padding = Math.min(rect.width, rect.height) * paddingRatio;
+    const regionWidth = Math.max(1, bounds.maxX - bounds.minX) * baseScaleX;
+    const regionHeight = Math.max(1, bounds.maxY - bounds.minY) * baseScaleY;
+    const availableWidth = Math.max(1, rect.width - padding * 2);
+    const availableHeight = Math.max(1, rect.height - padding * 2);
+    const fitScale = Math.min(
+      availableWidth / regionWidth,
+      availableHeight / regionHeight
+    );
+
+    return { baseScaleX, baseScaleY, fitScale };
+  }
+
+  function applyViewportRegionFit(svg, rect, bounds, paddingRatio = 0.08) {
+    if (!svg || !rect || !bounds) return null;
+
+    const { baseScaleX, baseScaleY, fitScale } = getViewportFitScale(rect, bounds, paddingRatio);
+    const scale = getFiniteMapScale(fitScale);
+    const centerX = (bounds.minX + bounds.maxX) / 2;
+    const centerY = (bounds.minY + bounds.maxY) / 2;
+    const x = rect.width / 2 - centerX * baseScaleX * scale;
+    const y = rect.height / 2 - centerY * baseScaleY * scale;
+
+    svg.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+    svg.style.transformOrigin = "0 0";
+
+    return { baseScaleX, baseScaleY, scale, x, y };
+  }
+
   function clearLocationHighlights() {
     document.querySelectorAll(".map-region.active-location")
       .forEach(el => el.classList.remove("active-location"));
@@ -3417,6 +3483,23 @@ const PokedexTool = (() => {
     mapZoomSlider = document.getElementById("mapZoomSlider");
     mapZoomValue = document.getElementById("mapZoomValue");
     mapRegionSelect = document.getElementById("mapRegionSelect");
+    mapViewportToggleButton = document.getElementById("mapViewportToggle");
+    const mapViewportCollapseButton = document.getElementById("mapViewportCollapse");
+    initDraggableMapControls(viewport, viewport.querySelector(".map-controls"));
+
+    const setMapVisibility = (isVisible) => {
+      if (!viewport || !mapViewportToggleButton) return;
+      viewport.classList.toggle("hidden", !isVisible);
+      mapViewportToggleButton.classList.toggle("hidden", isVisible);
+      mapViewportToggleButton.setAttribute("aria-expanded", String(isVisible));
+
+      if (isVisible) {
+        refreshMainMapViewport();
+      }
+    };
+
+    mapViewportToggleButton?.addEventListener("click", () => setMapVisibility(true));
+    mapViewportCollapseButton?.addEventListener("click", () => setMapVisibility(false));
 
     let isDragging = false;
     let startX, startY;
@@ -3447,8 +3530,9 @@ const PokedexTool = (() => {
       const mx = e.clientX - rect.left;
       const my = e.clientY - rect.top;
 
+      mapScale = getFiniteMapScale(mapScale);
       const oldScale = mapScale;
-      const newScale = Math.max(MAP_MIN_SCALE, Math.min(MAP_MAX_SCALE, mapScale + delta * zoomIntensity));
+      const newScale = getFiniteMapScale(mapScale + delta * zoomIntensity);
 
       // world position BEFORE zoom
       const worldX = (mx - mapX) / oldScale;
@@ -3472,7 +3556,9 @@ const PokedexTool = (() => {
 
     /* PAN */
     viewport.addEventListener("mousedown", (e) => {
+      if (e.target.closest(".map-controls, .map-viewport-collapse")) return;
       isDragging = true;
+      viewport.classList.add("map-is-panning");
       dragStartClientX = e.clientX;
       dragStartClientY = e.clientY;
       startX = e.clientX - mapX;
@@ -3495,10 +3581,12 @@ const PokedexTool = (() => {
 
     window.addEventListener("mouseup", () => {
       isDragging = false;
+      viewport.classList.remove("map-is-panning");
       viewport.style.cursor = "grab";
     });
 
     viewport.addEventListener("touchstart", (e) => {
+      if (e.target.closest(".map-controls, .map-viewport-collapse")) return;
       if (e.touches.length === 2) {
         isDragging = false;
         mapSuppressLocationClickUntil = Date.now() + 350;
@@ -3506,6 +3594,7 @@ const PokedexTool = (() => {
         lastMid = getTouchMidpoint(e);
       } else if (e.touches.length === 1) {
         isDragging = true;
+        viewport.classList.add("map-is-panning");
         dragStartClientX = e.touches[0].clientX;
         dragStartClientY = e.touches[0].clientY;
         startX = e.touches[0].clientX - mapX;
@@ -3520,8 +3609,9 @@ const PokedexTool = (() => {
         const newDist = getTouchDistance(e);
         const newMid = getTouchMidpoint(e);
 
-        const zoomFactor = newDist / lastDist;
-        const newScale = Math.max(MAP_MIN_SCALE, Math.min(MAP_MAX_SCALE, mapScale * zoomFactor));
+        mapScale = getFiniteMapScale(mapScale);
+        const zoomFactor = lastDist ? newDist / lastDist : 1;
+        const newScale = getFiniteMapScale(mapScale * zoomFactor);
 
         const rect = viewport.getBoundingClientRect();
         const mx = newMid.x - rect.left;
@@ -3557,6 +3647,7 @@ const PokedexTool = (() => {
 
     viewport.addEventListener("touchend", () => {
       isDragging = false;
+      viewport.classList.remove("map-is-panning");
       lastDist = 0;
       lastMid = null;
     });
@@ -3568,6 +3659,7 @@ const PokedexTool = (() => {
   function updateMapTransform() {
     if (!mapSvgEl || !viewport) return;
 
+    mapScale = getFiniteMapScale(mapScale);
     ({ x: mapX, y: mapY } = clamp(mapX, mapY, mapScale));
     mapSvgEl.style.transform = `translate(${mapX}px, ${mapY}px) scale(${mapScale})`;
     mapSvgEl.style.transformOrigin = "0 0";
@@ -3596,10 +3688,12 @@ const PokedexTool = (() => {
     if (!viewport) return;
 
     const rect = viewport.getBoundingClientRect();
+    if (!hasUsableRect(rect)) return;
     const mx = focusPoint ? focusPoint.clientX - rect.left : rect.width / 2;
     const my = focusPoint ? focusPoint.clientY - rect.top : rect.height / 2;
-    const clampedScale = Math.max(MAP_MIN_SCALE, Math.min(MAP_MAX_SCALE, nextScale));
+    const clampedScale = getFiniteMapScale(nextScale);
 
+    mapScale = getFiniteMapScale(mapScale);
     const worldX = (mx - mapX) / mapScale;
     const worldY = (my - mapY) / mapScale;
 
@@ -3613,23 +3707,16 @@ const PokedexTool = (() => {
   function zoomMapToRegion(region) {
     if (!viewport || !region) return;
 
-    const bounds = getMapRegionBounds(region);
+    const bounds = getFixedMapRegionBounds(region);
     if (!bounds) return;
 
     const rect = viewport.getBoundingClientRect();
-    const baseScaleX = rect.width / MAP_WORLD_WIDTH;
-    const baseScaleY = rect.height / MAP_WORLD_HEIGHT;
-    const padding = Math.min(rect.width, rect.height) * 0.12;
-    const regionWidth = Math.max(1, bounds.maxX - bounds.minX) * baseScaleX;
-    const regionHeight = Math.max(1, bounds.maxY - bounds.minY) * baseScaleY;
-    const fitScale = Math.min(
-      (rect.width - padding * 2) / regionWidth,
-      (rect.height - padding * 2) / regionHeight
-    );
-
-    mapScale = Math.max(MAP_MIN_SCALE, Math.min(MAP_MAX_SCALE, fitScale));
-    mapX = rect.width / 2 - ((bounds.minX + bounds.maxX) / 2) * baseScaleX * mapScale;
-    mapY = rect.height / 2 - ((bounds.minY + bounds.maxY) / 2) * baseScaleY * mapScale;
+    if (!hasUsableRect(rect)) return;
+    const fit = applyViewportRegionFit(mapSvgEl, rect, bounds, 0.08);
+    if (!fit) return;
+    mapScale = fit.scale;
+    mapX = fit.x;
+    mapY = fit.y;
 
     syncMapRegionSelect(region);
     updateMapTransform();
@@ -3642,6 +3729,7 @@ const PokedexTool = (() => {
     if (!bounds) return;
 
     const rect = viewport.getBoundingClientRect();
+    if (!hasUsableRect(rect)) return;
 
     const baseScaleX = rect.width / MAP_WORLD_WIDTH;
     const baseScaleY = rect.height / MAP_WORLD_HEIGHT;
@@ -3656,10 +3744,7 @@ const PokedexTool = (() => {
       (rect.height - padding * 2) / height
     );
 
-    mapScale = Math.max(
-      MAP_MIN_SCALE,
-      Math.min(MAP_MAX_SCALE, fitScale)
-    );
+    mapScale = getFiniteMapScale(fitScale);
 
     const centerX = (bounds.minX + bounds.maxX) / 2;
     const centerY = (bounds.minY + bounds.maxY) / 2;
@@ -3668,6 +3753,18 @@ const PokedexTool = (() => {
     mapY = rect.height / 2 - centerY * baseScaleY * mapScale;
 
     updateMapTransform();
+  }
+
+  function getFixedMapRegionBounds(region) {
+    const viewport = MAP_REGION_VIEWPORTS[region];
+    if (!viewport) return null;
+
+    return {
+      minX: Math.min(viewport.from.x, viewport.to.x),
+      maxX: Math.max(viewport.from.x, viewport.to.x),
+      minY: Math.min(viewport.from.y, viewport.to.y),
+      maxY: Math.max(viewport.from.y, viewport.to.y)
+    };
   }
 
   function getMapRegionBounds(region) {
@@ -3746,8 +3843,19 @@ const PokedexTool = (() => {
     };
   }
 
+  function hasUsableRect(rect) {
+    return rect && rect.width > 0 && rect.height > 0;
+  }
+
+  function getFiniteMapScale(scale) {
+    return Number.isFinite(scale)
+      ? Math.max(MAP_MIN_SCALE, Math.min(MAP_MAX_SCALE, scale))
+      : MAP_MIN_SCALE;
+  }
+
   function clamp(x, y, scale) {
     const rect = viewport.getBoundingClientRect();
+    if (!hasUsableRect(rect)) return { x: 0, y: 0 };
 
     // ✅ CONSTANT world size (from viewBox)
     const worldWidth = MAP_WORLD_WIDTH;
@@ -3793,6 +3901,94 @@ const PokedexTool = (() => {
     pin.setAttribute("cx", center.x);
     pin.setAttribute("cy", center.y);
     pin.classList.remove("hidden");
+  }
+
+  function initDraggableMapControls(mapViewport, controls, cleanup = null) {
+    if (!mapViewport || !controls) return;
+
+    const handle = controls.querySelector(".map-controls-handle");
+    const dragTarget = handle || controls;
+    let dragging = false;
+    let pointerId = null;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    const clampControls = (x, y) => {
+      const viewportRect = mapViewport.getBoundingClientRect();
+      const controlsRect = controls.getBoundingClientRect();
+      const maxX = Math.max(0, viewportRect.width - controlsRect.width - 8);
+      const maxY = Math.max(0, viewportRect.height - controlsRect.height - 8);
+
+      return {
+        x: Math.min(maxX, Math.max(8, x)),
+        y: Math.min(maxY, Math.max(8, y))
+      };
+    };
+
+    const moveTo = (clientX, clientY) => {
+      const viewportRect = mapViewport.getBoundingClientRect();
+      const next = clampControls(clientX - viewportRect.left - offsetX, clientY - viewportRect.top - offsetY);
+      controls.style.left = `${next.x}px`;
+      controls.style.top = `${next.y}px`;
+      controls.style.right = "auto";
+    };
+
+    const onPointerDown = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dragging = true;
+      pointerId = e.pointerId;
+      controls.classList.add("map-controls-dragging");
+      const controlsRect = controls.getBoundingClientRect();
+      offsetX = e.clientX - controlsRect.left;
+      offsetY = e.clientY - controlsRect.top;
+      dragTarget.setPointerCapture?.(pointerId);
+    };
+
+    const onPointerMove = (e) => {
+      if (!dragging || e.pointerId !== pointerId) return;
+      e.preventDefault();
+      moveTo(e.clientX, e.clientY);
+    };
+
+    const onPointerUp = (e) => {
+      if (!dragging || e.pointerId !== pointerId) return;
+      dragging = false;
+      controls.classList.remove("map-controls-dragging");
+      dragTarget.releasePointerCapture?.(pointerId);
+      pointerId = null;
+    };
+
+    const stopControlEvent = (e) => e.stopPropagation();
+    const reclampOnResize = () => {
+      const currentLeft = Number.parseFloat(controls.style.left || "8");
+      const currentTop = Number.parseFloat(controls.style.top || "8");
+      const next = clampControls(currentLeft, currentTop);
+      controls.style.left = `${next.x}px`;
+      controls.style.top = `${next.y}px`;
+    };
+
+    controls.addEventListener("mousedown", stopControlEvent);
+    controls.addEventListener("touchstart", stopControlEvent, { passive: false });
+    controls.addEventListener("wheel", stopControlEvent);
+    dragTarget.addEventListener("pointerdown", onPointerDown);
+    dragTarget.addEventListener("pointermove", onPointerMove);
+    dragTarget.addEventListener("pointerup", onPointerUp);
+    dragTarget.addEventListener("pointercancel", onPointerUp);
+    window.addEventListener("resize", reclampOnResize);
+
+    const cleanupFns = [
+      () => controls.removeEventListener("mousedown", stopControlEvent),
+      () => controls.removeEventListener("touchstart", stopControlEvent),
+      () => controls.removeEventListener("wheel", stopControlEvent),
+      () => dragTarget.removeEventListener("pointerdown", onPointerDown),
+      () => dragTarget.removeEventListener("pointermove", onPointerMove),
+      () => dragTarget.removeEventListener("pointerup", onPointerUp),
+      () => dragTarget.removeEventListener("pointercancel", onPointerUp),
+      () => window.removeEventListener("resize", reclampOnResize)
+    ];
+
+    if (cleanup) cleanup.push(...cleanupFns);
   }
 
   function initMapDevTools() {
@@ -4740,6 +4936,7 @@ const PokedexTool = (() => {
 
   function showModal(mon) {
     disconnectSummaryEvolutionTree();
+    cleanupModalLocationMap();
     modalBody.innerHTML = buildModal(mon);
 
     initTabs();
@@ -4880,6 +5077,7 @@ function buildLeftPanel(mon) {
 
         if (tab.dataset.tab === "locations") {
           $("#modalLocationSearch")?.focus();
+          refreshModalLocationMapViewport();
         }
       };
     });
@@ -5958,6 +6156,38 @@ function getDirectChildBranches(branch) {
           </div>
         </div>
 
+        <div class="modal-location-map-shell">
+          <button type="button" id="modalLocationMapToggle" class="map-toggle-button map-viewport-toggle modal-location-map-toggle" aria-controls="modalLocationMapViewport" aria-expanded="false">
+            <span class="sr-only">Open map</span>
+          </button>
+          <div class="map-viewport modal-location-map-viewport hidden" id="modalLocationMapViewport">
+            <div class="map-controls modal-location-map-controls">
+              <button type="button" class="map-controls-handle" aria-label="Move map controls" title="Move controls">::</button>
+              <select id="modalLocationMapRegionSelect" class="dex-input map-region-select" aria-label="Location map region">
+                <option value="">All regions</option>
+                ${regions.map(region => `<option value="${region}">${region}</option>`).join("")}
+              </select>
+              <label class="map-zoom-control">
+                <span>Zoom</span>
+                <input id="modalLocationMapZoomSlider" type="range" min="0" max="500" step="1" value="0">
+                <output id="modalLocationMapZoomValue" for="modalLocationMapZoomSlider">0%</output>
+              </label>
+            </div>
+            <svg id="modalLocationMapSvg" viewBox="0 0 1662 1174" preserveAspectRatio="none">
+              <image href="maps/World Map.png" x="0" y="0" width="1662" height="1174"/>
+              <g id="modalLocationMapRegions"></g>
+              <g id="modalLocationMapPins"></g>
+            </svg>
+            <button type="button" id="modalLocationMapCollapse" class="map-viewport-collapse" aria-label="Hide map" title="Hide map">
+                <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18 3.25H6C5.27065 3.25 4.57118 3.53973 4.05546 4.05546C3.53973 4.57118 3.25 5.27065 3.25 6V12C3.25 12.1989 3.32902 12.3897 3.46967 12.5303C3.61032 12.671 3.80109 12.75 4 12.75C4.19891 12.75 4.38968 12.671 4.53033 12.5303C4.67098 12.3897 4.75 12.1989 4.75 12V6C4.75 5.66848 4.8817 5.35054 5.11612 5.11612C5.35054 4.8817 5.66848 4.75 6 4.75H18C18.3315 4.75 18.6495 4.8817 18.8839 5.11612C19.1183 5.35054 19.25 5.66848 19.25 6V18C19.25 18.3315 19.1183 18.6495 18.8839 18.8839C18.6495 19.1183 18.3315 19.25 18 19.25H12C11.8011 19.25 11.6103 19.329 11.4697 19.4697C11.329 19.6103 11.25 19.8011 11.25 20C11.25 20.1989 11.329 20.3897 11.4697 20.5303C11.6103 20.671 11.8011 20.75 12 20.75H18C18.7293 20.75 19.4288 20.4603 19.9445 19.9445C20.4603 19.4288 20.75 18.7293 20.75 18V6C20.75 5.27065 20.4603 4.57118 19.9445 4.05546C19.4288 3.53973 18.7293 3.25 18 3.25Z" fill="#000000"/>
+                  <path d="M11.21 13.19C11.3017 13.2291 11.4003 13.2495 11.5 13.25H15.5C15.6989 13.25 15.8897 13.171 16.0303 13.0304C16.171 12.8897 16.25 12.6989 16.25 12.5C16.25 12.3011 16.171 12.1104 16.0303 11.9697C15.8897 11.829 15.6989 11.75 15.5 11.75H13.31L16.53 8.53003C16.6625 8.38785 16.7346 8.19981 16.7312 8.00551C16.7277 7.81121 16.649 7.62582 16.5116 7.48841C16.3742 7.35099 16.1888 7.27228 15.9945 7.26885C15.8002 7.26543 15.6122 7.33755 15.47 7.47003L12.25 10.69V8.50003C12.25 8.30112 12.171 8.11035 12.0303 7.9697C11.8897 7.82905 11.6989 7.75003 11.5 7.75003C11.3011 7.75003 11.1103 7.82905 10.9697 7.9697C10.829 8.11035 10.75 8.30112 10.75 8.50003V12.5C10.7505 12.5997 10.7709 12.6983 10.81 12.79C10.8457 12.8806 10.8996 12.9628 10.9684 13.0316C11.0373 13.1004 11.1195 13.1543 11.21 13.19Z" fill="#000000"/>
+                  <path d="M8 14.25H5C4.53668 14.2526 4.09309 14.4378 3.76546 14.7655C3.43784 15.0931 3.25263 15.5367 3.25 16V19C3.25263 19.4633 3.43784 19.9069 3.76546 20.2345C4.09309 20.5622 4.53668 20.7474 5 20.75H8C8.46332 20.7474 8.90691 20.5622 9.23454 20.2345C9.56216 19.9069 9.74738 19.4633 9.75 19V16C9.74738 15.5367 9.56216 15.0931 9.23454 14.7655C8.90691 14.4378 8.46332 14.2526 8 14.25ZM8.25 19C8.25 19.0663 8.22366 19.1299 8.17678 19.1768C8.12989 19.2237 8.0663 19.25 8 19.25H5C4.9337 19.25 4.87011 19.2237 4.82322 19.1768C4.77634 19.1299 4.75 19.0663 4.75 19V16C4.75 15.9337 4.77634 15.8701 4.82322 15.8232C4.87011 15.7763 4.9337 15.75 5 15.75H8C8.0663 15.75 8.12989 15.7763 8.17678 15.8232C8.22366 15.8701 8.25 15.9337 8.25 16V19Z" fill="#000000"/>
+                </svg>
+            </button>
+          </div>
+        </div>
+
         <div class="modal-moves-body">
           <div class="modal-move-list modal-location-list" role="list">
             ${encounters.map((encounter, index) => buildModalLocationRow(encounter, index)).join("")}
@@ -5971,6 +6201,11 @@ function getDirectChildBranches(branch) {
   }
 
   function getModalLocationEncounters(mon) {
+    return groupModalLocationEncounters(getRawModalLocationEncounters(mon))
+      .sort(compareModalLocationEncounters);
+  }
+
+  function getRawModalLocationEncounters(mon) {
     return (mon.locations || [])
       .map(loc => {
         const parsed = parseModalLocationSeasonTime(loc.location || "");
@@ -5991,14 +6226,102 @@ function getDirectChildBranches(branch) {
           evTotal,
           moves: getEncounterMovesForLevel(mon, loc.max_level)
         };
-      })
-      .sort(compareModalLocationEncounters);
+      });
+  }
+
+  function groupModalLocationEncounters(encounters) {
+    const groups = new Map();
+
+    encounters.forEach(encounter => {
+      const key = getModalLocationGroupKey(encounter);
+      const group = groups.get(key);
+
+      if (group) {
+        group.variants.push(encounter);
+        return;
+      }
+
+      groups.set(key, {
+        ...encounter,
+        variants: [encounter],
+        seasonLabels: [],
+        timeLabels: []
+      });
+    });
+
+    return [...groups.values()].map(group => {
+      group.variants.sort(compareModalLocationVariants);
+      group.seasonLabels = getUniqueModalLocationLabels(group.variants, variant => variant.seasonLabels);
+      group.timeLabels = getUniqueModalLocationLabels(group.variants, variant => variant.timeLabels);
+      group.minLevel = getModalLocationMinLevel(group.variants);
+      group.maxLevel = getModalLocationMaxLevel(group.variants);
+      group.expLabel = getUniformModalLocationValue(group.variants, variant => variant.exp || "Unknown");
+      group.hordeLabel = getUniformModalLocationValue(group.variants, variant => variant.horde || "N/A");
+      group.movesLabel = getUniformModalLocationValue(group.variants, variant => variant.moves || "No level-up moves listed.");
+      return group;
+    });
+  }
+
+  function getModalLocationGroupKey(encounter) {
+    return [
+      encounter.loc.region_name || "",
+      encounter.parsed.clean || "",
+      encounter.loc.type || "",
+      encounter.loc.rarity || ""
+    ].map(value => String(value).toLowerCase()).join("|");
+  }
+
+  function getUniqueModalLocationLabels(items, getter) {
+    const seen = new Set();
+    const labels = [];
+
+    items.forEach(item => {
+      getter(item).forEach(label => {
+        if (seen.has(label)) return;
+        seen.add(label);
+        labels.push(label);
+      });
+    });
+
+    return labels;
+  }
+
+  function compareModalLocationVariants(a, b) {
+    return getModalLocationTimingSortValue(a).localeCompare(getModalLocationTimingSortValue(b))
+      || (a.loc.min_level || 0) - (b.loc.min_level || 0)
+      || (a.loc.max_level || 0) - (b.loc.max_level || 0);
+  }
+
+  function getModalLocationMinLevel(variants) {
+    const levels = variants.map(variant => Number(variant.loc.min_level)).filter(Number.isFinite);
+    return levels.length ? Math.min(...levels) : "";
+  }
+
+  function getModalLocationMaxLevel(variants) {
+    const levels = variants.map(variant => Number(variant.loc.max_level)).filter(Number.isFinite);
+    return levels.length ? Math.max(...levels) : "";
+  }
+
+  function getUniformModalLocationValue(variants, getter) {
+    const values = [...new Set(variants.map(getter))];
+    return values.length === 1 ? values[0] : "See variations below";
+  }
+
+  function getModalLocationTimingSortValue(encounter) {
+    const seasonOrder = ["Spring", "Summer", "Fall", "Winter"];
+    const timeOrder = ["Morning", "Day", "Night"];
+    const seasonIndexes = encounter.seasonLabels.map(label => seasonOrder.indexOf(label)).filter(index => index >= 0);
+    const timeIndexes = encounter.timeLabels.map(label => timeOrder.indexOf(label)).filter(index => index >= 0);
+    const season = seasonIndexes.length ? Math.min(...seasonIndexes) : 99;
+    const time = timeIndexes.length ? Math.min(...timeIndexes) : 99;
+
+    return `${String(season).padStart(2, "0")}:${String(time).padStart(2, "0")}:${getModalLocationTimingLabel(encounter)}`;
   }
 
   function compareModalLocationEncounters(a, b) {
     return (a.loc.region_name || "").localeCompare(b.loc.region_name || "")
       || a.parsed.clean.localeCompare(b.parsed.clean)
-      || (a.loc.min_level || 0) - (b.loc.min_level || 0)
+      || (a.minLevel || a.loc.min_level || 0) - (b.minLevel || b.loc.min_level || 0)
       || (a.loc.rarity || "").localeCompare(b.loc.rarity || "");
   }
 
@@ -6008,7 +6331,9 @@ function getDirectChildBranches(branch) {
   }
 
   function buildModalLocationRow(encounter, index) {
-    const suffix = getModalLocationTimingLabel(encounter);
+    const suffix = getModalLocationRowTimingLabel(encounter);
+    const minLevel = encounter.minLevel || encounter.loc.min_level || "?";
+    const maxLevel = encounter.maxLevel || encounter.loc.max_level || "?";
 
     return `
       <button type="button"
@@ -6021,12 +6346,13 @@ function getDirectChildBranches(branch) {
           encounter.parsed.clean,
           encounter.loc.type,
           encounter.loc.rarity,
-          suffix
+          suffix,
+          getModalLocationTimingLabel(encounter)
         ].filter(Boolean).join(" ").toLowerCase()}">
         <span class="modal-move-name">${encounter.parsed.clean || "Unknown Location"}</span>
         <span class="modal-move-meta">
           <span>${encounter.loc.region_name || "Unknown Region"}</span>
-          <span>Lv ${encounter.loc.min_level || "?"}-${encounter.loc.max_level || "?"}</span>
+          <span>Lv ${minLevel}-${maxLevel}</span>
           ${encounter.loc.type ? `<span>${encounter.loc.type}</span>` : ""}
           ${encounter.loc.rarity ? `<span>${encounter.loc.rarity}</span>` : ""}
           ${suffix ? `<span>${suffix}</span>` : ""}
@@ -6036,6 +6362,8 @@ function getDirectChildBranches(branch) {
   }
 
   function bindModalLocations(mon) {
+    cleanupModalLocationMap();
+
     const container = $("#locations");
     const search = $("#modalLocationSearch");
     const info = $("#modalLocationInfo");
@@ -6044,27 +6372,65 @@ function getDirectChildBranches(branch) {
     const encounters = getModalLocationEncounters(mon);
     const rows = [...container.querySelectorAll(".modal-location-row")];
     const filterButtons = [...container.querySelectorAll(".modal-location-filter")];
+    const regionButtons = filterButtons.filter(button => button.dataset.filter === "region");
     const emptyState = container.querySelector(".modal-location-empty");
     const activeFilters = {
       region: "all",
       rarity: "all"
     };
     let selectedIndex = rows.length ? 0 : -1;
+    let applyLocationFilters = () => {};
 
     const renderSelectedLocationInfo = () => {
       const encounter = encounters[selectedIndex];
       info.innerHTML = encounter
         ? buildModalLocationInfo(encounter)
         : `<div class="modal-move-info-empty">Select a location to inspect encounter details.</div>`;
+      if (encounter) renderModalLocationInfoMap(encounter);
     };
 
-    const selectRow = (index) => {
+    const syncModalLocationRegion = (region, { zoom = true } = {}) => {
+      const nextRegion = region || "all";
+      activeFilters.region = nextRegion;
+
+      regionButtons.forEach(button => {
+        button.classList.toggle("active", button.dataset.value === nextRegion);
+      });
+
+      if (state.regionSelect) {
+        state.regionSelect.value = nextRegion === "all" ? "" : nextRegion;
+      }
+
+      if (zoom) {
+        if (nextRegion === "all") {
+          zoomScopedMapToLocations(state, state.renderedLocations);
+        } else {
+          zoomScopedMapToRegion(state, nextRegion);
+        }
+      }
+
+      applyLocationFilters();
+    };
+
+    const selectRow = (index, options = {}) => {
       selectedIndex = index;
       rows.forEach(row => row.classList.toggle("active", Number(row.dataset.index) === selectedIndex));
+      rows[selectedIndex]?.scrollIntoView({ block: "nearest" });
+      selectModalLocationMapEncounter(encounters[selectedIndex], options);
       renderSelectedLocationInfo();
     };
 
-    const applyLocationFilters = () => {
+    const clearLocationFiltersForMapSelection = () => {
+      search.value = "";
+      activeFilters.region = "all";
+      activeFilters.rarity = "all";
+      filterButtons.forEach(button => {
+        button.classList.toggle("active", button.dataset.value === "all");
+      });
+      applyLocationFilters();
+    };
+
+    applyLocationFilters = () => {
       const q = search.value.trim().toLowerCase();
       let firstVisible = null;
 
@@ -6081,9 +6447,14 @@ function getDirectChildBranches(branch) {
       emptyState?.classList.toggle("hidden", Boolean(firstVisible));
 
       if (firstVisible && (selectedIndex < 0 || rows[selectedIndex]?.classList.contains("hidden"))) {
-        selectRow(Number(firstVisible.dataset.index));
+        selectRow(Number(firstVisible.dataset.index), { syncRegion: false });
       }
     };
+
+    modalLocationMapCleanup = initModalLocationMap(encounters, index => {
+      clearLocationFiltersForMapSelection();
+      selectRow(index, { syncRegion: false });
+    });
 
     rows.forEach(row => {
       row.addEventListener("click", () => selectRow(Number(row.dataset.index)));
@@ -6092,6 +6463,11 @@ function getDirectChildBranches(branch) {
     filterButtons.forEach(button => {
       button.addEventListener("click", () => {
         const filter = button.dataset.filter;
+        if (filter === "region") {
+          syncModalLocationRegion(button.dataset.value);
+          return;
+        }
+
         activeFilters[filter] = button.dataset.value;
 
         filterButtons
@@ -6103,11 +6479,481 @@ function getDirectChildBranches(branch) {
     });
 
     search.addEventListener("input", applyLocationFilters);
+    applyLocationFilters();
     renderSelectedLocationInfo();
+    selectModalLocationMapEncounter(encounters[selectedIndex], { overview: true, syncRegion: false });
+  }
+
+  function cleanupModalLocationMap() {
+    modalLocationMapCleanup?.();
+    modalLocationMapCleanup = null;
+    modalLocationMapState = null;
+  }
+
+  function refreshModalLocationMapViewport() {
+    const state = modalLocationMapState;
+    if (!state) return;
+
+    requestAnimationFrame(() => {
+      if (modalLocationMapState !== state) return;
+
+      if (state.regionSelect?.value) {
+        zoomScopedMapToRegion(state, state.regionSelect.value);
+        return;
+      }
+
+      const selectedPins = state.pins
+        ? [...state.pins.querySelectorAll(".modal-location-map-pin.selected-location")]
+        : [];
+      const selectedKeys = new Set(selectedPins.map(pin => getMapLocationKey(pin.dataset)));
+      const selectedLocations = state.renderedLocations.filter(loc => selectedKeys.has(getMapLocationKey(loc)));
+
+      if (selectedLocations.length) {
+        zoomScopedMapToLocations(state, selectedLocations);
+      } else {
+        zoomScopedMapToLocations(state, state.renderedLocations);
+      }
+    });
+  }
+
+  function initModalLocationMap(encounters, onSelectEncounter) {
+    const state = {
+      viewport: $("#modalLocationMapViewport"),
+      svg: $("#modalLocationMapSvg"),
+      regions: $("#modalLocationMapRegions"),
+      pins: $("#modalLocationMapPins"),
+      controls: $("#modalLocationMapViewport .map-controls"),
+      regionSelect: $("#modalLocationMapRegionSelect"),
+      zoomSlider: $("#modalLocationMapZoomSlider"),
+      zoomValue: $("#modalLocationMapZoomValue"),
+      scale: MAP_MIN_SCALE,
+      x: 0,
+      y: 0,
+      suppressClickUntil: 0,
+      encounterByLocationKey: new Map(),
+      locationsByEncounterIndex: new Map(),
+      renderedLocations: [],
+      cleanup: []
+    };
+
+    if (!state.viewport || !state.svg || !state.regions) return null;
+
+    modalLocationMapState = state;
+    modalLocationMapToggleButton = $("#modalLocationMapToggle");
+    const modalLocationMapCollapseButton = $("#modalLocationMapCollapse");
+    initDraggableMapControls(state.viewport, state.controls, state.cleanup);
+    buildModalLocationMapRegions(state, encounters, onSelectEncounter);
+
+    const setMapVisibility = (isVisible) => {
+      if (!state.viewport || !modalLocationMapToggleButton) return;
+      state.viewport.classList.toggle("hidden", !isVisible);
+      modalLocationMapToggleButton.classList.toggle("hidden", isVisible);
+      modalLocationMapToggleButton.setAttribute("aria-expanded", String(isVisible));
+
+      if (isVisible) {
+        refreshModalLocationMapViewport();
+      }
+    };
+
+    const onOpenClick = () => setMapVisibility(true);
+    const onCloseClick = () => setMapVisibility(false);
+
+    modalLocationMapToggleButton?.addEventListener("click", onOpenClick);
+    modalLocationMapCollapseButton?.addEventListener("click", onCloseClick);
+    if (modalLocationMapToggleButton) {
+      state.cleanup.push(() => modalLocationMapToggleButton.removeEventListener("click", onOpenClick));
+    }
+    if (modalLocationMapCollapseButton) {
+      state.cleanup.push(() => modalLocationMapCollapseButton.removeEventListener("click", onCloseClick));
+    }
+
+    const update = () => updateScopedMapTransform(state);
+
+    const onZoomInput = () => {
+      setScopedMapZoomPercent(state, Number(state.zoomSlider.value));
+      if (Number(state.zoomSlider.value) === 0 && state.regionSelect) state.regionSelect.value = "";
+    };
+    state.zoomSlider?.addEventListener("input", onZoomInput);
+    if (state.zoomSlider) state.cleanup.push(() => state.zoomSlider.removeEventListener("input", onZoomInput));
+
+    const onRegionChange = () => {
+      if (state.regionSelect.value) {
+        zoomScopedMapToRegion(state, state.regionSelect.value);
+      } else {
+        zoomScopedMapToLocations(state, state.renderedLocations);
+      }
+    };
+    state.regionSelect?.addEventListener("change", onRegionChange);
+    if (state.regionSelect) state.cleanup.push(() => state.regionSelect.removeEventListener("change", onRegionChange));
+
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let dragStartClientX = 0;
+    let dragStartClientY = 0;
+    let lastDist = 0;
+
+    const onWheel = (e) => {
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? 1 : -1;
+      zoomScopedMapToScale(state, state.scale + delta * 0.1, e);
+    };
+
+    const onMouseDown = (e) => {
+      if (e.target.closest(".map-controls, .map-viewport-collapse")) return;
+      isDragging = true;
+      state.viewport.classList.add("map-is-panning");
+      dragStartClientX = e.clientX;
+      dragStartClientY = e.clientY;
+      startX = e.clientX - state.x;
+      startY = e.clientY - state.y;
+      state.viewport.style.cursor = "grabbing";
+    };
+
+    const onMouseMove = (e) => {
+      if (!isDragging) return;
+
+      if (Math.hypot(e.clientX - dragStartClientX, e.clientY - dragStartClientY) > 5) {
+        state.suppressClickUntil = Date.now() + 350;
+      }
+
+      state.x = e.clientX - startX;
+      state.y = e.clientY - startY;
+      update();
+    };
+
+    const onMouseUp = () => {
+      isDragging = false;
+      state.viewport.classList.remove("map-is-panning");
+      state.viewport.style.cursor = "grab";
+    };
+
+    const onTouchStart = (e) => {
+      if (e.target.closest(".map-controls, .map-viewport-collapse")) return;
+      if (e.touches.length === 2) {
+        isDragging = false;
+        state.suppressClickUntil = Date.now() + 350;
+        lastDist = getTouchDistance(e);
+      } else if (e.touches.length === 1) {
+        isDragging = true;
+        state.viewport.classList.add("map-is-panning");
+        dragStartClientX = e.touches[0].clientX;
+        dragStartClientY = e.touches[0].clientY;
+        startX = e.touches[0].clientX - state.x;
+        startY = e.touches[0].clientY - state.y;
+      }
+    };
+
+    const onTouchMove = (e) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const newDist = getTouchDistance(e);
+        const zoomFactor = lastDist ? newDist / lastDist : 1;
+        const rect = state.viewport.getBoundingClientRect();
+        const mid = getTouchMidpoint(e);
+
+        lastDist = newDist;
+        zoomScopedMapToScale(state, state.scale * zoomFactor, {
+          clientX: mid.x,
+          clientY: mid.y,
+          preventDefault() {}
+        });
+      } else if (e.touches.length === 1 && isDragging) {
+        e.preventDefault();
+        if (Math.hypot(e.touches[0].clientX - dragStartClientX, e.touches[0].clientY - dragStartClientY) > 5) {
+          state.suppressClickUntil = Date.now() + 350;
+        }
+        state.x = e.touches[0].clientX - startX;
+        state.y = e.touches[0].clientY - startY;
+        update();
+      }
+    };
+
+    const onTouchEnd = () => {
+      isDragging = false;
+      state.viewport.classList.remove("map-is-panning");
+      lastDist = 0;
+    };
+
+    state.viewport.addEventListener("wheel", onWheel, { passive: false });
+    state.viewport.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+    state.viewport.addEventListener("touchstart", onTouchStart, { passive: false });
+    state.viewport.addEventListener("touchmove", onTouchMove, { passive: false });
+    state.viewport.addEventListener("touchend", onTouchEnd);
+
+    state.cleanup.push(
+      () => state.viewport.removeEventListener("wheel", onWheel),
+      () => state.viewport.removeEventListener("mousedown", onMouseDown),
+      () => window.removeEventListener("mousemove", onMouseMove),
+      () => window.removeEventListener("mouseup", onMouseUp),
+      () => state.viewport.removeEventListener("touchstart", onTouchStart),
+      () => state.viewport.removeEventListener("touchmove", onTouchMove),
+      () => state.viewport.removeEventListener("touchend", onTouchEnd)
+    );
+
+    update();
+
+    requestAnimationFrame(() => {
+      if (modalLocationMapState === state) zoomScopedMapToLocations(state, state.renderedLocations);
+    });
+
+    return () => {
+      state.cleanup.forEach(cleanup => cleanup());
+      if (modalLocationMapState === state) modalLocationMapState = null;
+    };
+  }
+
+  function buildModalLocationMapRegions(state, encounters, onSelectEncounter) {
+    state.regions.innerHTML = "";
+    if (state.pins) state.pins.innerHTML = "";
+
+    encounters.forEach((encounter, index) => {
+      const mapLocations = getModalLocationMapLocations(encounter);
+      state.locationsByEncounterIndex.set(index, mapLocations);
+
+      mapLocations.forEach(loc => {
+        const key = getMapLocationKey(loc);
+        if (!state.encounterByLocationKey.has(key)) {
+          state.encounterByLocationKey.set(key, index);
+        }
+      });
+    });
+
+    const renderedKeys = new Set();
+    state.renderedLocations = [];
+
+    LOCATION_DATA.forEach(loc => {
+      const key = getMapLocationKey(loc);
+      if (!state.encounterByLocationKey.has(key) || renderedKeys.has(key)) return;
+      renderedKeys.add(key);
+      state.renderedLocations.push(loc);
+
+      if (loc.shape !== "polygon" || !loc.points) return;
+
+      const el = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+      el.setAttribute("points", loc.points);
+      el.classList.add("map-region", "modal-location-map-region", "active-location");
+      el.dataset.name = loc.name;
+      el.dataset.region = loc.region;
+
+      el.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (Date.now() < state.suppressClickUntil) return;
+
+        const selectedIndex = state.encounterByLocationKey.get(key);
+        if (Number.isInteger(selectedIndex)) onSelectEncounter(selectedIndex);
+      });
+
+      state.regions.appendChild(el);
+
+      const pin = buildModalLocationMapPin(loc);
+      if (pin && state.pins) {
+        pin.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (Date.now() < state.suppressClickUntil) return;
+
+          const selectedIndex = state.encounterByLocationKey.get(key);
+          if (Number.isInteger(selectedIndex)) onSelectEncounter(selectedIndex);
+        });
+        state.pins.appendChild(pin);
+      }
+    });
+  }
+
+  function buildModalLocationMapPin(loc) {
+    const center = getMapLocationCenter(loc);
+    if (!center) return null;
+
+    const pinGroup = createMapPinElement(center, "modal-location-map-pin");
+    if (!pinGroup) return null;
+    pinGroup.dataset.name = loc.name;
+    pinGroup.dataset.region = loc.region;
+
+    return pinGroup;
+}
+
+  function selectModalLocationMapEncounter(encounter, options = {}) {
+    const state = modalLocationMapState;
+    if (!state || !encounter) return;
+
+    const index = state.locationsByEncounterIndex
+      ? [...state.locationsByEncounterIndex.entries()].find(([, locations]) => {
+          const keys = new Set(getModalLocationMapLocations(encounter).map(getMapLocationKey));
+          return locations.some(loc => keys.has(getMapLocationKey(loc)));
+        })?.[0]
+      : null;
+    const locations = Number.isInteger(index)
+      ? state.locationsByEncounterIndex.get(index)
+      : getModalLocationMapLocations(encounter);
+    const selectedKeys = new Set(locations.map(getMapLocationKey));
+
+    state.regions.querySelectorAll(".modal-location-map-region").forEach(el => {
+      const key = getMapLocationKey(el.dataset);
+      el.classList.toggle("selected-location", selectedKeys.has(key));
+    });
+    state.pins?.querySelectorAll(".modal-location-map-pin").forEach(el => {
+      const key = getMapLocationKey(el.dataset);
+      el.classList.toggle("selected-location", selectedKeys.has(key));
+    });
+
+    if (options.overview) {
+      zoomScopedMapToLocations(state, state.renderedLocations);
+    } else if (locations.length) {
+      zoomScopedMapToLocations(state, locations);
+    }
+
+    if (state.regionSelect && options.syncRegion !== false) {
+      state.regionSelect.value = locations.length === 1 ? locations[0].region : "";
+    }
+  }
+
+  function getModalLocationMapLocations(encounter) {
+    if (!encounter) return [];
+
+    const region = normalizeLocationMapText(encounter.loc.region_name);
+    const name = normalizeLocationMapText(encounter.parsed.clean);
+
+    return LOCATION_DATA.filter(loc =>
+      normalizeLocationMapText(loc.region) === region &&
+      normalizeLocationMapText(loc.name) === name &&
+      loc.points
+    );
+  }
+
+  function getMapLocationKey(loc) {
+    return `${normalizeLocationMapText(loc.region)}|${normalizeLocationMapText(loc.name)}`;
+  }
+
+  function normalizeLocationMapText(value) {
+    return String(value || "")
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim()
+      .toLowerCase();
+  }
+
+  function updateScopedMapTransform(state) {
+    if (!state.svg || !state.viewport) return;
+
+    state.scale = getFiniteMapScale(state.scale);
+    ({ x: state.x, y: state.y } = clampScopedMap(state, state.x, state.y, state.scale));
+    state.svg.style.transform = `translate(${state.x}px, ${state.y}px) scale(${state.scale})`;
+    state.svg.style.transformOrigin = "0 0";
+    syncScopedMapZoomControls(state);
+  }
+
+  function syncScopedMapZoomControls(state) {
+    const zoomPercent = Math.round((state.scale - MAP_MIN_SCALE) * 100);
+
+    if (state.zoomSlider && Number(state.zoomSlider.value) !== zoomPercent) {
+      state.zoomSlider.value = zoomPercent;
+    }
+
+    if (state.zoomValue) {
+      state.zoomValue.value = `${zoomPercent}%`;
+      state.zoomValue.textContent = `${zoomPercent}%`;
+    }
+  }
+
+  function setScopedMapZoomPercent(state, percent) {
+    const nextScale = MAP_MIN_SCALE + Math.max(0, Math.min(500, percent)) / 100;
+    zoomScopedMapToScale(state, nextScale);
+  }
+
+  function zoomScopedMapToScale(state, nextScale, focusPoint = null) {
+    if (!state.viewport) return;
+
+    const rect = state.viewport.getBoundingClientRect();
+    if (!hasUsableRect(rect)) return;
+    const mx = focusPoint ? focusPoint.clientX - rect.left : rect.width / 2;
+    const my = focusPoint ? focusPoint.clientY - rect.top : rect.height / 2;
+    const clampedScale = getFiniteMapScale(nextScale);
+    state.scale = getFiniteMapScale(state.scale);
+    const worldX = (mx - state.x) / state.scale;
+    const worldY = (my - state.y) / state.scale;
+
+    state.scale = clampedScale;
+    state.x = mx - worldX * state.scale;
+    state.y = my - worldY * state.scale;
+
+    updateScopedMapTransform(state);
+  }
+
+  function zoomScopedMapToRegion(state, region) {
+    if (!state.viewport || !region) return;
+
+    const bounds = getFixedMapRegionBounds(region);
+    if (!bounds) return;
+
+    const rect = state.viewport.getBoundingClientRect();
+    if (!hasUsableRect(rect)) return;
+    const fit = applyViewportRegionFit(state.svg, rect, bounds, 0.08);
+    if (!fit) return;
+    state.scale = fit.scale;
+    state.x = fit.x;
+    state.y = fit.y;
+
+    updateScopedMapTransform(state);
+  }
+
+  function zoomScopedMapToLocations(state, locations) {
+    if (!state.viewport || !locations?.length) return;
+
+    const bounds = getLocationsBounds(locations);
+    if (!bounds) return;
+
+    const rect = state.viewport.getBoundingClientRect();
+    if (!hasUsableRect(rect)) return;
+    const baseScaleX = rect.width / MAP_WORLD_WIDTH;
+    const baseScaleY = rect.height / MAP_WORLD_HEIGHT;
+    const padding = Math.min(rect.width, rect.height) * 0.15;
+    const width = Math.max(1, bounds.maxX - bounds.minX) * baseScaleX;
+    const height = Math.max(1, bounds.maxY - bounds.minY) * baseScaleY;
+    const fitScale = Math.min(
+      (rect.width - padding * 2) / width,
+      (rect.height - padding * 2) / height
+    );
+    const centerX = (bounds.minX + bounds.maxX) / 2;
+    const centerY = (bounds.minY + bounds.maxY) / 2;
+
+    state.scale = getFiniteMapScale(fitScale);
+    state.x = rect.width / 2 - centerX * baseScaleX * state.scale;
+    state.y = rect.height / 2 - centerY * baseScaleY * state.scale;
+
+    updateScopedMapTransform(state);
+  }
+
+  function clampScopedMap(state, x, y, scale) {
+    const rect = state.viewport.getBoundingClientRect();
+    if (!hasUsableRect(rect)) return { x: 0, y: 0 };
+    const baseScaleX = rect.width / MAP_WORLD_WIDTH;
+    const baseScaleY = rect.height / MAP_WORLD_HEIGHT;
+    const scaledWidth = MAP_WORLD_WIDTH * baseScaleX * scale;
+    const scaledHeight = MAP_WORLD_HEIGHT * baseScaleY * scale;
+    const minX = scaledWidth <= rect.width ? (rect.width - scaledWidth) / 2 : rect.width - scaledWidth;
+    const maxX = scaledWidth <= rect.width ? minX : 0;
+    const minY = scaledHeight <= rect.height ? (rect.height - scaledHeight) / 2 : rect.height - scaledHeight;
+    const maxY = scaledHeight <= rect.height ? minY : 0;
+
+    return {
+      x: Math.min(maxX, Math.max(minX, x)),
+      y: Math.min(maxY, Math.max(minY, y))
+    };
   }
 
   function buildModalLocationInfo(encounter) {
-    const timing = getModalLocationTimingLabel(encounter) || "Any time";
+    const timing = getModalLocationRowTimingLabel(encounter) || "Any time";
+    const minLevel = encounter.minLevel || encounter.loc.min_level || "?";
+    const maxLevel = encounter.maxLevel || encounter.loc.max_level || "?";
+    const hasVariations = (encounter.variants || []).length > 1;
+    const variationTitle = encounter.seasonLabels.length > 1 ? "Seasonal Variations" : "Encounter Variations";
+    const exp = encounter.expLabel || encounter.exp || "Unknown";
+    const horde = encounter.hordeLabel || encounter.horde || "N/A";
+    const moves = encounter.movesLabel || encounter.moves || "No level-up moves listed.";
 
     return `
       <div class="move-box modal-location-detail">
@@ -6118,13 +6964,23 @@ function getDirectChildBranches(branch) {
           </div>
         </div>
 
+        <div class="modal-location-subsection">
+          <div class="modal-location-subtitle">Region Map</div>
+          <div class="modal-location-info-map-viewport">
+            <svg class="modal-location-info-map-svg" viewBox="0 0 1662 1174" preserveAspectRatio="none">
+              <image href="maps/World Map.png" x="0" y="0" width="1662" height="1174"/>
+              <g class="modal-location-info-map-pins"></g>
+            </svg>
+          </div>
+        </div>
+
         <div class="move-info-grid modal-location-detail-grid">
           <div><b>Region:</b> ${encounter.loc.region_name || "Unknown"}</div>
-          <div><b>Level:</b> ${encounter.loc.min_level || "?"} - ${encounter.loc.max_level || "?"}</div>
+          <div><b>Level:</b> ${minLevel} - ${maxLevel}</div>
           ${encounter.loc.type ? `<div><b>Encounter:</b> ${encounter.loc.type}</div>` : ""}
           <div><b>Timing:</b> ${timing}</div>
-          <div><b>EXP:</b> ${encounter.exp || "Unknown"}</div>
-          <div><b>Horde EXP:</b> ${encounter.horde || "N/A"}</div>
+          <div><b>EXP:</b> ${exp}</div>
+          <div><b>Horde EXP:</b> ${horde}</div>
           <div><b>EV Total:</b> ${encounter.evTotal || "None"}</div>
         </div>
 
@@ -6139,7 +6995,90 @@ function getDirectChildBranches(branch) {
 
         <div class="modal-location-subsection">
           <div class="modal-location-subtitle">Likely Moves at Max Level</div>
-          <div class="modal-location-moves">${encounter.moves || "No level-up moves listed."}</div>
+          <div class="modal-location-moves">${moves}</div>
+        </div>
+
+        ${hasVariations ? `
+          <div class="modal-location-subsection">
+            <div class="modal-location-subtitle">${variationTitle}</div>
+            <div class="modal-location-variations">
+              ${encounter.variants.map(buildModalLocationVariation).join("")}
+            </div>
+          </div>
+        ` : ""}
+      </div>
+    `;
+  }
+
+  function renderModalLocationInfoMap(encounter) {
+    const info = $("#modalLocationInfo");
+    const viewport = info?.querySelector(".modal-location-info-map-viewport");
+    const svg = info?.querySelector(".modal-location-info-map-svg");
+    if (!viewport || !svg || !encounter?.loc?.region_name) return;
+
+    const locations = getModalLocationMapLocations(encounter);
+    const selectedLocation = locations[0];
+    const pinCenter = selectedLocation ? getMapLocationCenter(selectedLocation) : null;
+    const bounds = getFixedMapRegionBounds(encounter.loc.region_name);
+    if (!bounds || !pinCenter) return;
+
+    const rect = viewport.getBoundingClientRect();
+    if (!hasUsableRect(rect)) return;
+
+    const fit = applyViewportRegionFit(svg, rect, bounds, 0.10);
+    if (!fit) return;
+
+    const pinsLayer = viewport.querySelector(".modal-location-info-map-pins");
+    if (!pinsLayer) return;
+
+    pinsLayer.innerHTML = "";
+    const pin = createMapPinElement(pinCenter, ["modal-location-map-pin", "modal-location-info-map-pin"]);
+    if (pin) pinsLayer.appendChild(pin);
+  }
+
+  function createMapPinElement(center, classNames = ["modal-location-map-pin"]) {
+    if (!center) return null;
+
+    const pinGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    const classes = Array.isArray(classNames)
+      ? classNames
+      : String(classNames || "").split(/\s+/).filter(Boolean);
+    pinGroup.classList.add(...classes);
+
+    const pinPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    const pathData = `
+        M ${center.x} ${center.y}
+        C ${center.x - 12} ${center.y - 14} ${center.x - 14} ${center.y - 22} ${center.x - 14} ${center.y - 28}
+        A 14 14 0 1 1 ${center.x + 14} ${center.y - 28}
+        C ${center.x + 14} ${center.y - 22} ${center.x + 12} ${center.y - 14} ${center.x} ${center.y}
+        Z
+    `.replace(/\s+/g, " ").trim();
+
+    pinPath.setAttribute("d", pathData);
+
+    const pinCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    pinCircle.setAttribute("cx", center.x);
+    pinCircle.setAttribute("cy", center.y - 28);
+    pinCircle.setAttribute("r", "5.5");
+    pinCircle.setAttribute("fill", "#ffffff");
+
+    pinGroup.appendChild(pinPath);
+    pinGroup.appendChild(pinCircle);
+
+    return pinGroup;
+  }
+
+  function buildModalLocationVariation(variant) {
+    const timing = getModalLocationTimingLabel(variant) || "Any time";
+
+    return `
+      <div class="modal-location-variation">
+        <div class="modal-location-variation-time">${timing}</div>
+        <div class="modal-location-variation-meta">
+          <span>Lv ${variant.loc.min_level || "?"}-${variant.loc.max_level || "?"}</span>
+          <span>EXP ${variant.exp || "Unknown"}</span>
+          ${variant.horde ? `<span>Horde ${variant.horde}</span>` : ""}
+          ${variant.moves ? `<span>${variant.moves}</span>` : ""}
         </div>
       </div>
     `;
@@ -6225,6 +7164,21 @@ function getDirectChildBranches(branch) {
     ].join(" / ");
   }
 
+  function getModalLocationRowTimingLabel(encounter) {
+    const variants = encounter.variants || [encounter];
+
+    if (variants.length <= 1) return getModalLocationTimingLabel(encounter);
+
+    const hasSeasons = encounter.seasonLabels.length > 1;
+    const hasTimes = encounter.timeLabels.length > 1;
+
+    if (hasSeasons && hasTimes) return "Season / time variants";
+    if (hasSeasons) return "Seasonal variants";
+    if (hasTimes) return "Time variants";
+
+    return getModalLocationTimingLabel(encounter);
+  }
+
   function formatStatLabel(stat) {
     return {
       hp: "HP",
@@ -6299,6 +7253,7 @@ function initFormsList() {
 
   function closeFromRouter() {
     disconnectSummaryEvolutionTree();
+    cleanupModalLocationMap();
     if (!modalBody) modalBody = $("#modalBody");
   }
 

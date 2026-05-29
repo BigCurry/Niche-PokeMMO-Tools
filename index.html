@@ -445,17 +445,25 @@
             </div>
             
             <div class="minimap">
-              <div class="map-controls">
-                <select id="mapRegionSelect" class="dex-input map-region-select" aria-label="Map region">
-                  <option value="">All regions</option>
-                </select>
-                <label class="map-zoom-control">
-                  <span>Zoom</span>
-                  <input id="mapZoomSlider" type="range" min="0" max="500" step="1" value="0">
-                  <output id="mapZoomValue" for="mapZoomSlider">0%</output>
-                </label>
-              </div>
-              <div class="map-viewport" id="mapViewport">
+              <button type="button" id="mapViewportToggle" class="map-toggle-button map-viewport-toggle" aria-controls="mapViewport" aria-expanded="false">
+                <span class="sr-only">Open map</span>
+              </button>
+              <div class="map-viewport hidden" id="mapViewport">
+                <div class="map-controls">
+                  <button type="button" class="map-controls-handle" aria-label="Move map controls" title="Move controls">::</button>
+                  <select id="mapRegionSelect" class="dex-input map-region-select" aria-label="Map region">
+                    <option value="">All regions</option>
+                  </select>
+                  <div style="position: relative">
+                    <input id="filterLocation" class="dex-input" placeholder="Search location...">
+                    <div id="locationDropdown" class="dropdown hidden" style="width:100%;"></div>
+                  </div>
+                  <label class="map-zoom-control">
+                    <span>Zoom</span>
+                    <input id="mapZoomSlider" type="range" min="0" max="500" step="1" value="0">
+                    <output id="mapZoomValue" for="mapZoomSlider">0%</output>
+                  </label>
+                </div>
 
                 <svg id="mapSvg" viewBox="0 0 1662 1174" preserveAspectRatio="none">
 
@@ -469,11 +477,8 @@
                   <circle id="mapPin" cx="0" cy="0" r="8" class="map-pin hidden"/>
 
                 </svg>
+                <button type="button" id="mapViewportCollapse" class="map-viewport-collapse" aria-label="Hide map" title="Hide map">−</button>
 
-              </div>
-              <div style="position: relative;width:100%">
-                <input id="filterLocation" class="dex-input" style="margin-top: 5px;" placeholder="Search location...">
-                <div id="locationDropdown" class="dropdown hidden" style="width:100%;"></div>
               </div>
             </div>
 
