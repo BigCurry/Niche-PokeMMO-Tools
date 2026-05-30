@@ -6009,7 +6009,7 @@ function getDirectChildBranches(branch) {
 
     return `
       <button type="button"
-        class="modal-move-row${index === 0 ? " active" : ""}"
+        class="modal-move-row"
         data-index="${index}"
         data-method="${move.type || ""}"
         data-name="${move.name.toLowerCase()}">
@@ -6039,7 +6039,7 @@ function getDirectChildBranches(branch) {
     const rows = [...container.querySelectorAll(".modal-move-row")];
     const methodButtons = [...container.querySelectorAll(".modal-move-method")];
     const emptyState = container.querySelector(".modal-move-empty");
-    const selectedIndices = new Set(rows.length ? [0] : []);
+    const selectedIndices = new Set();
 
     const renderSelectedMoveInfo = () => {
       const selectedMoves = [...selectedIndices]
@@ -6123,42 +6123,99 @@ function getDirectChildBranches(branch) {
     const encounters = getModalLocationEncounters(mon);
     const regions = getModalLocationFilterValues(encounters, encounter => encounter.loc.region_name);
     const rarities = getModalLocationFilterValues(encounters, encounter => encounter.loc.rarity);
+    const seasons = sortModalLocationFilterValues(
+      getModalLocationFilterValues(encounters, encounter => encounter.seasonLabels),
+      "season"
+    );
+    const times = sortModalLocationFilterValues(
+      getModalLocationFilterValues(encounters, encounter => encounter.timeLabels),
+      "time"
+    );
 
     if (!encounters.length) return "<div>No locations</div>";
 
     return `
       <div class="modal-locations">
-        <div class="modal-moves-toolbar">
+        <div class="modal-moves-toolbar modal-location-toolbar">
           <input id="modalLocationSearch" class="dex-input modal-move-search" placeholder="Search locations...">
+          <button type="button" id="modalLocationFiltersBtn" class="btn btn--gradient modal-location-filters-btn">
+            <svg width="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+            <label style="font-size: 14px;">Filters</label>
+          </button>
+        </div>
 
-          <div class="modal-location-filter-group">
-            <div class="modal-location-filter-label">Region</div>
-            <div class="modal-move-methods">
-              <button type="button" class="modal-move-method modal-location-filter active" data-filter="region" data-value="all">All</button>
-              ${regions.map(region => `
-                <button type="button" class="modal-move-method modal-location-filter" data-filter="region" data-value="${region}">
-                  ${region}
-                </button>
-              `).join("")}
+        <div id="modalLocationFiltersPanel" class="dex-filters-panel modal-location-filters-panel collapsed">
+          <div class="modal-location-filters-grid">
+            <div class="dex-filter-group">
+              <div class="dex-filter-group-label">
+                <label>Region</label>
+              </div>
+              <div class="mc-filters encounter-filter-pills">
+                ${regions.map(region => `
+                  <button type="button" class="encounter-filter-pill modal-location-filter" data-filter="region" data-value="${region}">
+                    <span class="filter-box">◯</span> ${region}
+                  </button>
+                `).join("")}
+              </div>
+            </div>
+
+            <div class="dex-filter-group">
+              <div class="dex-filter-group-label">
+                <label>Rarity</label>
+              </div>
+              <div class="mc-filters encounter-filter-pills">
+                ${rarities.map(rarity => `
+                  <button type="button" class="encounter-filter-pill modal-location-filter" data-filter="rarity" data-value="${rarity}">
+                    <span class="filter-box">◯</span> ${rarity}
+                  </button>
+                `).join("")}
+              </div>
+            </div>
+
+            <div class="dex-filter-group">
+              <div class="dex-filter-group-label">
+                <label>Season</label>
+              </div>
+              <div class="mc-filters encounter-filter-pills">
+                ${seasons.map(season => `
+                  <button type="button" class="encounter-filter-pill modal-location-filter" data-filter="season" data-value="${season}">
+                    <span class="filter-box">◯</span> ${season}
+                  </button>
+                `).join("")}
+              </div>
+            </div>
+
+            <div class="dex-filter-group">
+              <div class="dex-filter-group-label">
+                <label>Time of Day</label>
+              </div>
+              <div class="mc-filters encounter-filter-pills">
+                ${times.map(time => `
+                  <button type="button" class="encounter-filter-pill modal-location-filter" data-filter="time" data-value="${time}">
+                    <span class="filter-box">◯</span> ${time}
+                  </button>
+                `).join("")}
+              </div>
             </div>
           </div>
 
-          <div class="modal-location-filter-group">
-            <div class="modal-location-filter-label">Rarity</div>
-            <div class="modal-move-methods">
-              <button type="button" class="modal-move-method modal-location-filter active" data-filter="rarity" data-value="all">All</button>
-              ${rarities.map(rarity => `
-                <button type="button" class="modal-move-method modal-location-filter" data-filter="rarity" data-value="${rarity}">
-                  ${rarity}
-                </button>
-              `).join("")}
-            </div>
-          </div>
+          <button id="modalLocationClearFilters" class="btn btn--tertiary modal-location-clear-filters">Clear Filters</button>
         </div>
 
         <div class="modal-location-map-shell">
           <button type="button" id="modalLocationMapToggle" class="map-toggle-button map-viewport-toggle modal-location-map-toggle" aria-controls="modalLocationMapViewport" aria-expanded="false">
             <span class="sr-only">Open map</span>
+            
+            <span class="map-toggle-icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 20.75H12C11.8011 20.75 11.6103 20.671 11.4697 20.5303C11.329 20.3897 11.25 20.1989 11.25 20C11.25 19.8011 11.329 19.6103 11.4697 19.4697C11.6103 19.329 11.8011 19.25 12 19.25H18C18.3315 19.25 18.6495 19.1183 18.8839 18.8839C19.1183 18.6495 19.25 18.3315 19.25 18V6C19.25 5.66848 19.1183 5.35054 18.8839 5.11612C18.6495 4.8817 18.3315 4.75 18 4.75H6C5.66848 4.75 5.35054 4.8817 5.11612 5.11612C4.8817 5.35054 4.75 5.66848 4.75 6V12C4.75 12.1989 4.67098 12.3897 4.53033 12.5303C4.38968 12.671 4.19891 12.75 4 12.75C3.80109 12.75 3.61032 12.671 3.46967 12.5303C3.32902 12.3897 3.25 12.1989 3.25 12V6C3.25 5.27065 3.53973 4.57118 4.05546 4.05546C4.57118 3.53973 5.27065 3.25 6 3.25H18C18.7293 3.25 19.4288 3.53973 19.9445 4.05546C20.4603 4.57118 20.75 5.27065 20.75 6V18C20.75 18.7293 20.4603 19.4288 19.9445 19.9445C19.4288 20.4603 18.7293 20.75 18 20.75Z" fill="currentColor"/>
+                <path d="M16 12.75C15.8019 12.7474 15.6126 12.6676 15.4725 12.5275C15.3324 12.3874 15.2526 12.1981 15.25 12V8.75H12C11.8011 8.75 11.6103 8.67098 11.4697 8.53033C11.329 8.38968 11.25 8.19891 11.25 8C11.25 7.80109 11.329 7.61032 11.4697 7.46967C11.6103 7.32902 11.8011 7.25 12 7.25H16C16.1981 7.25259 16.3874 7.33244 16.5275 7.47253C16.6676 7.61263 16.7474 7.80189 16.75 8V12C16.7474 12.1981 16.6676 12.3874 16.5275 12.5275C16.3874 12.6676 16.1981 12.7474 16 12.75Z" fill="currentColor"/>
+                <path d="M11.5 13.25C11.3071 13.2352 11.1276 13.1455 11 13C10.877 12.8625 10.809 12.6845 10.809 12.5C10.809 12.3155 10.877 12.1375 11 12L15.5 7.5C15.6422 7.36752 15.8302 7.29539 16.0245 7.29882C16.2188 7.30225 16.4042 7.38096 16.5416 7.51838C16.679 7.65579 16.7578 7.84117 16.7612 8.03548C16.7646 8.22978 16.6925 8.41782 16.56 8.56L12 13C11.8724 13.1455 11.6929 13.2352 11.5 13.25Z" fill="currentColor"/>
+                <path d="M8 20.75H5C4.53668 20.7474 4.09309 20.5622 3.76546 20.2345C3.43784 19.9069 3.25263 19.4633 3.25 19V16C3.25263 15.5367 3.43784 15.0931 3.76546 14.7655C4.09309 14.4378 4.53668 14.2526 5 14.25H8C8.46332 14.2526 8.90691 14.4378 9.23454 14.7655C9.56216 15.0931 9.74738 15.5367 9.75 16V19C9.74738 19.4633 9.56216 19.9069 9.23454 20.2345C8.90691 20.5622 8.46332 20.7474 8 20.75ZM5 15.75C4.9337 15.75 4.87011 15.7763 4.82322 15.8232C4.77634 15.8701 4.75 15.9337 4.75 16V19C4.75 19.0663 4.77634 19.1299 4.82322 19.1768C4.87011 19.2237 4.9337 19.25 5 19.25H8C8.0663 19.25 8.12989 19.2237 8.17678 19.1768C8.22366 19.1299 8.25 19.0663 8.25 19V16C8.25 15.9337 8.22366 15.8701 8.17678 15.8232C8.12989 15.7763 8.0663 15.75 8 15.75H5Z" fill="currentColor"/>
+              </svg>
+            </span>
           </button>
           <div class="map-viewport modal-location-map-viewport hidden" id="modalLocationMapViewport">
             <div class="map-controls modal-location-map-controls">
@@ -6179,10 +6236,10 @@ function getDirectChildBranches(branch) {
               <g id="modalLocationMapPins"></g>
             </svg>
             <button type="button" id="modalLocationMapCollapse" class="map-viewport-collapse" aria-label="Hide map" title="Hide map">
-                <svg width="100%" height="100%" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M18 3.25H6C5.27065 3.25 4.57118 3.53973 4.05546 4.05546C3.53973 4.57118 3.25 5.27065 3.25 6V12C3.25 12.1989 3.32902 12.3897 3.46967 12.5303C3.61032 12.671 3.80109 12.75 4 12.75C4.19891 12.75 4.38968 12.671 4.53033 12.5303C4.67098 12.3897 4.75 12.1989 4.75 12V6C4.75 5.66848 4.8817 5.35054 5.11612 5.11612C5.35054 4.8817 5.66848 4.75 6 4.75H18C18.3315 4.75 18.6495 4.8817 18.8839 5.11612C19.1183 5.35054 19.25 5.66848 19.25 6V18C19.25 18.3315 19.1183 18.6495 18.8839 18.8839C18.6495 19.1183 18.3315 19.25 18 19.25H12C11.8011 19.25 11.6103 19.329 11.4697 19.4697C11.329 19.6103 11.25 19.8011 11.25 20C11.25 20.1989 11.329 20.3897 11.4697 20.5303C11.6103 20.671 11.8011 20.75 12 20.75H18C18.7293 20.75 19.4288 20.4603 19.9445 19.9445C20.4603 19.4288 20.75 18.7293 20.75 18V6C20.75 5.27065 20.4603 4.57118 19.9445 4.05546C19.4288 3.53973 18.7293 3.25 18 3.25Z" fill="#000000"/>
-                  <path d="M11.21 13.19C11.3017 13.2291 11.4003 13.2495 11.5 13.25H15.5C15.6989 13.25 15.8897 13.171 16.0303 13.0304C16.171 12.8897 16.25 12.6989 16.25 12.5C16.25 12.3011 16.171 12.1104 16.0303 11.9697C15.8897 11.829 15.6989 11.75 15.5 11.75H13.31L16.53 8.53003C16.6625 8.38785 16.7346 8.19981 16.7312 8.00551C16.7277 7.81121 16.649 7.62582 16.5116 7.48841C16.3742 7.35099 16.1888 7.27228 15.9945 7.26885C15.8002 7.26543 15.6122 7.33755 15.47 7.47003L12.25 10.69V8.50003C12.25 8.30112 12.171 8.11035 12.0303 7.9697C11.8897 7.82905 11.6989 7.75003 11.5 7.75003C11.3011 7.75003 11.1103 7.82905 10.9697 7.9697C10.829 8.11035 10.75 8.30112 10.75 8.50003V12.5C10.7505 12.5997 10.7709 12.6983 10.81 12.79C10.8457 12.8806 10.8996 12.9628 10.9684 13.0316C11.0373 13.1004 11.1195 13.1543 11.21 13.19Z" fill="#000000"/>
-                  <path d="M8 14.25H5C4.53668 14.2526 4.09309 14.4378 3.76546 14.7655C3.43784 15.0931 3.25263 15.5367 3.25 16V19C3.25263 19.4633 3.43784 19.9069 3.76546 20.2345C4.09309 20.5622 4.53668 20.7474 5 20.75H8C8.46332 20.7474 8.90691 20.5622 9.23454 20.2345C9.56216 19.9069 9.74738 19.4633 9.75 19V16C9.74738 15.5367 9.56216 15.0931 9.23454 14.7655C8.90691 14.4378 8.46332 14.2526 8 14.25ZM8.25 19C8.25 19.0663 8.22366 19.1299 8.17678 19.1768C8.12989 19.2237 8.0663 19.25 8 19.25H5C4.9337 19.25 4.87011 19.2237 4.82322 19.1768C4.77634 19.1299 4.75 19.0663 4.75 19V16C4.75 15.9337 4.77634 15.8701 4.82322 15.8232C4.87011 15.7763 4.9337 15.75 5 15.75H8C8.0663 15.75 8.12989 15.7763 8.17678 15.8232C8.22366 15.8701 8.25 15.9337 8.25 16V19Z" fill="#000000"/>
+                <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18 3.25H6C5.27065 3.25 4.57118 3.53973 4.05546 4.05546C3.53973 4.57118 3.25 5.27065 3.25 6V12C3.25 12.1989 3.32902 12.3897 3.46967 12.5303C3.61032 12.671 3.80109 12.75 4 12.75C4.19891 12.75 4.38968 12.671 4.53033 12.5303C4.67098 12.3897 4.75 12.1989 4.75 12V6C4.75 5.66848 4.8817 5.35054 5.11612 5.11612C5.35054 4.8817 5.66848 4.75 6 4.75H18C18.3315 4.75 18.6495 4.8817 18.8839 5.11612C19.1183 5.35054 19.25 5.66848 19.25 6V18C19.25 18.3315 19.1183 18.6495 18.8839 18.8839C18.6495 19.1183 18.3315 19.25 18 19.25H12C11.8011 19.25 11.6103 19.329 11.4697 19.4697C11.329 19.6103 11.25 19.8011 11.25 20C11.25 20.1989 11.329 20.3897 11.4697 20.5303C11.6103 20.671 11.8011 20.75 12 20.75H18C18.7293 20.75 19.4288 20.4603 19.9445 19.9445C20.4603 19.4288 20.75 18.7293 20.75 18V6C20.75 5.27065 20.4603 4.57118 19.9445 4.05546C19.4288 3.53973 18.7293 3.25 18 3.25Z" fill="currentColor"/>
+                  <path d="M11.21 13.19C11.3017 13.2291 11.4003 13.2495 11.5 13.25H15.5C15.6989 13.25 15.8897 13.171 16.0303 13.0304C16.171 12.8897 16.25 12.6989 16.25 12.5C16.25 12.3011 16.171 12.1104 16.0303 11.9697C15.8897 11.829 15.6989 11.75 15.5 11.75H13.31L16.53 8.53003C16.6625 8.38785 16.7346 8.19981 16.7312 8.00551C16.7277 7.81121 16.649 7.62582 16.5116 7.48841C16.3742 7.35099 16.1888 7.27228 15.9945 7.26885C15.8002 7.26543 15.6122 7.33755 15.47 7.47003L12.25 10.69V8.50003C12.25 8.30112 12.171 8.11035 12.0303 7.9697C11.8897 7.82905 11.6989 7.75003 11.5 7.75003C11.3011 7.75003 11.1103 7.82905 10.9697 7.9697C10.829 8.11035 10.75 8.30112 10.75 8.50003V12.5C10.7505 12.5997 10.7709 12.6983 10.81 12.79C10.8457 12.8806 10.8996 12.9628 10.9684 13.0316C11.0373 13.1004 11.1195 13.1543 11.21 13.19Z" fill="currentColor"/>
+                  <path d="M8 14.25H5C4.53668 14.2526 4.09309 14.4378 3.76546 14.7655C3.43784 15.0931 3.25263 15.5367 3.25 16V19C3.25263 19.4633 3.43784 19.9069 3.76546 20.2345C4.09309 20.5622 4.53668 20.7474 5 20.75H8C8.46332 20.7474 8.90691 20.5622 9.23454 20.2345C9.56216 19.9069 9.74738 19.4633 9.75 19V16C9.74738 15.5367 9.56216 15.0931 9.23454 14.7655C8.90691 14.4378 8.46332 14.2526 8 14.25ZM8.25 19C8.25 19.0663 8.22366 19.1299 8.17678 19.1768C8.12989 19.2237 8.0663 19.25 8 19.25H5C4.9337 19.25 4.87011 19.2237 4.82322 19.1768C4.77634 19.1299 4.75 19.0663 4.75 19V16C4.75 15.9337 4.77634 15.8701 4.82322 15.8232C4.87011 15.7763 4.9337 15.75 5 15.75H8C8.0663 15.75 8.12989 15.7763 8.17678 15.8232C8.22366 15.8701 8.25 15.9337 8.25 16V19Z" fill="currentColor"/>
                 </svg>
             </button>
           </div>
@@ -6326,8 +6383,32 @@ function getDirectChildBranches(branch) {
   }
 
   function getModalLocationFilterValues(encounters, getter) {
-    return [...new Set(encounters.map(getter).filter(Boolean))]
+    return [...new Set(encounters.flatMap(item => {
+      const value = getter(item);
+      if (Array.isArray(value)) return value.filter(Boolean);
+      return value ? [value] : [];
+    }))]
       .sort((a, b) => String(a).localeCompare(String(b)));
+  }
+
+  function sortModalLocationFilterValues(values, kind) {
+    const order = kind === "season"
+      ? ["Spring", "Summer", "Fall", "Winter"]
+      : kind === "time"
+        ? ["Morning", "Day", "Night"]
+        : null;
+
+    return [...values].sort((a, b) => {
+      if (!order) return String(a).localeCompare(String(b));
+
+      const ai = order.indexOf(a);
+      const bi = order.indexOf(b);
+
+      if (ai === -1 && bi === -1) return String(a).localeCompare(String(b));
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi || String(a).localeCompare(String(b));
+    });
   }
 
   function buildModalLocationRow(encounter, index) {
@@ -6337,10 +6418,12 @@ function getDirectChildBranches(branch) {
 
     return `
       <button type="button"
-        class="modal-move-row modal-location-row${index === 0 ? " active" : ""}"
+        class="modal-move-row modal-location-row"
         data-index="${index}"
         data-region="${encounter.loc.region_name || ""}"
         data-rarity="${encounter.loc.rarity || ""}"
+        data-season="${(encounter.seasonLabels || []).join("|")}"
+        data-time="${(encounter.timeLabels || []).join("|")}"
         data-name="${[
           encounter.loc.region_name,
           encounter.parsed.clean,
@@ -6367,18 +6450,27 @@ function getDirectChildBranches(branch) {
     const container = $("#locations");
     const search = $("#modalLocationSearch");
     const info = $("#modalLocationInfo");
-    if (!container || !search || !info) return;
+    const filtersBtn = $("#modalLocationFiltersBtn");
+    const filtersPanel = $("#modalLocationFiltersPanel");
+    const clearFiltersBtn = $("#modalLocationClearFilters");
+    if (!container || !search || !info || !filtersBtn || !filtersPanel || !clearFiltersBtn) return;
 
     const encounters = getModalLocationEncounters(mon);
     const rows = [...container.querySelectorAll(".modal-location-row")];
-    const filterButtons = [...container.querySelectorAll(".modal-location-filter")];
-    const regionButtons = filterButtons.filter(button => button.dataset.filter === "region");
     const emptyState = container.querySelector(".modal-location-empty");
-    const activeFilters = {
-      region: "all",
-      rarity: "all"
+    const filterGroups = {
+      region: [...container.querySelectorAll('.modal-location-filter[data-filter="region"]')],
+      rarity: [...container.querySelectorAll('.modal-location-filter[data-filter="rarity"]')],
+      season: [...container.querySelectorAll('.modal-location-filter[data-filter="season"]')],
+      time: [...container.querySelectorAll('.modal-location-filter[data-filter="time"]')]
     };
-    let selectedIndex = rows.length ? 0 : -1;
+    const filterState = {
+      region: Object.create(null),
+      rarity: Object.create(null),
+      season: Object.create(null),
+      time: Object.create(null)
+    };
+    let selectedIndex = -1;
     let applyLocationFilters = () => {};
 
     const renderSelectedLocationInfo = () => {
@@ -6389,13 +6481,63 @@ function getDirectChildBranches(branch) {
       if (encounter) renderModalLocationInfoMap(encounter);
     };
 
+    const setFilterButtonState = (button, state) => {
+      const box = button.querySelector(".filter-box");
+      button.dataset.state = state;
+      button.classList.toggle("include", state === "include");
+      button.classList.toggle("exclude", state === "exclude");
+      if (box) {
+        box.textContent = state === "none" ? "◯" : state === "include" ? "✔" : "✖";
+      }
+    };
+
+    const setFilterGroupState = (group, value, state) => {
+      if (!filterState[group]) return;
+      filterState[group][value] = state;
+      filterGroups[group]
+        ?.filter(button => button.dataset.value === value)
+        .forEach(button => setFilterButtonState(button, state));
+    };
+
+    const resetFilterGroup = (group) => {
+      Object.keys(filterState[group] || {}).forEach(value => {
+        filterState[group][value] = "none";
+      });
+      filterGroups[group]?.forEach(button => setFilterButtonState(button, "none"));
+    };
+
+    const getFilterValues = (group, state) => Object.entries(filterState[group] || {})
+      .filter(([, value]) => value === state)
+      .map(([value]) => value);
+
+    const rowMatchesFilterGroup = (values, group) => {
+      const included = getFilterValues(group, "include");
+      const excluded = getFilterValues(group, "exclude");
+
+      if (included.length && !values.some(value => included.includes(value))) return false;
+      if (excluded.length && values.every(value => excluded.includes(value))) return false;
+      return true;
+    };
+
+    const clearSelection = () => {
+      selectedIndex = -1;
+      rows.forEach(row => row.classList.remove("active"));
+      modalLocationMapState?.regions?.querySelectorAll(".selected-location").forEach(el => {
+        el.classList.remove("selected-location");
+      });
+      modalLocationMapState?.pins?.querySelectorAll(".selected-location").forEach(el => {
+        el.classList.remove("selected-location");
+      });
+      renderSelectedLocationInfo();
+    };
+
     const syncModalLocationRegion = (region, { zoom = true } = {}) => {
       const nextRegion = region || "all";
-      activeFilters.region = nextRegion;
-
-      regionButtons.forEach(button => {
-        button.classList.toggle("active", button.dataset.value === nextRegion);
-      });
+      search.value = "";
+      resetFilterGroup("region");
+      if (nextRegion !== "all") {
+        setFilterGroupState("region", nextRegion, "include");
+      }
 
       if (state.regionSelect) {
         state.regionSelect.value = nextRegion === "all" ? "" : nextRegion;
@@ -6422,34 +6564,65 @@ function getDirectChildBranches(branch) {
 
     const clearLocationFiltersForMapSelection = () => {
       search.value = "";
-      activeFilters.region = "all";
-      activeFilters.rarity = "all";
-      filterButtons.forEach(button => {
-        button.classList.toggle("active", button.dataset.value === "all");
-      });
+      Object.keys(filterState).forEach(resetFilterGroup);
+      if (state.regionSelect) state.regionSelect.value = "";
+      if (state.zoomSlider) state.zoomSlider.value = "0";
+      zoomScopedMapToLocations(state, state.renderedLocations);
       applyLocationFilters();
     };
 
     applyLocationFilters = () => {
       const q = search.value.trim().toLowerCase();
-      let firstVisible = null;
 
       rows.forEach(row => {
         const matchesSearch = !q || row.dataset.name.includes(q);
-        const matchesRegion = activeFilters.region === "all" || row.dataset.region === activeFilters.region;
-        const matchesRarity = activeFilters.rarity === "all" || row.dataset.rarity === activeFilters.rarity;
-        const visible = matchesSearch && matchesRegion && matchesRarity;
+        const rowSeasons = row.dataset.season ? row.dataset.season.split("|").filter(Boolean) : [];
+        const rowTimes = row.dataset.time ? row.dataset.time.split("|").filter(Boolean) : [];
+        const visible = matchesSearch
+          && rowMatchesFilterGroup([row.dataset.region].filter(Boolean), "region")
+          && rowMatchesFilterGroup([row.dataset.rarity].filter(Boolean), "rarity")
+          && rowMatchesFilterGroup(rowSeasons, "season")
+          && rowMatchesFilterGroup(rowTimes, "time");
 
         row.classList.toggle("hidden", !visible);
-        if (visible && !firstVisible) firstVisible = row;
       });
 
-      emptyState?.classList.toggle("hidden", Boolean(firstVisible));
-
-      if (firstVisible && (selectedIndex < 0 || rows[selectedIndex]?.classList.contains("hidden"))) {
-        selectRow(Number(firstVisible.dataset.index), { syncRegion: false });
+      const selectedRow = selectedIndex >= 0 ? rows.find(row => Number(row.dataset.index) === selectedIndex) : null;
+      if (selectedRow && selectedRow.classList.contains("hidden")) {
+        clearSelection();
       }
+
+      emptyState?.classList.toggle("hidden", rows.some(row => !row.classList.contains("hidden")));
     };
+
+    filtersBtn.addEventListener("click", () => {
+      filtersPanel.classList.toggle("collapsed");
+    });
+
+    clearFiltersBtn.addEventListener("click", () => {
+      search.value = "";
+      Object.keys(filterState).forEach(resetFilterGroup);
+      if (state.regionSelect) state.regionSelect.value = "";
+      if (state.zoomSlider) state.zoomSlider.value = "0";
+      zoomScopedMapToLocations(state, state.renderedLocations);
+      applyLocationFilters();
+    });
+
+    container.querySelectorAll(".modal-location-filter").forEach(button => {
+      const group = button.dataset.filter;
+      const value = button.dataset.value;
+      if (!group || !value) return;
+
+      filterState[group][value] = "none";
+      setFilterButtonState(button, "none");
+
+      button.addEventListener("click", () => {
+        const current = filterState[group][value] || "none";
+        const next = current === "none" ? "include" : current === "include" ? "exclude" : "none";
+        setFilterGroupState(group, value, next);
+        applyLocationFilters();
+      });
+    });
 
     modalLocationMapCleanup = initModalLocationMap(encounters, index => {
       clearLocationFiltersForMapSelection();
@@ -6460,28 +6633,12 @@ function getDirectChildBranches(branch) {
       row.addEventListener("click", () => selectRow(Number(row.dataset.index)));
     });
 
-    filterButtons.forEach(button => {
-      button.addEventListener("click", () => {
-        const filter = button.dataset.filter;
-        if (filter === "region") {
-          syncModalLocationRegion(button.dataset.value);
-          return;
-        }
-
-        activeFilters[filter] = button.dataset.value;
-
-        filterButtons
-          .filter(item => item.dataset.filter === filter)
-          .forEach(item => item.classList.toggle("active", item === button));
-
-        applyLocationFilters();
-      });
-    });
-
     search.addEventListener("input", applyLocationFilters);
     applyLocationFilters();
     renderSelectedLocationInfo();
-    selectModalLocationMapEncounter(encounters[selectedIndex], { overview: true, syncRegion: false });
+    if (selectedIndex >= 0) {
+      selectModalLocationMapEncounter(encounters[selectedIndex], { overview: true, syncRegion: false });
+    }
   }
 
   function cleanupModalLocationMap() {
