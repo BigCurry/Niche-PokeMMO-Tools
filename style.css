@@ -1266,6 +1266,47 @@ body.pory-full #poryBackground {
   opacity: 0.9;
 }
 
+.modal-location-row {
+  align-items: center;
+  column-gap: 10px;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  padding-right: 34px;
+  position: relative;
+}
+
+.modal-location-row-region {
+  align-items: center;
+  display: inline-flex;
+  height: 34px;
+  justify-content: center;
+  width: 34px;
+}
+
+.modal-location-row-region img {
+  display: block;
+  height: 100%;
+  object-fit: contain;
+  width: 100%;
+}
+
+.modal-location-variation-badge {
+  align-items: center;
+  background: var(--accent);
+  border-radius: 999px;
+  color: black;
+  display: inline-flex;
+  font-size: 0.75rem;
+  font-weight: 800;
+  height: 24px;
+  justify-content: center;
+  min-width: 24px;
+  padding: 0 7px;
+  position: absolute;
+  right: 8px;
+  top: 8px;
+}
+
 .modal-move-learn {
   white-space: nowrap;
 }
@@ -1321,6 +1362,9 @@ body.pory-full #poryBackground {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.modal-location-filter-box {
 }
 
 .modal-location-filters-panel {
@@ -1449,6 +1493,41 @@ body.pory-full #poryBackground {
   display: grid;
   gap: 6px;
   padding-top: 8px;
+}
+
+.modal-location-variations-table-wrap {
+  overflow-x: auto;
+}
+
+.modal-location-variations-table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 720px;
+  font-size: 0.8rem;
+}
+
+.modal-location-variations-table th,
+.modal-location-variations-table td {
+  border: 1px solid color-mix(in srgb, var(--muted) 28%, transparent);
+  padding: 7px 8px;
+  vertical-align: top;
+}
+
+.modal-location-variations-table th {
+  background: color-mix(in srgb, var(--panel) 88%, var(--bg));
+  color: var(--muted);
+  font-size: 0.74rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.modal-location-variations-table tbody tr:nth-child(even) td {
+  background: color-mix(in srgb, var(--panel) 78%, var(--bg));
+}
+
+.modal-location-variations-table td[rowspan] {
+  background: color-mix(in srgb, var(--panel) 85%, var(--bg));
+  font-weight: 600;
 }
 
 .modal-location-evs {
