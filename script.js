@@ -4987,6 +4987,7 @@ const PokedexTool = (() => {
 
 function buildLeftPanel(mon) {
   const forms = getAlternateForms(mon);
+  const held = getHeldItems(mon);
 
   return `
     <div class="pokedex-left">
@@ -4995,10 +4996,29 @@ function buildLeftPanel(mon) {
         ${mon.name}
       </div>
 
-      <img id="mainImage"
-        class="pokedex-modal-image-main"
-        src="${getAnimatedSprite(mon.id)}"
-        onerror="this.src='sprites/pokemon/0.png'">
+      <div class="pokedex-image-container">
+        <img id="mainImage"
+            class="pokedex-modal-image-main"
+            src="${getAnimatedSprite(mon.id)}"
+            onerror="this.src='sprites/pokemon/0.png'">
+
+        <div class="pokedex-image-footer">
+          <div class="pokedex-modal-image-types">
+              ${buildTypeBadges(mon.types)}
+          </div>
+
+          <div class="item-list pokedex-modal-item-list">
+            <img src="sprites/assets/held-item.png" alt="">
+              ${held.length
+                ? held.map(i => `
+                  <button class="held-chip" data-item="${i}">
+                    <img src="sprites/items/${i}.png" alt="${i}">
+                  </button>
+                `).join("")
+                : `None`}
+          </div>
+        </div>
+      </div>
 
       ${forms.length ? `
         <div class="forms-list">
@@ -5207,11 +5227,7 @@ function buildSummary(mon) {
 
       <!-- TYPES -->
       <div class="summary-card">
-        <h3>Typing</h3>
-
-        <div class="summary-types">
-          ${buildTypeBadges(mon.types)}
-        </div>
+        <h3>Typing Chart</h3>
 
         ${buildTypeChart(mon)}
       </div>
@@ -5244,7 +5260,7 @@ function buildSummary(mon) {
             ? held.map(i => `
               <button class="summary-chip held-chip"
                 data-item="${i}">
-                ${i}
+                <img src="sprites/items/${i}.png" alt="${i}">
               </button>
             `).join("")
             : "None"}
@@ -5450,23 +5466,45 @@ function buildSummary(mon) {
   }
 
   function getHeldItems(mon) {
-    return (mon.held_items || []).map(i => i.name || i).filter(Boolean);
+    return (mon.held_items || []).map(i => i.id || i).filter(Boolean);
   }
 
-  function buildTypeChart(mon) {
-    const effects = getTypeEffectiveness(mon.types);
-    const { weak, resist, immune } = categorizeEffectiveness(effects);
+function buildTypeChart(mon) {
+  const effects = getTypeEffectiveness(mon.types);
+  const { weak4x, weak2x, resist2x, resist4x, immune } = categorizeEffectiveness(effects);
 
-    return `
-      <div class="type-chart">
+  return `
+    <table class="type-chart-table">
+      <tbody>
+        <tr class="row-weakness">
+          <td rowspan="2" class="category-header"><b>Weaknesses</b></td>
+          <td><b>4x</b></td>
+          <td>${buildTypeBadges(weak4x) || "None"}</td>
+        </tr>
+        <tr class="row-weakness">
+          <td><b>2x</b></td>
+          <td>${buildTypeBadges(weak2x) || "None"}</td>
+        </tr>
 
-        <div><b>Weaknesses:</b> ${buildTypeBadges(weak) || "None"}</div>
-        <div><b>Resistances:</b> ${buildTypeBadges(resist) || "None"}</div>
-        <div><b>Immunities:</b> ${buildTypeBadges(immune) || "None"}</div>
+        <tr class="row-resistance">
+          <td rowspan="2" class="category-header"><b>Resistances</b></td>
+          <td><b>0.5x</b></td>
+          <td>${buildTypeBadges(resist2x) || "None"}</td>
+        </tr>
+        <tr class="row-resistance">
+          <td><b>0.25x</b></td>
+          <td>${buildTypeBadges(resist4x) || "None"}</td>
+        </tr>
 
-      </div>
-    `;
-  }
+        <tr class="row-immunity">
+          <td><b>Immunities</b></td>
+          <td><b>0x</b></td>
+          <td>${buildTypeBadges(immune) || "None"}</td>
+        </tr>
+      </tbody>
+    </table>
+  `;
+}
 
   function getTypeEffectiveness(types = []) {
     const result = {};
@@ -5486,17 +5524,29 @@ function buildSummary(mon) {
   }
 
   function categorizeEffectiveness(effects) {
-    const weak = [];
-    const resist = [];
+    const weak4x = [];
+    const weak2x = [];
+    const resist2x = []; // 0.5x
+    const resist4x = []; // 0.25x
     const immune = [];
 
     Object.entries(effects).forEach(([type, val]) => {
-      if (val === 0) immune.push(capitalize(type));
-      else if (val > 1) weak.push(capitalize(type));
-      else if (val < 1) resist.push(capitalize(type));
+      const capitalizedType = capitalize(type);
+
+      if (val === 0) {
+        immune.push(capitalizedType);
+      } else if (val === 4) {
+        weak4x.push(capitalizedType);
+      } else if (val === 2) {
+        weak2x.push(capitalizedType);
+      } else if (val === 0.5) {
+        resist2x.push(capitalizedType);
+      } else if (val === 0.25) {
+        resist4x.push(capitalizedType);
+      }
     });
 
-    return { weak, resist, immune };
+    return { weak4x, weak2x, resist2x, resist4x, immune };
   }
 
   function bindSummaryAbilities() {
@@ -7368,7 +7418,7 @@ function getDirectChildBranches(branch) {
 
     return rows.map((row, index) => `
       <tr>
-        ${typeSpans.has(index) ? `<td rowspan="${typeSpans.get(index)}">${row.type}</td>` : ""}
+        ${typeSpans.has(index) ? `<td rowspan="${typeSpans.get(index)}"><img src="sprites/assets/${row.type}.webp" alt="${row.type}" class="pokedex-modal-location-variation-type-img" onerror="this.onerror=null;this.src='sprites/pokemon/0.png';"></td>` : ""}
         ${locationSpans.has(index) ? `<td rowspan="${locationSpans.get(index)}">${row.location}</td>` : ""}
         ${raritySpans.has(index) ? `<td rowspan="${raritySpans.get(index)}">${row.rarity}</td>` : ""}
         ${levelsSpans.has(index) ? `<td rowspan="${levelsSpans.get(index)}">${row.levels}</td>` : ""}

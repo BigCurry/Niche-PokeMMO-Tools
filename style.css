@@ -1058,26 +1058,120 @@ body.pory-full #poryBackground {
   image-rendering: crisp-edges;
 }
 
-.pokedex-modal-image-main {
+/* 1. The new wrapper container */
+.pokedex-image-container {
+  position: relative;         /* Establishes the boundary for absolute positioning */
   display: block;
-  margin: 0 auto;
-
+  margin: 0 auto;            /* Centers the entire image component */
+  
+  /* Move the width constraints from the img to this container */
   width: min(100%, 220px);
   max-width: 220px;
-  max-height: clamp(200px, 26vw, 220px);
+}
 
+.pokedex-image-footer {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
+  
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  z-index: 2;
+  
+  box-sizing: border-box; 
+  max-width: calc(100% - 16px);
+}
+/* --- Updated Split-Pill Badges --- */
+
+.pokedex-modal-image-types {
+  display: grid;
+  grid-template-columns: 1fr; 
+  grid-template-rows: 1fr;    
+  flex-shrink: 0;
+  
+  /* Gives the container a strict width of a single badge so it never overflows */
+  width: 65px;                
+  height: 20px;               /* Matches the total combined height */
+  position: relative;
+}
+
+.pokedex-modal-image-types > .type-badge {
+  /* Forces both badges onto the exact same z-level and space */
+  grid-area: 1 / 1; 
+  
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  
+  font-size: 0.65rem;         /* Slightly smaller text to fit the halved height */
+  font-weight: bold;
+  text-transform: uppercase;
+  border-radius: 999px;       /* Keeps the pill-shaped outer edges */
+}
+
+/* --- Top Badge Logic (First Type) --- */
+.pokedex-modal-image-types > .type-badge:nth-child(1) {
+  /* Cuts off the bottom half of the badge */
+  clip-path: inset(0% 0% 50% 0%); 
+  
+  /* Nudges the text upward so it centers nicely in the top visible half */
+  padding-bottom: 11px; 
+}
+
+/* --- Bottom Badge Logic (Second Type) --- */
+.pokedex-modal-image-types > .type-badge:nth-child(2) {
+  /* Cuts off the top half of the badge */
+  clip-path: inset(50% 0% 0% 0%); 
+  
+  /* Nudges the text downward so it centers nicely in the bottom visible half */
+  padding-top: 9px; 
+}
+
+/* --- Monotype Fallback --- */
+/* If a Pokémon only has one type, remove the clip path so it fills the full badge space normally */
+.pokedex-modal-image-types > .type-badge:only-child {
+  clip-path: none;
+  padding: 0;
+}
+
+.pokedex-modal-item-list {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+
+  background: color-mix(in srgb, var(--accent) 50%, transparent);
+  padding: 2px 10px;
+  border-radius: 50px;
+  
+  /* Fine-tuning text layout to prevent unwanted wrapping */
+  white-space: nowrap;        
+  font-size: 0.8rem; 
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+/* --- Adjusted Existing Style --- */
+.pokedex-modal-image-main {
+  display: block;
+  width: 100%;
+  max-height: clamp(200px, 26vw, 220px);
   height: auto;
   min-height: 200px;
   object-fit: contain;
   image-rendering: crisp-edges;
 
-  background: linear-gradient(0deg,color-mix(in srgb, var(--accent)50%, transparent) 0%, color-mix(in srgb, var(--altAccent)50%, transparent) 100%);
+  background: linear-gradient(0deg, color-mix(in srgb, var(--accent) 50%, transparent) 0%, color-mix(in srgb, var(--altAccent) 50%, transparent) 100%);
   border: 1px inset var(--panel);
   border-radius: 20px;
   padding: 10px;
+  padding-bottom: 45px;       /* Increased slightly to ensure the sprite doesn't overlap the new footer */
 }
-
-
 /* =============================================================
    FORMS DROPDOWN
 ============================================================= */
@@ -1860,6 +1954,37 @@ body.pory-full #poryBackground {
 .pill-type-bug.active { background: #A8B820; color: black; }
 .pill-type-fairy.active { background: #F890A8; color: black; }
 .pill-type-question.active { background: #68A090; color: black; }
+
+.type-chart-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.type-chart-table th, 
+.type-chart-table td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+/* Centers the merged "Weaknesses" and "Resistances" labels vertically */
+.type-chart-table td.category-header {
+  vertical-align: middle;
+  font-weight: bold;
+}
+
+/* Row-specific backgrounds */
+.row-weakness {
+  background-color: rgba(239, 83, 80, 0.15); /* Soft Red */
+}
+
+.row-resistance {
+  background-color: rgba(102, 187, 106, 0.15); /* Soft Green */
+}
+
+.row-immunity {
+  background-color: rgba(144, 164, 174, 0.2); /* Soft Slate Grey/Blue */
+}
 
 .pill-container {
   display: flex;
@@ -2765,6 +2890,17 @@ body.pory-full #poryBackground {
   margin:4px;
 }
 
+.held-chip{
+  border:none;
+  border-radius:999px;
+  cursor:pointer;
+  background: color-mix(in srgb, var(--bg) 5%, transparent);
+}
+
+.held-chip:hover{
+  background: color-mix(in srgb, var(--accent) 80%, transparent);
+}
+
 .ability-list {
   display: flex;
   flex-wrap: wrap;
@@ -3277,4 +3413,8 @@ body.pory-full #poryBackground {
     height: 5px;
     font-size: 2px;
   }
+}
+
+.pokedex-modal-location-variation-type-img{
+  max-width: 30px;
 }
