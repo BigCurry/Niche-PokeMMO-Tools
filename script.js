@@ -5008,14 +5008,14 @@ function buildLeftPanel(mon) {
           </div>
 
           <div class="item-list pokedex-modal-item-list">
-            <img src="sprites/assets/held-item.png" alt="">
+            <img src="sprites/assets/held-item.png" alt="" style="padding-right: 4px;">
               ${held.length
                 ? held.map(i => `
                   <button class="held-chip" data-item="${i}">
                     <img src="sprites/items/${i}.png" alt="${i}">
                   </button>
                 `).join("")
-                : `None`}
+                : `<span>None<span>`}
           </div>
         </div>
       </div>
@@ -5251,22 +5251,6 @@ function buildSummary(mon) {
         <div id="summaryAbilityInfo"></div>
       </div>
 
-      <!-- HELD ITEMS -->
-      <div class="summary-card">
-        <h3>Held Items</h3>
-
-        <div class="item-list">
-          ${held.length
-            ? held.map(i => `
-              <button class="summary-chip held-chip"
-                data-item="${i}">
-                <img src="sprites/items/${i}.png" alt="${i}">
-              </button>
-            `).join("")
-            : "None"}
-        </div>
-      </div>
-
       ${buildBodySummary(mon)}
 
       ${evolutionMarkup ? `
@@ -5303,19 +5287,12 @@ function buildSummary(mon) {
           </div>
           <div class="body-measure">
             <span>Weight</span>
-            <b>${formatKg(baseWeight)}</b>
-          </div>
-          <div class="body-measure">
-            <span>Effective Weight</span>
-            <b>${weightVariants.length ? "Ability dependent" : formatKg(baseWeight)}</b>
+            <b>${formatKg(baseWeight)}
+            ${weightVariants.length ? `
+                ${weightVariants.map(v => `/ ${formatKg(v.weight)}`).join(" · ")}
+            ` : ""}</b>
           </div>
         </div>
-
-        ${weightVariants.length ? `
-          <div class="body-note">
-            ${weightVariants.map(v => `<b>${v.label}</b>: ${formatKg(v.weight)}`).join(" · ")}
-          </div>
-        ` : ""}
 
         <div class="body-mechanics">
           <div>
@@ -5473,33 +5450,38 @@ function buildTypeChart(mon) {
   const effects = getTypeEffectiveness(mon.types);
   const { weak4x, weak2x, resist2x, resist4x, immune } = categorizeEffectiveness(effects);
 
+  // Helper to wrap badges in a flex container if they exist
+  const wrapBadges = (badgesHtml) => {
+    return badgesHtml ? `<div class="type-chart-table-badge-wrappers">${badgesHtml}</div>` : "None";
+  };
+
   return `
     <table class="type-chart-table">
       <tbody>
         <tr class="row-weakness">
           <td rowspan="2" class="category-header"><b>Weaknesses</b></td>
           <td><b>4x</b></td>
-          <td>${buildTypeBadges(weak4x) || "None"}</td>
+          <td>${wrapBadges(buildTypeBadges(weak4x))}</td>
         </tr>
         <tr class="row-weakness">
           <td><b>2x</b></td>
-          <td>${buildTypeBadges(weak2x) || "None"}</td>
+          <td>${wrapBadges(buildTypeBadges(weak2x))}</td>
         </tr>
 
         <tr class="row-resistance">
           <td rowspan="2" class="category-header"><b>Resistances</b></td>
           <td><b>0.5x</b></td>
-          <td>${buildTypeBadges(resist2x) || "None"}</td>
+          <td>${wrapBadges(buildTypeBadges(resist2x))}</td>
         </tr>
         <tr class="row-resistance">
           <td><b>0.25x</b></td>
-          <td>${buildTypeBadges(resist4x) || "None"}</td>
+          <td>${wrapBadges(buildTypeBadges(resist4x))}</td>
         </tr>
 
         <tr class="row-immunity">
           <td><b>Immunities</b></td>
           <td><b>0x</b></td>
-          <td>${buildTypeBadges(immune) || "None"}</td>
+          <td>${wrapBadges(buildTypeBadges(immune))}</td>
         </tr>
       </tbody>
     </table>
@@ -6488,7 +6470,7 @@ function getDirectChildBranches(branch) {
         <span class="modal-location-row-region">
           <img src="${regionImage}" alt="${regionName}" loading="lazy">
         </span>
-        <span class="modal-move-name">${encounter.locationLabel || encounter.parsed.clean || "Unknown Location"}</span>
+        <span class="modal-move-name">${encounter.parsed.clean || encounter.locationLabel || "Unknown Location"}</span>
         ${variantCount > 1 ? `<span class="modal-location-variation-badge" aria-label="${variantCount} variations">${variantCount}</span>` : ""}
       </button>
     `;
@@ -7198,7 +7180,7 @@ function getDirectChildBranches(branch) {
     return `
       <div class="move-box modal-location-detail">
         <div class="move-header">
-          <div class="move-title">${encounter.locationLabel || encounter.parsed.clean || "Unknown Location"}</div>
+          <div class="move-title">${encounter.parsed.clean || encounter.locationLabel || "Unknown Location"}</div>
           <div class="move-header-right">
             ${encounter.rarities?.length ? `<span class="icon mod">${encounter.rarities.join(" / ")}</span>` : ""}
           </div>
@@ -7221,7 +7203,6 @@ function getDirectChildBranches(branch) {
               <thead>
                 <tr>
                   <th>Type</th>
-                  <th>Location</th>
                   <th>Rarity</th>
                   <th>Levels</th>
                   <th>Timing</th>
@@ -7403,14 +7384,13 @@ function getDirectChildBranches(branch) {
   function buildModalLocationVariationRows(variants) {
     const rows = variants.map(variant => ({
       type: variant.loc.type || "Unknown",
-      location: getLocationDisplayLabel(variant),
       rarity: variant.loc.rarity || "Unknown",
       levels: `Lv ${variant.loc.min_level || "?"}-${variant.loc.max_level || "?"}`,
       timing: getModalLocationTimingLabel(variant) || "Any time",
       notes: getModalLocationVariationNotes(variant)
     }));
+    
     const typeSpans = computeModalLocationRowspans(rows, row => row.type);
-    const locationSpans = computeModalLocationRowspans(rows, row => row.location);
     const raritySpans = computeModalLocationRowspans(rows, row => row.rarity);
     const levelsSpans = computeModalLocationRowspans(rows, row => row.levels);
     const timingSpans = computeModalLocationRowspans(rows, row => row.timing);
@@ -7419,23 +7399,28 @@ function getDirectChildBranches(branch) {
     return rows.map((row, index) => `
       <tr>
         ${typeSpans.has(index) ? `<td rowspan="${typeSpans.get(index)}"><img src="sprites/assets/${row.type}.webp" alt="${row.type}" class="pokedex-modal-location-variation-type-img" onerror="this.onerror=null;this.src='sprites/pokemon/0.png';"></td>` : ""}
-        ${locationSpans.has(index) ? `<td rowspan="${locationSpans.get(index)}">${row.location}</td>` : ""}
         ${raritySpans.has(index) ? `<td rowspan="${raritySpans.get(index)}">${row.rarity}</td>` : ""}
         ${levelsSpans.has(index) ? `<td rowspan="${levelsSpans.get(index)}">${row.levels}</td>` : ""}
-        ${timingSpans.has(index) ? `<td rowspan="${timingSpans.get(index)}">${row.timing}</td>` : ""}
+        ${timingSpans.has(index) ? `<td rowspan="${timingSpans.get(index)}">${renderTimingAndSeasonIcons(row.timing)}</td>` : ""}
         ${notesSpans.has(index) ? `<td rowspan="${notesSpans.get(index)}">${row.notes}</td>` : ""}
       </tr>
     `).join("");
   }
 
+  const TIMING_ICONS = {
+    "day": `<svg fill="currentColor" class="timing-icon" viewBox="0 0 240 240" version="1.1" xmlns="http://www.w3.org/2000/svg"><g><path d="M58.57,25.81c-2.13-3.67-0.87-8.38,2.8-10.51c3.67-2.13,8.38-0.88,10.51,2.8l9.88,17.1c2.13,3.67,0.87,8.38-2.8,10.51 c-3.67,2.13-8.38,0.88-10.51-2.8L58.57,25.81L58.57,25.81z M120,51.17c19.01,0,36.21,7.7,48.67,20.16 C181.12,83.79,188.83,101,188.83,120c0,19.01-7.7,36.21-20.16,48.67c-12.46,12.46-29.66,20.16-48.67,20.16 c-19.01,0-36.21-7.7-48.67-20.16C58.88,156.21,51.17,139.01,51.17,120c0-19.01,7.7-36.21,20.16-48.67 C83.79,58.88,101,51.17,120,51.17L120,51.17z M158.27,81.73c-9.79-9.79-23.32-15.85-38.27-15.85c-14.95,0-28.48,6.06-38.27,15.85 c-9.79,9.79-15.85,23.32-15.85,38.27c0,14.95,6.06,28.48,15.85,38.27c9.79,9.79,23.32,15.85,38.27,15.85 c14.95,0,28.48-6.06,38.27-15.85c9.79-9.79,15.85-23.32,15.85-38.27C174.12,105.05,168.06,91.52,158.27,81.73L158.27,81.73z M113.88,7.71c0-4.26,3.45-7.71,7.71-7.71c4.26,0,7.71,3.45,7.71,7.71v19.75c0,4.26-3.45,7.71-7.71,7.71 c-4.26,0-7.71-3.45-7.71-7.71V7.71L113.88,7.71z M170.87,19.72c2.11-3.67,6.8-4.94,10.48-2.83c3.67,2.11,4.94,6.8,2.83,10.48 l-9.88,17.1c-2.11,3.67-6.8,4.94-10.48,2.83c-3.67-2.11-4.94-6.8-2.83-10.48L170.87,19.72L170.87,19.72z M214.19,58.57 c3.67-2.13,8.38-0.87,10.51,2.8c2.13,3.67,0.88,8.38-2.8,10.51l-17.1,9.88c-3.67,2.13-8.38,0.87-10.51-2.8 c-2.13-3.67-0.88-8.38,2.8-10.51L214.19,58.57L214.19,58.57z M232.29,113.88c4.26,0,7.71,3.45,7.71,7.71 c0,4.26-3.45,7.71-7.71,7.71h-19.75c-4.26,0-7.71-3.45-7.71-7.71c0-4.26,3.45-7.71,7.71-7.71H232.29L232.29,113.88z M220.28,170.87 c3.67,2.11,4.94,6.8,2.83,10.48c-2.11,3.67-6.8,4.94-10.48,2.83l-17.1-9.88c-3.67-2.11-4.94-6.8-2.83-10.48 c2.11-3.67,6.8-4.94,10.48-2.83L220.28,170.87L220.28,170.87z M181.43,214.19c2.13,3.67,0.87,8.38-2.8,10.51 c-3.67,2.13-8.38,0.88-10.51-2.8l-9.88-17.1c-2.13-3.67-0.87-8.38,2.8-10.51c3.67-2.13,8.38-0.88,10.51,2.8L181.43,214.19 L181.43,214.19z M126.12,232.29c0,4.26-3.45,7.71-7.71,7.71c-4.26,0-7.71-3.45-7.71-7.71v-19.75c0-4.26,3.45-7.71,7.71-7.71 c4.26,0,7.71,3.45,7.71,7.71V232.29L126.12,232.29z M69.13,220.28c-2.11,3.67-6.8,4.94-10.48,2.83c-3.67-2.11-4.94-6.8-2.83-10.48 l9.88-17.1c2.11-3.67,6.8-4.94,10.48-2.83c3.67,2.11,4.94,6.8,2.83,10.48L69.13,220.28L69.13,220.28z M25.81,181.43 c-3.67,2.13-8.38,0.87-10.51-2.8c-2.13-3.67-0.88-8.38,2.8-10.51l17.1-9.88c3.67-2.13,8.38-0.87,10.51,2.8 c2.13,3.67,0.88,8.38-2.8,10.51L25.81,181.43L25.81,181.43z M7.71,126.12c-4.26,0-7.71-3.45-7.71-7.71c0-4.26,3.45-7.71,7.71-7.71 h19.75c4.26,0,7.71,3.45,7.71,7.71c0,4.26-3.45,7.71-7.71,7.71H7.71L7.71,126.12z M19.72,69.13c-3.67-2.11-4.94-6.8-2.83-10.48 c2.11-3.67,6.8-4.94,10.48-2.83l17.1,9.88c3.67,2.11,4.94,6.8,2.83,10.48c-2.11,3.67-6.8,4.94-10.48,2.83L19.72,69.13L19.72,69.13z"/></g></svg>`,
+
+    "morning": `<svg fill="currentColor" class="timing-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23,16a1,1,0,0,1-1,1H2a1,1,0,0,1,0-2H22A1,1,0,0,1,23,16Zm-5,5a1,1,0,0,0,0-2H6a1,1,0,0,0,0,2ZM7,12a1,1,0,0,0,2,0,3,3,0,0,1,6,0,1,1,0,0,0,2,0A5,5,0,0,0,7,12Zm4-7a1,1,0,0,0,2,0V4a1,1,0,0,0-2,0Zm7,7a1,1,0,0,0,1,1h1a1,1,0,0,0,0-2H19A1,1,0,0,0,18,12ZM4,11a1,1,0,0,0,0,2H5a1,1,0,0,0,0-2ZM5.636,5.636a1,1,0,0,0,0,1.414l.707.707A1,1,0,0,0,7.757,6.343L7.05,5.636A1,1,0,0,0,5.636,5.636Zm11.314,0-.707.707a1,1,0,1,0,1.414,1.414l.707-.707A1,1,0,1,0,16.95,5.636Z"/></svg>`,
+
+    "night": `<svg class="timing-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.5739 1.11056L13.7826 2.69316C13.7632 2.73186 13.7319 2.76325 13.6932 2.7826L12.1106 3.5739C11.9631 3.64761 11.9631 3.85797 12.1106 3.93167L13.6932 4.72297C13.7319 4.74233 13.7632 4.77371 13.7826 4.81241L14.5739 6.39502C14.6476 6.54243 14.858 6.54243 14.9317 6.39502L15.723 4.81241C15.7423 4.77371 15.7737 4.74232 15.8124 4.72297L17.395 3.93167C17.5424 3.85797 17.5424 3.64761 17.395 3.5739L15.8124 2.7826C15.7737 2.76325 15.7423 2.73186 15.723 2.69316L14.9317 1.11056C14.858 0.963147 14.6476 0.963148 14.5739 1.11056Z" fill="currentColor"/><path d="M19.2419 5.07223L18.4633 7.40815C18.4434 7.46787 18.3965 7.51474 18.3368 7.53464L16.0009 8.31328C15.8185 8.37406 15.8185 8.63198 16.0009 8.69276L18.3368 9.4714C18.3965 9.4913 18.4434 9.53817 18.4633 9.59789L19.2419 11.9338C19.3027 12.1161 19.5606 12.1161 19.6214 11.9338L20.4 9.59789C20.42 9.53817 20.4668 9.4913 20.5265 9.4714L22.8625 8.69276C23.0448 8.63198 23.0448 8.37406 22.8625 8.31328L20.5265 7.53464C20.4668 7.51474 20.42 7.46787 20.4 7.40815L19.6214 5.07223C19.5606 4.88989 19.3027 4.88989 19.2419 5.07223Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M10.4075 13.6642C13.2348 16.4915 17.6517 16.7363 20.6641 14.3703C20.7014 14.341 20.7385 14.3113 20.7754 14.2812C20.9148 14.1674 21.051 14.0479 21.1837 13.9226C21.2376 13.8718 21.2909 13.8201 21.3436 13.7674C21.8557 13.2552 22.9064 13.5578 22.7517 14.2653C22.6983 14.5098 22.6365 14.7517 22.5667 14.9905C22.5253 15.1321 22.4811 15.2727 22.4341 15.4122C22.4213 15.4502 22.4082 15.4883 22.395 15.5262C20.8977 19.8142 16.7886 23.0003 12 23.0003C5.92487 23.0003 1 18.0754 1 12.0003C1 7.13315 4.29086 2.98258 8.66889 1.54252L8.72248 1.52504C8.8185 1.49401 8.91503 1.46428 9.01205 1.43587C9.26959 1.36046 9.5306 1.29438 9.79466 1.23801C10.5379 1.07934 10.8418 2.19074 10.3043 2.72815C10.251 2.78147 10.1987 2.83539 10.1473 2.88989C10.0456 2.99777 9.94766 3.10794 9.8535 3.22023C9.83286 3.24485 9.8124 3.26957 9.79212 3.29439C7.32966 6.30844 7.54457 10.8012 10.4075 13.6642ZM8.99331 15.0784C11.7248 17.8099 15.6724 18.6299 19.0872 17.4693C17.4281 19.6024 14.85 21.0003 12 21.0003C7.02944 21.0003 3 16.9709 3 12.0003C3 9.09163 4.45653 6.47161 6.66058 4.81846C5.41569 8.27071 6.2174 12.3025 8.99331 15.0784Z" fill="currentColor"/></svg>`
+  };
+
   function getModalLocationVariationNotes(variant) {
     const notes = [];
     const exp = calcModalLocationExp(variant.mon.yields?.exp || 0, variant.loc.min_level || 0, variant.mon.id);
     const moves = getEncounterMovesForLevel(variant.mon, variant.loc.max_level);
-    const evTotal = variant.evTotal || 0;
 
     if (Number.isFinite(exp)) notes.push(`EXP ${exp}`);
-    if (evTotal) notes.push(`EV ${evTotal}`);
     if (moves) notes.push(moves);
     return notes.join(" | ") || " ";
   }
@@ -7470,6 +7455,34 @@ function getDirectChildBranches(branch) {
     if (hasTimes) return "Time variants";
 
     return getModalLocationTimingLabel(encounter);
+  }
+
+  function renderTimingAndSeasonIcons(label) {
+    if (!label) return "Any time";
+
+    const lowerLabel = label.toLowerCase();
+    let renderedElements = [];
+
+    // 1. Process Season PNGs
+    const seasons = ["spring", "summer", "autumn", "fall", "winter"];
+    seasons.forEach(season => {
+      if (lowerLabel.includes(season)) {
+        // Normalize 'fall' to your asset name preference if needed (e.g., using autumn)
+        const assetName = season === "fall" ? "autumn" : season;
+        renderedElements.push(
+          `<img src="sprites/assets/${assetName}.png" alt="${season}" class="season-icon season-icon-${season}" onerror="this.style.display='none';">`
+        );
+      }
+    });
+
+    // 2. Process Timing SVGs
+    if (lowerLabel.includes("morning")) renderedElements.push(TIMING_ICONS.morning);
+    if (lowerLabel.includes("day"))     renderedElements.push(TIMING_ICONS.day);
+    if (lowerLabel.includes("night"))   renderedElements.push(TIMING_ICONS.night);
+
+    // If matches were found, return the group of icons.
+    // Otherwise, fallback gracefully to structural strings (e.g., "Time variants", "Any time")
+    return renderedElements.length > 0 ? renderedElements.join(" ") : label;
   }
 
   function formatStatLabel(stat) {

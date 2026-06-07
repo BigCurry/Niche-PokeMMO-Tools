@@ -1094,7 +1094,7 @@ body.pory-full #poryBackground {
   
   /* Gives the container a strict width of a single badge so it never overflows */
   width: 65px;                
-  height: 20px;               /* Matches the total combined height */
+  height: 25px;               /* Matches the total combined height */
   position: relative;
 }
 
@@ -1130,7 +1130,7 @@ body.pory-full #poryBackground {
   clip-path: inset(50% 0% 0% 0%); 
   
   /* Nudges the text downward so it centers nicely in the bottom visible half */
-  padding-top: 9px; 
+  padding-top: 11px; 
 }
 
 /* --- Monotype Fallback --- */
@@ -1145,8 +1145,8 @@ body.pory-full #poryBackground {
   align-items: center;
   gap: 1px;
 
-  background: color-mix(in srgb, var(--accent) 50%, transparent);
-  padding: 2px 10px;
+  background: color-mix(in srgb, var(--bg) 50%, transparent);
+  padding: 2px 5px;
   border-radius: 50px;
   
   /* Fine-tuning text layout to prevent unwanted wrapping */
@@ -1596,8 +1596,11 @@ body.pory-full #poryBackground {
 .modal-location-variations-table {
   border-collapse: collapse;
   width: 100%;
-  min-width: 720px;
   font-size: 0.8rem;
+  display: table-cell;
+
+  text-align: center;
+  vertical-align: middle;
 }
 
 .modal-location-variations-table th,
@@ -1622,6 +1625,35 @@ body.pory-full #poryBackground {
 .modal-location-variations-table td[rowspan] {
   background: color-mix(in srgb, var(--panel) 85%, var(--bg));
   font-weight: 600;
+}
+
+.timing-icon {
+  color: var(--text);
+}
+
+.season-icon-spring {
+  background: rgba(239, 157, 255, 0.3);
+}
+
+.season-icon-summer {
+  background: rgba(0, 255, 76, 0.3);
+}
+
+.season-icon-fall {
+  background: rgba(255, 102, 0, 0.3);
+}
+
+.season-icon-winter {
+  background: rgba(196, 248, 255, 0.3);
+}
+.timing-icon,
+.season-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  vertical-align: middle;
+  display: inline-block;
+  border-radius: 999px;
 }
 
 .modal-location-evs {
@@ -1960,11 +1992,17 @@ body.pory-full #poryBackground {
   border-collapse: collapse;
 }
 
+.type-chart-table-badge-wrappers {
+  display: flex;
+  flex-wrap: wrap; 
+  gap: 1px;
+}
+
 .type-chart-table th, 
 .type-chart-table td {
   padding: 10px;
   text-align: left;
-  border: 1px solid #ddd;
+  border: 2px solid var(--panel);
 }
 
 /* Centers the merged "Weaknesses" and "Resistances" labels vertically */
@@ -1975,15 +2013,15 @@ body.pory-full #poryBackground {
 
 /* Row-specific backgrounds */
 .row-weakness {
-  background-color: rgba(239, 83, 80, 0.15); /* Soft Red */
+  background-color: rgba(239, 83, 80, 0.3);
 }
 
 .row-resistance {
-  background-color: rgba(102, 187, 106, 0.15); /* Soft Green */
+  background-color: rgba(102, 187, 106, 0.3);
 }
 
 .row-immunity {
-  background-color: rgba(144, 164, 174, 0.2); /* Soft Slate Grey/Blue */
+  background-color: rgba(144, 164, 174, 0.3);
 }
 
 .pill-container {
@@ -2707,7 +2745,7 @@ body.pory-full #poryBackground {
   border-radius: 10px;
   padding: 10px;
   margin-top: 8px;
-  background: var(--panel);
+  background: color-mix(in srgb, var(--panel) 70%, transparent);
 }
 
 .move-title {
@@ -2867,7 +2905,7 @@ body.pory-full #poryBackground {
 }
 
 .summary-card{
-  background: var(--panel);
+  background: color-mix(in srgb, var(--panel) 50%, transparent);
   padding:14px;
   border-radius:12px;
 }
