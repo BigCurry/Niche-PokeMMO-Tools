@@ -7398,7 +7398,7 @@ function getDirectChildBranches(branch) {
 
     return rows.map((row, index) => `
       <tr>
-        ${typeSpans.has(index) ? `<td rowspan="${typeSpans.get(index)}"><img src="sprites/assets/${row.type}.webp" alt="${row.type}" class="pokedex-modal-location-variation-type-img" onerror="this.onerror=null;this.src='sprites/pokemon/0.png';"></td>` : ""}
+        ${typeSpans.has(index) ? `<td rowspan="${typeSpans.get(index)}"><img src="sprites/assets/${row.type.toLowerCase()}.webp" alt="${row.type}" class="pokedex-modal-location-variation-type-img" onerror="this.onerror=null;this.src='sprites/pokemon/0.png';"></td>` : ""}
         ${raritySpans.has(index) ? `<td rowspan="${raritySpans.get(index)}">${row.rarity}</td>` : ""}
         ${levelsSpans.has(index) ? `<td rowspan="${levelsSpans.get(index)}">${row.levels}</td>` : ""}
         ${timingSpans.has(index) ? `<td rowspan="${timingSpans.get(index)}">${renderTimingAndSeasonIcons(row.timing)}</td>` : ""}
