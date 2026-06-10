@@ -7385,7 +7385,9 @@ function getDirectChildBranches(branch) {
     const rows = variants.map(variant => ({
       type: variant.loc.type || "Unknown",
       rarity: variant.loc.rarity || "Unknown",
-      levels: `Lv ${variant.loc.min_level || "?"}-${variant.loc.max_level || "?"}`,
+      levels: variant.loc.min_level === variant.loc.max_level
+        ? `Lv ${variant.loc.min_level || "?"}`
+        : `Lv ${variant.loc.min_level || "?"}-${variant.loc.max_level || "?"}`,
       timing: getModalLocationTimingLabel(variant) || "Any time",
       notes: getModalLocationVariationNotes(variant)
     }));
