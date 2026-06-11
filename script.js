@@ -1945,6 +1945,9 @@ const PokedexTool = (() => {
   let modalLocationMapState = null;
   let modalLocationMapCleanup = null;
   let modalLocationMapToggleButton;
+  let modalMoveNoticeTimer = null;
+  let modalMoveTabPulseTimer = null;
+  let modalMoveSelectionState = null;
 
   const MAP_WORLD_WIDTH = 1662;
   const MAP_WORLD_HEIGHT = 1174;
@@ -2524,6 +2527,15 @@ const PokedexTool = (() => {
         ${buildEggMoveBreedingChains(options.contextMon, move)}
       </div>
     `;
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
   }
 
   function buildBodyMoveTool(move, contextMon = null) {
@@ -4937,6 +4949,9 @@ const PokedexTool = (() => {
   function showModal(mon) {
     disconnectSummaryEvolutionTree();
     cleanupModalLocationMap();
+    window.clearTimeout(modalMoveNoticeTimer);
+    window.clearTimeout(modalMoveTabPulseTimer);
+    modalMoveSelectionState = null;
     modalBody.innerHTML = buildModal(mon);
 
     initTabs();
@@ -5042,6 +5057,7 @@ function buildLeftPanel(mon) {
   function buildRightPanel(mon) {
     return `
       <div class="pokedex-right">
+        <div id="modalMoveNotice" class="modal-move-notice" role="status" aria-live="polite"></div>
 
         <div class="tabs">
           <div class="tab active" data-tab="summary">Summary</div>
@@ -5071,34 +5087,10 @@ function buildLeftPanel(mon) {
 
   function initTabs() {
     const tabs = $$(".tab");
-    const contents = $$(".tab-content");
 
     tabs.forEach(tab => {
       tab.onclick = () => {
-        // remove active states
-        tabs.forEach(t => t.classList.remove("active"));
-        contents.forEach(c => c.classList.remove("active"));
-
-        // activate clicked tab
-        tab.classList.add("active");
-
-        const target = document.getElementById(tab.dataset.tab);
-        if (target) target.classList.add("active");
-
-        if (tab.dataset.tab === "summary") {
-          initSummaryEvolutionTree();
-        } else {
-          disconnectSummaryEvolutionTree();
-        }
-
-        if (tab.dataset.tab === "moves") {
-          $("#modalMoveSearch")?.focus();
-        }
-
-        if (tab.dataset.tab === "locations") {
-          $("#modalLocationSearch")?.focus();
-          refreshModalLocationMapViewport();
-        }
+        activateModalTab(tab.dataset.tab);
       };
     });
   }
@@ -6038,13 +6030,15 @@ function getDirectChildBranches(branch) {
   function buildModalMoveRow(move, index) {
     const dataEntry = getMoveData(move);
     const info = dataEntry?.info || {};
+    const moveKey = normalizeMoveName(dataEntry?.name || move.name || "");
 
     return `
       <button type="button"
         class="modal-move-row"
         data-index="${index}"
         data-method="${move.type || ""}"
-        data-name="${move.name.toLowerCase()}">
+        data-name="${move.name.toLowerCase()}"
+        data-move-key="${moveKey}">
         <span class="modal-move-name">${move.name}</span>
         <span class="modal-move-meta">
           ${info.type ? `<span class="type-badge move-type-width type-${info.type}">${capitalize(info.type)}</span>` : ""}
@@ -6066,21 +6060,38 @@ function getDirectChildBranches(branch) {
     if (!container || !search || !info) return;
 
     const moves = getModalMoves(mon);
+    modalMoveSelectionState = {
+      selectedIndices: new Set(),
+      locationOpenedIndices: new Set()
+    };
     let activeMethod = "all";
 
     const rows = [...container.querySelectorAll(".modal-move-row")];
     const methodButtons = [...container.querySelectorAll(".modal-move-method")];
     const emptyState = container.querySelector(".modal-move-empty");
-    const selectedIndices = new Set();
+
+    const applyRowState = (row) => {
+      const index = Number(row.dataset.index);
+      const isSelected = modalMoveSelectionState.selectedIndices.has(index);
+      const isLocationOpened = modalMoveSelectionState.locationOpenedIndices.has(index);
+
+      row.classList.toggle("active", isSelected);
+      row.classList.toggle("location-opened", isLocationOpened);
+    };
+
+    const syncRowStates = () => {
+      rows.forEach(applyRowState);
+      updateModalMoveTabState();
+    };
 
     const renderSelectedMoveInfo = () => {
-      const selectedMoves = [...selectedIndices]
+      const selectedMoves = [...modalMoveSelectionState.selectedIndices]
         .sort((a, b) => a - b)
         .map(index => moves[index])
         .filter(Boolean);
 
       info.innerHTML = selectedMoves.length
-        ? [...selectedIndices]
+        ? [...modalMoveSelectionState.selectedIndices]
           .sort((a, b) => a - b)
           .map(index => buildMoveInfoBox(moves[index], { removable: true, index, contextMon: mon }))
           .join("")
@@ -6090,19 +6101,29 @@ function getDirectChildBranches(branch) {
       bindBreedingChainVariationCycling(info);
     };
 
+    const setMoveSelected = (row, { fromLocation = false } = {}) => {
+      const index = Number(row.dataset.index);
+      modalMoveSelectionState.selectedIndices.add(index);
+      if (fromLocation) modalMoveSelectionState.locationOpenedIndices.add(index);
+      applyRowState(row);
+      renderSelectedMoveInfo();
+      updateModalMoveTabState();
+    };
+
     const toggleMove = (row) => {
       const index = Number(row.dataset.index);
-      const isSelected = selectedIndices.has(index);
+      const isSelected = modalMoveSelectionState.selectedIndices.has(index);
 
       if (isSelected) {
-        selectedIndices.delete(index);
-        row.classList.remove("active");
+        modalMoveSelectionState.selectedIndices.delete(index);
+        modalMoveSelectionState.locationOpenedIndices.delete(index);
       } else {
-        selectedIndices.add(index);
-        row.classList.add("active");
+        modalMoveSelectionState.selectedIndices.add(index);
       }
 
+      applyRowState(row);
       renderSelectedMoveInfo();
+      updateModalMoveTabState();
     };
 
     const applyModalMoveFilters = () => {
@@ -6138,13 +6159,110 @@ function getDirectChildBranches(branch) {
       if (!removeButton) return;
 
       const index = Number(removeButton.dataset.index);
-      selectedIndices.delete(index);
-      rows[index]?.classList.remove("active");
+      modalMoveSelectionState.selectedIndices.delete(index);
+      modalMoveSelectionState.locationOpenedIndices.delete(index);
+      applyRowState(rows[index]);
       renderSelectedMoveInfo();
+      updateModalMoveTabState();
     });
 
     search.addEventListener("input", applyModalMoveFilters);
+    modalMoveSelectionState.setMoveSelected = setMoveSelected;
+    modalMoveSelectionState.applyRowState = applyRowState;
+    modalMoveSelectionState.syncRowStates = syncRowStates;
+    modalMoveSelectionState.renderSelectedMoveInfo = renderSelectedMoveInfo;
     renderSelectedMoveInfo();
+    syncRowStates();
+  }
+
+  function showModalMoveNotice(message) {
+    const notice = $("#modalMoveNotice");
+    if (!notice) return;
+
+    notice.textContent = message;
+    notice.classList.add("is-visible");
+
+    window.clearTimeout(modalMoveNoticeTimer);
+    modalMoveNoticeTimer = window.setTimeout(() => {
+      notice.classList.remove("is-visible");
+    }, 2400);
+  }
+
+  function updateModalMoveTabState() {
+    const tab = document.querySelector('.tab[data-tab="moves"]');
+    if (!tab) return;
+
+    const hasLocationOpenedMoves = Boolean(modalMoveSelectionState?.locationOpenedIndices?.size);
+    const isActive = tab.classList.contains("active");
+
+    tab.classList.toggle("location-opened", hasLocationOpenedMoves);
+    tab.classList.toggle("tab-pulse", hasLocationOpenedMoves && !isActive);
+
+    if (!hasLocationOpenedMoves) {
+      window.clearTimeout(modalMoveTabPulseTimer);
+    }
+  }
+
+  function activateModalTab(tabName, { pulse = false, focus = true } = {}) {
+    const tabs = [...document.querySelectorAll(".tab")];
+    const contents = [...document.querySelectorAll(".tab-content")];
+    const targetTab = tabs.find(tab => tab.dataset.tab === tabName);
+
+    tabs.forEach(tab => tab.classList.toggle("active", tab.dataset.tab === tabName));
+    contents.forEach(content => content.classList.toggle("active", content.id === tabName));
+
+    if (tabName === "summary") {
+      initSummaryEvolutionTree();
+    } else {
+      disconnectSummaryEvolutionTree();
+    }
+
+    if (tabName === "moves") {
+      if (pulse && targetTab) {
+        targetTab.classList.remove("tab-pulse");
+        void targetTab.offsetWidth;
+        targetTab.classList.add("tab-pulse");
+      }
+
+      if (focus) $("#modalMoveSearch")?.focus();
+    }
+
+    if (tabName === "locations") {
+      if (focus) $("#modalLocationSearch")?.focus();
+      refreshModalLocationMapViewport();
+    }
+
+    updateModalMoveTabState();
+  }
+
+  function openModalMoveFromLocation(moveName) {
+    const normalized = normalizeMoveName(moveName || "");
+
+    const search = $("#modalMoveSearch");
+    const allMethodButton = $("#moves .modal-move-method[data-method=\"all\"]");
+    const rows = [...document.querySelectorAll("#moves .modal-move-row")];
+
+    if (search) {
+      search.value = "";
+      search.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+
+    if (allMethodButton) {
+      allMethodButton.click();
+    }
+
+    const target = rows.find(row =>
+      row.dataset.moveKey === normalized ||
+      normalizeMoveName(row.dataset.name || "") === normalized
+    );
+
+    if (target) {
+      modalMoveSelectionState?.setMoveSelected?.(target, { fromLocation: true });
+      updateModalMoveTabState();
+    }
+
+    showModalMoveNotice("Opened in moves tab");
+    return Boolean(target);
   }
 
   /* =============================================================
@@ -6304,6 +6422,7 @@ function getDirectChildBranches(branch) {
         const evTotal = Object.values(evs).reduce((sum, val) => sum + val, 0);
         const exp = calcModalLocationExp(mon.yields?.exp || 0, loc.min_level || 0, mon.id);
         const isHorde = String(loc.rarity || "").toLowerCase() === "horde";
+        const moveNames = getEncounterMovesForLevelList(mon, loc.max_level);
 
         return {
           mon,
@@ -6312,10 +6431,13 @@ function getDirectChildBranches(branch) {
           seasonLabels: [...parsed.seasons].map(formatEncounterSeasonToken),
           timeLabels: [...parsed.times].map(formatEncounterTimeToken),
           exp,
-          horde: isHorde ? `${exp * 3} / ${exp * 5}` : "",
+          expLabel: isHorde ? `${exp * 3} / ${exp * 5}` : `${exp}`,
+          expKey: isHorde ? `${exp * 3} / ${exp * 5}` : String(exp),
           evs,
           evTotal,
-          moves: getEncounterMovesForLevel(mon, loc.max_level)
+          moveNames,
+          moves: moveNames.join(", "),
+          movesKey: moveNames.join(" | ")
         };
       });
   }
@@ -6511,6 +6633,11 @@ function getDirectChildBranches(branch) {
         ? buildModalLocationInfo(encounter)
         : `<div class="modal-move-info-empty">Select a location to inspect encounter details.</div>`;
       if (encounter) renderModalLocationInfoMap(encounter);
+      info.querySelectorAll(".modal-location-move-btn").forEach(button => {
+        button.addEventListener("click", () => {
+          openModalMoveFromLocation(button.dataset.moveName || button.textContent || "");
+        });
+      });
     };
 
     const setFilterButtonState = (button, state) => {
@@ -7206,7 +7333,8 @@ function getDirectChildBranches(branch) {
                   <th>Rarity</th>
                   <th>Levels</th>
                   <th>Timing</th>
-                  <th>Notes</th>
+                  <th>EXP</th>
+                  <th>Moves</th>
                 </tr>
               </thead>
               <tbody>
@@ -7317,12 +7445,16 @@ function getDirectChildBranches(branch) {
   }
 
   function getEncounterMovesForLevel(mon, lvl) {
+    return getEncounterMovesForLevelList(mon, lvl).join(", ");
+  }
+
+  function getEncounterMovesForLevelList(mon, lvl) {
     return (mon.moves || [])
       .filter(move => move.type === "level" && Number(move.level) <= Number(lvl))
       .sort((a, b) => (a.level || 0) - (b.level || 0))
       .map(move => move.name)
       .slice(-4)
-      .join(", ");
+      .filter(Boolean);
   }
 
   function parseModalLocationSeasonTime(str) {
@@ -7381,33 +7513,82 @@ function getDirectChildBranches(branch) {
     return `Lv ${min}-${max}`;
   }
 
-  function buildModalLocationVariationRows(variants) {
-    const rows = variants.map(variant => ({
-      type: variant.loc.type || "Unknown",
-      rarity: variant.loc.rarity || "Unknown",
-      levels: variant.loc.min_level === variant.loc.max_level
-        ? `Lv ${variant.loc.min_level || "?"}`
-        : `Lv ${variant.loc.min_level || "?"}-${variant.loc.max_level || "?"}`,
-      timing: getModalLocationTimingLabel(variant) || "Any time",
-      notes: getModalLocationVariationNotes(variant)
-    }));
-    
-    const typeSpans = computeModalLocationRowspans(rows, row => row.type);
-    const raritySpans = computeModalLocationRowspans(rows, row => row.rarity);
-    const levelsSpans = computeModalLocationRowspans(rows, row => row.levels);
-    const timingSpans = computeModalLocationRowspans(rows, row => row.timing);
-    const notesSpans = computeModalLocationRowspans(rows, row => row.notes);
+  function renderModalLocationMoveButton(moveName) {
+    const label = escapeHtml(moveName);
+    const key = escapeHtml(normalizeMoveName(moveName));
 
-    return rows.map((row, index) => `
-      <tr>
-        ${typeSpans.has(index) ? `<td rowspan="${typeSpans.get(index)}"><img src="sprites/assets/${row.type.toLowerCase()}.webp" alt="${row.type}" class="pokedex-modal-location-variation-type-img" onerror="this.onerror=null;this.src='sprites/pokemon/0.png';"></td>` : ""}
-        ${raritySpans.has(index) ? `<td rowspan="${raritySpans.get(index)}">${row.rarity}</td>` : ""}
-        ${levelsSpans.has(index) ? `<td rowspan="${levelsSpans.get(index)}">${row.levels}</td>` : ""}
-        ${timingSpans.has(index) ? `<td rowspan="${timingSpans.get(index)}">${renderTimingAndSeasonIcons(row.timing)}</td>` : ""}
-        ${notesSpans.has(index) ? `<td rowspan="${notesSpans.get(index)}">${row.notes}</td>` : ""}
-      </tr>
-    `).join("");
+    return `
+      <button
+        type="button"
+        class="modal-location-move-btn"
+        data-move-key="${key}"
+        data-move-name="${label}"
+      >${label}</button>
+    `;
   }
+
+  function buildModalLocationVariationRows(variants) {
+      // 1. Initial mapping to extract row raw data
+      const rawRows = variants.map(variant => ({
+        type: variant.loc.type || "Unknown",
+        rarity: variant.loc.rarity || "Unknown",
+        levels: variant.loc.min_level === variant.loc.max_level
+          ? `Lv ${variant.loc.min_level || "?"}`
+          : `Lv ${variant.loc.min_level || "?"}-${variant.loc.max_level || "?"}`,
+        timing: getModalLocationTimingLabel(variant) || "Any time",
+        exp: variant.expLabel || `EXP ${variant.exp || 0}`,
+        expKey: variant.expKey || String(variant.exp || 0),
+        moveNames: variant.moveNames || [],
+        moves: variant.moves || "",
+        movesKey: variant.movesKey || ""
+      }));
+
+      // 2. Aggregate rows that are identical except for their seasonal timing
+      const aggregatedRows = [];
+
+      rawRows.forEach(currentRow => {
+        // Look for an existing row that matches every single property except possibly timing
+        const match = aggregatedRows.find(existingRow => 
+          existingRow.type === currentRow.type &&
+          existingRow.rarity === currentRow.rarity &&
+          existingRow.levels === currentRow.levels &&
+          existingRow.expKey === currentRow.expKey &&
+          existingRow.movesKey === currentRow.movesKey &&
+          // Ensure day/night/morning sub-timings match if they exist in the string
+          getTimingTimeComponent(existingRow.timing) === getTimingTimeComponent(currentRow.timing)
+        );
+
+        if (match) {
+          // Combine timings if they aren't already identical
+          if (match.timing !== currentRow.timing) {
+            match.timing = combineSeasonalTimings(match.timing, currentRow.timing);
+          }
+        } else {
+          // Deep copy or clone to avoid mutating original references mid-loop
+          aggregatedRows.push({ ...currentRow });
+        }
+      });
+
+      // 3. Compute rowspans on the collapsed dataset
+      const typeSpans = computeModalLocationRowspans(aggregatedRows, row => row.type);
+      const raritySpans = computeModalLocationRowspans(aggregatedRows, row => row.rarity);
+      const levelsSpans = computeModalLocationRowspans(aggregatedRows, row => row.levels);
+      const timingSpans = computeModalLocationRowspans(aggregatedRows, row => row.timing);
+      const expSpans = computeModalLocationRowspans(aggregatedRows, row => row.expKey);
+      const movesSpans = computeModalLocationRowspans(aggregatedRows, row => row.movesKey);
+
+      // 4. Render HTML from the aggregated rows
+      return aggregatedRows.map((row, index) => `
+        <tr>
+          ${typeSpans.has(index) ? `<td rowspan="${typeSpans.get(index)}"><img src="sprites/assets/${row.type.toLowerCase()}.webp" alt="${row.type}" class="pokedex-modal-location-variation-type-img" onerror="this.onerror=null;this.src='sprites/pokemon/0.png';"></td>` : ""}
+          ${raritySpans.has(index) ? `<td rowspan="${raritySpans.get(index)}">${row.rarity}</td>` : ""}
+          ${levelsSpans.has(index) ? `<td rowspan="${levelsSpans.get(index)}">${row.levels}</td>` : ""}
+          ${timingSpans.has(index) ? `<td rowspan="${timingSpans.get(index)}">${renderTimingAndSeasonIcons(row.timing)}</td>` : ""}
+          ${expSpans.has(index) ? `<td rowspan="${expSpans.get(index)}">${row.exp}</td>` : ""}
+          ${movesSpans.has(index) ? `<td rowspan="${movesSpans.get(index)}">${row.moveNames.length ? `<div class="modal-location-moves-list">${row.moveNames.map(move => renderModalLocationMoveButton(move)).join("")}</div>` : "—"}</td>` : ""}
+        </tr>
+      `).join("");
+    }
 
   const TIMING_ICONS = {
     "day": `<svg fill="currentColor" class="timing-icon" viewBox="0 0 240 240" version="1.1" xmlns="http://www.w3.org/2000/svg"><g><path d="M58.57,25.81c-2.13-3.67-0.87-8.38,2.8-10.51c3.67-2.13,8.38-0.88,10.51,2.8l9.88,17.1c2.13,3.67,0.87,8.38-2.8,10.51 c-3.67,2.13-8.38,0.88-10.51-2.8L58.57,25.81L58.57,25.81z M120,51.17c19.01,0,36.21,7.7,48.67,20.16 C181.12,83.79,188.83,101,188.83,120c0,19.01-7.7,36.21-20.16,48.67c-12.46,12.46-29.66,20.16-48.67,20.16 c-19.01,0-36.21-7.7-48.67-20.16C58.88,156.21,51.17,139.01,51.17,120c0-19.01,7.7-36.21,20.16-48.67 C83.79,58.88,101,51.17,120,51.17L120,51.17z M158.27,81.73c-9.79-9.79-23.32-15.85-38.27-15.85c-14.95,0-28.48,6.06-38.27,15.85 c-9.79,9.79-15.85,23.32-15.85,38.27c0,14.95,6.06,28.48,15.85,38.27c9.79,9.79,23.32,15.85,38.27,15.85 c14.95,0,28.48-6.06,38.27-15.85c9.79-9.79,15.85-23.32,15.85-38.27C174.12,105.05,168.06,91.52,158.27,81.73L158.27,81.73z M113.88,7.71c0-4.26,3.45-7.71,7.71-7.71c4.26,0,7.71,3.45,7.71,7.71v19.75c0,4.26-3.45,7.71-7.71,7.71 c-4.26,0-7.71-3.45-7.71-7.71V7.71L113.88,7.71z M170.87,19.72c2.11-3.67,6.8-4.94,10.48-2.83c3.67,2.11,4.94,6.8,2.83,10.48 l-9.88,17.1c-2.11,3.67-6.8,4.94-10.48,2.83c-3.67-2.11-4.94-6.8-2.83-10.48L170.87,19.72L170.87,19.72z M214.19,58.57 c3.67-2.13,8.38-0.87,10.51,2.8c2.13,3.67,0.88,8.38-2.8,10.51l-17.1,9.88c-3.67,2.13-8.38,0.87-10.51-2.8 c-2.13-3.67-0.88-8.38,2.8-10.51L214.19,58.57L214.19,58.57z M232.29,113.88c4.26,0,7.71,3.45,7.71,7.71 c0,4.26-3.45,7.71-7.71,7.71h-19.75c-4.26,0-7.71-3.45-7.71-7.71c0-4.26,3.45-7.71,7.71-7.71H232.29L232.29,113.88z M220.28,170.87 c3.67,2.11,4.94,6.8,2.83,10.48c-2.11,3.67-6.8,4.94-10.48,2.83l-17.1-9.88c-3.67-2.11-4.94-6.8-2.83-10.48 c2.11-3.67,6.8-4.94,10.48-2.83L220.28,170.87L220.28,170.87z M181.43,214.19c2.13,3.67,0.87,8.38-2.8,10.51 c-3.67,2.13-8.38,0.88-10.51-2.8l-9.88-17.1c-2.13-3.67-0.87-8.38,2.8-10.51c3.67-2.13,8.38-0.88,10.51,2.8L181.43,214.19 L181.43,214.19z M126.12,232.29c0,4.26-3.45,7.71-7.71,7.71c-4.26,0-7.71-3.45-7.71-7.71v-19.75c0-4.26,3.45-7.71,7.71-7.71 c4.26,0,7.71,3.45,7.71,7.71V232.29L126.12,232.29z M69.13,220.28c-2.11,3.67-6.8,4.94-10.48,2.83c-3.67-2.11-4.94-6.8-2.83-10.48 l9.88-17.1c2.11-3.67,6.8-4.94,10.48-2.83c3.67,2.11,4.94,6.8,2.83,10.48L69.13,220.28L69.13,220.28z M25.81,181.43 c-3.67,2.13-8.38,0.87-10.51-2.8c-2.13-3.67-0.88-8.38,2.8-10.51l17.1-9.88c3.67-2.13,8.38-0.87,10.51,2.8 c2.13,3.67,0.88,8.38-2.8,10.51L25.81,181.43L25.81,181.43z M7.71,126.12c-4.26,0-7.71-3.45-7.71-7.71c0-4.26,3.45-7.71,7.71-7.71 h19.75c4.26,0,7.71,3.45,7.71,7.71c0,4.26-3.45,7.71-7.71,7.71H7.71L7.71,126.12z M19.72,69.13c-3.67-2.11-4.94-6.8-2.83-10.48 c2.11-3.67,6.8-4.94,10.48-2.83l17.1,9.88c3.67,2.11,4.94,6.8,2.83,10.48c-2.11,3.67-6.8,4.94-10.48,2.83L19.72,69.13L19.72,69.13z"/></g></svg>`,
@@ -7417,6 +7598,42 @@ function getDirectChildBranches(branch) {
     "night": `<svg class="timing-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.5739 1.11056L13.7826 2.69316C13.7632 2.73186 13.7319 2.76325 13.6932 2.7826L12.1106 3.5739C11.9631 3.64761 11.9631 3.85797 12.1106 3.93167L13.6932 4.72297C13.7319 4.74233 13.7632 4.77371 13.7826 4.81241L14.5739 6.39502C14.6476 6.54243 14.858 6.54243 14.9317 6.39502L15.723 4.81241C15.7423 4.77371 15.7737 4.74232 15.8124 4.72297L17.395 3.93167C17.5424 3.85797 17.5424 3.64761 17.395 3.5739L15.8124 2.7826C15.7737 2.76325 15.7423 2.73186 15.723 2.69316L14.9317 1.11056C14.858 0.963147 14.6476 0.963148 14.5739 1.11056Z" fill="currentColor"/><path d="M19.2419 5.07223L18.4633 7.40815C18.4434 7.46787 18.3965 7.51474 18.3368 7.53464L16.0009 8.31328C15.8185 8.37406 15.8185 8.63198 16.0009 8.69276L18.3368 9.4714C18.3965 9.4913 18.4434 9.53817 18.4633 9.59789L19.2419 11.9338C19.3027 12.1161 19.5606 12.1161 19.6214 11.9338L20.4 9.59789C20.42 9.53817 20.4668 9.4913 20.5265 9.4714L22.8625 8.69276C23.0448 8.63198 23.0448 8.37406 22.8625 8.31328L20.5265 7.53464C20.4668 7.51474 20.42 7.46787 20.4 7.40815L19.6214 5.07223C19.5606 4.88989 19.3027 4.88989 19.2419 5.07223Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M10.4075 13.6642C13.2348 16.4915 17.6517 16.7363 20.6641 14.3703C20.7014 14.341 20.7385 14.3113 20.7754 14.2812C20.9148 14.1674 21.051 14.0479 21.1837 13.9226C21.2376 13.8718 21.2909 13.8201 21.3436 13.7674C21.8557 13.2552 22.9064 13.5578 22.7517 14.2653C22.6983 14.5098 22.6365 14.7517 22.5667 14.9905C22.5253 15.1321 22.4811 15.2727 22.4341 15.4122C22.4213 15.4502 22.4082 15.4883 22.395 15.5262C20.8977 19.8142 16.7886 23.0003 12 23.0003C5.92487 23.0003 1 18.0754 1 12.0003C1 7.13315 4.29086 2.98258 8.66889 1.54252L8.72248 1.52504C8.8185 1.49401 8.91503 1.46428 9.01205 1.43587C9.26959 1.36046 9.5306 1.29438 9.79466 1.23801C10.5379 1.07934 10.8418 2.19074 10.3043 2.72815C10.251 2.78147 10.1987 2.83539 10.1473 2.88989C10.0456 2.99777 9.94766 3.10794 9.8535 3.22023C9.83286 3.24485 9.8124 3.26957 9.79212 3.29439C7.32966 6.30844 7.54457 10.8012 10.4075 13.6642ZM8.99331 15.0784C11.7248 17.8099 15.6724 18.6299 19.0872 17.4693C17.4281 19.6024 14.85 21.0003 12 21.0003C7.02944 21.0003 3 16.9709 3 12.0003C3 9.09163 4.45653 6.47161 6.66058 4.81846C5.41569 8.27071 6.2174 12.3025 8.99331 15.0784Z" fill="currentColor"/></svg>`
   };
 
+  function getTimingTimeComponent(timingLabel) {
+    const lower = timingLabel.toLowerCase();
+    const times = [];
+    if (lower.includes("morning")) times.push("morning");
+    if (lower.includes("day")) times.push("day");
+    if (lower.includes("night")) times.push("night");
+    return times.join(",");
+  }
+
+  function combineSeasonalTimings(timingA, timingB) {
+    const lowerA = timingA.toLowerCase();
+    const lowerB = timingB.toLowerCase();
+    
+    // Extract base times (Morning/Day/Night) present in either label
+    const timeComponent = getTimingTimeComponent(timingA) || getTimingTimeComponent(timingB);
+    const formattedTime = timeComponent ? ` (${timeComponent})` : "";
+
+    // Collect all unique seasons mentioned across both labels
+    const seasons = ["spring", "summer", "autumn", "fall", "winter"];
+    const detectedSeasons = new Set();
+    
+    seasons.forEach(s => {
+      if (lowerA.includes(s) || lowerB.includes(s)) {
+        detectedSeasons.add(s === "fall" ? "autumn" : s); // normalize fall to autumn
+      }
+    });
+
+    // If all 4 distinct seasons are captured, yield "Any time" (plus diurnal constraints if any)
+    if (detectedSeasons.size === 4) {
+      return timeComponent ? `Any time ${formattedTime}` : "Any time";
+    }
+
+    // Otherwise, build a composite string list of the gathered seasons
+    const seasonsArray = Array.from(detectedSeasons).map(s => s.charAt(0).toUpperCase() + s.slice(1));
+    return `${seasonsArray.join(", ")}${formattedTime}`;
+  }
   function getModalLocationVariationNotes(variant) {
     const notes = [];
     const exp = calcModalLocationExp(variant.mon.yields?.exp || 0, variant.loc.min_level || 0, variant.mon.id);
@@ -7460,16 +7677,23 @@ function getDirectChildBranches(branch) {
   }
 
   function renderTimingAndSeasonIcons(label) {
-    if (!label) return "Any time";
-
-    const lowerLabel = label.toLowerCase();
+    // If no label is provided, treat it as "Any time"
+    const lowerLabel = label ? label.toLowerCase() : "any time";
     let renderedElements = [];
 
-    // 1. Process Season PNGs
+    // 1. Check for "Any time" special case
+    if (lowerLabel === "any time") {
+      // Add the specific all-seasons combined PNG
+      renderedElements.push(
+        `<img src="sprites/assets/allseasons.png" alt="All Seasons" class="season-icon season-icon-all" onerror="this.style.display='none';">`
+      );
+      return renderedElements.join(" ");
+    }
+
+    // 2. Process Individual Season PNGs (Standard Logic)
     const seasons = ["spring", "summer", "autumn", "fall", "winter"];
     seasons.forEach(season => {
       if (lowerLabel.includes(season)) {
-        // Normalize 'fall' to your asset name preference if needed (e.g., using autumn)
         const assetName = season === "fall" ? "autumn" : season;
         renderedElements.push(
           `<img src="sprites/assets/${assetName}.png" alt="${season}" class="season-icon season-icon-${season}" onerror="this.style.display='none';">`
@@ -7477,13 +7701,12 @@ function getDirectChildBranches(branch) {
       }
     });
 
-    // 2. Process Timing SVGs
+    // 3. Process Individual Timing SVGs (Standard Logic)
     if (lowerLabel.includes("morning")) renderedElements.push(TIMING_ICONS.morning);
     if (lowerLabel.includes("day"))     renderedElements.push(TIMING_ICONS.day);
     if (lowerLabel.includes("night"))   renderedElements.push(TIMING_ICONS.night);
 
-    // If matches were found, return the group of icons.
-    // Otherwise, fallback gracefully to structural strings (e.g., "Time variants", "Any time")
+    // Fallback gracefully if no keywords matched
     return renderedElements.length > 0 ? renderedElements.join(" ") : label;
   }
 

@@ -1256,11 +1256,34 @@ body.pory-full #poryBackground {
   border-radius: 6px;
   cursor: pointer;
   background: var(--panel);
+  transition: background-color 0.22s ease, color 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease;
 }
 
 .tab.active {
   background: var(--accent);
   color: black;
+}
+
+.tab.location-opened,
+.tab.active.location-opened {
+  background: var(--altAccent);
+  color: black;
+}
+
+.tab.tab-pulse {
+  animation: modalMovesTabPulse 1.15s ease-in-out infinite;
+}
+
+@keyframes modalMovesTabPulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--altAccent) 22%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 12px color-mix(in srgb, var(--altAccent) 14%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
 }
 
 .tab-content {
@@ -1275,6 +1298,35 @@ body.pory-full #poryBackground {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.modal-move-notice {
+  position: fixed;
+  top: calc(var(--topbar-h) + 14px);
+  left: 50%;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 14%, var(--panel));
+  color: var(--text);
+  font-size: 0.84rem;
+  line-height: 1.35;
+  margin-bottom: 0;
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+  padding: 0 12px;
+  transform: translate(-50%, -6px);
+  width: min(460px, calc(100vw - 24px));
+  z-index: 20000;
+  transition: max-height 0.28s ease, opacity 0.28s ease, padding 0.28s ease, transform 0.28s ease, border-color 0.28s ease, background-color 0.28s ease;
+}
+
+.modal-move-notice.is-visible {
+  max-height: 84px;
+  opacity: 1;
+  padding: 10px 12px;
+  transform: translate(-50%, 0);
 }
 
 .modal-moves-toolbar {
@@ -1347,6 +1399,12 @@ body.pory-full #poryBackground {
   background: var(--accentT);
 }
 
+.modal-move-row.location-opened,
+.modal-move-row.location-opened.active {
+  border-color: var(--altAccent);
+  background: color-mix(in srgb, var(--altAccent) 16%, var(--panel));
+}
+
 .modal-move-name {
   font-weight: 700;
 }
@@ -1359,6 +1417,32 @@ body.pory-full #poryBackground {
   align-items: center;
   font-size: 0.76rem;
   opacity: 0.9;
+}
+
+.modal-location-moves-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.modal-location-move-btn {
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--panel) 88%, var(--bg));
+  color: var(--accent);
+  cursor: pointer;
+  font: inherit;
+  padding: 4px 9px;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.modal-location-move-btn:hover,
+.modal-location-move-btn:focus-visible {
+  border-color: var(--altAccent);
+  background: color-mix(in srgb, var(--altAccent) 14%, var(--panel));
+  color: var(--text);
+  transform: translateY(-1px);
 }
 
 .modal-location-row {
@@ -1619,6 +1703,11 @@ body.pory-full #poryBackground {
   text-transform: uppercase;
 }
 
+.modal-location-variations-table th:last-child,
+.modal-location-variations-table td:last-child {
+  text-align: left;
+}
+
 .modal-location-variations-table tbody tr:nth-child(even) td {
   background: color-mix(in srgb, var(--panel) 78%, var(--bg));
 }
@@ -1640,7 +1729,7 @@ body.pory-full #poryBackground {
   background: rgba(0, 255, 76, 0.3);
 }
 
-.season-icon-fall {
+.season-icon-autumn {
   background: rgba(255, 102, 0, 0.3);
 }
 
