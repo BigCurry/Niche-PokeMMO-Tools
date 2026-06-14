@@ -5,7 +5,8 @@
     "PokeAPI_id": 1,
     "PokeAPI_name": "Bulbasaur",
     "Pokemondb_name": "Bulbasaur",
-    "frontend_name": "Bulbasaur"
+    "frontend_name": "Bulbasaur",
+    "hidden_ability": "true"
   },
   {
     "id": 2,
@@ -13,7 +14,8 @@
     "PokeAPI_id": 2,
     "PokeAPI_name": "Ivysaur",
     "Pokemondb_name": "Ivysaur",
-    "frontend_name": "Ivysaur"
+    "frontend_name": "Ivysaur",
+    "hidden_ability": "true"
   },
   {
     "id": 3,
@@ -21,7 +23,8 @@
     "PokeAPI_id": 3,
     "PokeAPI_name": "Venusaur",
     "Pokemondb_name": "Venusaur",
-    "frontend_name": "Venusaur"
+    "frontend_name": "Venusaur",
+    "hidden_ability": "true"
   },
   {
     "id": 4,
@@ -29,7 +32,8 @@
     "PokeAPI_id": 4,
     "PokeAPI_name": "Charmander",
     "Pokemondb_name": "Charmander",
-    "frontend_name": "Charmander"
+    "frontend_name": "Charmander",
+    "hidden_ability": "true"
   },
   {
     "id": 5,
@@ -37,7 +41,8 @@
     "PokeAPI_id": 5,
     "PokeAPI_name": "Charmeleon",
     "Pokemondb_name": "Charmeleon",
-    "frontend_name": "Charmeleon"
+    "frontend_name": "Charmeleon",
+    "hidden_ability": "true"
   },
   {
     "id": 6,
@@ -45,7 +50,8 @@
     "PokeAPI_id": 6,
     "PokeAPI_name": "Charizard",
     "Pokemondb_name": "Charizard",
-    "frontend_name": "Charizard"
+    "frontend_name": "Charizard",
+    "hidden_ability": "true"
   },
   {
     "id": 7,
@@ -53,7 +59,8 @@
     "PokeAPI_id": 7,
     "PokeAPI_name": "Squirtle",
     "Pokemondb_name": "Squirtle",
-    "frontend_name": "Squirtle"
+    "frontend_name": "Squirtle",
+    "hidden_ability": "true"
   },
   {
     "id": 8,
@@ -61,7 +68,8 @@
     "PokeAPI_id": 8,
     "PokeAPI_name": "Wartortle",
     "Pokemondb_name": "Wartortle",
-    "frontend_name": "Wartortle"
+    "frontend_name": "Wartortle",
+    "hidden_ability": "true"
   },
   {
     "id": 9,
@@ -69,7 +77,8 @@
     "PokeAPI_id": 9,
     "PokeAPI_name": "Blastoise",
     "Pokemondb_name": "Blastoise",
-    "frontend_name": "Blastoise"
+    "frontend_name": "Blastoise",
+    "hidden_ability": "true"
   },
   {
     "id": 10,
@@ -77,7 +86,8 @@
     "PokeAPI_id": 10,
     "PokeAPI_name": "Caterpie",
     "Pokemondb_name": "Caterpie",
-    "frontend_name": "Caterpie"
+    "frontend_name": "Caterpie",
+    "hidden_ability": "true"
   },
   {
     "id": 11,
@@ -85,7 +95,8 @@
     "PokeAPI_id": 11,
     "PokeAPI_name": "Metapod",
     "Pokemondb_name": "Metapod",
-    "frontend_name": "Metapod"
+    "frontend_name": "Metapod",
+    "hidden_ability": "false"
   },
   {
     "id": 12,
@@ -93,7 +104,8 @@
     "PokeAPI_id": 12,
     "PokeAPI_name": "Butterfree",
     "Pokemondb_name": "Butterfree",
-    "frontend_name": "Butterfree"
+    "frontend_name": "Butterfree",
+    "hidden_ability": "true"
   },
   {
     "id": 13,
@@ -101,7 +113,8 @@
     "PokeAPI_id": 13,
     "PokeAPI_name": "Weedle",
     "Pokemondb_name": "Weedle",
-    "frontend_name": "Weedle"
+    "frontend_name": "Weedle",
+    "hidden_ability": "true"
   },
   {
     "id": 14,
@@ -109,7 +122,8 @@
     "PokeAPI_id": 14,
     "PokeAPI_name": "Kakuna",
     "Pokemondb_name": "Kakuna",
-    "frontend_name": "Kakuna"
+    "frontend_name": "Kakuna",
+    "hidden_ability": "false"
   },
   {
     "id": 15,
@@ -117,7 +131,8 @@
     "PokeAPI_id": 15,
     "PokeAPI_name": "Beedrill",
     "Pokemondb_name": "Beedrill",
-    "frontend_name": "Beedrill"
+    "frontend_name": "Beedrill",
+    "hidden_ability": "true"
   },
   {
     "id": 16,
@@ -125,7 +140,8 @@
     "PokeAPI_id": 16,
     "PokeAPI_name": "Pidgey",
     "Pokemondb_name": "Pidgey",
-    "frontend_name": "Pidgey"
+    "frontend_name": "Pidgey",
+    "hidden_ability": "true"
   },
   {
     "id": 17,
@@ -133,7 +149,8 @@
     "PokeAPI_id": 17,
     "PokeAPI_name": "Pidgeotto",
     "Pokemondb_name": "Pidgeotto",
-    "frontend_name": "Pidgeotto"
+    "frontend_name": "Pidgeotto",
+    "hidden_ability": "true"
   },
   {
     "id": 18,
@@ -141,7 +158,8 @@
     "PokeAPI_id": 18,
     "PokeAPI_name": "Pidgeot",
     "Pokemondb_name": "Pidgeot",
-    "frontend_name": "Pidgeot"
+    "frontend_name": "Pidgeot",
+    "hidden_ability": "true"
   },
   {
     "id": 19,
@@ -149,7 +167,8 @@
     "PokeAPI_id": 19,
     "PokeAPI_name": "Rattata",
     "Pokemondb_name": "Rattata",
-    "frontend_name": "Rattata"
+    "frontend_name": "Rattata",
+    "hidden_ability": "true"
   },
   {
     "id": 20,
@@ -157,7 +176,8 @@
     "PokeAPI_id": 20,
     "PokeAPI_name": "Raticate",
     "Pokemondb_name": "Raticate",
-    "frontend_name": "Raticate"
+    "frontend_name": "Raticate",
+    "hidden_ability": "true"
   },
   {
     "id": 21,
@@ -165,7 +185,8 @@
     "PokeAPI_id": 21,
     "PokeAPI_name": "Spearow",
     "Pokemondb_name": "Spearow",
-    "frontend_name": "Spearow"
+    "frontend_name": "Spearow",
+    "hidden_ability": "true"
   },
   {
     "id": 22,
@@ -173,7 +194,8 @@
     "PokeAPI_id": 22,
     "PokeAPI_name": "Fearow",
     "Pokemondb_name": "Fearow",
-    "frontend_name": "Fearow"
+    "frontend_name": "Fearow",
+    "hidden_ability": "true"
   },
   {
     "id": 23,
@@ -181,7 +203,8 @@
     "PokeAPI_id": 23,
     "PokeAPI_name": "Ekans",
     "Pokemondb_name": "Ekans",
-    "frontend_name": "Ekans"
+    "frontend_name": "Ekans",
+    "hidden_ability": "true"
   },
   {
     "id": 24,
@@ -189,7 +212,8 @@
     "PokeAPI_id": 24,
     "PokeAPI_name": "Arbok",
     "Pokemondb_name": "Arbok",
-    "frontend_name": "Arbok"
+    "frontend_name": "Arbok",
+    "hidden_ability": "true"
   },
   {
     "id": 25,
@@ -197,7 +221,8 @@
     "PokeAPI_id": 25,
     "PokeAPI_name": "Pikachu",
     "Pokemondb_name": "Pikachu",
-    "frontend_name": "Pikachu"
+    "frontend_name": "Pikachu",
+    "hidden_ability": "true"
   },
   {
     "id": 26,
@@ -205,7 +230,8 @@
     "PokeAPI_id": 26,
     "PokeAPI_name": "Raichu",
     "Pokemondb_name": "Raichu",
-    "frontend_name": "Raichu"
+    "frontend_name": "Raichu",
+    "hidden_ability": "true"
   },
   {
     "id": 27,
@@ -213,7 +239,8 @@
     "PokeAPI_id": 27,
     "PokeAPI_name": "Sandshrew",
     "Pokemondb_name": "Sandshrew",
-    "frontend_name": "Sandshrew"
+    "frontend_name": "Sandshrew",
+    "hidden_ability": "true"
   },
   {
     "id": 28,
@@ -221,15 +248,17 @@
     "PokeAPI_id": 28,
     "PokeAPI_name": "Sandslash",
     "Pokemondb_name": "Sandslash",
-    "frontend_name": "Sandslash"
+    "frontend_name": "Sandslash",
+    "hidden_ability": "true"
   },
   {
     "id": 29,
-    "name": "Nidoran\u2640",
+    "name": "Nidoran♀",
     "PokeAPI_id": 29,
-    "PokeAPI_name": "Nidoran\u2640",
-    "Pokemondb_name": "Nidoran\u2640",
-    "frontend_name": "Nidoran\u2640"
+    "PokeAPI_name": "Nidoran♀",
+    "Pokemondb_name": "Nidoran♀",
+    "frontend_name": "Nidoran♀",
+    "hidden_ability": "false"
   },
   {
     "id": 30,
@@ -237,7 +266,8 @@
     "PokeAPI_id": 30,
     "PokeAPI_name": "Nidorina",
     "Pokemondb_name": "Nidorina",
-    "frontend_name": "Nidorina"
+    "frontend_name": "Nidorina",
+    "hidden_ability": "true"
   },
   {
     "id": 31,
@@ -245,15 +275,17 @@
     "PokeAPI_id": 31,
     "PokeAPI_name": "Nidoqueen",
     "Pokemondb_name": "Nidoqueen",
-    "frontend_name": "Nidoqueen"
+    "frontend_name": "Nidoqueen",
+    "hidden_ability": "true"
   },
   {
     "id": 32,
-    "name": "Nidoran\u2642",
+    "name": "Nidoran♂",
     "PokeAPI_id": 32,
-    "PokeAPI_name": "Nidoran\u2642",
-    "Pokemondb_name": "Nidoran\u2642",
-    "frontend_name": "Nidoran\u2642"
+    "PokeAPI_name": "Nidoran♂",
+    "Pokemondb_name": "Nidoran♂",
+    "frontend_name": "Nidoran♂",
+    "hidden_ability": "false"
   },
   {
     "id": 33,
@@ -261,7 +293,8 @@
     "PokeAPI_id": 33,
     "PokeAPI_name": "Nidorino",
     "Pokemondb_name": "Nidorino",
-    "frontend_name": "Nidorino"
+    "frontend_name": "Nidorino",
+    "hidden_ability": "true"
   },
   {
     "id": 34,
@@ -269,7 +302,8 @@
     "PokeAPI_id": 34,
     "PokeAPI_name": "Nidoking",
     "Pokemondb_name": "Nidoking",
-    "frontend_name": "Nidoking"
+    "frontend_name": "Nidoking",
+    "hidden_ability": "true"
   },
   {
     "id": 35,
@@ -277,7 +311,8 @@
     "PokeAPI_id": 35,
     "PokeAPI_name": "Clefairy",
     "Pokemondb_name": "Clefairy",
-    "frontend_name": "Clefairy"
+    "frontend_name": "Clefairy",
+    "hidden_ability": "true"
   },
   {
     "id": 36,
@@ -285,7 +320,8 @@
     "PokeAPI_id": 36,
     "PokeAPI_name": "Clefable",
     "Pokemondb_name": "Clefable",
-    "frontend_name": "Clefable"
+    "frontend_name": "Clefable",
+    "hidden_ability": "true"
   },
   {
     "id": 37,
@@ -293,7 +329,8 @@
     "PokeAPI_id": 37,
     "PokeAPI_name": "Vulpix",
     "Pokemondb_name": "Vulpix",
-    "frontend_name": "Vulpix"
+    "frontend_name": "Vulpix",
+    "hidden_ability": "true"
   },
   {
     "id": 38,
@@ -301,7 +338,8 @@
     "PokeAPI_id": 38,
     "PokeAPI_name": "Ninetales",
     "Pokemondb_name": "Ninetales",
-    "frontend_name": "Ninetales"
+    "frontend_name": "Ninetales",
+    "hidden_ability": "true"
   },
   {
     "id": 39,
@@ -309,7 +347,8 @@
     "PokeAPI_id": 39,
     "PokeAPI_name": "Jigglypuff",
     "Pokemondb_name": "Jigglypuff",
-    "frontend_name": "Jigglypuff"
+    "frontend_name": "Jigglypuff",
+    "hidden_ability": "true"
   },
   {
     "id": 40,
@@ -317,7 +356,8 @@
     "PokeAPI_id": 40,
     "PokeAPI_name": "Wigglytuff",
     "Pokemondb_name": "Wigglytuff",
-    "frontend_name": "Wigglytuff"
+    "frontend_name": "Wigglytuff",
+    "hidden_ability": "true"
   },
   {
     "id": 41,
@@ -325,7 +365,8 @@
     "PokeAPI_id": 41,
     "PokeAPI_name": "Zubat",
     "Pokemondb_name": "Zubat",
-    "frontend_name": "Zubat"
+    "frontend_name": "Zubat",
+    "hidden_ability": "true"
   },
   {
     "id": 42,
@@ -333,7 +374,8 @@
     "PokeAPI_id": 42,
     "PokeAPI_name": "Golbat",
     "Pokemondb_name": "Golbat",
-    "frontend_name": "Golbat"
+    "frontend_name": "Golbat",
+    "hidden_ability": "true"
   },
   {
     "id": 43,
@@ -341,7 +383,8 @@
     "PokeAPI_id": 43,
     "PokeAPI_name": "Oddish",
     "Pokemondb_name": "Oddish",
-    "frontend_name": "Oddish"
+    "frontend_name": "Oddish",
+    "hidden_ability": "true"
   },
   {
     "id": 44,
@@ -349,7 +392,8 @@
     "PokeAPI_id": 44,
     "PokeAPI_name": "Gloom",
     "Pokemondb_name": "Gloom",
-    "frontend_name": "Gloom"
+    "frontend_name": "Gloom",
+    "hidden_ability": "true"
   },
   {
     "id": 45,
@@ -357,7 +401,8 @@
     "PokeAPI_id": 45,
     "PokeAPI_name": "Vileplume",
     "Pokemondb_name": "Vileplume",
-    "frontend_name": "Vileplume"
+    "frontend_name": "Vileplume",
+    "hidden_ability": "true"
   },
   {
     "id": 46,
@@ -365,7 +410,8 @@
     "PokeAPI_id": 46,
     "PokeAPI_name": "Paras",
     "Pokemondb_name": "Paras",
-    "frontend_name": "Paras"
+    "frontend_name": "Paras",
+    "hidden_ability": "true"
   },
   {
     "id": 47,
@@ -373,7 +419,8 @@
     "PokeAPI_id": 47,
     "PokeAPI_name": "Parasect",
     "Pokemondb_name": "Parasect",
-    "frontend_name": "Parasect"
+    "frontend_name": "Parasect",
+    "hidden_ability": "true"
   },
   {
     "id": 48,
@@ -381,7 +428,8 @@
     "PokeAPI_id": 48,
     "PokeAPI_name": "Venonat",
     "Pokemondb_name": "Venonat",
-    "frontend_name": "Venonat"
+    "frontend_name": "Venonat",
+    "hidden_ability": "true"
   },
   {
     "id": 49,
@@ -389,7 +437,8 @@
     "PokeAPI_id": 49,
     "PokeAPI_name": "Venomoth",
     "Pokemondb_name": "Venomoth",
-    "frontend_name": "Venomoth"
+    "frontend_name": "Venomoth",
+    "hidden_ability": "true"
   },
   {
     "id": 50,
@@ -397,7 +446,8 @@
     "PokeAPI_id": 50,
     "PokeAPI_name": "Diglett",
     "Pokemondb_name": "Diglett",
-    "frontend_name": "Diglett"
+    "frontend_name": "Diglett",
+    "hidden_ability": "true"
   },
   {
     "id": 51,
@@ -405,7 +455,8 @@
     "PokeAPI_id": 51,
     "PokeAPI_name": "Dugtrio",
     "Pokemondb_name": "Dugtrio",
-    "frontend_name": "Dugtrio"
+    "frontend_name": "Dugtrio",
+    "hidden_ability": "true"
   },
   {
     "id": 52,
@@ -413,7 +464,8 @@
     "PokeAPI_id": 52,
     "PokeAPI_name": "Meowth",
     "Pokemondb_name": "Meowth",
-    "frontend_name": "Meowth"
+    "frontend_name": "Meowth",
+    "hidden_ability": "true"
   },
   {
     "id": 53,
@@ -421,7 +473,8 @@
     "PokeAPI_id": 53,
     "PokeAPI_name": "Persian",
     "Pokemondb_name": "Persian",
-    "frontend_name": "Persian"
+    "frontend_name": "Persian",
+    "hidden_ability": "true"
   },
   {
     "id": 54,
@@ -429,7 +482,8 @@
     "PokeAPI_id": 54,
     "PokeAPI_name": "Psyduck",
     "Pokemondb_name": "Psyduck",
-    "frontend_name": "Psyduck"
+    "frontend_name": "Psyduck",
+    "hidden_ability": "true"
   },
   {
     "id": 55,
@@ -437,7 +491,8 @@
     "PokeAPI_id": 55,
     "PokeAPI_name": "Golduck",
     "Pokemondb_name": "Golduck",
-    "frontend_name": "Golduck"
+    "frontend_name": "Golduck",
+    "hidden_ability": "true"
   },
   {
     "id": 56,
@@ -445,7 +500,8 @@
     "PokeAPI_id": 56,
     "PokeAPI_name": "Mankey",
     "Pokemondb_name": "Mankey",
-    "frontend_name": "Mankey"
+    "frontend_name": "Mankey",
+    "hidden_ability": "true"
   },
   {
     "id": 57,
@@ -453,7 +509,8 @@
     "PokeAPI_id": 57,
     "PokeAPI_name": "Primeape",
     "Pokemondb_name": "Primeape",
-    "frontend_name": "Primeape"
+    "frontend_name": "Primeape",
+    "hidden_ability": "true"
   },
   {
     "id": 58,
@@ -461,7 +518,8 @@
     "PokeAPI_id": 58,
     "PokeAPI_name": "Growlithe",
     "Pokemondb_name": "Growlithe",
-    "frontend_name": "Growlithe"
+    "frontend_name": "Growlithe",
+    "hidden_ability": "true"
   },
   {
     "id": 59,
@@ -469,7 +527,8 @@
     "PokeAPI_id": 59,
     "PokeAPI_name": "Arcanine",
     "Pokemondb_name": "Arcanine",
-    "frontend_name": "Arcanine"
+    "frontend_name": "Arcanine",
+    "hidden_ability": "true"
   },
   {
     "id": 60,
@@ -477,7 +536,8 @@
     "PokeAPI_id": 60,
     "PokeAPI_name": "Poliwag",
     "Pokemondb_name": "Poliwag",
-    "frontend_name": "Poliwag"
+    "frontend_name": "Poliwag",
+    "hidden_ability": "true"
   },
   {
     "id": 61,
@@ -485,7 +545,8 @@
     "PokeAPI_id": 61,
     "PokeAPI_name": "Poliwhirl",
     "Pokemondb_name": "Poliwhirl",
-    "frontend_name": "Poliwhirl"
+    "frontend_name": "Poliwhirl",
+    "hidden_ability": "true"
   },
   {
     "id": 62,
@@ -493,7 +554,8 @@
     "PokeAPI_id": 62,
     "PokeAPI_name": "Poliwrath",
     "Pokemondb_name": "Poliwrath",
-    "frontend_name": "Poliwrath"
+    "frontend_name": "Poliwrath",
+    "hidden_ability": "true"
   },
   {
     "id": 63,
@@ -501,7 +563,8 @@
     "PokeAPI_id": 63,
     "PokeAPI_name": "Abra",
     "Pokemondb_name": "Abra",
-    "frontend_name": "Abra"
+    "frontend_name": "Abra",
+    "hidden_ability": "true"
   },
   {
     "id": 64,
@@ -509,7 +572,8 @@
     "PokeAPI_id": 64,
     "PokeAPI_name": "Kadabra",
     "Pokemondb_name": "Kadabra",
-    "frontend_name": "Kadabra"
+    "frontend_name": "Kadabra",
+    "hidden_ability": "true"
   },
   {
     "id": 65,
@@ -517,7 +581,8 @@
     "PokeAPI_id": 65,
     "PokeAPI_name": "Alakazam",
     "Pokemondb_name": "Alakazam",
-    "frontend_name": "Alakazam"
+    "frontend_name": "Alakazam",
+    "hidden_ability": "true"
   },
   {
     "id": 66,
@@ -525,7 +590,8 @@
     "PokeAPI_id": 66,
     "PokeAPI_name": "Machop",
     "Pokemondb_name": "Machop",
-    "frontend_name": "Machop"
+    "frontend_name": "Machop",
+    "hidden_ability": "true"
   },
   {
     "id": 67,
@@ -533,7 +599,8 @@
     "PokeAPI_id": 67,
     "PokeAPI_name": "Machoke",
     "Pokemondb_name": "Machoke",
-    "frontend_name": "Machoke"
+    "frontend_name": "Machoke",
+    "hidden_ability": "true"
   },
   {
     "id": 68,
@@ -541,7 +608,8 @@
     "PokeAPI_id": 68,
     "PokeAPI_name": "Machamp",
     "Pokemondb_name": "Machamp",
-    "frontend_name": "Machamp"
+    "frontend_name": "Machamp",
+    "hidden_ability": "true"
   },
   {
     "id": 69,
@@ -549,7 +617,8 @@
     "PokeAPI_id": 69,
     "PokeAPI_name": "Bellsprout",
     "Pokemondb_name": "Bellsprout",
-    "frontend_name": "Bellsprout"
+    "frontend_name": "Bellsprout",
+    "hidden_ability": "true"
   },
   {
     "id": 70,
@@ -557,7 +626,8 @@
     "PokeAPI_id": 70,
     "PokeAPI_name": "Weepinbell",
     "Pokemondb_name": "Weepinbell",
-    "frontend_name": "Weepinbell"
+    "frontend_name": "Weepinbell",
+    "hidden_ability": "true"
   },
   {
     "id": 71,
@@ -565,7 +635,8 @@
     "PokeAPI_id": 71,
     "PokeAPI_name": "Victreebel",
     "Pokemondb_name": "Victreebel",
-    "frontend_name": "Victreebel"
+    "frontend_name": "Victreebel",
+    "hidden_ability": "true"
   },
   {
     "id": 72,
@@ -573,7 +644,8 @@
     "PokeAPI_id": 72,
     "PokeAPI_name": "Tentacool",
     "Pokemondb_name": "Tentacool",
-    "frontend_name": "Tentacool"
+    "frontend_name": "Tentacool",
+    "hidden_ability": "true"
   },
   {
     "id": 73,
@@ -581,7 +653,8 @@
     "PokeAPI_id": 73,
     "PokeAPI_name": "Tentacruel",
     "Pokemondb_name": "Tentacruel",
-    "frontend_name": "Tentacruel"
+    "frontend_name": "Tentacruel",
+    "hidden_ability": "true"
   },
   {
     "id": 74,
@@ -589,7 +662,8 @@
     "PokeAPI_id": 74,
     "PokeAPI_name": "Geodude",
     "Pokemondb_name": "Geodude",
-    "frontend_name": "Geodude"
+    "frontend_name": "Geodude",
+    "hidden_ability": "true"
   },
   {
     "id": 75,
@@ -597,7 +671,8 @@
     "PokeAPI_id": 75,
     "PokeAPI_name": "Graveler",
     "Pokemondb_name": "Graveler",
-    "frontend_name": "Graveler"
+    "frontend_name": "Graveler",
+    "hidden_ability": "true"
   },
   {
     "id": 76,
@@ -605,7 +680,8 @@
     "PokeAPI_id": 76,
     "PokeAPI_name": "Golem",
     "Pokemondb_name": "Golem",
-    "frontend_name": "Golem"
+    "frontend_name": "Golem",
+    "hidden_ability": "true"
   },
   {
     "id": 77,
@@ -613,7 +689,8 @@
     "PokeAPI_id": 77,
     "PokeAPI_name": "Ponyta",
     "Pokemondb_name": "Ponyta",
-    "frontend_name": "Ponyta"
+    "frontend_name": "Ponyta",
+    "hidden_ability": "true"
   },
   {
     "id": 78,
@@ -621,7 +698,8 @@
     "PokeAPI_id": 78,
     "PokeAPI_name": "Rapidash",
     "Pokemondb_name": "Rapidash",
-    "frontend_name": "Rapidash"
+    "frontend_name": "Rapidash",
+    "hidden_ability": "true"
   },
   {
     "id": 79,
@@ -629,7 +707,8 @@
     "PokeAPI_id": 79,
     "PokeAPI_name": "Slowpoke",
     "Pokemondb_name": "Slowpoke",
-    "frontend_name": "Slowpoke"
+    "frontend_name": "Slowpoke",
+    "hidden_ability": "true"
   },
   {
     "id": 80,
@@ -637,7 +716,8 @@
     "PokeAPI_id": 80,
     "PokeAPI_name": "Slowbro",
     "Pokemondb_name": "Slowbro",
-    "frontend_name": "Slowbro"
+    "frontend_name": "Slowbro",
+    "hidden_ability": "true"
   },
   {
     "id": 81,
@@ -645,7 +725,8 @@
     "PokeAPI_id": 81,
     "PokeAPI_name": "Magnemite",
     "Pokemondb_name": "Magnemite",
-    "frontend_name": "Magnemite"
+    "frontend_name": "Magnemite",
+    "hidden_ability": "true"
   },
   {
     "id": 82,
@@ -653,7 +734,8 @@
     "PokeAPI_id": 82,
     "PokeAPI_name": "Magneton",
     "Pokemondb_name": "Magneton",
-    "frontend_name": "Magneton"
+    "frontend_name": "Magneton",
+    "hidden_ability": "true"
   },
   {
     "id": 83,
@@ -661,7 +743,8 @@
     "PokeAPI_id": 83,
     "PokeAPI_name": "Farfetch'd",
     "Pokemondb_name": "Farfetch'd",
-    "frontend_name": "Farfetch'd"
+    "frontend_name": "Farfetch'd",
+    "hidden_ability": "false"
   },
   {
     "id": 84,
@@ -669,7 +752,8 @@
     "PokeAPI_id": 84,
     "PokeAPI_name": "Doduo",
     "Pokemondb_name": "Doduo",
-    "frontend_name": "Doduo"
+    "frontend_name": "Doduo",
+    "hidden_ability": "true"
   },
   {
     "id": 85,
@@ -677,7 +761,8 @@
     "PokeAPI_id": 85,
     "PokeAPI_name": "Dodrio",
     "Pokemondb_name": "Dodrio",
-    "frontend_name": "Dodrio"
+    "frontend_name": "Dodrio",
+    "hidden_ability": "true"
   },
   {
     "id": 86,
@@ -685,7 +770,8 @@
     "PokeAPI_id": 86,
     "PokeAPI_name": "Seel",
     "Pokemondb_name": "Seel",
-    "frontend_name": "Seel"
+    "frontend_name": "Seel",
+    "hidden_ability": "true"
   },
   {
     "id": 87,
@@ -693,7 +779,8 @@
     "PokeAPI_id": 87,
     "PokeAPI_name": "Dewgong",
     "Pokemondb_name": "Dewgong",
-    "frontend_name": "Dewgong"
+    "frontend_name": "Dewgong",
+    "hidden_ability": "true"
   },
   {
     "id": 88,
@@ -701,7 +788,8 @@
     "PokeAPI_id": 88,
     "PokeAPI_name": "Grimer",
     "Pokemondb_name": "Grimer",
-    "frontend_name": "Grimer"
+    "frontend_name": "Grimer",
+    "hidden_ability": "true"
   },
   {
     "id": 89,
@@ -709,7 +797,8 @@
     "PokeAPI_id": 89,
     "PokeAPI_name": "Muk",
     "Pokemondb_name": "Muk",
-    "frontend_name": "Muk"
+    "frontend_name": "Muk",
+    "hidden_ability": "true"
   },
   {
     "id": 90,
@@ -717,7 +806,8 @@
     "PokeAPI_id": 90,
     "PokeAPI_name": "Shellder",
     "Pokemondb_name": "Shellder",
-    "frontend_name": "Shellder"
+    "frontend_name": "Shellder",
+    "hidden_ability": "true"
   },
   {
     "id": 91,
@@ -725,7 +815,8 @@
     "PokeAPI_id": 91,
     "PokeAPI_name": "Cloyster",
     "Pokemondb_name": "Cloyster",
-    "frontend_name": "Cloyster"
+    "frontend_name": "Cloyster",
+    "hidden_ability": "true"
   },
   {
     "id": 92,
@@ -733,7 +824,8 @@
     "PokeAPI_id": 92,
     "PokeAPI_name": "Gastly",
     "Pokemondb_name": "Gastly",
-    "frontend_name": "Gastly"
+    "frontend_name": "Gastly",
+    "hidden_ability": "false"
   },
   {
     "id": 93,
@@ -741,7 +833,8 @@
     "PokeAPI_id": 93,
     "PokeAPI_name": "Haunter",
     "Pokemondb_name": "Haunter",
-    "frontend_name": "Haunter"
+    "frontend_name": "Haunter",
+    "hidden_ability": "false"
   },
   {
     "id": 94,
@@ -749,7 +842,8 @@
     "PokeAPI_id": 94,
     "PokeAPI_name": "Gengar",
     "Pokemondb_name": "Gengar",
-    "frontend_name": "Gengar"
+    "frontend_name": "Gengar",
+    "hidden_ability": "false"
   },
   {
     "id": 95,
@@ -757,7 +851,8 @@
     "PokeAPI_id": 95,
     "PokeAPI_name": "Onix",
     "Pokemondb_name": "Onix",
-    "frontend_name": "Onix"
+    "frontend_name": "Onix",
+    "hidden_ability": "true"
   },
   {
     "id": 96,
@@ -765,7 +860,8 @@
     "PokeAPI_id": 96,
     "PokeAPI_name": "Drowzee",
     "Pokemondb_name": "Drowzee",
-    "frontend_name": "Drowzee"
+    "frontend_name": "Drowzee",
+    "hidden_ability": "true"
   },
   {
     "id": 97,
@@ -773,7 +869,8 @@
     "PokeAPI_id": 97,
     "PokeAPI_name": "Hypno",
     "Pokemondb_name": "Hypno",
-    "frontend_name": "Hypno"
+    "frontend_name": "Hypno",
+    "hidden_ability": "true"
   },
   {
     "id": 98,
@@ -781,7 +878,8 @@
     "PokeAPI_id": 98,
     "PokeAPI_name": "Krabby",
     "Pokemondb_name": "Krabby",
-    "frontend_name": "Krabby"
+    "frontend_name": "Krabby",
+    "hidden_ability": "true"
   },
   {
     "id": 99,
@@ -789,7 +887,8 @@
     "PokeAPI_id": 99,
     "PokeAPI_name": "Kingler",
     "Pokemondb_name": "Kingler",
-    "frontend_name": "Kingler"
+    "frontend_name": "Kingler",
+    "hidden_ability": "true"
   },
   {
     "id": 100,
@@ -797,7 +896,8 @@
     "PokeAPI_id": 100,
     "PokeAPI_name": "Voltorb",
     "Pokemondb_name": "Voltorb",
-    "frontend_name": "Voltorb"
+    "frontend_name": "Voltorb",
+    "hidden_ability": "true"
   },
   {
     "id": 101,
@@ -805,7 +905,8 @@
     "PokeAPI_id": 101,
     "PokeAPI_name": "Electrode",
     "Pokemondb_name": "Electrode",
-    "frontend_name": "Electrode"
+    "frontend_name": "Electrode",
+    "hidden_ability": "true"
   },
   {
     "id": 102,
@@ -813,7 +914,8 @@
     "PokeAPI_id": 102,
     "PokeAPI_name": "Exeggcute",
     "Pokemondb_name": "Exeggcute",
-    "frontend_name": "Exeggcute"
+    "frontend_name": "Exeggcute",
+    "hidden_ability": "true"
   },
   {
     "id": 103,
@@ -821,7 +923,8 @@
     "PokeAPI_id": 103,
     "PokeAPI_name": "Exeggutor",
     "Pokemondb_name": "Exeggutor",
-    "frontend_name": "Exeggutor"
+    "frontend_name": "Exeggutor",
+    "hidden_ability": "true"
   },
   {
     "id": 104,
@@ -829,7 +932,8 @@
     "PokeAPI_id": 104,
     "PokeAPI_name": "Cubone",
     "Pokemondb_name": "Cubone",
-    "frontend_name": "Cubone"
+    "frontend_name": "Cubone",
+    "hidden_ability": "true"
   },
   {
     "id": 105,
@@ -837,7 +941,8 @@
     "PokeAPI_id": 105,
     "PokeAPI_name": "Marowak",
     "Pokemondb_name": "Marowak",
-    "frontend_name": "Marowak"
+    "frontend_name": "Marowak",
+    "hidden_ability": "true"
   },
   {
     "id": 106,
@@ -845,7 +950,8 @@
     "PokeAPI_id": 106,
     "PokeAPI_name": "Hitmonlee",
     "Pokemondb_name": "Hitmonlee",
-    "frontend_name": "Hitmonlee"
+    "frontend_name": "Hitmonlee",
+    "hidden_ability": "true"
   },
   {
     "id": 107,
@@ -853,7 +959,8 @@
     "PokeAPI_id": 107,
     "PokeAPI_name": "Hitmonchan",
     "Pokemondb_name": "Hitmonchan",
-    "frontend_name": "Hitmonchan"
+    "frontend_name": "Hitmonchan",
+    "hidden_ability": "true"
   },
   {
     "id": 108,
@@ -861,7 +968,8 @@
     "PokeAPI_id": 108,
     "PokeAPI_name": "Lickitung",
     "Pokemondb_name": "Lickitung",
-    "frontend_name": "Lickitung"
+    "frontend_name": "Lickitung",
+    "hidden_ability": "true"
   },
   {
     "id": 109,
@@ -869,7 +977,8 @@
     "PokeAPI_id": 109,
     "PokeAPI_name": "Koffing",
     "Pokemondb_name": "Koffing",
-    "frontend_name": "Koffing"
+    "frontend_name": "Koffing",
+    "hidden_ability": "true"
   },
   {
     "id": 110,
@@ -877,7 +986,8 @@
     "PokeAPI_id": 110,
     "PokeAPI_name": "Weezing",
     "Pokemondb_name": "Weezing",
-    "frontend_name": "Weezing"
+    "frontend_name": "Weezing",
+    "hidden_ability": "true"
   },
   {
     "id": 111,
@@ -885,7 +995,8 @@
     "PokeAPI_id": 111,
     "PokeAPI_name": "Rhyhorn",
     "Pokemondb_name": "Rhyhorn",
-    "frontend_name": "Rhyhorn"
+    "frontend_name": "Rhyhorn",
+    "hidden_ability": "true"
   },
   {
     "id": 112,
@@ -893,7 +1004,8 @@
     "PokeAPI_id": 112,
     "PokeAPI_name": "Rhydon",
     "Pokemondb_name": "Rhydon",
-    "frontend_name": "Rhydon"
+    "frontend_name": "Rhydon",
+    "hidden_ability": "true"
   },
   {
     "id": 113,
@@ -901,7 +1013,8 @@
     "PokeAPI_id": 113,
     "PokeAPI_name": "Chansey",
     "Pokemondb_name": "Chansey",
-    "frontend_name": "Chansey"
+    "frontend_name": "Chansey",
+    "hidden_ability": "true"
   },
   {
     "id": 114,
@@ -909,7 +1022,8 @@
     "PokeAPI_id": 114,
     "PokeAPI_name": "Tangela",
     "Pokemondb_name": "Tangela",
-    "frontend_name": "Tangela"
+    "frontend_name": "Tangela",
+    "hidden_ability": "true"
   },
   {
     "id": 115,
@@ -917,7 +1031,8 @@
     "PokeAPI_id": 115,
     "PokeAPI_name": "Kangaskhan",
     "Pokemondb_name": "Kangaskhan",
-    "frontend_name": "Kangaskhan"
+    "frontend_name": "Kangaskhan",
+    "hidden_ability": "true"
   },
   {
     "id": 116,
@@ -925,7 +1040,8 @@
     "PokeAPI_id": 116,
     "PokeAPI_name": "Horsea",
     "Pokemondb_name": "Horsea",
-    "frontend_name": "Horsea"
+    "frontend_name": "Horsea",
+    "hidden_ability": "true"
   },
   {
     "id": 117,
@@ -933,7 +1049,8 @@
     "PokeAPI_id": 117,
     "PokeAPI_name": "Seadra",
     "Pokemondb_name": "Seadra",
-    "frontend_name": "Seadra"
+    "frontend_name": "Seadra",
+    "hidden_ability": "true"
   },
   {
     "id": 118,
@@ -941,7 +1058,8 @@
     "PokeAPI_id": 118,
     "PokeAPI_name": "Goldeen",
     "Pokemondb_name": "Goldeen",
-    "frontend_name": "Goldeen"
+    "frontend_name": "Goldeen",
+    "hidden_ability": "true"
   },
   {
     "id": 119,
@@ -949,7 +1067,8 @@
     "PokeAPI_id": 119,
     "PokeAPI_name": "Seaking",
     "Pokemondb_name": "Seaking",
-    "frontend_name": "Seaking"
+    "frontend_name": "Seaking",
+    "hidden_ability": "true"
   },
   {
     "id": 120,
@@ -957,7 +1076,8 @@
     "PokeAPI_id": 120,
     "PokeAPI_name": "Staryu",
     "Pokemondb_name": "Staryu",
-    "frontend_name": "Staryu"
+    "frontend_name": "Staryu",
+    "hidden_ability": "true"
   },
   {
     "id": 121,
@@ -965,7 +1085,8 @@
     "PokeAPI_id": 121,
     "PokeAPI_name": "Starmie",
     "Pokemondb_name": "Starmie",
-    "frontend_name": "Starmie"
+    "frontend_name": "Starmie",
+    "hidden_ability": "true"
   },
   {
     "id": 122,
@@ -973,7 +1094,8 @@
     "PokeAPI_id": 122,
     "PokeAPI_name": "Mr. Mime",
     "Pokemondb_name": "Mr. Mime",
-    "frontend_name": "Mr. Mime"
+    "frontend_name": "Mr. Mime",
+    "hidden_ability": "false"
   },
   {
     "id": 123,
@@ -981,7 +1103,8 @@
     "PokeAPI_id": 123,
     "PokeAPI_name": "Scyther",
     "Pokemondb_name": "Scyther",
-    "frontend_name": "Scyther"
+    "frontend_name": "Scyther",
+    "hidden_ability": "true"
   },
   {
     "id": 124,
@@ -989,7 +1112,8 @@
     "PokeAPI_id": 124,
     "PokeAPI_name": "Jynx",
     "Pokemondb_name": "Jynx",
-    "frontend_name": "Jynx"
+    "frontend_name": "Jynx",
+    "hidden_ability": "true"
   },
   {
     "id": 125,
@@ -997,7 +1121,8 @@
     "PokeAPI_id": 125,
     "PokeAPI_name": "Electabuzz",
     "Pokemondb_name": "Electabuzz",
-    "frontend_name": "Electabuzz"
+    "frontend_name": "Electabuzz",
+    "hidden_ability": "true"
   },
   {
     "id": 126,
@@ -1005,7 +1130,8 @@
     "PokeAPI_id": 126,
     "PokeAPI_name": "Magmar",
     "Pokemondb_name": "Magmar",
-    "frontend_name": "Magmar"
+    "frontend_name": "Magmar",
+    "hidden_ability": "true"
   },
   {
     "id": 127,
@@ -1013,7 +1139,8 @@
     "PokeAPI_id": 127,
     "PokeAPI_name": "Pinsir",
     "Pokemondb_name": "Pinsir",
-    "frontend_name": "Pinsir"
+    "frontend_name": "Pinsir",
+    "hidden_ability": "true"
   },
   {
     "id": 128,
@@ -1021,7 +1148,8 @@
     "PokeAPI_id": 128,
     "PokeAPI_name": "Tauros",
     "Pokemondb_name": "Tauros",
-    "frontend_name": "Tauros"
+    "frontend_name": "Tauros",
+    "hidden_ability": "true"
   },
   {
     "id": 129,
@@ -1029,7 +1157,8 @@
     "PokeAPI_id": 129,
     "PokeAPI_name": "Magikarp",
     "Pokemondb_name": "Magikarp",
-    "frontend_name": "Magikarp"
+    "frontend_name": "Magikarp",
+    "hidden_ability": "true"
   },
   {
     "id": 130,
@@ -1037,7 +1166,8 @@
     "PokeAPI_id": 130,
     "PokeAPI_name": "Gyarados",
     "Pokemondb_name": "Gyarados",
-    "frontend_name": "Gyarados"
+    "frontend_name": "Gyarados",
+    "hidden_ability": "true"
   },
   {
     "id": 131,
@@ -1045,7 +1175,8 @@
     "PokeAPI_id": 131,
     "PokeAPI_name": "Lapras",
     "Pokemondb_name": "Lapras",
-    "frontend_name": "Lapras"
+    "frontend_name": "Lapras",
+    "hidden_ability": "true"
   },
   {
     "id": 132,
@@ -1053,7 +1184,8 @@
     "PokeAPI_id": 132,
     "PokeAPI_name": "Ditto",
     "Pokemondb_name": "Ditto",
-    "frontend_name": "Ditto"
+    "frontend_name": "Ditto",
+    "hidden_ability": "true"
   },
   {
     "id": 133,
@@ -1061,7 +1193,8 @@
     "PokeAPI_id": 133,
     "PokeAPI_name": "Eevee",
     "Pokemondb_name": "Eevee",
-    "frontend_name": "Eevee"
+    "frontend_name": "Eevee",
+    "hidden_ability": "true"
   },
   {
     "id": 134,
@@ -1069,7 +1202,8 @@
     "PokeAPI_id": 134,
     "PokeAPI_name": "Vaporeon",
     "Pokemondb_name": "Vaporeon",
-    "frontend_name": "Vaporeon"
+    "frontend_name": "Vaporeon",
+    "hidden_ability": "true"
   },
   {
     "id": 135,
@@ -1077,7 +1211,8 @@
     "PokeAPI_id": 135,
     "PokeAPI_name": "Jolteon",
     "Pokemondb_name": "Jolteon",
-    "frontend_name": "Jolteon"
+    "frontend_name": "Jolteon",
+    "hidden_ability": "true"
   },
   {
     "id": 136,
@@ -1085,7 +1220,8 @@
     "PokeAPI_id": 136,
     "PokeAPI_name": "Flareon",
     "Pokemondb_name": "Flareon",
-    "frontend_name": "Flareon"
+    "frontend_name": "Flareon",
+    "hidden_ability": "true"
   },
   {
     "id": 137,
@@ -1093,7 +1229,8 @@
     "PokeAPI_id": 137,
     "PokeAPI_name": "Porygon",
     "Pokemondb_name": "Porygon",
-    "frontend_name": "Porygon"
+    "frontend_name": "Porygon",
+    "hidden_ability": "true"
   },
   {
     "id": 138,
@@ -1101,7 +1238,8 @@
     "PokeAPI_id": 138,
     "PokeAPI_name": "Omanyte",
     "Pokemondb_name": "Omanyte",
-    "frontend_name": "Omanyte"
+    "frontend_name": "Omanyte",
+    "hidden_ability": "true"
   },
   {
     "id": 139,
@@ -1109,7 +1247,8 @@
     "PokeAPI_id": 139,
     "PokeAPI_name": "Omastar",
     "Pokemondb_name": "Omastar",
-    "frontend_name": "Omastar"
+    "frontend_name": "Omastar",
+    "hidden_ability": "true"
   },
   {
     "id": 140,
@@ -1117,7 +1256,8 @@
     "PokeAPI_id": 140,
     "PokeAPI_name": "Kabuto",
     "Pokemondb_name": "Kabuto",
-    "frontend_name": "Kabuto"
+    "frontend_name": "Kabuto",
+    "hidden_ability": "true"
   },
   {
     "id": 141,
@@ -1125,7 +1265,8 @@
     "PokeAPI_id": 141,
     "PokeAPI_name": "Kabutops",
     "Pokemondb_name": "Kabutops",
-    "frontend_name": "Kabutops"
+    "frontend_name": "Kabutops",
+    "hidden_ability": "true"
   },
   {
     "id": 142,
@@ -1133,7 +1274,8 @@
     "PokeAPI_id": 142,
     "PokeAPI_name": "Aerodactyl",
     "Pokemondb_name": "Aerodactyl",
-    "frontend_name": "Aerodactyl"
+    "frontend_name": "Aerodactyl",
+    "hidden_ability": "true"
   },
   {
     "id": 143,
@@ -1141,7 +1283,8 @@
     "PokeAPI_id": 143,
     "PokeAPI_name": "Snorlax",
     "Pokemondb_name": "Snorlax",
-    "frontend_name": "Snorlax"
+    "frontend_name": "Snorlax",
+    "hidden_ability": "true"
   },
   {
     "id": 144,
@@ -1149,7 +1292,8 @@
     "PokeAPI_id": 144,
     "PokeAPI_name": "Articuno",
     "Pokemondb_name": "Articuno",
-    "frontend_name": "Articuno"
+    "frontend_name": "Articuno",
+    "hidden_ability": "false"
   },
   {
     "id": 145,
@@ -1157,7 +1301,8 @@
     "PokeAPI_id": 145,
     "PokeAPI_name": "Zapdos",
     "Pokemondb_name": "Zapdos",
-    "frontend_name": "Zapdos"
+    "frontend_name": "Zapdos",
+    "hidden_ability": "false"
   },
   {
     "id": 146,
@@ -1165,7 +1310,8 @@
     "PokeAPI_id": 146,
     "PokeAPI_name": "Moltres",
     "Pokemondb_name": "Moltres",
-    "frontend_name": "Moltres"
+    "frontend_name": "Moltres",
+    "hidden_ability": "false"
   },
   {
     "id": 147,
@@ -1173,7 +1319,8 @@
     "PokeAPI_id": 147,
     "PokeAPI_name": "Dratini",
     "Pokemondb_name": "Dratini",
-    "frontend_name": "Dratini"
+    "frontend_name": "Dratini",
+    "hidden_ability": "true"
   },
   {
     "id": 148,
@@ -1181,7 +1328,8 @@
     "PokeAPI_id": 148,
     "PokeAPI_name": "Dragonair",
     "Pokemondb_name": "Dragonair",
-    "frontend_name": "Dragonair"
+    "frontend_name": "Dragonair",
+    "hidden_ability": "true"
   },
   {
     "id": 149,
@@ -1189,7 +1337,8 @@
     "PokeAPI_id": 149,
     "PokeAPI_name": "Dragonite",
     "Pokemondb_name": "Dragonite",
-    "frontend_name": "Dragonite"
+    "frontend_name": "Dragonite",
+    "hidden_ability": "true"
   },
   {
     "id": 150,
@@ -1197,7 +1346,8 @@
     "PokeAPI_id": 150,
     "PokeAPI_name": "Mewtwo",
     "Pokemondb_name": "Mewtwo",
-    "frontend_name": "Mewtwo"
+    "frontend_name": "Mewtwo",
+    "hidden_ability": "true"
   },
   {
     "id": 151,
@@ -1205,7 +1355,8 @@
     "PokeAPI_id": 151,
     "PokeAPI_name": "Mew",
     "Pokemondb_name": "Mew",
-    "frontend_name": "Mew"
+    "frontend_name": "Mew",
+    "hidden_ability": "false"
   },
   {
     "id": 152,
@@ -1213,7 +1364,8 @@
     "PokeAPI_id": 152,
     "PokeAPI_name": "Chikorita",
     "Pokemondb_name": "Chikorita",
-    "frontend_name": "Chikorita"
+    "frontend_name": "Chikorita",
+    "hidden_ability": "true"
   },
   {
     "id": 153,
@@ -1221,7 +1373,8 @@
     "PokeAPI_id": 153,
     "PokeAPI_name": "Bayleef",
     "Pokemondb_name": "Bayleef",
-    "frontend_name": "Bayleef"
+    "frontend_name": "Bayleef",
+    "hidden_ability": "true"
   },
   {
     "id": 154,
@@ -1229,7 +1382,8 @@
     "PokeAPI_id": 154,
     "PokeAPI_name": "Meganium",
     "Pokemondb_name": "Meganium",
-    "frontend_name": "Meganium"
+    "frontend_name": "Meganium",
+    "hidden_ability": "true"
   },
   {
     "id": 155,
@@ -1237,7 +1391,8 @@
     "PokeAPI_id": 155,
     "PokeAPI_name": "Cyndaquil",
     "Pokemondb_name": "Cyndaquil",
-    "frontend_name": "Cyndaquil"
+    "frontend_name": "Cyndaquil",
+    "hidden_ability": "true"
   },
   {
     "id": 156,
@@ -1245,7 +1400,8 @@
     "PokeAPI_id": 156,
     "PokeAPI_name": "Quilava",
     "Pokemondb_name": "Quilava",
-    "frontend_name": "Quilava"
+    "frontend_name": "Quilava",
+    "hidden_ability": "true"
   },
   {
     "id": 157,
@@ -1253,7 +1409,8 @@
     "PokeAPI_id": 157,
     "PokeAPI_name": "Typhlosion",
     "Pokemondb_name": "Typhlosion",
-    "frontend_name": "Typhlosion"
+    "frontend_name": "Typhlosion",
+    "hidden_ability": "true"
   },
   {
     "id": 158,
@@ -1261,7 +1418,8 @@
     "PokeAPI_id": 158,
     "PokeAPI_name": "Totodile",
     "Pokemondb_name": "Totodile",
-    "frontend_name": "Totodile"
+    "frontend_name": "Totodile",
+    "hidden_ability": "true"
   },
   {
     "id": 159,
@@ -1269,7 +1427,8 @@
     "PokeAPI_id": 159,
     "PokeAPI_name": "Croconaw",
     "Pokemondb_name": "Croconaw",
-    "frontend_name": "Croconaw"
+    "frontend_name": "Croconaw",
+    "hidden_ability": "true"
   },
   {
     "id": 160,
@@ -1277,7 +1436,8 @@
     "PokeAPI_id": 160,
     "PokeAPI_name": "Feraligatr",
     "Pokemondb_name": "Feraligatr",
-    "frontend_name": "Feraligatr"
+    "frontend_name": "Feraligatr",
+    "hidden_ability": "true"
   },
   {
     "id": 161,
@@ -1285,7 +1445,8 @@
     "PokeAPI_id": 161,
     "PokeAPI_name": "Sentret",
     "Pokemondb_name": "Sentret",
-    "frontend_name": "Sentret"
+    "frontend_name": "Sentret",
+    "hidden_ability": "true"
   },
   {
     "id": 162,
@@ -1293,7 +1454,8 @@
     "PokeAPI_id": 162,
     "PokeAPI_name": "Furret",
     "Pokemondb_name": "Furret",
-    "frontend_name": "Furret"
+    "frontend_name": "Furret",
+    "hidden_ability": "true"
   },
   {
     "id": 163,
@@ -1301,7 +1463,8 @@
     "PokeAPI_id": 163,
     "PokeAPI_name": "Hoothoot",
     "Pokemondb_name": "Hoothoot",
-    "frontend_name": "Hoothoot"
+    "frontend_name": "Hoothoot",
+    "hidden_ability": "true"
   },
   {
     "id": 164,
@@ -1309,7 +1472,8 @@
     "PokeAPI_id": 164,
     "PokeAPI_name": "Noctowl",
     "Pokemondb_name": "Noctowl",
-    "frontend_name": "Noctowl"
+    "frontend_name": "Noctowl",
+    "hidden_ability": "true"
   },
   {
     "id": 165,
@@ -1317,7 +1481,8 @@
     "PokeAPI_id": 165,
     "PokeAPI_name": "Ledyba",
     "Pokemondb_name": "Ledyba",
-    "frontend_name": "Ledyba"
+    "frontend_name": "Ledyba",
+    "hidden_ability": "true"
   },
   {
     "id": 166,
@@ -1325,7 +1490,8 @@
     "PokeAPI_id": 166,
     "PokeAPI_name": "Ledian",
     "Pokemondb_name": "Ledian",
-    "frontend_name": "Ledian"
+    "frontend_name": "Ledian",
+    "hidden_ability": "true"
   },
   {
     "id": 167,
@@ -1333,7 +1499,8 @@
     "PokeAPI_id": 167,
     "PokeAPI_name": "Spinarak",
     "Pokemondb_name": "Spinarak",
-    "frontend_name": "Spinarak"
+    "frontend_name": "Spinarak",
+    "hidden_ability": "true"
   },
   {
     "id": 168,
@@ -1341,7 +1508,8 @@
     "PokeAPI_id": 168,
     "PokeAPI_name": "Ariados",
     "Pokemondb_name": "Ariados",
-    "frontend_name": "Ariados"
+    "frontend_name": "Ariados",
+    "hidden_ability": "true"
   },
   {
     "id": 169,
@@ -1349,7 +1517,8 @@
     "PokeAPI_id": 169,
     "PokeAPI_name": "Crobat",
     "Pokemondb_name": "Crobat",
-    "frontend_name": "Crobat"
+    "frontend_name": "Crobat",
+    "hidden_ability": "true"
   },
   {
     "id": 170,
@@ -1357,7 +1526,8 @@
     "PokeAPI_id": 170,
     "PokeAPI_name": "Chinchou",
     "Pokemondb_name": "Chinchou",
-    "frontend_name": "Chinchou"
+    "frontend_name": "Chinchou",
+    "hidden_ability": "true"
   },
   {
     "id": 171,
@@ -1365,7 +1535,8 @@
     "PokeAPI_id": 171,
     "PokeAPI_name": "Lanturn",
     "Pokemondb_name": "Lanturn",
-    "frontend_name": "Lanturn"
+    "frontend_name": "Lanturn",
+    "hidden_ability": "true"
   },
   {
     "id": 172,
@@ -1373,7 +1544,8 @@
     "PokeAPI_id": 172,
     "PokeAPI_name": "Pichu",
     "Pokemondb_name": "Pichu",
-    "frontend_name": "Pichu"
+    "frontend_name": "Pichu",
+    "hidden_ability": "true"
   },
   {
     "id": 173,
@@ -1381,7 +1553,8 @@
     "PokeAPI_id": 173,
     "PokeAPI_name": "Cleffa",
     "Pokemondb_name": "Cleffa",
-    "frontend_name": "Cleffa"
+    "frontend_name": "Cleffa",
+    "hidden_ability": "true"
   },
   {
     "id": 174,
@@ -1389,7 +1562,8 @@
     "PokeAPI_id": 174,
     "PokeAPI_name": "Igglybuff",
     "Pokemondb_name": "Igglybuff",
-    "frontend_name": "Igglybuff"
+    "frontend_name": "Igglybuff",
+    "hidden_ability": "true"
   },
   {
     "id": 175,
@@ -1397,7 +1571,8 @@
     "PokeAPI_id": 175,
     "PokeAPI_name": "Togepi",
     "Pokemondb_name": "Togepi",
-    "frontend_name": "Togepi"
+    "frontend_name": "Togepi",
+    "hidden_ability": "true"
   },
   {
     "id": 176,
@@ -1405,7 +1580,8 @@
     "PokeAPI_id": 176,
     "PokeAPI_name": "Togetic",
     "Pokemondb_name": "Togetic",
-    "frontend_name": "Togetic"
+    "frontend_name": "Togetic",
+    "hidden_ability": "true"
   },
   {
     "id": 177,
@@ -1413,7 +1589,8 @@
     "PokeAPI_id": 177,
     "PokeAPI_name": "Natu",
     "Pokemondb_name": "Natu",
-    "frontend_name": "Natu"
+    "frontend_name": "Natu",
+    "hidden_ability": "true"
   },
   {
     "id": 178,
@@ -1421,7 +1598,8 @@
     "PokeAPI_id": 178,
     "PokeAPI_name": "Xatu",
     "Pokemondb_name": "Xatu",
-    "frontend_name": "Xatu"
+    "frontend_name": "Xatu",
+    "hidden_ability": "true"
   },
   {
     "id": 179,
@@ -1429,7 +1607,8 @@
     "PokeAPI_id": 179,
     "PokeAPI_name": "Mareep",
     "Pokemondb_name": "Mareep",
-    "frontend_name": "Mareep"
+    "frontend_name": "Mareep",
+    "hidden_ability": "true"
   },
   {
     "id": 180,
@@ -1437,7 +1616,8 @@
     "PokeAPI_id": 180,
     "PokeAPI_name": "Flaaffy",
     "Pokemondb_name": "Flaaffy",
-    "frontend_name": "Flaaffy"
+    "frontend_name": "Flaaffy",
+    "hidden_ability": "true"
   },
   {
     "id": 181,
@@ -1445,7 +1625,8 @@
     "PokeAPI_id": 181,
     "PokeAPI_name": "Ampharos",
     "Pokemondb_name": "Ampharos",
-    "frontend_name": "Ampharos"
+    "frontend_name": "Ampharos",
+    "hidden_ability": "true"
   },
   {
     "id": 182,
@@ -1453,7 +1634,8 @@
     "PokeAPI_id": 182,
     "PokeAPI_name": "Bellossom",
     "Pokemondb_name": "Bellossom",
-    "frontend_name": "Bellossom"
+    "frontend_name": "Bellossom",
+    "hidden_ability": "true"
   },
   {
     "id": 183,
@@ -1461,7 +1643,8 @@
     "PokeAPI_id": 183,
     "PokeAPI_name": "Marill",
     "Pokemondb_name": "Marill",
-    "frontend_name": "Marill"
+    "frontend_name": "Marill",
+    "hidden_ability": "true"
   },
   {
     "id": 184,
@@ -1469,7 +1652,8 @@
     "PokeAPI_id": 184,
     "PokeAPI_name": "Azumarill",
     "Pokemondb_name": "Azumarill",
-    "frontend_name": "Azumarill"
+    "frontend_name": "Azumarill",
+    "hidden_ability": "true"
   },
   {
     "id": 185,
@@ -1477,7 +1661,8 @@
     "PokeAPI_id": 185,
     "PokeAPI_name": "Sudowoodo",
     "Pokemondb_name": "Sudowoodo",
-    "frontend_name": "Sudowoodo"
+    "frontend_name": "Sudowoodo",
+    "hidden_ability": "true"
   },
   {
     "id": 186,
@@ -1485,7 +1670,8 @@
     "PokeAPI_id": 186,
     "PokeAPI_name": "Politoed",
     "Pokemondb_name": "Politoed",
-    "frontend_name": "Politoed"
+    "frontend_name": "Politoed",
+    "hidden_ability": "true"
   },
   {
     "id": 187,
@@ -1493,7 +1679,8 @@
     "PokeAPI_id": 187,
     "PokeAPI_name": "Hoppip",
     "Pokemondb_name": "Hoppip",
-    "frontend_name": "Hoppip"
+    "frontend_name": "Hoppip",
+    "hidden_ability": "true"
   },
   {
     "id": 188,
@@ -1501,7 +1688,8 @@
     "PokeAPI_id": 188,
     "PokeAPI_name": "Skiploom",
     "Pokemondb_name": "Skiploom",
-    "frontend_name": "Skiploom"
+    "frontend_name": "Skiploom",
+    "hidden_ability": "true"
   },
   {
     "id": 189,
@@ -1509,7 +1697,8 @@
     "PokeAPI_id": 189,
     "PokeAPI_name": "Jumpluff",
     "Pokemondb_name": "Jumpluff",
-    "frontend_name": "Jumpluff"
+    "frontend_name": "Jumpluff",
+    "hidden_ability": "true"
   },
   {
     "id": 190,
@@ -1517,7 +1706,8 @@
     "PokeAPI_id": 190,
     "PokeAPI_name": "Aipom",
     "Pokemondb_name": "Aipom",
-    "frontend_name": "Aipom"
+    "frontend_name": "Aipom",
+    "hidden_ability": "true"
   },
   {
     "id": 191,
@@ -1525,7 +1715,8 @@
     "PokeAPI_id": 191,
     "PokeAPI_name": "Sunkern",
     "Pokemondb_name": "Sunkern",
-    "frontend_name": "Sunkern"
+    "frontend_name": "Sunkern",
+    "hidden_ability": "true"
   },
   {
     "id": 192,
@@ -1533,7 +1724,8 @@
     "PokeAPI_id": 192,
     "PokeAPI_name": "Sunflora",
     "Pokemondb_name": "Sunflora",
-    "frontend_name": "Sunflora"
+    "frontend_name": "Sunflora",
+    "hidden_ability": "true"
   },
   {
     "id": 193,
@@ -1541,7 +1733,8 @@
     "PokeAPI_id": 193,
     "PokeAPI_name": "Yanma",
     "Pokemondb_name": "Yanma",
-    "frontend_name": "Yanma"
+    "frontend_name": "Yanma",
+    "hidden_ability": "true"
   },
   {
     "id": 194,
@@ -1549,7 +1742,8 @@
     "PokeAPI_id": 194,
     "PokeAPI_name": "Wooper",
     "Pokemondb_name": "Wooper",
-    "frontend_name": "Wooper"
+    "frontend_name": "Wooper",
+    "hidden_ability": "true"
   },
   {
     "id": 195,
@@ -1557,7 +1751,8 @@
     "PokeAPI_id": 195,
     "PokeAPI_name": "Quagsire",
     "Pokemondb_name": "Quagsire",
-    "frontend_name": "Quagsire"
+    "frontend_name": "Quagsire",
+    "hidden_ability": "true"
   },
   {
     "id": 196,
@@ -1565,7 +1760,8 @@
     "PokeAPI_id": 196,
     "PokeAPI_name": "Espeon",
     "Pokemondb_name": "Espeon",
-    "frontend_name": "Espeon"
+    "frontend_name": "Espeon",
+    "hidden_ability": "true"
   },
   {
     "id": 197,
@@ -1573,7 +1769,8 @@
     "PokeAPI_id": 197,
     "PokeAPI_name": "Umbreon",
     "Pokemondb_name": "Umbreon",
-    "frontend_name": "Umbreon"
+    "frontend_name": "Umbreon",
+    "hidden_ability": "true"
   },
   {
     "id": 198,
@@ -1581,7 +1778,8 @@
     "PokeAPI_id": 198,
     "PokeAPI_name": "Murkrow",
     "Pokemondb_name": "Murkrow",
-    "frontend_name": "Murkrow"
+    "frontend_name": "Murkrow",
+    "hidden_ability": "true"
   },
   {
     "id": 199,
@@ -1589,7 +1787,8 @@
     "PokeAPI_id": 199,
     "PokeAPI_name": "Slowking",
     "Pokemondb_name": "Slowking",
-    "frontend_name": "Slowking"
+    "frontend_name": "Slowking",
+    "hidden_ability": "true"
   },
   {
     "id": 200,
@@ -1597,7 +1796,8 @@
     "PokeAPI_id": 200,
     "PokeAPI_name": "Misdreavus",
     "Pokemondb_name": "Misdreavus",
-    "frontend_name": "Misdreavus"
+    "frontend_name": "Misdreavus",
+    "hidden_ability": "false"
   },
   {
     "id": 201,
@@ -1605,7 +1805,8 @@
     "PokeAPI_id": 201,
     "PokeAPI_name": "Unown",
     "Pokemondb_name": "Unown",
-    "frontend_name": "Unown"
+    "frontend_name": "Unown",
+    "hidden_ability": "false"
   },
   {
     "id": 202,
@@ -1613,7 +1814,8 @@
     "PokeAPI_id": 202,
     "PokeAPI_name": "Wobbuffet",
     "Pokemondb_name": "Wobbuffet",
-    "frontend_name": "Wobbuffet"
+    "frontend_name": "Wobbuffet",
+    "hidden_ability": "true"
   },
   {
     "id": 203,
@@ -1621,7 +1823,8 @@
     "PokeAPI_id": 203,
     "PokeAPI_name": "Girafarig",
     "Pokemondb_name": "Girafarig",
-    "frontend_name": "Girafarig"
+    "frontend_name": "Girafarig",
+    "hidden_ability": "true"
   },
   {
     "id": 204,
@@ -1629,7 +1832,8 @@
     "PokeAPI_id": 204,
     "PokeAPI_name": "Pineco",
     "Pokemondb_name": "Pineco",
-    "frontend_name": "Pineco"
+    "frontend_name": "Pineco",
+    "hidden_ability": "true"
   },
   {
     "id": 205,
@@ -1637,7 +1841,8 @@
     "PokeAPI_id": 205,
     "PokeAPI_name": "Forretress",
     "Pokemondb_name": "Forretress",
-    "frontend_name": "Forretress"
+    "frontend_name": "Forretress",
+    "hidden_ability": "true"
   },
   {
     "id": 206,
@@ -1645,7 +1850,8 @@
     "PokeAPI_id": 206,
     "PokeAPI_name": "Dunsparce",
     "Pokemondb_name": "Dunsparce",
-    "frontend_name": "Dunsparce"
+    "frontend_name": "Dunsparce",
+    "hidden_ability": "true"
   },
   {
     "id": 207,
@@ -1653,7 +1859,8 @@
     "PokeAPI_id": 207,
     "PokeAPI_name": "Gligar",
     "Pokemondb_name": "Gligar",
-    "frontend_name": "Gligar"
+    "frontend_name": "Gligar",
+    "hidden_ability": "true"
   },
   {
     "id": 208,
@@ -1661,7 +1868,8 @@
     "PokeAPI_id": 208,
     "PokeAPI_name": "Steelix",
     "Pokemondb_name": "Steelix",
-    "frontend_name": "Steelix"
+    "frontend_name": "Steelix",
+    "hidden_ability": "true"
   },
   {
     "id": 209,
@@ -1669,7 +1877,8 @@
     "PokeAPI_id": 209,
     "PokeAPI_name": "Snubbull",
     "Pokemondb_name": "Snubbull",
-    "frontend_name": "Snubbull"
+    "frontend_name": "Snubbull",
+    "hidden_ability": "true"
   },
   {
     "id": 210,
@@ -1677,7 +1886,8 @@
     "PokeAPI_id": 210,
     "PokeAPI_name": "Granbull",
     "Pokemondb_name": "Granbull",
-    "frontend_name": "Granbull"
+    "frontend_name": "Granbull",
+    "hidden_ability": "true"
   },
   {
     "id": 211,
@@ -1685,7 +1895,8 @@
     "PokeAPI_id": 211,
     "PokeAPI_name": "Qwilfish",
     "Pokemondb_name": "Qwilfish",
-    "frontend_name": "Qwilfish"
+    "frontend_name": "Qwilfish",
+    "hidden_ability": "true"
   },
   {
     "id": 212,
@@ -1693,7 +1904,8 @@
     "PokeAPI_id": 212,
     "PokeAPI_name": "Scizor",
     "Pokemondb_name": "Scizor",
-    "frontend_name": "Scizor"
+    "frontend_name": "Scizor",
+    "hidden_ability": "true"
   },
   {
     "id": 213,
@@ -1701,7 +1913,8 @@
     "PokeAPI_id": 213,
     "PokeAPI_name": "Shuckle",
     "Pokemondb_name": "Shuckle",
-    "frontend_name": "Shuckle"
+    "frontend_name": "Shuckle",
+    "hidden_ability": "true"
   },
   {
     "id": 214,
@@ -1709,7 +1922,8 @@
     "PokeAPI_id": 214,
     "PokeAPI_name": "Heracross",
     "Pokemondb_name": "Heracross",
-    "frontend_name": "Heracross"
+    "frontend_name": "Heracross",
+    "hidden_ability": "true"
   },
   {
     "id": 215,
@@ -1717,7 +1931,8 @@
     "PokeAPI_id": 215,
     "PokeAPI_name": "Sneasel",
     "Pokemondb_name": "Sneasel",
-    "frontend_name": "Sneasel"
+    "frontend_name": "Sneasel",
+    "hidden_ability": "true"
   },
   {
     "id": 216,
@@ -1725,7 +1940,8 @@
     "PokeAPI_id": 216,
     "PokeAPI_name": "Teddiursa",
     "Pokemondb_name": "Teddiursa",
-    "frontend_name": "Teddiursa"
+    "frontend_name": "Teddiursa",
+    "hidden_ability": "true"
   },
   {
     "id": 217,
@@ -1733,7 +1949,8 @@
     "PokeAPI_id": 217,
     "PokeAPI_name": "Ursaring",
     "Pokemondb_name": "Ursaring",
-    "frontend_name": "Ursaring"
+    "frontend_name": "Ursaring",
+    "hidden_ability": "true"
   },
   {
     "id": 218,
@@ -1741,7 +1958,8 @@
     "PokeAPI_id": 218,
     "PokeAPI_name": "Slugma",
     "Pokemondb_name": "Slugma",
-    "frontend_name": "Slugma"
+    "frontend_name": "Slugma",
+    "hidden_ability": "true"
   },
   {
     "id": 219,
@@ -1749,7 +1967,8 @@
     "PokeAPI_id": 219,
     "PokeAPI_name": "Magcargo",
     "Pokemondb_name": "Magcargo",
-    "frontend_name": "Magcargo"
+    "frontend_name": "Magcargo",
+    "hidden_ability": "true"
   },
   {
     "id": 220,
@@ -1757,7 +1976,8 @@
     "PokeAPI_id": 220,
     "PokeAPI_name": "Swinub",
     "Pokemondb_name": "Swinub",
-    "frontend_name": "Swinub"
+    "frontend_name": "Swinub",
+    "hidden_ability": "true"
   },
   {
     "id": 221,
@@ -1765,7 +1985,8 @@
     "PokeAPI_id": 221,
     "PokeAPI_name": "Piloswine",
     "Pokemondb_name": "Piloswine",
-    "frontend_name": "Piloswine"
+    "frontend_name": "Piloswine",
+    "hidden_ability": "true"
   },
   {
     "id": 222,
@@ -1773,7 +1994,8 @@
     "PokeAPI_id": 222,
     "PokeAPI_name": "Corsola",
     "Pokemondb_name": "Corsola",
-    "frontend_name": "Corsola"
+    "frontend_name": "Corsola",
+    "hidden_ability": "true"
   },
   {
     "id": 223,
@@ -1781,7 +2003,8 @@
     "PokeAPI_id": 223,
     "PokeAPI_name": "Remoraid",
     "Pokemondb_name": "Remoraid",
-    "frontend_name": "Remoraid"
+    "frontend_name": "Remoraid",
+    "hidden_ability": "true"
   },
   {
     "id": 224,
@@ -1789,7 +2012,8 @@
     "PokeAPI_id": 224,
     "PokeAPI_name": "Octillery",
     "Pokemondb_name": "Octillery",
-    "frontend_name": "Octillery"
+    "frontend_name": "Octillery",
+    "hidden_ability": "true"
   },
   {
     "id": 225,
@@ -1797,7 +2021,8 @@
     "PokeAPI_id": 225,
     "PokeAPI_name": "Delibird",
     "Pokemondb_name": "Delibird",
-    "frontend_name": "Delibird"
+    "frontend_name": "Delibird",
+    "hidden_ability": "true"
   },
   {
     "id": 226,
@@ -1805,7 +2030,8 @@
     "PokeAPI_id": 226,
     "PokeAPI_name": "Mantine",
     "Pokemondb_name": "Mantine",
-    "frontend_name": "Mantine"
+    "frontend_name": "Mantine",
+    "hidden_ability": "true"
   },
   {
     "id": 227,
@@ -1813,7 +2039,8 @@
     "PokeAPI_id": 227,
     "PokeAPI_name": "Skarmory",
     "Pokemondb_name": "Skarmory",
-    "frontend_name": "Skarmory"
+    "frontend_name": "Skarmory",
+    "hidden_ability": "true"
   },
   {
     "id": 228,
@@ -1821,7 +2048,8 @@
     "PokeAPI_id": 228,
     "PokeAPI_name": "Houndour",
     "Pokemondb_name": "Houndour",
-    "frontend_name": "Houndour"
+    "frontend_name": "Houndour",
+    "hidden_ability": "true"
   },
   {
     "id": 229,
@@ -1829,7 +2057,8 @@
     "PokeAPI_id": 229,
     "PokeAPI_name": "Houndoom",
     "Pokemondb_name": "Houndoom",
-    "frontend_name": "Houndoom"
+    "frontend_name": "Houndoom",
+    "hidden_ability": "true"
   },
   {
     "id": 230,
@@ -1837,7 +2066,8 @@
     "PokeAPI_id": 230,
     "PokeAPI_name": "Kingdra",
     "Pokemondb_name": "Kingdra",
-    "frontend_name": "Kingdra"
+    "frontend_name": "Kingdra",
+    "hidden_ability": "true"
   },
   {
     "id": 231,
@@ -1845,7 +2075,8 @@
     "PokeAPI_id": 231,
     "PokeAPI_name": "Phanpy",
     "Pokemondb_name": "Phanpy",
-    "frontend_name": "Phanpy"
+    "frontend_name": "Phanpy",
+    "hidden_ability": "true"
   },
   {
     "id": 232,
@@ -1853,7 +2084,8 @@
     "PokeAPI_id": 232,
     "PokeAPI_name": "Donphan",
     "Pokemondb_name": "Donphan",
-    "frontend_name": "Donphan"
+    "frontend_name": "Donphan",
+    "hidden_ability": "true"
   },
   {
     "id": 233,
@@ -1861,7 +2093,8 @@
     "PokeAPI_id": 233,
     "PokeAPI_name": "Porygon2",
     "Pokemondb_name": "Porygon2",
-    "frontend_name": "Porygon2"
+    "frontend_name": "Porygon2",
+    "hidden_ability": "true"
   },
   {
     "id": 234,
@@ -1869,7 +2102,8 @@
     "PokeAPI_id": 234,
     "PokeAPI_name": "Stantler",
     "Pokemondb_name": "Stantler",
-    "frontend_name": "Stantler"
+    "frontend_name": "Stantler",
+    "hidden_ability": "true"
   },
   {
     "id": 235,
@@ -1877,7 +2111,8 @@
     "PokeAPI_id": 235,
     "PokeAPI_name": "Smeargle",
     "Pokemondb_name": "Smeargle",
-    "frontend_name": "Smeargle"
+    "frontend_name": "Smeargle",
+    "hidden_ability": "true"
   },
   {
     "id": 236,
@@ -1885,7 +2120,8 @@
     "PokeAPI_id": 236,
     "PokeAPI_name": "Tyrogue",
     "Pokemondb_name": "Tyrogue",
-    "frontend_name": "Tyrogue"
+    "frontend_name": "Tyrogue",
+    "hidden_ability": "true"
   },
   {
     "id": 237,
@@ -1893,7 +2129,8 @@
     "PokeAPI_id": 237,
     "PokeAPI_name": "Hitmontop",
     "Pokemondb_name": "Hitmontop",
-    "frontend_name": "Hitmontop"
+    "frontend_name": "Hitmontop",
+    "hidden_ability": "true"
   },
   {
     "id": 238,
@@ -1901,7 +2138,8 @@
     "PokeAPI_id": 238,
     "PokeAPI_name": "Smoochum",
     "Pokemondb_name": "Smoochum",
-    "frontend_name": "Smoochum"
+    "frontend_name": "Smoochum",
+    "hidden_ability": "true"
   },
   {
     "id": 239,
@@ -1909,7 +2147,8 @@
     "PokeAPI_id": 239,
     "PokeAPI_name": "Elekid",
     "Pokemondb_name": "Elekid",
-    "frontend_name": "Elekid"
+    "frontend_name": "Elekid",
+    "hidden_ability": "true"
   },
   {
     "id": 240,
@@ -1917,7 +2156,8 @@
     "PokeAPI_id": 240,
     "PokeAPI_name": "Magby",
     "Pokemondb_name": "Magby",
-    "frontend_name": "Magby"
+    "frontend_name": "Magby",
+    "hidden_ability": "true"
   },
   {
     "id": 241,
@@ -1925,7 +2165,8 @@
     "PokeAPI_id": 241,
     "PokeAPI_name": "Miltank",
     "Pokemondb_name": "Miltank",
-    "frontend_name": "Miltank"
+    "frontend_name": "Miltank",
+    "hidden_ability": "true"
   },
   {
     "id": 242,
@@ -1933,7 +2174,8 @@
     "PokeAPI_id": 242,
     "PokeAPI_name": "Blissey",
     "Pokemondb_name": "Blissey",
-    "frontend_name": "Blissey"
+    "frontend_name": "Blissey",
+    "hidden_ability": "true"
   },
   {
     "id": 243,
@@ -1941,7 +2183,8 @@
     "PokeAPI_id": 243,
     "PokeAPI_name": "Raikou",
     "Pokemondb_name": "Raikou",
-    "frontend_name": "Raikou"
+    "frontend_name": "Raikou",
+    "hidden_ability": "true"
   },
   {
     "id": 244,
@@ -1949,7 +2192,8 @@
     "PokeAPI_id": 244,
     "PokeAPI_name": "Entei",
     "Pokemondb_name": "Entei",
-    "frontend_name": "Entei"
+    "frontend_name": "Entei",
+    "hidden_ability": "true"
   },
   {
     "id": 245,
@@ -1957,7 +2201,8 @@
     "PokeAPI_id": 245,
     "PokeAPI_name": "Suicune",
     "Pokemondb_name": "Suicune",
-    "frontend_name": "Suicune"
+    "frontend_name": "Suicune",
+    "hidden_ability": "true"
   },
   {
     "id": 246,
@@ -1965,7 +2210,8 @@
     "PokeAPI_id": 246,
     "PokeAPI_name": "Larvitar",
     "Pokemondb_name": "Larvitar",
-    "frontend_name": "Larvitar"
+    "frontend_name": "Larvitar",
+    "hidden_ability": "true"
   },
   {
     "id": 247,
@@ -1973,7 +2219,8 @@
     "PokeAPI_id": 247,
     "PokeAPI_name": "Pupitar",
     "Pokemondb_name": "Pupitar",
-    "frontend_name": "Pupitar"
+    "frontend_name": "Pupitar",
+    "hidden_ability": "false"
   },
   {
     "id": 248,
@@ -1981,7 +2228,8 @@
     "PokeAPI_id": 248,
     "PokeAPI_name": "Tyranitar",
     "Pokemondb_name": "Tyranitar",
-    "frontend_name": "Tyranitar"
+    "frontend_name": "Tyranitar",
+    "hidden_ability": "true"
   },
   {
     "id": 249,
@@ -1989,7 +2237,8 @@
     "PokeAPI_id": 249,
     "PokeAPI_name": "Lugia",
     "Pokemondb_name": "Lugia",
-    "frontend_name": "Lugia"
+    "frontend_name": "Lugia",
+    "hidden_ability": "true"
   },
   {
     "id": 250,
@@ -1997,7 +2246,8 @@
     "PokeAPI_id": 250,
     "PokeAPI_name": "Ho-Oh",
     "Pokemondb_name": "Ho-Oh",
-    "frontend_name": "Ho-Oh"
+    "frontend_name": "Ho-Oh",
+    "hidden_ability": "true"
   },
   {
     "id": 251,
@@ -2005,7 +2255,8 @@
     "PokeAPI_id": 251,
     "PokeAPI_name": "Celebi",
     "Pokemondb_name": "Celebi",
-    "frontend_name": "Celebi"
+    "frontend_name": "Celebi",
+    "hidden_ability": "false"
   },
   {
     "id": 252,
@@ -2013,7 +2264,8 @@
     "PokeAPI_id": 252,
     "PokeAPI_name": "Treecko",
     "Pokemondb_name": "Treecko",
-    "frontend_name": "Treecko"
+    "frontend_name": "Treecko",
+    "hidden_ability": "true"
   },
   {
     "id": 253,
@@ -2021,7 +2273,8 @@
     "PokeAPI_id": 253,
     "PokeAPI_name": "Grovyle",
     "Pokemondb_name": "Grovyle",
-    "frontend_name": "Grovyle"
+    "frontend_name": "Grovyle",
+    "hidden_ability": "true"
   },
   {
     "id": 254,
@@ -2029,7 +2282,8 @@
     "PokeAPI_id": 254,
     "PokeAPI_name": "Sceptile",
     "Pokemondb_name": "Sceptile",
-    "frontend_name": "Sceptile"
+    "frontend_name": "Sceptile",
+    "hidden_ability": "true"
   },
   {
     "id": 255,
@@ -2037,7 +2291,8 @@
     "PokeAPI_id": 255,
     "PokeAPI_name": "Torchic",
     "Pokemondb_name": "Torchic",
-    "frontend_name": "Torchic"
+    "frontend_name": "Torchic",
+    "hidden_ability": "true"
   },
   {
     "id": 256,
@@ -2045,7 +2300,8 @@
     "PokeAPI_id": 256,
     "PokeAPI_name": "Combusken",
     "Pokemondb_name": "Combusken",
-    "frontend_name": "Combusken"
+    "frontend_name": "Combusken",
+    "hidden_ability": "true"
   },
   {
     "id": 257,
@@ -2053,7 +2309,8 @@
     "PokeAPI_id": 257,
     "PokeAPI_name": "Blaziken",
     "Pokemondb_name": "Blaziken",
-    "frontend_name": "Blaziken"
+    "frontend_name": "Blaziken",
+    "hidden_ability": "true"
   },
   {
     "id": 258,
@@ -2061,7 +2318,8 @@
     "PokeAPI_id": 258,
     "PokeAPI_name": "Mudkip",
     "Pokemondb_name": "Mudkip",
-    "frontend_name": "Mudkip"
+    "frontend_name": "Mudkip",
+    "hidden_ability": "true"
   },
   {
     "id": 259,
@@ -2069,7 +2327,8 @@
     "PokeAPI_id": 259,
     "PokeAPI_name": "Marshtomp",
     "Pokemondb_name": "Marshtomp",
-    "frontend_name": "Marshtomp"
+    "frontend_name": "Marshtomp",
+    "hidden_ability": "true"
   },
   {
     "id": 260,
@@ -2077,7 +2336,8 @@
     "PokeAPI_id": 260,
     "PokeAPI_name": "Swampert",
     "Pokemondb_name": "Swampert",
-    "frontend_name": "Swampert"
+    "frontend_name": "Swampert",
+    "hidden_ability": "true"
   },
   {
     "id": 261,
@@ -2085,7 +2345,8 @@
     "PokeAPI_id": 261,
     "PokeAPI_name": "Poochyena",
     "Pokemondb_name": "Poochyena",
-    "frontend_name": "Poochyena"
+    "frontend_name": "Poochyena",
+    "hidden_ability": "true"
   },
   {
     "id": 262,
@@ -2093,7 +2354,8 @@
     "PokeAPI_id": 262,
     "PokeAPI_name": "Mightyena",
     "Pokemondb_name": "Mightyena",
-    "frontend_name": "Mightyena"
+    "frontend_name": "Mightyena",
+    "hidden_ability": "true"
   },
   {
     "id": 263,
@@ -2101,7 +2363,8 @@
     "PokeAPI_id": 263,
     "PokeAPI_name": "Zigzagoon",
     "Pokemondb_name": "Zigzagoon",
-    "frontend_name": "Zigzagoon"
+    "frontend_name": "Zigzagoon",
+    "hidden_ability": "true"
   },
   {
     "id": 264,
@@ -2109,7 +2372,8 @@
     "PokeAPI_id": 264,
     "PokeAPI_name": "Linoone",
     "Pokemondb_name": "Linoone",
-    "frontend_name": "Linoone"
+    "frontend_name": "Linoone",
+    "hidden_ability": "true"
   },
   {
     "id": 265,
@@ -2117,7 +2381,8 @@
     "PokeAPI_id": 265,
     "PokeAPI_name": "Wurmple",
     "Pokemondb_name": "Wurmple",
-    "frontend_name": "Wurmple"
+    "frontend_name": "Wurmple",
+    "hidden_ability": "true"
   },
   {
     "id": 266,
@@ -2125,7 +2390,8 @@
     "PokeAPI_id": 266,
     "PokeAPI_name": "Silcoon",
     "Pokemondb_name": "Silcoon",
-    "frontend_name": "Silcoon"
+    "frontend_name": "Silcoon",
+    "hidden_ability": "false"
   },
   {
     "id": 267,
@@ -2133,7 +2399,8 @@
     "PokeAPI_id": 267,
     "PokeAPI_name": "Beautifly",
     "Pokemondb_name": "Beautifly",
-    "frontend_name": "Beautifly"
+    "frontend_name": "Beautifly",
+    "hidden_ability": "true"
   },
   {
     "id": 268,
@@ -2141,7 +2408,8 @@
     "PokeAPI_id": 268,
     "PokeAPI_name": "Cascoon",
     "Pokemondb_name": "Cascoon",
-    "frontend_name": "Cascoon"
+    "frontend_name": "Cascoon",
+    "hidden_ability": "false"
   },
   {
     "id": 269,
@@ -2149,7 +2417,8 @@
     "PokeAPI_id": 269,
     "PokeAPI_name": "Dustox",
     "Pokemondb_name": "Dustox",
-    "frontend_name": "Dustox"
+    "frontend_name": "Dustox",
+    "hidden_ability": "true"
   },
   {
     "id": 270,
@@ -2157,7 +2426,8 @@
     "PokeAPI_id": 270,
     "PokeAPI_name": "Lotad",
     "Pokemondb_name": "Lotad",
-    "frontend_name": "Lotad"
+    "frontend_name": "Lotad",
+    "hidden_ability": "true"
   },
   {
     "id": 271,
@@ -2165,7 +2435,8 @@
     "PokeAPI_id": 271,
     "PokeAPI_name": "Lombre",
     "Pokemondb_name": "Lombre",
-    "frontend_name": "Lombre"
+    "frontend_name": "Lombre",
+    "hidden_ability": "true"
   },
   {
     "id": 272,
@@ -2173,7 +2444,8 @@
     "PokeAPI_id": 272,
     "PokeAPI_name": "Ludicolo",
     "Pokemondb_name": "Ludicolo",
-    "frontend_name": "Ludicolo"
+    "frontend_name": "Ludicolo",
+    "hidden_ability": "true"
   },
   {
     "id": 273,
@@ -2181,7 +2453,8 @@
     "PokeAPI_id": 273,
     "PokeAPI_name": "Seedot",
     "Pokemondb_name": "Seedot",
-    "frontend_name": "Seedot"
+    "frontend_name": "Seedot",
+    "hidden_ability": "true"
   },
   {
     "id": 274,
@@ -2189,7 +2462,8 @@
     "PokeAPI_id": 274,
     "PokeAPI_name": "Nuzleaf",
     "Pokemondb_name": "Nuzleaf",
-    "frontend_name": "Nuzleaf"
+    "frontend_name": "Nuzleaf",
+    "hidden_ability": "true"
   },
   {
     "id": 275,
@@ -2197,7 +2471,8 @@
     "PokeAPI_id": 275,
     "PokeAPI_name": "Shiftry",
     "Pokemondb_name": "Shiftry",
-    "frontend_name": "Shiftry"
+    "frontend_name": "Shiftry",
+    "hidden_ability": "true"
   },
   {
     "id": 276,
@@ -2205,7 +2480,8 @@
     "PokeAPI_id": 276,
     "PokeAPI_name": "Taillow",
     "Pokemondb_name": "Taillow",
-    "frontend_name": "Taillow"
+    "frontend_name": "Taillow",
+    "hidden_ability": "true"
   },
   {
     "id": 277,
@@ -2213,7 +2489,8 @@
     "PokeAPI_id": 277,
     "PokeAPI_name": "Swellow",
     "Pokemondb_name": "Swellow",
-    "frontend_name": "Swellow"
+    "frontend_name": "Swellow",
+    "hidden_ability": "true"
   },
   {
     "id": 278,
@@ -2221,7 +2498,8 @@
     "PokeAPI_id": 278,
     "PokeAPI_name": "Wingull",
     "Pokemondb_name": "Wingull",
-    "frontend_name": "Wingull"
+    "frontend_name": "Wingull",
+    "hidden_ability": "true"
   },
   {
     "id": 279,
@@ -2229,7 +2507,8 @@
     "PokeAPI_id": 279,
     "PokeAPI_name": "Pelipper",
     "Pokemondb_name": "Pelipper",
-    "frontend_name": "Pelipper"
+    "frontend_name": "Pelipper",
+    "hidden_ability": "true"
   },
   {
     "id": 280,
@@ -2237,7 +2516,8 @@
     "PokeAPI_id": 280,
     "PokeAPI_name": "Ralts",
     "Pokemondb_name": "Ralts",
-    "frontend_name": "Ralts"
+    "frontend_name": "Ralts",
+    "hidden_ability": "true"
   },
   {
     "id": 281,
@@ -2245,7 +2525,8 @@
     "PokeAPI_id": 281,
     "PokeAPI_name": "Kirlia",
     "Pokemondb_name": "Kirlia",
-    "frontend_name": "Kirlia"
+    "frontend_name": "Kirlia",
+    "hidden_ability": "true"
   },
   {
     "id": 282,
@@ -2253,7 +2534,8 @@
     "PokeAPI_id": 282,
     "PokeAPI_name": "Gardevoir",
     "Pokemondb_name": "Gardevoir",
-    "frontend_name": "Gardevoir"
+    "frontend_name": "Gardevoir",
+    "hidden_ability": "true"
   },
   {
     "id": 283,
@@ -2261,7 +2543,8 @@
     "PokeAPI_id": 283,
     "PokeAPI_name": "Surskit",
     "Pokemondb_name": "Surskit",
-    "frontend_name": "Surskit"
+    "frontend_name": "Surskit",
+    "hidden_ability": "true"
   },
   {
     "id": 284,
@@ -2269,7 +2552,8 @@
     "PokeAPI_id": 284,
     "PokeAPI_name": "Masquerain",
     "Pokemondb_name": "Masquerain",
-    "frontend_name": "Masquerain"
+    "frontend_name": "Masquerain",
+    "hidden_ability": "true"
   },
   {
     "id": 285,
@@ -2277,7 +2561,8 @@
     "PokeAPI_id": 285,
     "PokeAPI_name": "Shroomish",
     "Pokemondb_name": "Shroomish",
-    "frontend_name": "Shroomish"
+    "frontend_name": "Shroomish",
+    "hidden_ability": "true"
   },
   {
     "id": 286,
@@ -2285,7 +2570,8 @@
     "PokeAPI_id": 286,
     "PokeAPI_name": "Breloom",
     "Pokemondb_name": "Breloom",
-    "frontend_name": "Breloom"
+    "frontend_name": "Breloom",
+    "hidden_ability": "true"
   },
   {
     "id": 287,
@@ -2293,7 +2579,8 @@
     "PokeAPI_id": 287,
     "PokeAPI_name": "Slakoth",
     "Pokemondb_name": "Slakoth",
-    "frontend_name": "Slakoth"
+    "frontend_name": "Slakoth",
+    "hidden_ability": "false"
   },
   {
     "id": 288,
@@ -2301,7 +2588,8 @@
     "PokeAPI_id": 288,
     "PokeAPI_name": "Vigoroth",
     "Pokemondb_name": "Vigoroth",
-    "frontend_name": "Vigoroth"
+    "frontend_name": "Vigoroth",
+    "hidden_ability": "false"
   },
   {
     "id": 289,
@@ -2309,7 +2597,8 @@
     "PokeAPI_id": 289,
     "PokeAPI_name": "Slaking",
     "Pokemondb_name": "Slaking",
-    "frontend_name": "Slaking"
+    "frontend_name": "Slaking",
+    "hidden_ability": "false"
   },
   {
     "id": 290,
@@ -2317,7 +2606,8 @@
     "PokeAPI_id": 290,
     "PokeAPI_name": "Nincada",
     "Pokemondb_name": "Nincada",
-    "frontend_name": "Nincada"
+    "frontend_name": "Nincada",
+    "hidden_ability": "true"
   },
   {
     "id": 291,
@@ -2325,7 +2615,8 @@
     "PokeAPI_id": 291,
     "PokeAPI_name": "Ninjask",
     "Pokemondb_name": "Ninjask",
-    "frontend_name": "Ninjask"
+    "frontend_name": "Ninjask",
+    "hidden_ability": "true"
   },
   {
     "id": 292,
@@ -2333,7 +2624,8 @@
     "PokeAPI_id": 292,
     "PokeAPI_name": "Shedinja",
     "Pokemondb_name": "Shedinja",
-    "frontend_name": "Shedinja"
+    "frontend_name": "Shedinja",
+    "hidden_ability": "false"
   },
   {
     "id": 293,
@@ -2341,7 +2633,8 @@
     "PokeAPI_id": 293,
     "PokeAPI_name": "Whismur",
     "Pokemondb_name": "Whismur",
-    "frontend_name": "Whismur"
+    "frontend_name": "Whismur",
+    "hidden_ability": "true"
   },
   {
     "id": 294,
@@ -2349,7 +2642,8 @@
     "PokeAPI_id": 294,
     "PokeAPI_name": "Loudred",
     "Pokemondb_name": "Loudred",
-    "frontend_name": "Loudred"
+    "frontend_name": "Loudred",
+    "hidden_ability": "true"
   },
   {
     "id": 295,
@@ -2357,7 +2651,8 @@
     "PokeAPI_id": 295,
     "PokeAPI_name": "Exploud",
     "Pokemondb_name": "Exploud",
-    "frontend_name": "Exploud"
+    "frontend_name": "Exploud",
+    "hidden_ability": "true"
   },
   {
     "id": 296,
@@ -2365,7 +2660,8 @@
     "PokeAPI_id": 296,
     "PokeAPI_name": "Makuhita",
     "Pokemondb_name": "Makuhita",
-    "frontend_name": "Makuhita"
+    "frontend_name": "Makuhita",
+    "hidden_ability": "true"
   },
   {
     "id": 297,
@@ -2373,7 +2669,8 @@
     "PokeAPI_id": 297,
     "PokeAPI_name": "Hariyama",
     "Pokemondb_name": "Hariyama",
-    "frontend_name": "Hariyama"
+    "frontend_name": "Hariyama",
+    "hidden_ability": "true"
   },
   {
     "id": 298,
@@ -2381,7 +2678,8 @@
     "PokeAPI_id": 298,
     "PokeAPI_name": "Azurill",
     "Pokemondb_name": "Azurill",
-    "frontend_name": "Azurill"
+    "frontend_name": "Azurill",
+    "hidden_ability": "true"
   },
   {
     "id": 299,
@@ -2389,7 +2687,8 @@
     "PokeAPI_id": 299,
     "PokeAPI_name": "Nosepass",
     "Pokemondb_name": "Nosepass",
-    "frontend_name": "Nosepass"
+    "frontend_name": "Nosepass",
+    "hidden_ability": "true"
   },
   {
     "id": 300,
@@ -2397,7 +2696,8 @@
     "PokeAPI_id": 300,
     "PokeAPI_name": "Skitty",
     "Pokemondb_name": "Skitty",
-    "frontend_name": "Skitty"
+    "frontend_name": "Skitty",
+    "hidden_ability": "true"
   },
   {
     "id": 301,
@@ -2405,7 +2705,8 @@
     "PokeAPI_id": 301,
     "PokeAPI_name": "Delcatty",
     "Pokemondb_name": "Delcatty",
-    "frontend_name": "Delcatty"
+    "frontend_name": "Delcatty",
+    "hidden_ability": "true"
   },
   {
     "id": 302,
@@ -2413,7 +2714,8 @@
     "PokeAPI_id": 302,
     "PokeAPI_name": "Sableye",
     "Pokemondb_name": "Sableye",
-    "frontend_name": "Sableye"
+    "frontend_name": "Sableye",
+    "hidden_ability": "true"
   },
   {
     "id": 303,
@@ -2421,7 +2723,8 @@
     "PokeAPI_id": 303,
     "PokeAPI_name": "Mawile",
     "Pokemondb_name": "Mawile",
-    "frontend_name": "Mawile"
+    "frontend_name": "Mawile",
+    "hidden_ability": "true"
   },
   {
     "id": 304,
@@ -2429,7 +2732,8 @@
     "PokeAPI_id": 304,
     "PokeAPI_name": "Aron",
     "Pokemondb_name": "Aron",
-    "frontend_name": "Aron"
+    "frontend_name": "Aron",
+    "hidden_ability": "true"
   },
   {
     "id": 305,
@@ -2437,7 +2741,8 @@
     "PokeAPI_id": 305,
     "PokeAPI_name": "Lairon",
     "Pokemondb_name": "Lairon",
-    "frontend_name": "Lairon"
+    "frontend_name": "Lairon",
+    "hidden_ability": "true"
   },
   {
     "id": 306,
@@ -2445,7 +2750,8 @@
     "PokeAPI_id": 306,
     "PokeAPI_name": "Aggron",
     "Pokemondb_name": "Aggron",
-    "frontend_name": "Aggron"
+    "frontend_name": "Aggron",
+    "hidden_ability": "true"
   },
   {
     "id": 307,
@@ -2453,7 +2759,8 @@
     "PokeAPI_id": 307,
     "PokeAPI_name": "Meditite",
     "Pokemondb_name": "Meditite",
-    "frontend_name": "Meditite"
+    "frontend_name": "Meditite",
+    "hidden_ability": "true"
   },
   {
     "id": 308,
@@ -2461,7 +2768,8 @@
     "PokeAPI_id": 308,
     "PokeAPI_name": "Medicham",
     "Pokemondb_name": "Medicham",
-    "frontend_name": "Medicham"
+    "frontend_name": "Medicham",
+    "hidden_ability": "true"
   },
   {
     "id": 309,
@@ -2469,7 +2777,8 @@
     "PokeAPI_id": 309,
     "PokeAPI_name": "Electrike",
     "Pokemondb_name": "Electrike",
-    "frontend_name": "Electrike"
+    "frontend_name": "Electrike",
+    "hidden_ability": "true"
   },
   {
     "id": 310,
@@ -2477,7 +2786,8 @@
     "PokeAPI_id": 310,
     "PokeAPI_name": "Manectric",
     "Pokemondb_name": "Manectric",
-    "frontend_name": "Manectric"
+    "frontend_name": "Manectric",
+    "hidden_ability": "true"
   },
   {
     "id": 311,
@@ -2485,7 +2795,8 @@
     "PokeAPI_id": 311,
     "PokeAPI_name": "Plusle",
     "Pokemondb_name": "Plusle",
-    "frontend_name": "Plusle"
+    "frontend_name": "Plusle",
+    "hidden_ability": "true"
   },
   {
     "id": 312,
@@ -2493,7 +2804,8 @@
     "PokeAPI_id": 312,
     "PokeAPI_name": "Minun",
     "Pokemondb_name": "Minun",
-    "frontend_name": "Minun"
+    "frontend_name": "Minun",
+    "hidden_ability": "true"
   },
   {
     "id": 313,
@@ -2501,7 +2813,8 @@
     "PokeAPI_id": 313,
     "PokeAPI_name": "Volbeat",
     "Pokemondb_name": "Volbeat",
-    "frontend_name": "Volbeat"
+    "frontend_name": "Volbeat",
+    "hidden_ability": "true"
   },
   {
     "id": 314,
@@ -2509,7 +2822,8 @@
     "PokeAPI_id": 314,
     "PokeAPI_name": "Illumise",
     "Pokemondb_name": "Illumise",
-    "frontend_name": "Illumise"
+    "frontend_name": "Illumise",
+    "hidden_ability": "true"
   },
   {
     "id": 315,
@@ -2517,7 +2831,8 @@
     "PokeAPI_id": 315,
     "PokeAPI_name": "Roselia",
     "Pokemondb_name": "Roselia",
-    "frontend_name": "Roselia"
+    "frontend_name": "Roselia",
+    "hidden_ability": "true"
   },
   {
     "id": 316,
@@ -2525,7 +2840,8 @@
     "PokeAPI_id": 316,
     "PokeAPI_name": "Gulpin",
     "Pokemondb_name": "Gulpin",
-    "frontend_name": "Gulpin"
+    "frontend_name": "Gulpin",
+    "hidden_ability": "true"
   },
   {
     "id": 317,
@@ -2533,7 +2849,8 @@
     "PokeAPI_id": 317,
     "PokeAPI_name": "Swalot",
     "Pokemondb_name": "Swalot",
-    "frontend_name": "Swalot"
+    "frontend_name": "Swalot",
+    "hidden_ability": "true"
   },
   {
     "id": 318,
@@ -2541,7 +2858,8 @@
     "PokeAPI_id": 318,
     "PokeAPI_name": "Carvanha",
     "Pokemondb_name": "Carvanha",
-    "frontend_name": "Carvanha"
+    "frontend_name": "Carvanha",
+    "hidden_ability": "true"
   },
   {
     "id": 319,
@@ -2549,7 +2867,8 @@
     "PokeAPI_id": 319,
     "PokeAPI_name": "Sharpedo",
     "Pokemondb_name": "Sharpedo",
-    "frontend_name": "Sharpedo"
+    "frontend_name": "Sharpedo",
+    "hidden_ability": "true"
   },
   {
     "id": 320,
@@ -2557,7 +2876,8 @@
     "PokeAPI_id": 320,
     "PokeAPI_name": "Wailmer",
     "Pokemondb_name": "Wailmer",
-    "frontend_name": "Wailmer"
+    "frontend_name": "Wailmer",
+    "hidden_ability": "true"
   },
   {
     "id": 321,
@@ -2565,7 +2885,8 @@
     "PokeAPI_id": 321,
     "PokeAPI_name": "Wailord",
     "Pokemondb_name": "Wailord",
-    "frontend_name": "Wailord"
+    "frontend_name": "Wailord",
+    "hidden_ability": "true"
   },
   {
     "id": 322,
@@ -2573,7 +2894,8 @@
     "PokeAPI_id": 322,
     "PokeAPI_name": "Numel",
     "Pokemondb_name": "Numel",
-    "frontend_name": "Numel"
+    "frontend_name": "Numel",
+    "hidden_ability": "true"
   },
   {
     "id": 323,
@@ -2581,7 +2903,8 @@
     "PokeAPI_id": 323,
     "PokeAPI_name": "Camerupt",
     "Pokemondb_name": "Camerupt",
-    "frontend_name": "Camerupt"
+    "frontend_name": "Camerupt",
+    "hidden_ability": "true"
   },
   {
     "id": 324,
@@ -2589,7 +2912,8 @@
     "PokeAPI_id": 324,
     "PokeAPI_name": "Torkoal",
     "Pokemondb_name": "Torkoal",
-    "frontend_name": "Torkoal"
+    "frontend_name": "Torkoal",
+    "hidden_ability": "true"
   },
   {
     "id": 325,
@@ -2597,7 +2921,8 @@
     "PokeAPI_id": 325,
     "PokeAPI_name": "Spoink",
     "Pokemondb_name": "Spoink",
-    "frontend_name": "Spoink"
+    "frontend_name": "Spoink",
+    "hidden_ability": "true"
   },
   {
     "id": 326,
@@ -2605,7 +2930,8 @@
     "PokeAPI_id": 326,
     "PokeAPI_name": "Grumpig",
     "Pokemondb_name": "Grumpig",
-    "frontend_name": "Grumpig"
+    "frontend_name": "Grumpig",
+    "hidden_ability": "true"
   },
   {
     "id": 327,
@@ -2613,7 +2939,8 @@
     "PokeAPI_id": 327,
     "PokeAPI_name": "Spinda",
     "Pokemondb_name": "Spinda",
-    "frontend_name": "Spinda"
+    "frontend_name": "Spinda",
+    "hidden_ability": "true"
   },
   {
     "id": 328,
@@ -2621,7 +2948,8 @@
     "PokeAPI_id": 328,
     "PokeAPI_name": "Trapinch",
     "Pokemondb_name": "Trapinch",
-    "frontend_name": "Trapinch"
+    "frontend_name": "Trapinch",
+    "hidden_ability": "true"
   },
   {
     "id": 329,
@@ -2629,7 +2957,8 @@
     "PokeAPI_id": 329,
     "PokeAPI_name": "Vibrava",
     "Pokemondb_name": "Vibrava",
-    "frontend_name": "Vibrava"
+    "frontend_name": "Vibrava",
+    "hidden_ability": "false"
   },
   {
     "id": 330,
@@ -2637,7 +2966,8 @@
     "PokeAPI_id": 330,
     "PokeAPI_name": "Flygon",
     "Pokemondb_name": "Flygon",
-    "frontend_name": "Flygon"
+    "frontend_name": "Flygon",
+    "hidden_ability": "false"
   },
   {
     "id": 331,
@@ -2645,7 +2975,8 @@
     "PokeAPI_id": 331,
     "PokeAPI_name": "Cacnea",
     "Pokemondb_name": "Cacnea",
-    "frontend_name": "Cacnea"
+    "frontend_name": "Cacnea",
+    "hidden_ability": "true"
   },
   {
     "id": 332,
@@ -2653,7 +2984,8 @@
     "PokeAPI_id": 332,
     "PokeAPI_name": "Cacturne",
     "Pokemondb_name": "Cacturne",
-    "frontend_name": "Cacturne"
+    "frontend_name": "Cacturne",
+    "hidden_ability": "true"
   },
   {
     "id": 333,
@@ -2661,7 +2993,8 @@
     "PokeAPI_id": 333,
     "PokeAPI_name": "Swablu",
     "Pokemondb_name": "Swablu",
-    "frontend_name": "Swablu"
+    "frontend_name": "Swablu",
+    "hidden_ability": "true"
   },
   {
     "id": 334,
@@ -2669,7 +3002,8 @@
     "PokeAPI_id": 334,
     "PokeAPI_name": "Altaria",
     "Pokemondb_name": "Altaria",
-    "frontend_name": "Altaria"
+    "frontend_name": "Altaria",
+    "hidden_ability": "true"
   },
   {
     "id": 335,
@@ -2677,7 +3011,8 @@
     "PokeAPI_id": 335,
     "PokeAPI_name": "Zangoose",
     "Pokemondb_name": "Zangoose",
-    "frontend_name": "Zangoose"
+    "frontend_name": "Zangoose",
+    "hidden_ability": "true"
   },
   {
     "id": 336,
@@ -2685,7 +3020,8 @@
     "PokeAPI_id": 336,
     "PokeAPI_name": "Seviper",
     "Pokemondb_name": "Seviper",
-    "frontend_name": "Seviper"
+    "frontend_name": "Seviper",
+    "hidden_ability": "true"
   },
   {
     "id": 337,
@@ -2693,7 +3029,8 @@
     "PokeAPI_id": 337,
     "PokeAPI_name": "Lunatone",
     "Pokemondb_name": "Lunatone",
-    "frontend_name": "Lunatone"
+    "frontend_name": "Lunatone",
+    "hidden_ability": "false"
   },
   {
     "id": 338,
@@ -2701,7 +3038,8 @@
     "PokeAPI_id": 338,
     "PokeAPI_name": "Solrock",
     "Pokemondb_name": "Solrock",
-    "frontend_name": "Solrock"
+    "frontend_name": "Solrock",
+    "hidden_ability": "false"
   },
   {
     "id": 339,
@@ -2709,7 +3047,8 @@
     "PokeAPI_id": 339,
     "PokeAPI_name": "Barboach",
     "Pokemondb_name": "Barboach",
-    "frontend_name": "Barboach"
+    "frontend_name": "Barboach",
+    "hidden_ability": "true"
   },
   {
     "id": 340,
@@ -2717,7 +3056,8 @@
     "PokeAPI_id": 340,
     "PokeAPI_name": "Whiscash",
     "Pokemondb_name": "Whiscash",
-    "frontend_name": "Whiscash"
+    "frontend_name": "Whiscash",
+    "hidden_ability": "true"
   },
   {
     "id": 341,
@@ -2725,7 +3065,8 @@
     "PokeAPI_id": 341,
     "PokeAPI_name": "Corphish",
     "Pokemondb_name": "Corphish",
-    "frontend_name": "Corphish"
+    "frontend_name": "Corphish",
+    "hidden_ability": "true"
   },
   {
     "id": 342,
@@ -2733,7 +3074,8 @@
     "PokeAPI_id": 342,
     "PokeAPI_name": "Crawdaunt",
     "Pokemondb_name": "Crawdaunt",
-    "frontend_name": "Crawdaunt"
+    "frontend_name": "Crawdaunt",
+    "hidden_ability": "true"
   },
   {
     "id": 343,
@@ -2741,7 +3083,8 @@
     "PokeAPI_id": 343,
     "PokeAPI_name": "Baltoy",
     "Pokemondb_name": "Baltoy",
-    "frontend_name": "Baltoy"
+    "frontend_name": "Baltoy",
+    "hidden_ability": "false"
   },
   {
     "id": 344,
@@ -2749,7 +3092,8 @@
     "PokeAPI_id": 344,
     "PokeAPI_name": "Claydol",
     "Pokemondb_name": "Claydol",
-    "frontend_name": "Claydol"
+    "frontend_name": "Claydol",
+    "hidden_ability": "false"
   },
   {
     "id": 345,
@@ -2757,7 +3101,8 @@
     "PokeAPI_id": 345,
     "PokeAPI_name": "Lileep",
     "Pokemondb_name": "Lileep",
-    "frontend_name": "Lileep"
+    "frontend_name": "Lileep",
+    "hidden_ability": "true"
   },
   {
     "id": 346,
@@ -2765,7 +3110,8 @@
     "PokeAPI_id": 346,
     "PokeAPI_name": "Cradily",
     "Pokemondb_name": "Cradily",
-    "frontend_name": "Cradily"
+    "frontend_name": "Cradily",
+    "hidden_ability": "true"
   },
   {
     "id": 347,
@@ -2773,7 +3119,8 @@
     "PokeAPI_id": 347,
     "PokeAPI_name": "Anorith",
     "Pokemondb_name": "Anorith",
-    "frontend_name": "Anorith"
+    "frontend_name": "Anorith",
+    "hidden_ability": "true"
   },
   {
     "id": 348,
@@ -2781,7 +3128,8 @@
     "PokeAPI_id": 348,
     "PokeAPI_name": "Armaldo",
     "Pokemondb_name": "Armaldo",
-    "frontend_name": "Armaldo"
+    "frontend_name": "Armaldo",
+    "hidden_ability": "true"
   },
   {
     "id": 349,
@@ -2789,7 +3137,8 @@
     "PokeAPI_id": 349,
     "PokeAPI_name": "Feebas",
     "Pokemondb_name": "Feebas",
-    "frontend_name": "Feebas"
+    "frontend_name": "Feebas",
+    "hidden_ability": "true"
   },
   {
     "id": 350,
@@ -2797,7 +3146,8 @@
     "PokeAPI_id": 350,
     "PokeAPI_name": "Milotic",
     "Pokemondb_name": "Milotic",
-    "frontend_name": "Milotic"
+    "frontend_name": "Milotic",
+    "hidden_ability": "true"
   },
   {
     "id": 351,
@@ -2805,7 +3155,8 @@
     "PokeAPI_id": 351,
     "PokeAPI_name": "Castform",
     "Pokemondb_name": "Castform",
-    "frontend_name": "Castform"
+    "frontend_name": "Castform",
+    "hidden_ability": "false"
   },
   {
     "id": 352,
@@ -2813,7 +3164,8 @@
     "PokeAPI_id": 352,
     "PokeAPI_name": "Kecleon",
     "Pokemondb_name": "Kecleon",
-    "frontend_name": "Kecleon"
+    "frontend_name": "Kecleon",
+    "hidden_ability": "true"
   },
   {
     "id": 353,
@@ -2821,7 +3173,8 @@
     "PokeAPI_id": 353,
     "PokeAPI_name": "Shuppet",
     "Pokemondb_name": "Shuppet",
-    "frontend_name": "Shuppet"
+    "frontend_name": "Shuppet",
+    "hidden_ability": "true"
   },
   {
     "id": 354,
@@ -2829,7 +3182,8 @@
     "PokeAPI_id": 354,
     "PokeAPI_name": "Banette",
     "Pokemondb_name": "Banette",
-    "frontend_name": "Banette"
+    "frontend_name": "Banette",
+    "hidden_ability": "true"
   },
   {
     "id": 355,
@@ -2837,7 +3191,8 @@
     "PokeAPI_id": 355,
     "PokeAPI_name": "Duskull",
     "Pokemondb_name": "Duskull",
-    "frontend_name": "Duskull"
+    "frontend_name": "Duskull",
+    "hidden_ability": "true"
   },
   {
     "id": 356,
@@ -2845,7 +3200,8 @@
     "PokeAPI_id": 356,
     "PokeAPI_name": "Dusclops",
     "Pokemondb_name": "Dusclops",
-    "frontend_name": "Dusclops"
+    "frontend_name": "Dusclops",
+    "hidden_ability": "true"
   },
   {
     "id": 357,
@@ -2853,7 +3209,8 @@
     "PokeAPI_id": 357,
     "PokeAPI_name": "Tropius",
     "Pokemondb_name": "Tropius",
-    "frontend_name": "Tropius"
+    "frontend_name": "Tropius",
+    "hidden_ability": "true"
   },
   {
     "id": 358,
@@ -2861,7 +3218,8 @@
     "PokeAPI_id": 358,
     "PokeAPI_name": "Chimecho",
     "Pokemondb_name": "Chimecho",
-    "frontend_name": "Chimecho"
+    "frontend_name": "Chimecho",
+    "hidden_ability": "false"
   },
   {
     "id": 359,
@@ -2869,7 +3227,8 @@
     "PokeAPI_id": 359,
     "PokeAPI_name": "Absol",
     "Pokemondb_name": "Absol",
-    "frontend_name": "Absol"
+    "frontend_name": "Absol",
+    "hidden_ability": "true"
   },
   {
     "id": 360,
@@ -2877,7 +3236,8 @@
     "PokeAPI_id": 360,
     "PokeAPI_name": "Wynaut",
     "Pokemondb_name": "Wynaut",
-    "frontend_name": "Wynaut"
+    "frontend_name": "Wynaut",
+    "hidden_ability": "true"
   },
   {
     "id": 361,
@@ -2885,7 +3245,8 @@
     "PokeAPI_id": 361,
     "PokeAPI_name": "Snorunt",
     "Pokemondb_name": "Snorunt",
-    "frontend_name": "Snorunt"
+    "frontend_name": "Snorunt",
+    "hidden_ability": "true"
   },
   {
     "id": 362,
@@ -2893,7 +3254,8 @@
     "PokeAPI_id": 362,
     "PokeAPI_name": "Glalie",
     "Pokemondb_name": "Glalie",
-    "frontend_name": "Glalie"
+    "frontend_name": "Glalie",
+    "hidden_ability": "true"
   },
   {
     "id": 363,
@@ -2901,7 +3263,8 @@
     "PokeAPI_id": 363,
     "PokeAPI_name": "Spheal",
     "Pokemondb_name": "Spheal",
-    "frontend_name": "Spheal"
+    "frontend_name": "Spheal",
+    "hidden_ability": "true"
   },
   {
     "id": 364,
@@ -2909,7 +3272,8 @@
     "PokeAPI_id": 364,
     "PokeAPI_name": "Sealeo",
     "Pokemondb_name": "Sealeo",
-    "frontend_name": "Sealeo"
+    "frontend_name": "Sealeo",
+    "hidden_ability": "true"
   },
   {
     "id": 365,
@@ -2917,7 +3281,8 @@
     "PokeAPI_id": 365,
     "PokeAPI_name": "Walrein",
     "Pokemondb_name": "Walrein",
-    "frontend_name": "Walrein"
+    "frontend_name": "Walrein",
+    "hidden_ability": "true"
   },
   {
     "id": 366,
@@ -2925,7 +3290,8 @@
     "PokeAPI_id": 366,
     "PokeAPI_name": "Clamperl",
     "Pokemondb_name": "Clamperl",
-    "frontend_name": "Clamperl"
+    "frontend_name": "Clamperl",
+    "hidden_ability": "true"
   },
   {
     "id": 367,
@@ -2933,7 +3299,8 @@
     "PokeAPI_id": 367,
     "PokeAPI_name": "Huntail",
     "Pokemondb_name": "Huntail",
-    "frontend_name": "Huntail"
+    "frontend_name": "Huntail",
+    "hidden_ability": "true"
   },
   {
     "id": 368,
@@ -2941,7 +3308,8 @@
     "PokeAPI_id": 368,
     "PokeAPI_name": "Gorebyss",
     "Pokemondb_name": "Gorebyss",
-    "frontend_name": "Gorebyss"
+    "frontend_name": "Gorebyss",
+    "hidden_ability": "true"
   },
   {
     "id": 369,
@@ -2949,7 +3317,8 @@
     "PokeAPI_id": 369,
     "PokeAPI_name": "Relicanth",
     "Pokemondb_name": "Relicanth",
-    "frontend_name": "Relicanth"
+    "frontend_name": "Relicanth",
+    "hidden_ability": "true"
   },
   {
     "id": 370,
@@ -2957,7 +3326,8 @@
     "PokeAPI_id": 370,
     "PokeAPI_name": "Luvdisc",
     "Pokemondb_name": "Luvdisc",
-    "frontend_name": "Luvdisc"
+    "frontend_name": "Luvdisc",
+    "hidden_ability": "true"
   },
   {
     "id": 371,
@@ -2965,7 +3335,8 @@
     "PokeAPI_id": 371,
     "PokeAPI_name": "Bagon",
     "Pokemondb_name": "Bagon",
-    "frontend_name": "Bagon"
+    "frontend_name": "Bagon",
+    "hidden_ability": "true"
   },
   {
     "id": 372,
@@ -2973,7 +3344,8 @@
     "PokeAPI_id": 372,
     "PokeAPI_name": "Shelgon",
     "Pokemondb_name": "Shelgon",
-    "frontend_name": "Shelgon"
+    "frontend_name": "Shelgon",
+    "hidden_ability": "true"
   },
   {
     "id": 373,
@@ -2981,7 +3353,8 @@
     "PokeAPI_id": 373,
     "PokeAPI_name": "Salamence",
     "Pokemondb_name": "Salamence",
-    "frontend_name": "Salamence"
+    "frontend_name": "Salamence",
+    "hidden_ability": "true"
   },
   {
     "id": 374,
@@ -2989,7 +3362,8 @@
     "PokeAPI_id": 374,
     "PokeAPI_name": "Beldum",
     "Pokemondb_name": "Beldum",
-    "frontend_name": "Beldum"
+    "frontend_name": "Beldum",
+    "hidden_ability": "true"
   },
   {
     "id": 375,
@@ -2997,7 +3371,8 @@
     "PokeAPI_id": 375,
     "PokeAPI_name": "Metang",
     "Pokemondb_name": "Metang",
-    "frontend_name": "Metang"
+    "frontend_name": "Metang",
+    "hidden_ability": "true"
   },
   {
     "id": 376,
@@ -3005,7 +3380,8 @@
     "PokeAPI_id": 376,
     "PokeAPI_name": "Metagross",
     "Pokemondb_name": "Metagross",
-    "frontend_name": "Metagross"
+    "frontend_name": "Metagross",
+    "hidden_ability": "true"
   },
   {
     "id": 377,
@@ -3013,7 +3389,8 @@
     "PokeAPI_id": 377,
     "PokeAPI_name": "Regirock",
     "Pokemondb_name": "Regirock",
-    "frontend_name": "Regirock"
+    "frontend_name": "Regirock",
+    "hidden_ability": "true"
   },
   {
     "id": 378,
@@ -3021,7 +3398,8 @@
     "PokeAPI_id": 378,
     "PokeAPI_name": "Regice",
     "Pokemondb_name": "Regice",
-    "frontend_name": "Regice"
+    "frontend_name": "Regice",
+    "hidden_ability": "true"
   },
   {
     "id": 379,
@@ -3029,7 +3407,8 @@
     "PokeAPI_id": 379,
     "PokeAPI_name": "Registeel",
     "Pokemondb_name": "Registeel",
-    "frontend_name": "Registeel"
+    "frontend_name": "Registeel",
+    "hidden_ability": "true"
   },
   {
     "id": 380,
@@ -3037,7 +3416,8 @@
     "PokeAPI_id": 380,
     "PokeAPI_name": "Latias",
     "Pokemondb_name": "Latias",
-    "frontend_name": "Latias"
+    "frontend_name": "Latias",
+    "hidden_ability": "false"
   },
   {
     "id": 381,
@@ -3045,7 +3425,8 @@
     "PokeAPI_id": 381,
     "PokeAPI_name": "Latios",
     "Pokemondb_name": "Latios",
-    "frontend_name": "Latios"
+    "frontend_name": "Latios",
+    "hidden_ability": "false"
   },
   {
     "id": 382,
@@ -3053,7 +3434,8 @@
     "PokeAPI_id": 382,
     "PokeAPI_name": "Kyogre",
     "Pokemondb_name": "Kyogre",
-    "frontend_name": "Kyogre"
+    "frontend_name": "Kyogre",
+    "hidden_ability": "false"
   },
   {
     "id": 383,
@@ -3061,7 +3443,8 @@
     "PokeAPI_id": 383,
     "PokeAPI_name": "Groudon",
     "Pokemondb_name": "Groudon",
-    "frontend_name": "Groudon"
+    "frontend_name": "Groudon",
+    "hidden_ability": "false"
   },
   {
     "id": 384,
@@ -3069,7 +3452,8 @@
     "PokeAPI_id": 384,
     "PokeAPI_name": "Rayquaza",
     "Pokemondb_name": "Rayquaza",
-    "frontend_name": "Rayquaza"
+    "frontend_name": "Rayquaza",
+    "hidden_ability": "false"
   },
   {
     "id": 385,
@@ -3077,7 +3461,8 @@
     "PokeAPI_id": 385,
     "PokeAPI_name": "Jirachi",
     "Pokemondb_name": "Jirachi",
-    "frontend_name": "Jirachi"
+    "frontend_name": "Jirachi",
+    "hidden_ability": "false"
   },
   {
     "id": 386,
@@ -3085,7 +3470,8 @@
     "PokeAPI_id": 386,
     "PokeAPI_name": "Deoxys",
     "Pokemondb_name": "Deoxys",
-    "frontend_name": "Deoxys"
+    "frontend_name": "Deoxys",
+    "hidden_ability": "false"
   },
   {
     "id": 387,
@@ -3093,7 +3479,8 @@
     "PokeAPI_id": 387,
     "PokeAPI_name": "Turtwig",
     "Pokemondb_name": "Turtwig",
-    "frontend_name": "Turtwig"
+    "frontend_name": "Turtwig",
+    "hidden_ability": "true"
   },
   {
     "id": 388,
@@ -3101,7 +3488,8 @@
     "PokeAPI_id": 388,
     "PokeAPI_name": "Grotle",
     "Pokemondb_name": "Grotle",
-    "frontend_name": "Grotle"
+    "frontend_name": "Grotle",
+    "hidden_ability": "true"
   },
   {
     "id": 389,
@@ -3109,7 +3497,8 @@
     "PokeAPI_id": 389,
     "PokeAPI_name": "Torterra",
     "Pokemondb_name": "Torterra",
-    "frontend_name": "Torterra"
+    "frontend_name": "Torterra",
+    "hidden_ability": "true"
   },
   {
     "id": 390,
@@ -3117,7 +3506,8 @@
     "PokeAPI_id": 390,
     "PokeAPI_name": "Chimchar",
     "Pokemondb_name": "Chimchar",
-    "frontend_name": "Chimchar"
+    "frontend_name": "Chimchar",
+    "hidden_ability": "true"
   },
   {
     "id": 391,
@@ -3125,7 +3515,8 @@
     "PokeAPI_id": 391,
     "PokeAPI_name": "Monferno",
     "Pokemondb_name": "Monferno",
-    "frontend_name": "Monferno"
+    "frontend_name": "Monferno",
+    "hidden_ability": "true"
   },
   {
     "id": 392,
@@ -3133,7 +3524,8 @@
     "PokeAPI_id": 392,
     "PokeAPI_name": "Infernape",
     "Pokemondb_name": "Infernape",
-    "frontend_name": "Infernape"
+    "frontend_name": "Infernape",
+    "hidden_ability": "true"
   },
   {
     "id": 393,
@@ -3141,7 +3533,8 @@
     "PokeAPI_id": 393,
     "PokeAPI_name": "Piplup",
     "Pokemondb_name": "Piplup",
-    "frontend_name": "Piplup"
+    "frontend_name": "Piplup",
+    "hidden_ability": "true"
   },
   {
     "id": 394,
@@ -3149,7 +3542,8 @@
     "PokeAPI_id": 394,
     "PokeAPI_name": "Prinplup",
     "Pokemondb_name": "Prinplup",
-    "frontend_name": "Prinplup"
+    "frontend_name": "Prinplup",
+    "hidden_ability": "true"
   },
   {
     "id": 395,
@@ -3157,7 +3551,8 @@
     "PokeAPI_id": 395,
     "PokeAPI_name": "Empoleon",
     "Pokemondb_name": "Empoleon",
-    "frontend_name": "Empoleon"
+    "frontend_name": "Empoleon",
+    "hidden_ability": "true"
   },
   {
     "id": 396,
@@ -3165,7 +3560,8 @@
     "PokeAPI_id": 396,
     "PokeAPI_name": "Starly",
     "Pokemondb_name": "Starly",
-    "frontend_name": "Starly"
+    "frontend_name": "Starly",
+    "hidden_ability": "true"
   },
   {
     "id": 397,
@@ -3173,7 +3569,8 @@
     "PokeAPI_id": 397,
     "PokeAPI_name": "Staravia",
     "Pokemondb_name": "Staravia",
-    "frontend_name": "Staravia"
+    "frontend_name": "Staravia",
+    "hidden_ability": "true"
   },
   {
     "id": 398,
@@ -3181,7 +3578,8 @@
     "PokeAPI_id": 398,
     "PokeAPI_name": "Staraptor",
     "Pokemondb_name": "Staraptor",
-    "frontend_name": "Staraptor"
+    "frontend_name": "Staraptor",
+    "hidden_ability": "true"
   },
   {
     "id": 399,
@@ -3189,7 +3587,8 @@
     "PokeAPI_id": 399,
     "PokeAPI_name": "Bidoof",
     "Pokemondb_name": "Bidoof",
-    "frontend_name": "Bidoof"
+    "frontend_name": "Bidoof",
+    "hidden_ability": "true"
   },
   {
     "id": 400,
@@ -3197,7 +3596,8 @@
     "PokeAPI_id": 400,
     "PokeAPI_name": "Bibarel",
     "Pokemondb_name": "Bibarel",
-    "frontend_name": "Bibarel"
+    "frontend_name": "Bibarel",
+    "hidden_ability": "true"
   },
   {
     "id": 401,
@@ -3205,7 +3605,8 @@
     "PokeAPI_id": 401,
     "PokeAPI_name": "Kricketot",
     "Pokemondb_name": "Kricketot",
-    "frontend_name": "Kricketot"
+    "frontend_name": "Kricketot",
+    "hidden_ability": "true"
   },
   {
     "id": 402,
@@ -3213,7 +3614,8 @@
     "PokeAPI_id": 402,
     "PokeAPI_name": "Kricketune",
     "Pokemondb_name": "Kricketune",
-    "frontend_name": "Kricketune"
+    "frontend_name": "Kricketune",
+    "hidden_ability": "true"
   },
   {
     "id": 403,
@@ -3221,7 +3623,8 @@
     "PokeAPI_id": 403,
     "PokeAPI_name": "Shinx",
     "Pokemondb_name": "Shinx",
-    "frontend_name": "Shinx"
+    "frontend_name": "Shinx",
+    "hidden_ability": "true"
   },
   {
     "id": 404,
@@ -3229,7 +3632,8 @@
     "PokeAPI_id": 404,
     "PokeAPI_name": "Luxio",
     "Pokemondb_name": "Luxio",
-    "frontend_name": "Luxio"
+    "frontend_name": "Luxio",
+    "hidden_ability": "true"
   },
   {
     "id": 405,
@@ -3237,7 +3641,8 @@
     "PokeAPI_id": 405,
     "PokeAPI_name": "Luxray",
     "Pokemondb_name": "Luxray",
-    "frontend_name": "Luxray"
+    "frontend_name": "Luxray",
+    "hidden_ability": "true"
   },
   {
     "id": 406,
@@ -3245,7 +3650,8 @@
     "PokeAPI_id": 406,
     "PokeAPI_name": "Budew",
     "Pokemondb_name": "Budew",
-    "frontend_name": "Budew"
+    "frontend_name": "Budew",
+    "hidden_ability": "true"
   },
   {
     "id": 407,
@@ -3253,7 +3659,8 @@
     "PokeAPI_id": 407,
     "PokeAPI_name": "Roserade",
     "Pokemondb_name": "Roserade",
-    "frontend_name": "Roserade"
+    "frontend_name": "Roserade",
+    "hidden_ability": "true"
   },
   {
     "id": 408,
@@ -3261,7 +3668,8 @@
     "PokeAPI_id": 408,
     "PokeAPI_name": "Cranidos",
     "Pokemondb_name": "Cranidos",
-    "frontend_name": "Cranidos"
+    "frontend_name": "Cranidos",
+    "hidden_ability": "true"
   },
   {
     "id": 409,
@@ -3269,7 +3677,8 @@
     "PokeAPI_id": 409,
     "PokeAPI_name": "Rampardos",
     "Pokemondb_name": "Rampardos",
-    "frontend_name": "Rampardos"
+    "frontend_name": "Rampardos",
+    "hidden_ability": "true"
   },
   {
     "id": 410,
@@ -3277,7 +3686,8 @@
     "PokeAPI_id": 410,
     "PokeAPI_name": "Shieldon",
     "Pokemondb_name": "Shieldon",
-    "frontend_name": "Shieldon"
+    "frontend_name": "Shieldon",
+    "hidden_ability": "true"
   },
   {
     "id": 411,
@@ -3285,7 +3695,8 @@
     "PokeAPI_id": 411,
     "PokeAPI_name": "Bastiodon",
     "Pokemondb_name": "Bastiodon",
-    "frontend_name": "Bastiodon"
+    "frontend_name": "Bastiodon",
+    "hidden_ability": "true"
   },
   {
     "id": 412,
@@ -3293,7 +3704,8 @@
     "PokeAPI_id": 412,
     "PokeAPI_name": "Burmy",
     "Pokemondb_name": "Burmy",
-    "frontend_name": "Burmy"
+    "frontend_name": "Burmy",
+    "hidden_ability": "true"
   },
   {
     "id": 413,
@@ -3301,7 +3713,8 @@
     "PokeAPI_id": 413,
     "PokeAPI_name": "Wormadam",
     "Pokemondb_name": "Wormadam",
-    "frontend_name": "Wormadam"
+    "frontend_name": "Wormadam",
+    "hidden_ability": "false"
   },
   {
     "id": 414,
@@ -3309,7 +3722,8 @@
     "PokeAPI_id": 414,
     "PokeAPI_name": "Mothim",
     "Pokemondb_name": "Mothim",
-    "frontend_name": "Mothim"
+    "frontend_name": "Mothim",
+    "hidden_ability": "true"
   },
   {
     "id": 415,
@@ -3317,7 +3731,8 @@
     "PokeAPI_id": 415,
     "PokeAPI_name": "Combee",
     "Pokemondb_name": "Combee",
-    "frontend_name": "Combee"
+    "frontend_name": "Combee",
+    "hidden_ability": "true"
   },
   {
     "id": 416,
@@ -3325,7 +3740,8 @@
     "PokeAPI_id": 416,
     "PokeAPI_name": "Vespiquen",
     "Pokemondb_name": "Vespiquen",
-    "frontend_name": "Vespiquen"
+    "frontend_name": "Vespiquen",
+    "hidden_ability": "true"
   },
   {
     "id": 417,
@@ -3333,7 +3749,8 @@
     "PokeAPI_id": 417,
     "PokeAPI_name": "Pachirisu",
     "Pokemondb_name": "Pachirisu",
-    "frontend_name": "Pachirisu"
+    "frontend_name": "Pachirisu",
+    "hidden_ability": "true"
   },
   {
     "id": 418,
@@ -3341,7 +3758,8 @@
     "PokeAPI_id": 418,
     "PokeAPI_name": "Buizel",
     "Pokemondb_name": "Buizel",
-    "frontend_name": "Buizel"
+    "frontend_name": "Buizel",
+    "hidden_ability": "true"
   },
   {
     "id": 419,
@@ -3349,7 +3767,8 @@
     "PokeAPI_id": 419,
     "PokeAPI_name": "Floatzel",
     "Pokemondb_name": "Floatzel",
-    "frontend_name": "Floatzel"
+    "frontend_name": "Floatzel",
+    "hidden_ability": "true"
   },
   {
     "id": 420,
@@ -3357,7 +3776,8 @@
     "PokeAPI_id": 420,
     "PokeAPI_name": "Cherubi",
     "Pokemondb_name": "Cherubi",
-    "frontend_name": "Cherubi"
+    "frontend_name": "Cherubi",
+    "hidden_ability": "false"
   },
   {
     "id": 421,
@@ -3365,7 +3785,8 @@
     "PokeAPI_id": 421,
     "PokeAPI_name": "Cherrim",
     "Pokemondb_name": "Cherrim",
-    "frontend_name": "Cherrim"
+    "frontend_name": "Cherrim",
+    "hidden_ability": "false"
   },
   {
     "id": 422,
@@ -3373,7 +3794,8 @@
     "PokeAPI_id": 422,
     "PokeAPI_name": "Shellos",
     "Pokemondb_name": "Shellos",
-    "frontend_name": "Shellos"
+    "frontend_name": "Shellos",
+    "hidden_ability": "true"
   },
   {
     "id": 423,
@@ -3381,7 +3803,8 @@
     "PokeAPI_id": 423,
     "PokeAPI_name": "Gastrodon",
     "Pokemondb_name": "Gastrodon",
-    "frontend_name": "Gastrodon"
+    "frontend_name": "Gastrodon",
+    "hidden_ability": "true"
   },
   {
     "id": 424,
@@ -3389,7 +3812,8 @@
     "PokeAPI_id": 424,
     "PokeAPI_name": "Ambipom",
     "Pokemondb_name": "Ambipom",
-    "frontend_name": "Ambipom"
+    "frontend_name": "Ambipom",
+    "hidden_ability": "true"
   },
   {
     "id": 425,
@@ -3397,7 +3821,8 @@
     "PokeAPI_id": 425,
     "PokeAPI_name": "Drifloon",
     "Pokemondb_name": "Drifloon",
-    "frontend_name": "Drifloon"
+    "frontend_name": "Drifloon",
+    "hidden_ability": "true"
   },
   {
     "id": 426,
@@ -3405,7 +3830,8 @@
     "PokeAPI_id": 426,
     "PokeAPI_name": "Drifblim",
     "Pokemondb_name": "Drifblim",
-    "frontend_name": "Drifblim"
+    "frontend_name": "Drifblim",
+    "hidden_ability": "true"
   },
   {
     "id": 427,
@@ -3413,7 +3839,8 @@
     "PokeAPI_id": 427,
     "PokeAPI_name": "Buneary",
     "Pokemondb_name": "Buneary",
-    "frontend_name": "Buneary"
+    "frontend_name": "Buneary",
+    "hidden_ability": "true"
   },
   {
     "id": 428,
@@ -3421,7 +3848,8 @@
     "PokeAPI_id": 428,
     "PokeAPI_name": "Lopunny",
     "Pokemondb_name": "Lopunny",
-    "frontend_name": "Lopunny"
+    "frontend_name": "Lopunny",
+    "hidden_ability": "true"
   },
   {
     "id": 429,
@@ -3429,7 +3857,8 @@
     "PokeAPI_id": 429,
     "PokeAPI_name": "Mismagius",
     "Pokemondb_name": "Mismagius",
-    "frontend_name": "Mismagius"
+    "frontend_name": "Mismagius",
+    "hidden_ability": "false"
   },
   {
     "id": 430,
@@ -3437,7 +3866,8 @@
     "PokeAPI_id": 430,
     "PokeAPI_name": "Honchkrow",
     "Pokemondb_name": "Honchkrow",
-    "frontend_name": "Honchkrow"
+    "frontend_name": "Honchkrow",
+    "hidden_ability": "true"
   },
   {
     "id": 431,
@@ -3445,7 +3875,8 @@
     "PokeAPI_id": 431,
     "PokeAPI_name": "Glameow",
     "Pokemondb_name": "Glameow",
-    "frontend_name": "Glameow"
+    "frontend_name": "Glameow",
+    "hidden_ability": "true"
   },
   {
     "id": 432,
@@ -3453,7 +3884,8 @@
     "PokeAPI_id": 432,
     "PokeAPI_name": "Purugly",
     "Pokemondb_name": "Purugly",
-    "frontend_name": "Purugly"
+    "frontend_name": "Purugly",
+    "hidden_ability": "true"
   },
   {
     "id": 433,
@@ -3461,7 +3893,8 @@
     "PokeAPI_id": 433,
     "PokeAPI_name": "Chingling",
     "Pokemondb_name": "Chingling",
-    "frontend_name": "Chingling"
+    "frontend_name": "Chingling",
+    "hidden_ability": "false"
   },
   {
     "id": 434,
@@ -3469,7 +3902,8 @@
     "PokeAPI_id": 434,
     "PokeAPI_name": "Stunky",
     "Pokemondb_name": "Stunky",
-    "frontend_name": "Stunky"
+    "frontend_name": "Stunky",
+    "hidden_ability": "true"
   },
   {
     "id": 435,
@@ -3477,7 +3911,8 @@
     "PokeAPI_id": 435,
     "PokeAPI_name": "Skuntank",
     "Pokemondb_name": "Skuntank",
-    "frontend_name": "Skuntank"
+    "frontend_name": "Skuntank",
+    "hidden_ability": "true"
   },
   {
     "id": 436,
@@ -3485,7 +3920,8 @@
     "PokeAPI_id": 436,
     "PokeAPI_name": "Bronzor",
     "Pokemondb_name": "Bronzor",
-    "frontend_name": "Bronzor"
+    "frontend_name": "Bronzor",
+    "hidden_ability": "true"
   },
   {
     "id": 437,
@@ -3493,7 +3929,8 @@
     "PokeAPI_id": 437,
     "PokeAPI_name": "Bronzong",
     "Pokemondb_name": "Bronzong",
-    "frontend_name": "Bronzong"
+    "frontend_name": "Bronzong",
+    "hidden_ability": "true"
   },
   {
     "id": 438,
@@ -3501,7 +3938,8 @@
     "PokeAPI_id": 438,
     "PokeAPI_name": "Bonsly",
     "Pokemondb_name": "Bonsly",
-    "frontend_name": "Bonsly"
+    "frontend_name": "Bonsly",
+    "hidden_ability": "true"
   },
   {
     "id": 439,
@@ -3509,7 +3947,8 @@
     "PokeAPI_id": 439,
     "PokeAPI_name": "Mime Jr.",
     "Pokemondb_name": "Mime Jr.",
-    "frontend_name": "Mime Jr."
+    "frontend_name": "Mime Jr.",
+    "hidden_ability": "false"
   },
   {
     "id": 440,
@@ -3517,7 +3956,8 @@
     "PokeAPI_id": 440,
     "PokeAPI_name": "Happiny",
     "Pokemondb_name": "Happiny",
-    "frontend_name": "Happiny"
+    "frontend_name": "Happiny",
+    "hidden_ability": "true"
   },
   {
     "id": 441,
@@ -3525,7 +3965,8 @@
     "PokeAPI_id": 441,
     "PokeAPI_name": "Chatot",
     "Pokemondb_name": "Chatot",
-    "frontend_name": "Chatot"
+    "frontend_name": "Chatot",
+    "hidden_ability": "true"
   },
   {
     "id": 442,
@@ -3533,7 +3974,8 @@
     "PokeAPI_id": 442,
     "PokeAPI_name": "Spiritomb",
     "Pokemondb_name": "Spiritomb",
-    "frontend_name": "Spiritomb"
+    "frontend_name": "Spiritomb",
+    "hidden_ability": "true"
   },
   {
     "id": 443,
@@ -3541,7 +3983,8 @@
     "PokeAPI_id": 443,
     "PokeAPI_name": "Gible",
     "Pokemondb_name": "Gible",
-    "frontend_name": "Gible"
+    "frontend_name": "Gible",
+    "hidden_ability": "true"
   },
   {
     "id": 444,
@@ -3549,7 +3992,8 @@
     "PokeAPI_id": 444,
     "PokeAPI_name": "Gabite",
     "Pokemondb_name": "Gabite",
-    "frontend_name": "Gabite"
+    "frontend_name": "Gabite",
+    "hidden_ability": "true"
   },
   {
     "id": 445,
@@ -3557,7 +4001,8 @@
     "PokeAPI_id": 445,
     "PokeAPI_name": "Garchomp",
     "Pokemondb_name": "Garchomp",
-    "frontend_name": "Garchomp"
+    "frontend_name": "Garchomp",
+    "hidden_ability": "true"
   },
   {
     "id": 446,
@@ -3565,7 +4010,8 @@
     "PokeAPI_id": 446,
     "PokeAPI_name": "Munchlax",
     "Pokemondb_name": "Munchlax",
-    "frontend_name": "Munchlax"
+    "frontend_name": "Munchlax",
+    "hidden_ability": "true"
   },
   {
     "id": 447,
@@ -3573,7 +4019,8 @@
     "PokeAPI_id": 447,
     "PokeAPI_name": "Riolu",
     "Pokemondb_name": "Riolu",
-    "frontend_name": "Riolu"
+    "frontend_name": "Riolu",
+    "hidden_ability": "true"
   },
   {
     "id": 448,
@@ -3581,7 +4028,8 @@
     "PokeAPI_id": 448,
     "PokeAPI_name": "Lucario",
     "Pokemondb_name": "Lucario",
-    "frontend_name": "Lucario"
+    "frontend_name": "Lucario",
+    "hidden_ability": "true"
   },
   {
     "id": 449,
@@ -3589,7 +4037,8 @@
     "PokeAPI_id": 449,
     "PokeAPI_name": "Hippopotas",
     "Pokemondb_name": "Hippopotas",
-    "frontend_name": "Hippopotas"
+    "frontend_name": "Hippopotas",
+    "hidden_ability": "true"
   },
   {
     "id": 450,
@@ -3597,7 +4046,8 @@
     "PokeAPI_id": 450,
     "PokeAPI_name": "Hippowdon",
     "Pokemondb_name": "Hippowdon",
-    "frontend_name": "Hippowdon"
+    "frontend_name": "Hippowdon",
+    "hidden_ability": "true"
   },
   {
     "id": 451,
@@ -3605,7 +4055,8 @@
     "PokeAPI_id": 451,
     "PokeAPI_name": "Skorupi",
     "Pokemondb_name": "Skorupi",
-    "frontend_name": "Skorupi"
+    "frontend_name": "Skorupi",
+    "hidden_ability": "true"
   },
   {
     "id": 452,
@@ -3613,7 +4064,8 @@
     "PokeAPI_id": 452,
     "PokeAPI_name": "Drapion",
     "Pokemondb_name": "Drapion",
-    "frontend_name": "Drapion"
+    "frontend_name": "Drapion",
+    "hidden_ability": "true"
   },
   {
     "id": 453,
@@ -3621,7 +4073,8 @@
     "PokeAPI_id": 453,
     "PokeAPI_name": "Croagunk",
     "Pokemondb_name": "Croagunk",
-    "frontend_name": "Croagunk"
+    "frontend_name": "Croagunk",
+    "hidden_ability": "true"
   },
   {
     "id": 454,
@@ -3629,7 +4082,8 @@
     "PokeAPI_id": 454,
     "PokeAPI_name": "Toxicroak",
     "Pokemondb_name": "Toxicroak",
-    "frontend_name": "Toxicroak"
+    "frontend_name": "Toxicroak",
+    "hidden_ability": "true"
   },
   {
     "id": 455,
@@ -3637,7 +4091,8 @@
     "PokeAPI_id": 455,
     "PokeAPI_name": "Carnivine",
     "Pokemondb_name": "Carnivine",
-    "frontend_name": "Carnivine"
+    "frontend_name": "Carnivine",
+    "hidden_ability": "false"
   },
   {
     "id": 456,
@@ -3645,7 +4100,8 @@
     "PokeAPI_id": 456,
     "PokeAPI_name": "Finneon",
     "Pokemondb_name": "Finneon",
-    "frontend_name": "Finneon"
+    "frontend_name": "Finneon",
+    "hidden_ability": "true"
   },
   {
     "id": 457,
@@ -3653,7 +4109,8 @@
     "PokeAPI_id": 457,
     "PokeAPI_name": "Lumineon",
     "Pokemondb_name": "Lumineon",
-    "frontend_name": "Lumineon"
+    "frontend_name": "Lumineon",
+    "hidden_ability": "true"
   },
   {
     "id": 458,
@@ -3661,7 +4118,8 @@
     "PokeAPI_id": 458,
     "PokeAPI_name": "Mantyke",
     "Pokemondb_name": "Mantyke",
-    "frontend_name": "Mantyke"
+    "frontend_name": "Mantyke",
+    "hidden_ability": "true"
   },
   {
     "id": 459,
@@ -3669,7 +4127,8 @@
     "PokeAPI_id": 459,
     "PokeAPI_name": "Snover",
     "Pokemondb_name": "Snover",
-    "frontend_name": "Snover"
+    "frontend_name": "Snover",
+    "hidden_ability": "true"
   },
   {
     "id": 460,
@@ -3677,7 +4136,8 @@
     "PokeAPI_id": 460,
     "PokeAPI_name": "Abomasnow",
     "Pokemondb_name": "Abomasnow",
-    "frontend_name": "Abomasnow"
+    "frontend_name": "Abomasnow",
+    "hidden_ability": "true"
   },
   {
     "id": 461,
@@ -3685,7 +4145,8 @@
     "PokeAPI_id": 461,
     "PokeAPI_name": "Weavile",
     "Pokemondb_name": "Weavile",
-    "frontend_name": "Weavile"
+    "frontend_name": "Weavile",
+    "hidden_ability": "true"
   },
   {
     "id": 462,
@@ -3693,7 +4154,8 @@
     "PokeAPI_id": 462,
     "PokeAPI_name": "Magnezone",
     "Pokemondb_name": "Magnezone",
-    "frontend_name": "Magnezone"
+    "frontend_name": "Magnezone",
+    "hidden_ability": "true"
   },
   {
     "id": 463,
@@ -3701,7 +4163,8 @@
     "PokeAPI_id": 463,
     "PokeAPI_name": "Lickilicky",
     "Pokemondb_name": "Lickilicky",
-    "frontend_name": "Lickilicky"
+    "frontend_name": "Lickilicky",
+    "hidden_ability": "true"
   },
   {
     "id": 464,
@@ -3709,7 +4172,8 @@
     "PokeAPI_id": 464,
     "PokeAPI_name": "Rhyperior",
     "Pokemondb_name": "Rhyperior",
-    "frontend_name": "Rhyperior"
+    "frontend_name": "Rhyperior",
+    "hidden_ability": "true"
   },
   {
     "id": 465,
@@ -3717,7 +4181,8 @@
     "PokeAPI_id": 465,
     "PokeAPI_name": "Tangrowth",
     "Pokemondb_name": "Tangrowth",
-    "frontend_name": "Tangrowth"
+    "frontend_name": "Tangrowth",
+    "hidden_ability": "true"
   },
   {
     "id": 466,
@@ -3725,7 +4190,8 @@
     "PokeAPI_id": 466,
     "PokeAPI_name": "Electivire",
     "Pokemondb_name": "Electivire",
-    "frontend_name": "Electivire"
+    "frontend_name": "Electivire",
+    "hidden_ability": "true"
   },
   {
     "id": 467,
@@ -3733,7 +4199,8 @@
     "PokeAPI_id": 467,
     "PokeAPI_name": "Magmortar",
     "Pokemondb_name": "Magmortar",
-    "frontend_name": "Magmortar"
+    "frontend_name": "Magmortar",
+    "hidden_ability": "true"
   },
   {
     "id": 468,
@@ -3741,7 +4208,8 @@
     "PokeAPI_id": 468,
     "PokeAPI_name": "Togekiss",
     "Pokemondb_name": "Togekiss",
-    "frontend_name": "Togekiss"
+    "frontend_name": "Togekiss",
+    "hidden_ability": "true"
   },
   {
     "id": 469,
@@ -3749,7 +4217,8 @@
     "PokeAPI_id": 469,
     "PokeAPI_name": "Yanmega",
     "Pokemondb_name": "Yanmega",
-    "frontend_name": "Yanmega"
+    "frontend_name": "Yanmega",
+    "hidden_ability": "true"
   },
   {
     "id": 470,
@@ -3757,7 +4226,8 @@
     "PokeAPI_id": 470,
     "PokeAPI_name": "Leafeon",
     "Pokemondb_name": "Leafeon",
-    "frontend_name": "Leafeon"
+    "frontend_name": "Leafeon",
+    "hidden_ability": "true"
   },
   {
     "id": 471,
@@ -3765,7 +4235,8 @@
     "PokeAPI_id": 471,
     "PokeAPI_name": "Glaceon",
     "Pokemondb_name": "Glaceon",
-    "frontend_name": "Glaceon"
+    "frontend_name": "Glaceon",
+    "hidden_ability": "true"
   },
   {
     "id": 472,
@@ -3773,7 +4244,8 @@
     "PokeAPI_id": 472,
     "PokeAPI_name": "Gliscor",
     "Pokemondb_name": "Gliscor",
-    "frontend_name": "Gliscor"
+    "frontend_name": "Gliscor",
+    "hidden_ability": "true"
   },
   {
     "id": 473,
@@ -3781,7 +4253,8 @@
     "PokeAPI_id": 473,
     "PokeAPI_name": "Mamoswine",
     "Pokemondb_name": "Mamoswine",
-    "frontend_name": "Mamoswine"
+    "frontend_name": "Mamoswine",
+    "hidden_ability": "true"
   },
   {
     "id": 474,
@@ -3789,7 +4262,8 @@
     "PokeAPI_id": 474,
     "PokeAPI_name": "Porygon-Z",
     "Pokemondb_name": "Porygon-Z",
-    "frontend_name": "Porygon-Z"
+    "frontend_name": "Porygon-Z",
+    "hidden_ability": "true"
   },
   {
     "id": 475,
@@ -3797,7 +4271,8 @@
     "PokeAPI_id": 475,
     "PokeAPI_name": "Gallade",
     "Pokemondb_name": "Gallade",
-    "frontend_name": "Gallade"
+    "frontend_name": "Gallade",
+    "hidden_ability": "true"
   },
   {
     "id": 476,
@@ -3805,7 +4280,8 @@
     "PokeAPI_id": 476,
     "PokeAPI_name": "Probopass",
     "Pokemondb_name": "Probopass",
-    "frontend_name": "Probopass"
+    "frontend_name": "Probopass",
+    "hidden_ability": "true"
   },
   {
     "id": 477,
@@ -3813,7 +4289,8 @@
     "PokeAPI_id": 477,
     "PokeAPI_name": "Dusknoir",
     "Pokemondb_name": "Dusknoir",
-    "frontend_name": "Dusknoir"
+    "frontend_name": "Dusknoir",
+    "hidden_ability": "true"
   },
   {
     "id": 478,
@@ -3821,7 +4298,8 @@
     "PokeAPI_id": 478,
     "PokeAPI_name": "Froslass",
     "Pokemondb_name": "Froslass",
-    "frontend_name": "Froslass"
+    "frontend_name": "Froslass",
+    "hidden_ability": "true"
   },
   {
     "id": 479,
@@ -3829,7 +4307,8 @@
     "PokeAPI_id": 479,
     "PokeAPI_name": "Rotom",
     "Pokemondb_name": "Rotom",
-    "frontend_name": "Rotom"
+    "frontend_name": "Rotom",
+    "hidden_ability": "false"
   },
   {
     "id": 480,
@@ -3837,7 +4316,8 @@
     "PokeAPI_id": 480,
     "PokeAPI_name": "Uxie",
     "Pokemondb_name": "Uxie",
-    "frontend_name": "Uxie"
+    "frontend_name": "Uxie",
+    "hidden_ability": "false"
   },
   {
     "id": 481,
@@ -3845,7 +4325,8 @@
     "PokeAPI_id": 481,
     "PokeAPI_name": "Mesprit",
     "Pokemondb_name": "Mesprit",
-    "frontend_name": "Mesprit"
+    "frontend_name": "Mesprit",
+    "hidden_ability": "false"
   },
   {
     "id": 482,
@@ -3853,7 +4334,8 @@
     "PokeAPI_id": 482,
     "PokeAPI_name": "Azelf",
     "Pokemondb_name": "Azelf",
-    "frontend_name": "Azelf"
+    "frontend_name": "Azelf",
+    "hidden_ability": "false"
   },
   {
     "id": 483,
@@ -3861,7 +4343,8 @@
     "PokeAPI_id": 483,
     "PokeAPI_name": "Dialga",
     "Pokemondb_name": "Dialga",
-    "frontend_name": "Dialga"
+    "frontend_name": "Dialga",
+    "hidden_ability": "true"
   },
   {
     "id": 484,
@@ -3869,7 +4352,8 @@
     "PokeAPI_id": 484,
     "PokeAPI_name": "Palkia",
     "Pokemondb_name": "Palkia",
-    "frontend_name": "Palkia"
+    "frontend_name": "Palkia",
+    "hidden_ability": "true"
   },
   {
     "id": 485,
@@ -3877,7 +4361,8 @@
     "PokeAPI_id": 485,
     "PokeAPI_name": "Heatran",
     "Pokemondb_name": "Heatran",
-    "frontend_name": "Heatran"
+    "frontend_name": "Heatran",
+    "hidden_ability": "true"
   },
   {
     "id": 486,
@@ -3885,7 +4370,8 @@
     "PokeAPI_id": 486,
     "PokeAPI_name": "Regigigas",
     "Pokemondb_name": "Regigigas",
-    "frontend_name": "Regigigas"
+    "frontend_name": "Regigigas",
+    "hidden_ability": "false"
   },
   {
     "id": 487,
@@ -3893,7 +4379,8 @@
     "PokeAPI_id": 487,
     "PokeAPI_name": "Giratina",
     "Pokemondb_name": "Giratina",
-    "frontend_name": "Giratina"
+    "frontend_name": "Giratina",
+    "hidden_ability": "false"
   },
   {
     "id": 488,
@@ -3901,7 +4388,8 @@
     "PokeAPI_id": 488,
     "PokeAPI_name": "Cresselia",
     "Pokemondb_name": "Cresselia",
-    "frontend_name": "Cresselia"
+    "frontend_name": "Cresselia",
+    "hidden_ability": "false"
   },
   {
     "id": 489,
@@ -3909,7 +4397,8 @@
     "PokeAPI_id": 489,
     "PokeAPI_name": "Phione",
     "Pokemondb_name": "Phione",
-    "frontend_name": "Phione"
+    "frontend_name": "Phione",
+    "hidden_ability": "false"
   },
   {
     "id": 490,
@@ -3917,7 +4406,8 @@
     "PokeAPI_id": 490,
     "PokeAPI_name": "Manaphy",
     "Pokemondb_name": "Manaphy",
-    "frontend_name": "Manaphy"
+    "frontend_name": "Manaphy",
+    "hidden_ability": "false"
   },
   {
     "id": 491,
@@ -3925,7 +4415,8 @@
     "PokeAPI_id": 491,
     "PokeAPI_name": "Darkrai",
     "Pokemondb_name": "Darkrai",
-    "frontend_name": "Darkrai"
+    "frontend_name": "Darkrai",
+    "hidden_ability": "false"
   },
   {
     "id": 492,
@@ -3933,7 +4424,8 @@
     "PokeAPI_id": 492,
     "PokeAPI_name": "Shaymin",
     "Pokemondb_name": "Shaymin",
-    "frontend_name": "Shaymin"
+    "frontend_name": "Shaymin",
+    "hidden_ability": "false"
   },
   {
     "id": 493,
@@ -3941,7 +4433,8 @@
     "PokeAPI_id": 493,
     "PokeAPI_name": "Arceus",
     "Pokemondb_name": "Arceus",
-    "frontend_name": "Arceus"
+    "frontend_name": "Arceus",
+    "hidden_ability": "false"
   },
   {
     "id": 494,
@@ -3949,7 +4442,8 @@
     "PokeAPI_id": 494,
     "PokeAPI_name": "Victini",
     "Pokemondb_name": "Victini",
-    "frontend_name": "Victini"
+    "frontend_name": "Victini",
+    "hidden_ability": "false"
   },
   {
     "id": 495,
@@ -3957,7 +4451,8 @@
     "PokeAPI_id": 495,
     "PokeAPI_name": "Snivy",
     "Pokemondb_name": "Snivy",
-    "frontend_name": "Snivy"
+    "frontend_name": "Snivy",
+    "hidden_ability": "true"
   },
   {
     "id": 496,
@@ -3965,7 +4460,8 @@
     "PokeAPI_id": 496,
     "PokeAPI_name": "Servine",
     "Pokemondb_name": "Servine",
-    "frontend_name": "Servine"
+    "frontend_name": "Servine",
+    "hidden_ability": "true"
   },
   {
     "id": 497,
@@ -3973,7 +4469,8 @@
     "PokeAPI_id": 497,
     "PokeAPI_name": "Serperior",
     "Pokemondb_name": "Serperior",
-    "frontend_name": "Serperior"
+    "frontend_name": "Serperior",
+    "hidden_ability": "true"
   },
   {
     "id": 498,
@@ -3981,7 +4478,8 @@
     "PokeAPI_id": 498,
     "PokeAPI_name": "Tepig",
     "Pokemondb_name": "Tepig",
-    "frontend_name": "Tepig"
+    "frontend_name": "Tepig",
+    "hidden_ability": "true"
   },
   {
     "id": 499,
@@ -3989,7 +4487,8 @@
     "PokeAPI_id": 499,
     "PokeAPI_name": "Pignite",
     "Pokemondb_name": "Pignite",
-    "frontend_name": "Pignite"
+    "frontend_name": "Pignite",
+    "hidden_ability": "true"
   },
   {
     "id": 500,
@@ -3997,7 +4496,8 @@
     "PokeAPI_id": 500,
     "PokeAPI_name": "Emboar",
     "Pokemondb_name": "Emboar",
-    "frontend_name": "Emboar"
+    "frontend_name": "Emboar",
+    "hidden_ability": "true"
   },
   {
     "id": 501,
@@ -4005,7 +4505,8 @@
     "PokeAPI_id": 501,
     "PokeAPI_name": "Oshawott",
     "Pokemondb_name": "Oshawott",
-    "frontend_name": "Oshawott"
+    "frontend_name": "Oshawott",
+    "hidden_ability": "true"
   },
   {
     "id": 502,
@@ -4013,7 +4514,8 @@
     "PokeAPI_id": 502,
     "PokeAPI_name": "Dewott",
     "Pokemondb_name": "Dewott",
-    "frontend_name": "Dewott"
+    "frontend_name": "Dewott",
+    "hidden_ability": "true"
   },
   {
     "id": 503,
@@ -4021,7 +4523,8 @@
     "PokeAPI_id": 503,
     "PokeAPI_name": "Samurott",
     "Pokemondb_name": "Samurott",
-    "frontend_name": "Samurott"
+    "frontend_name": "Samurott",
+    "hidden_ability": "true"
   },
   {
     "id": 504,
@@ -4029,7 +4532,8 @@
     "PokeAPI_id": 504,
     "PokeAPI_name": "Patrat",
     "Pokemondb_name": "Patrat",
-    "frontend_name": "Patrat"
+    "frontend_name": "Patrat",
+    "hidden_ability": "true"
   },
   {
     "id": 505,
@@ -4037,7 +4541,8 @@
     "PokeAPI_id": 505,
     "PokeAPI_name": "Watchog",
     "Pokemondb_name": "Watchog",
-    "frontend_name": "Watchog"
+    "frontend_name": "Watchog",
+    "hidden_ability": "true"
   },
   {
     "id": 506,
@@ -4045,7 +4550,8 @@
     "PokeAPI_id": 506,
     "PokeAPI_name": "Lillipup",
     "Pokemondb_name": "Lillipup",
-    "frontend_name": "Lillipup"
+    "frontend_name": "Lillipup",
+    "hidden_ability": "true"
   },
   {
     "id": 507,
@@ -4053,7 +4559,8 @@
     "PokeAPI_id": 507,
     "PokeAPI_name": "Herdier",
     "Pokemondb_name": "Herdier",
-    "frontend_name": "Herdier"
+    "frontend_name": "Herdier",
+    "hidden_ability": "true"
   },
   {
     "id": 508,
@@ -4061,7 +4568,8 @@
     "PokeAPI_id": 508,
     "PokeAPI_name": "Stoutland",
     "Pokemondb_name": "Stoutland",
-    "frontend_name": "Stoutland"
+    "frontend_name": "Stoutland",
+    "hidden_ability": "true"
   },
   {
     "id": 509,
@@ -4069,7 +4577,8 @@
     "PokeAPI_id": 509,
     "PokeAPI_name": "Purrloin",
     "Pokemondb_name": "Purrloin",
-    "frontend_name": "Purrloin"
+    "frontend_name": "Purrloin",
+    "hidden_ability": "true"
   },
   {
     "id": 510,
@@ -4077,7 +4586,8 @@
     "PokeAPI_id": 510,
     "PokeAPI_name": "Liepard",
     "Pokemondb_name": "Liepard",
-    "frontend_name": "Liepard"
+    "frontend_name": "Liepard",
+    "hidden_ability": "true"
   },
   {
     "id": 511,
@@ -4085,7 +4595,8 @@
     "PokeAPI_id": 511,
     "PokeAPI_name": "Pansage",
     "Pokemondb_name": "Pansage",
-    "frontend_name": "Pansage"
+    "frontend_name": "Pansage",
+    "hidden_ability": "true"
   },
   {
     "id": 512,
@@ -4093,7 +4604,8 @@
     "PokeAPI_id": 512,
     "PokeAPI_name": "Simisage",
     "Pokemondb_name": "Simisage",
-    "frontend_name": "Simisage"
+    "frontend_name": "Simisage",
+    "hidden_ability": "true"
   },
   {
     "id": 513,
@@ -4101,7 +4613,8 @@
     "PokeAPI_id": 513,
     "PokeAPI_name": "Pansear",
     "Pokemondb_name": "Pansear",
-    "frontend_name": "Pansear"
+    "frontend_name": "Pansear",
+    "hidden_ability": "true"
   },
   {
     "id": 514,
@@ -4109,7 +4622,8 @@
     "PokeAPI_id": 514,
     "PokeAPI_name": "Simisear",
     "Pokemondb_name": "Simisear",
-    "frontend_name": "Simisear"
+    "frontend_name": "Simisear",
+    "hidden_ability": "true"
   },
   {
     "id": 515,
@@ -4117,7 +4631,8 @@
     "PokeAPI_id": 515,
     "PokeAPI_name": "Panpour",
     "Pokemondb_name": "Panpour",
-    "frontend_name": "Panpour"
+    "frontend_name": "Panpour",
+    "hidden_ability": "true"
   },
   {
     "id": 516,
@@ -4125,7 +4640,8 @@
     "PokeAPI_id": 516,
     "PokeAPI_name": "Simipour",
     "Pokemondb_name": "Simipour",
-    "frontend_name": "Simipour"
+    "frontend_name": "Simipour",
+    "hidden_ability": "true"
   },
   {
     "id": 517,
@@ -4133,7 +4649,8 @@
     "PokeAPI_id": 517,
     "PokeAPI_name": "Munna",
     "Pokemondb_name": "Munna",
-    "frontend_name": "Munna"
+    "frontend_name": "Munna",
+    "hidden_ability": "true"
   },
   {
     "id": 518,
@@ -4141,7 +4658,8 @@
     "PokeAPI_id": 518,
     "PokeAPI_name": "Musharna",
     "Pokemondb_name": "Musharna",
-    "frontend_name": "Musharna"
+    "frontend_name": "Musharna",
+    "hidden_ability": "true"
   },
   {
     "id": 519,
@@ -4149,7 +4667,8 @@
     "PokeAPI_id": 519,
     "PokeAPI_name": "Pidove",
     "Pokemondb_name": "Pidove",
-    "frontend_name": "Pidove"
+    "frontend_name": "Pidove",
+    "hidden_ability": "true"
   },
   {
     "id": 520,
@@ -4157,7 +4676,8 @@
     "PokeAPI_id": 520,
     "PokeAPI_name": "Tranquill",
     "Pokemondb_name": "Tranquill",
-    "frontend_name": "Tranquill"
+    "frontend_name": "Tranquill",
+    "hidden_ability": "true"
   },
   {
     "id": 521,
@@ -4165,7 +4685,8 @@
     "PokeAPI_id": 521,
     "PokeAPI_name": "Unfezant",
     "Pokemondb_name": "Unfezant",
-    "frontend_name": "Unfezant"
+    "frontend_name": "Unfezant",
+    "hidden_ability": "true"
   },
   {
     "id": 522,
@@ -4173,7 +4694,8 @@
     "PokeAPI_id": 522,
     "PokeAPI_name": "Blitzle",
     "Pokemondb_name": "Blitzle",
-    "frontend_name": "Blitzle"
+    "frontend_name": "Blitzle",
+    "hidden_ability": "true"
   },
   {
     "id": 523,
@@ -4181,7 +4703,8 @@
     "PokeAPI_id": 523,
     "PokeAPI_name": "Zebstrika",
     "Pokemondb_name": "Zebstrika",
-    "frontend_name": "Zebstrika"
+    "frontend_name": "Zebstrika",
+    "hidden_ability": "true"
   },
   {
     "id": 524,
@@ -4189,7 +4712,8 @@
     "PokeAPI_id": 524,
     "PokeAPI_name": "Roggenrola",
     "Pokemondb_name": "Roggenrola",
-    "frontend_name": "Roggenrola"
+    "frontend_name": "Roggenrola",
+    "hidden_ability": "true"
   },
   {
     "id": 525,
@@ -4197,7 +4721,8 @@
     "PokeAPI_id": 525,
     "PokeAPI_name": "Boldore",
     "Pokemondb_name": "Boldore",
-    "frontend_name": "Boldore"
+    "frontend_name": "Boldore",
+    "hidden_ability": "true"
   },
   {
     "id": 526,
@@ -4205,7 +4730,8 @@
     "PokeAPI_id": 526,
     "PokeAPI_name": "Gigalith",
     "Pokemondb_name": "Gigalith",
-    "frontend_name": "Gigalith"
+    "frontend_name": "Gigalith",
+    "hidden_ability": "true"
   },
   {
     "id": 527,
@@ -4213,7 +4739,8 @@
     "PokeAPI_id": 527,
     "PokeAPI_name": "Woobat",
     "Pokemondb_name": "Woobat",
-    "frontend_name": "Woobat"
+    "frontend_name": "Woobat",
+    "hidden_ability": "true"
   },
   {
     "id": 528,
@@ -4221,7 +4748,8 @@
     "PokeAPI_id": 528,
     "PokeAPI_name": "Swoobat",
     "Pokemondb_name": "Swoobat",
-    "frontend_name": "Swoobat"
+    "frontend_name": "Swoobat",
+    "hidden_ability": "true"
   },
   {
     "id": 529,
@@ -4229,7 +4757,8 @@
     "PokeAPI_id": 529,
     "PokeAPI_name": "Drilbur",
     "Pokemondb_name": "Drilbur",
-    "frontend_name": "Drilbur"
+    "frontend_name": "Drilbur",
+    "hidden_ability": "true"
   },
   {
     "id": 530,
@@ -4237,7 +4766,8 @@
     "PokeAPI_id": 530,
     "PokeAPI_name": "Excadrill",
     "Pokemondb_name": "Excadrill",
-    "frontend_name": "Excadrill"
+    "frontend_name": "Excadrill",
+    "hidden_ability": "true"
   },
   {
     "id": 531,
@@ -4245,7 +4775,8 @@
     "PokeAPI_id": 531,
     "PokeAPI_name": "Audino",
     "Pokemondb_name": "Audino",
-    "frontend_name": "Audino"
+    "frontend_name": "Audino",
+    "hidden_ability": "true"
   },
   {
     "id": 532,
@@ -4253,7 +4784,8 @@
     "PokeAPI_id": 532,
     "PokeAPI_name": "Timburr",
     "Pokemondb_name": "Timburr",
-    "frontend_name": "Timburr"
+    "frontend_name": "Timburr",
+    "hidden_ability": "true"
   },
   {
     "id": 533,
@@ -4261,7 +4793,8 @@
     "PokeAPI_id": 533,
     "PokeAPI_name": "Gurdurr",
     "Pokemondb_name": "Gurdurr",
-    "frontend_name": "Gurdurr"
+    "frontend_name": "Gurdurr",
+    "hidden_ability": "true"
   },
   {
     "id": 534,
@@ -4269,7 +4802,8 @@
     "PokeAPI_id": 534,
     "PokeAPI_name": "Conkeldurr",
     "Pokemondb_name": "Conkeldurr",
-    "frontend_name": "Conkeldurr"
+    "frontend_name": "Conkeldurr",
+    "hidden_ability": "true"
   },
   {
     "id": 535,
@@ -4277,7 +4811,8 @@
     "PokeAPI_id": 535,
     "PokeAPI_name": "Tympole",
     "Pokemondb_name": "Tympole",
-    "frontend_name": "Tympole"
+    "frontend_name": "Tympole",
+    "hidden_ability": "true"
   },
   {
     "id": 536,
@@ -4285,7 +4820,8 @@
     "PokeAPI_id": 536,
     "PokeAPI_name": "Palpitoad",
     "Pokemondb_name": "Palpitoad",
-    "frontend_name": "Palpitoad"
+    "frontend_name": "Palpitoad",
+    "hidden_ability": "true"
   },
   {
     "id": 537,
@@ -4293,7 +4829,8 @@
     "PokeAPI_id": 537,
     "PokeAPI_name": "Seismitoad",
     "Pokemondb_name": "Seismitoad",
-    "frontend_name": "Seismitoad"
+    "frontend_name": "Seismitoad",
+    "hidden_ability": "true"
   },
   {
     "id": 538,
@@ -4301,7 +4838,8 @@
     "PokeAPI_id": 538,
     "PokeAPI_name": "Throh",
     "Pokemondb_name": "Throh",
-    "frontend_name": "Throh"
+    "frontend_name": "Throh",
+    "hidden_ability": "true"
   },
   {
     "id": 539,
@@ -4309,7 +4847,8 @@
     "PokeAPI_id": 539,
     "PokeAPI_name": "Sawk",
     "Pokemondb_name": "Sawk",
-    "frontend_name": "Sawk"
+    "frontend_name": "Sawk",
+    "hidden_ability": "true"
   },
   {
     "id": 540,
@@ -4317,7 +4856,8 @@
     "PokeAPI_id": 540,
     "PokeAPI_name": "Sewaddle",
     "Pokemondb_name": "Sewaddle",
-    "frontend_name": "Sewaddle"
+    "frontend_name": "Sewaddle",
+    "hidden_ability": "true"
   },
   {
     "id": 541,
@@ -4325,7 +4865,8 @@
     "PokeAPI_id": 541,
     "PokeAPI_name": "Swadloon",
     "Pokemondb_name": "Swadloon",
-    "frontend_name": "Swadloon"
+    "frontend_name": "Swadloon",
+    "hidden_ability": "true"
   },
   {
     "id": 542,
@@ -4333,7 +4874,8 @@
     "PokeAPI_id": 542,
     "PokeAPI_name": "Leavanny",
     "Pokemondb_name": "Leavanny",
-    "frontend_name": "Leavanny"
+    "frontend_name": "Leavanny",
+    "hidden_ability": "true"
   },
   {
     "id": 543,
@@ -4341,7 +4883,8 @@
     "PokeAPI_id": 543,
     "PokeAPI_name": "Venipede",
     "Pokemondb_name": "Venipede",
-    "frontend_name": "Venipede"
+    "frontend_name": "Venipede",
+    "hidden_ability": "true"
   },
   {
     "id": 544,
@@ -4349,7 +4892,8 @@
     "PokeAPI_id": 544,
     "PokeAPI_name": "Whirlipede",
     "Pokemondb_name": "Whirlipede",
-    "frontend_name": "Whirlipede"
+    "frontend_name": "Whirlipede",
+    "hidden_ability": "true"
   },
   {
     "id": 545,
@@ -4357,7 +4901,8 @@
     "PokeAPI_id": 545,
     "PokeAPI_name": "Scolipede",
     "Pokemondb_name": "Scolipede",
-    "frontend_name": "Scolipede"
+    "frontend_name": "Scolipede",
+    "hidden_ability": "true"
   },
   {
     "id": 546,
@@ -4365,7 +4910,8 @@
     "PokeAPI_id": 546,
     "PokeAPI_name": "Cottonee",
     "Pokemondb_name": "Cottonee",
-    "frontend_name": "Cottonee"
+    "frontend_name": "Cottonee",
+    "hidden_ability": "true"
   },
   {
     "id": 547,
@@ -4373,7 +4919,8 @@
     "PokeAPI_id": 547,
     "PokeAPI_name": "Whimsicott",
     "Pokemondb_name": "Whimsicott",
-    "frontend_name": "Whimsicott"
+    "frontend_name": "Whimsicott",
+    "hidden_ability": "true"
   },
   {
     "id": 548,
@@ -4381,7 +4928,8 @@
     "PokeAPI_id": 548,
     "PokeAPI_name": "Petilil",
     "Pokemondb_name": "Petilil",
-    "frontend_name": "Petilil"
+    "frontend_name": "Petilil",
+    "hidden_ability": "true"
   },
   {
     "id": 549,
@@ -4389,7 +4937,8 @@
     "PokeAPI_id": 549,
     "PokeAPI_name": "Lilligant",
     "Pokemondb_name": "Lilligant",
-    "frontend_name": "Lilligant"
+    "frontend_name": "Lilligant",
+    "hidden_ability": "true"
   },
   {
     "id": 550,
@@ -4397,7 +4946,8 @@
     "PokeAPI_id": 550,
     "PokeAPI_name": "Basculin",
     "Pokemondb_name": "Basculin",
-    "frontend_name": "Basculin"
+    "frontend_name": "Basculin",
+    "hidden_ability": "false"
   },
   {
     "id": 551,
@@ -4405,7 +4955,8 @@
     "PokeAPI_id": 551,
     "PokeAPI_name": "Sandile",
     "Pokemondb_name": "Sandile",
-    "frontend_name": "Sandile"
+    "frontend_name": "Sandile",
+    "hidden_ability": "true"
   },
   {
     "id": 552,
@@ -4413,7 +4964,8 @@
     "PokeAPI_id": 552,
     "PokeAPI_name": "Krokorok",
     "Pokemondb_name": "Krokorok",
-    "frontend_name": "Krokorok"
+    "frontend_name": "Krokorok",
+    "hidden_ability": "true"
   },
   {
     "id": 553,
@@ -4421,7 +4973,8 @@
     "PokeAPI_id": 553,
     "PokeAPI_name": "Krookodile",
     "Pokemondb_name": "Krookodile",
-    "frontend_name": "Krookodile"
+    "frontend_name": "Krookodile",
+    "hidden_ability": "true"
   },
   {
     "id": 554,
@@ -4429,7 +4982,8 @@
     "PokeAPI_id": 554,
     "PokeAPI_name": "Darumaka",
     "Pokemondb_name": "Darumaka",
-    "frontend_name": "Darumaka"
+    "frontend_name": "Darumaka",
+    "hidden_ability": "true"
   },
   {
     "id": 555,
@@ -4437,7 +4991,8 @@
     "PokeAPI_id": 555,
     "PokeAPI_name": "Darmanitan",
     "Pokemondb_name": "Darmanitan",
-    "frontend_name": "Darmanitan"
+    "frontend_name": "Darmanitan",
+    "hidden_ability": "false"
   },
   {
     "id": 556,
@@ -4445,7 +5000,8 @@
     "PokeAPI_id": 556,
     "PokeAPI_name": "Maractus",
     "Pokemondb_name": "Maractus",
-    "frontend_name": "Maractus"
+    "frontend_name": "Maractus",
+    "hidden_ability": "true"
   },
   {
     "id": 557,
@@ -4453,7 +5009,8 @@
     "PokeAPI_id": 557,
     "PokeAPI_name": "Dwebble",
     "Pokemondb_name": "Dwebble",
-    "frontend_name": "Dwebble"
+    "frontend_name": "Dwebble",
+    "hidden_ability": "true"
   },
   {
     "id": 558,
@@ -4461,7 +5018,8 @@
     "PokeAPI_id": 558,
     "PokeAPI_name": "Crustle",
     "Pokemondb_name": "Crustle",
-    "frontend_name": "Crustle"
+    "frontend_name": "Crustle",
+    "hidden_ability": "true"
   },
   {
     "id": 559,
@@ -4469,7 +5027,8 @@
     "PokeAPI_id": 559,
     "PokeAPI_name": "Scraggy",
     "Pokemondb_name": "Scraggy",
-    "frontend_name": "Scraggy"
+    "frontend_name": "Scraggy",
+    "hidden_ability": "true"
   },
   {
     "id": 560,
@@ -4477,7 +5036,8 @@
     "PokeAPI_id": 560,
     "PokeAPI_name": "Scrafty",
     "Pokemondb_name": "Scrafty",
-    "frontend_name": "Scrafty"
+    "frontend_name": "Scrafty",
+    "hidden_ability": "true"
   },
   {
     "id": 561,
@@ -4485,7 +5045,8 @@
     "PokeAPI_id": 561,
     "PokeAPI_name": "Sigilyph",
     "Pokemondb_name": "Sigilyph",
-    "frontend_name": "Sigilyph"
+    "frontend_name": "Sigilyph",
+    "hidden_ability": "true"
   },
   {
     "id": 562,
@@ -4493,7 +5054,8 @@
     "PokeAPI_id": 562,
     "PokeAPI_name": "Yamask",
     "Pokemondb_name": "Yamask",
-    "frontend_name": "Yamask"
+    "frontend_name": "Yamask",
+    "hidden_ability": "false"
   },
   {
     "id": 563,
@@ -4501,7 +5063,8 @@
     "PokeAPI_id": 563,
     "PokeAPI_name": "Cofagrigus",
     "Pokemondb_name": "Cofagrigus",
-    "frontend_name": "Cofagrigus"
+    "frontend_name": "Cofagrigus",
+    "hidden_ability": "false"
   },
   {
     "id": 564,
@@ -4509,7 +5072,8 @@
     "PokeAPI_id": 564,
     "PokeAPI_name": "Tirtouga",
     "Pokemondb_name": "Tirtouga",
-    "frontend_name": "Tirtouga"
+    "frontend_name": "Tirtouga",
+    "hidden_ability": "true"
   },
   {
     "id": 565,
@@ -4517,7 +5081,8 @@
     "PokeAPI_id": 565,
     "PokeAPI_name": "Carracosta",
     "Pokemondb_name": "Carracosta",
-    "frontend_name": "Carracosta"
+    "frontend_name": "Carracosta",
+    "hidden_ability": "true"
   },
   {
     "id": 566,
@@ -4525,7 +5090,8 @@
     "PokeAPI_id": 566,
     "PokeAPI_name": "Archen",
     "Pokemondb_name": "Archen",
-    "frontend_name": "Archen"
+    "frontend_name": "Archen",
+    "hidden_ability": "false"
   },
   {
     "id": 567,
@@ -4533,7 +5099,8 @@
     "PokeAPI_id": 567,
     "PokeAPI_name": "Archeops",
     "Pokemondb_name": "Archeops",
-    "frontend_name": "Archeops"
+    "frontend_name": "Archeops",
+    "hidden_ability": "false"
   },
   {
     "id": 568,
@@ -4541,7 +5108,8 @@
     "PokeAPI_id": 568,
     "PokeAPI_name": "Trubbish",
     "Pokemondb_name": "Trubbish",
-    "frontend_name": "Trubbish"
+    "frontend_name": "Trubbish",
+    "hidden_ability": "true"
   },
   {
     "id": 569,
@@ -4549,7 +5117,8 @@
     "PokeAPI_id": 569,
     "PokeAPI_name": "Garbodor",
     "Pokemondb_name": "Garbodor",
-    "frontend_name": "Garbodor"
+    "frontend_name": "Garbodor",
+    "hidden_ability": "true"
   },
   {
     "id": 570,
@@ -4557,7 +5126,8 @@
     "PokeAPI_id": 570,
     "PokeAPI_name": "Zorua",
     "Pokemondb_name": "Zorua",
-    "frontend_name": "Zorua"
+    "frontend_name": "Zorua",
+    "hidden_ability": "false"
   },
   {
     "id": 571,
@@ -4565,7 +5135,8 @@
     "PokeAPI_id": 571,
     "PokeAPI_name": "Zoroark",
     "Pokemondb_name": "Zoroark",
-    "frontend_name": "Zoroark"
+    "frontend_name": "Zoroark",
+    "hidden_ability": "false"
   },
   {
     "id": 572,
@@ -4573,7 +5144,8 @@
     "PokeAPI_id": 572,
     "PokeAPI_name": "Minccino",
     "Pokemondb_name": "Minccino",
-    "frontend_name": "Minccino"
+    "frontend_name": "Minccino",
+    "hidden_ability": "true"
   },
   {
     "id": 573,
@@ -4581,7 +5153,8 @@
     "PokeAPI_id": 573,
     "PokeAPI_name": "Cinccino",
     "Pokemondb_name": "Cinccino",
-    "frontend_name": "Cinccino"
+    "frontend_name": "Cinccino",
+    "hidden_ability": "true"
   },
   {
     "id": 574,
@@ -4589,7 +5162,8 @@
     "PokeAPI_id": 574,
     "PokeAPI_name": "Gothita",
     "Pokemondb_name": "Gothita",
-    "frontend_name": "Gothita"
+    "frontend_name": "Gothita",
+    "hidden_ability": "true"
   },
   {
     "id": 575,
@@ -4597,7 +5171,8 @@
     "PokeAPI_id": 575,
     "PokeAPI_name": "Gothorita",
     "Pokemondb_name": "Gothorita",
-    "frontend_name": "Gothorita"
+    "frontend_name": "Gothorita",
+    "hidden_ability": "true"
   },
   {
     "id": 576,
@@ -4605,7 +5180,8 @@
     "PokeAPI_id": 576,
     "PokeAPI_name": "Gothitelle",
     "Pokemondb_name": "Gothitelle",
-    "frontend_name": "Gothitelle"
+    "frontend_name": "Gothitelle",
+    "hidden_ability": "true"
   },
   {
     "id": 577,
@@ -4613,7 +5189,8 @@
     "PokeAPI_id": 577,
     "PokeAPI_name": "Solosis",
     "Pokemondb_name": "Solosis",
-    "frontend_name": "Solosis"
+    "frontend_name": "Solosis",
+    "hidden_ability": "true"
   },
   {
     "id": 578,
@@ -4621,7 +5198,8 @@
     "PokeAPI_id": 578,
     "PokeAPI_name": "Duosion",
     "Pokemondb_name": "Duosion",
-    "frontend_name": "Duosion"
+    "frontend_name": "Duosion",
+    "hidden_ability": "true"
   },
   {
     "id": 579,
@@ -4629,7 +5207,8 @@
     "PokeAPI_id": 579,
     "PokeAPI_name": "Reuniclus",
     "Pokemondb_name": "Reuniclus",
-    "frontend_name": "Reuniclus"
+    "frontend_name": "Reuniclus",
+    "hidden_ability": "true"
   },
   {
     "id": 580,
@@ -4637,7 +5216,8 @@
     "PokeAPI_id": 580,
     "PokeAPI_name": "Ducklett",
     "Pokemondb_name": "Ducklett",
-    "frontend_name": "Ducklett"
+    "frontend_name": "Ducklett",
+    "hidden_ability": "true"
   },
   {
     "id": 581,
@@ -4645,7 +5225,8 @@
     "PokeAPI_id": 581,
     "PokeAPI_name": "Swanna",
     "Pokemondb_name": "Swanna",
-    "frontend_name": "Swanna"
+    "frontend_name": "Swanna",
+    "hidden_ability": "true"
   },
   {
     "id": 582,
@@ -4653,7 +5234,8 @@
     "PokeAPI_id": 582,
     "PokeAPI_name": "Vanillite",
     "Pokemondb_name": "Vanillite",
-    "frontend_name": "Vanillite"
+    "frontend_name": "Vanillite",
+    "hidden_ability": "true"
   },
   {
     "id": 583,
@@ -4661,7 +5243,8 @@
     "PokeAPI_id": 583,
     "PokeAPI_name": "Vanillish",
     "Pokemondb_name": "Vanillish",
-    "frontend_name": "Vanillish"
+    "frontend_name": "Vanillish",
+    "hidden_ability": "true"
   },
   {
     "id": 584,
@@ -4669,7 +5252,8 @@
     "PokeAPI_id": 584,
     "PokeAPI_name": "Vanilluxe",
     "Pokemondb_name": "Vanilluxe",
-    "frontend_name": "Vanilluxe"
+    "frontend_name": "Vanilluxe",
+    "hidden_ability": "true"
   },
   {
     "id": 585,
@@ -4677,7 +5261,8 @@
     "PokeAPI_id": 585,
     "PokeAPI_name": "Deerling",
     "Pokemondb_name": "Deerling",
-    "frontend_name": "Deerling"
+    "frontend_name": "Deerling",
+    "hidden_ability": "true"
   },
   {
     "id": 586,
@@ -4685,7 +5270,8 @@
     "PokeAPI_id": 586,
     "PokeAPI_name": "Sawsbuck",
     "Pokemondb_name": "Sawsbuck",
-    "frontend_name": "Sawsbuck"
+    "frontend_name": "Sawsbuck",
+    "hidden_ability": "true"
   },
   {
     "id": 587,
@@ -4693,7 +5279,8 @@
     "PokeAPI_id": 587,
     "PokeAPI_name": "Emolga",
     "Pokemondb_name": "Emolga",
-    "frontend_name": "Emolga"
+    "frontend_name": "Emolga",
+    "hidden_ability": "true"
   },
   {
     "id": 588,
@@ -4701,7 +5288,8 @@
     "PokeAPI_id": 588,
     "PokeAPI_name": "Karrablast",
     "Pokemondb_name": "Karrablast",
-    "frontend_name": "Karrablast"
+    "frontend_name": "Karrablast",
+    "hidden_ability": "true"
   },
   {
     "id": 589,
@@ -4709,7 +5297,8 @@
     "PokeAPI_id": 589,
     "PokeAPI_name": "Escavalier",
     "Pokemondb_name": "Escavalier",
-    "frontend_name": "Escavalier"
+    "frontend_name": "Escavalier",
+    "hidden_ability": "true"
   },
   {
     "id": 590,
@@ -4717,7 +5306,8 @@
     "PokeAPI_id": 590,
     "PokeAPI_name": "Foongus",
     "Pokemondb_name": "Foongus",
-    "frontend_name": "Foongus"
+    "frontend_name": "Foongus",
+    "hidden_ability": "true"
   },
   {
     "id": 591,
@@ -4725,7 +5315,8 @@
     "PokeAPI_id": 591,
     "PokeAPI_name": "Amoonguss",
     "Pokemondb_name": "Amoonguss",
-    "frontend_name": "Amoonguss"
+    "frontend_name": "Amoonguss",
+    "hidden_ability": "true"
   },
   {
     "id": 592,
@@ -4733,7 +5324,8 @@
     "PokeAPI_id": 592,
     "PokeAPI_name": "Frillish",
     "Pokemondb_name": "Frillish",
-    "frontend_name": "Frillish"
+    "frontend_name": "Frillish",
+    "hidden_ability": "true"
   },
   {
     "id": 593,
@@ -4741,7 +5333,8 @@
     "PokeAPI_id": 593,
     "PokeAPI_name": "Jellicent",
     "Pokemondb_name": "Jellicent",
-    "frontend_name": "Jellicent"
+    "frontend_name": "Jellicent",
+    "hidden_ability": "true"
   },
   {
     "id": 594,
@@ -4749,7 +5342,8 @@
     "PokeAPI_id": 594,
     "PokeAPI_name": "Alomomola",
     "Pokemondb_name": "Alomomola",
-    "frontend_name": "Alomomola"
+    "frontend_name": "Alomomola",
+    "hidden_ability": "true"
   },
   {
     "id": 595,
@@ -4757,7 +5351,8 @@
     "PokeAPI_id": 595,
     "PokeAPI_name": "Joltik",
     "Pokemondb_name": "Joltik",
-    "frontend_name": "Joltik"
+    "frontend_name": "Joltik",
+    "hidden_ability": "true"
   },
   {
     "id": 596,
@@ -4765,7 +5360,8 @@
     "PokeAPI_id": 596,
     "PokeAPI_name": "Galvantula",
     "Pokemondb_name": "Galvantula",
-    "frontend_name": "Galvantula"
+    "frontend_name": "Galvantula",
+    "hidden_ability": "true"
   },
   {
     "id": 597,
@@ -4773,7 +5369,8 @@
     "PokeAPI_id": 597,
     "PokeAPI_name": "Ferroseed",
     "Pokemondb_name": "Ferroseed",
-    "frontend_name": "Ferroseed"
+    "frontend_name": "Ferroseed",
+    "hidden_ability": "false"
   },
   {
     "id": 598,
@@ -4781,7 +5378,8 @@
     "PokeAPI_id": 598,
     "PokeAPI_name": "Ferrothorn",
     "Pokemondb_name": "Ferrothorn",
-    "frontend_name": "Ferrothorn"
+    "frontend_name": "Ferrothorn",
+    "hidden_ability": "true"
   },
   {
     "id": 599,
@@ -4789,7 +5387,8 @@
     "PokeAPI_id": 599,
     "PokeAPI_name": "Klink",
     "Pokemondb_name": "Klink",
-    "frontend_name": "Klink"
+    "frontend_name": "Klink",
+    "hidden_ability": "true"
   },
   {
     "id": 600,
@@ -4797,7 +5396,8 @@
     "PokeAPI_id": 600,
     "PokeAPI_name": "Klang",
     "Pokemondb_name": "Klang",
-    "frontend_name": "Klang"
+    "frontend_name": "Klang",
+    "hidden_ability": "true"
   },
   {
     "id": 601,
@@ -4805,7 +5405,8 @@
     "PokeAPI_id": 601,
     "PokeAPI_name": "Klinklang",
     "Pokemondb_name": "Klinklang",
-    "frontend_name": "Klinklang"
+    "frontend_name": "Klinklang",
+    "hidden_ability": "true"
   },
   {
     "id": 602,
@@ -4813,7 +5414,8 @@
     "PokeAPI_id": 602,
     "PokeAPI_name": "Tynamo",
     "Pokemondb_name": "Tynamo",
-    "frontend_name": "Tynamo"
+    "frontend_name": "Tynamo",
+    "hidden_ability": "false"
   },
   {
     "id": 603,
@@ -4821,7 +5423,8 @@
     "PokeAPI_id": 603,
     "PokeAPI_name": "Eelektrik",
     "Pokemondb_name": "Eelektrik",
-    "frontend_name": "Eelektrik"
+    "frontend_name": "Eelektrik",
+    "hidden_ability": "false"
   },
   {
     "id": 604,
@@ -4829,7 +5432,8 @@
     "PokeAPI_id": 604,
     "PokeAPI_name": "Eelektross",
     "Pokemondb_name": "Eelektross",
-    "frontend_name": "Eelektross"
+    "frontend_name": "Eelektross",
+    "hidden_ability": "false"
   },
   {
     "id": 605,
@@ -4837,7 +5441,8 @@
     "PokeAPI_id": 605,
     "PokeAPI_name": "Elgyem",
     "Pokemondb_name": "Elgyem",
-    "frontend_name": "Elgyem"
+    "frontend_name": "Elgyem",
+    "hidden_ability": "true"
   },
   {
     "id": 606,
@@ -4845,7 +5450,8 @@
     "PokeAPI_id": 606,
     "PokeAPI_name": "Beheeyem",
     "Pokemondb_name": "Beheeyem",
-    "frontend_name": "Beheeyem"
+    "frontend_name": "Beheeyem",
+    "hidden_ability": "true"
   },
   {
     "id": 607,
@@ -4853,7 +5459,8 @@
     "PokeAPI_id": 607,
     "PokeAPI_name": "Litwick",
     "Pokemondb_name": "Litwick",
-    "frontend_name": "Litwick"
+    "frontend_name": "Litwick",
+    "hidden_ability": "true"
   },
   {
     "id": 608,
@@ -4861,7 +5468,8 @@
     "PokeAPI_id": 608,
     "PokeAPI_name": "Lampent",
     "Pokemondb_name": "Lampent",
-    "frontend_name": "Lampent"
+    "frontend_name": "Lampent",
+    "hidden_ability": "true"
   },
   {
     "id": 609,
@@ -4869,7 +5477,8 @@
     "PokeAPI_id": 609,
     "PokeAPI_name": "Chandelure",
     "Pokemondb_name": "Chandelure",
-    "frontend_name": "Chandelure"
+    "frontend_name": "Chandelure",
+    "hidden_ability": "true"
   },
   {
     "id": 610,
@@ -4877,7 +5486,8 @@
     "PokeAPI_id": 610,
     "PokeAPI_name": "Axew",
     "Pokemondb_name": "Axew",
-    "frontend_name": "Axew"
+    "frontend_name": "Axew",
+    "hidden_ability": "true"
   },
   {
     "id": 611,
@@ -4885,7 +5495,8 @@
     "PokeAPI_id": 611,
     "PokeAPI_name": "Fraxure",
     "Pokemondb_name": "Fraxure",
-    "frontend_name": "Fraxure"
+    "frontend_name": "Fraxure",
+    "hidden_ability": "true"
   },
   {
     "id": 612,
@@ -4893,7 +5504,8 @@
     "PokeAPI_id": 612,
     "PokeAPI_name": "Haxorus",
     "Pokemondb_name": "Haxorus",
-    "frontend_name": "Haxorus"
+    "frontend_name": "Haxorus",
+    "hidden_ability": "true"
   },
   {
     "id": 613,
@@ -4901,7 +5513,8 @@
     "PokeAPI_id": 613,
     "PokeAPI_name": "Cubchoo",
     "Pokemondb_name": "Cubchoo",
-    "frontend_name": "Cubchoo"
+    "frontend_name": "Cubchoo",
+    "hidden_ability": "true"
   },
   {
     "id": 614,
@@ -4909,7 +5522,8 @@
     "PokeAPI_id": 614,
     "PokeAPI_name": "Beartic",
     "Pokemondb_name": "Beartic",
-    "frontend_name": "Beartic"
+    "frontend_name": "Beartic",
+    "hidden_ability": "true"
   },
   {
     "id": 615,
@@ -4917,7 +5531,8 @@
     "PokeAPI_id": 615,
     "PokeAPI_name": "Cryogonal",
     "Pokemondb_name": "Cryogonal",
-    "frontend_name": "Cryogonal"
+    "frontend_name": "Cryogonal",
+    "hidden_ability": "false"
   },
   {
     "id": 616,
@@ -4925,7 +5540,8 @@
     "PokeAPI_id": 616,
     "PokeAPI_name": "Shelmet",
     "Pokemondb_name": "Shelmet",
-    "frontend_name": "Shelmet"
+    "frontend_name": "Shelmet",
+    "hidden_ability": "true"
   },
   {
     "id": 617,
@@ -4933,7 +5549,8 @@
     "PokeAPI_id": 617,
     "PokeAPI_name": "Accelgor",
     "Pokemondb_name": "Accelgor",
-    "frontend_name": "Accelgor"
+    "frontend_name": "Accelgor",
+    "hidden_ability": "true"
   },
   {
     "id": 618,
@@ -4941,7 +5558,8 @@
     "PokeAPI_id": 618,
     "PokeAPI_name": "Stunfisk",
     "Pokemondb_name": "Stunfisk",
-    "frontend_name": "Stunfisk"
+    "frontend_name": "Stunfisk",
+    "hidden_ability": "true"
   },
   {
     "id": 619,
@@ -4949,7 +5567,8 @@
     "PokeAPI_id": 619,
     "PokeAPI_name": "Mienfoo",
     "Pokemondb_name": "Mienfoo",
-    "frontend_name": "Mienfoo"
+    "frontend_name": "Mienfoo",
+    "hidden_ability": "true"
   },
   {
     "id": 620,
@@ -4957,7 +5576,8 @@
     "PokeAPI_id": 620,
     "PokeAPI_name": "Mienshao",
     "Pokemondb_name": "Mienshao",
-    "frontend_name": "Mienshao"
+    "frontend_name": "Mienshao",
+    "hidden_ability": "true"
   },
   {
     "id": 621,
@@ -4965,7 +5585,8 @@
     "PokeAPI_id": 621,
     "PokeAPI_name": "Druddigon",
     "Pokemondb_name": "Druddigon",
-    "frontend_name": "Druddigon"
+    "frontend_name": "Druddigon",
+    "hidden_ability": "true"
   },
   {
     "id": 622,
@@ -4973,7 +5594,8 @@
     "PokeAPI_id": 622,
     "PokeAPI_name": "Golett",
     "Pokemondb_name": "Golett",
-    "frontend_name": "Golett"
+    "frontend_name": "Golett",
+    "hidden_ability": "true"
   },
   {
     "id": 623,
@@ -4981,7 +5603,8 @@
     "PokeAPI_id": 623,
     "PokeAPI_name": "Golurk",
     "Pokemondb_name": "Golurk",
-    "frontend_name": "Golurk"
+    "frontend_name": "Golurk",
+    "hidden_ability": "true"
   },
   {
     "id": 624,
@@ -4989,7 +5612,8 @@
     "PokeAPI_id": 624,
     "PokeAPI_name": "Pawniard",
     "Pokemondb_name": "Pawniard",
-    "frontend_name": "Pawniard"
+    "frontend_name": "Pawniard",
+    "hidden_ability": "true"
   },
   {
     "id": 625,
@@ -4997,7 +5621,8 @@
     "PokeAPI_id": 625,
     "PokeAPI_name": "Bisharp",
     "Pokemondb_name": "Bisharp",
-    "frontend_name": "Bisharp"
+    "frontend_name": "Bisharp",
+    "hidden_ability": "true"
   },
   {
     "id": 626,
@@ -5005,7 +5630,8 @@
     "PokeAPI_id": 626,
     "PokeAPI_name": "Bouffalant",
     "Pokemondb_name": "Bouffalant",
-    "frontend_name": "Bouffalant"
+    "frontend_name": "Bouffalant",
+    "hidden_ability": "true"
   },
   {
     "id": 627,
@@ -5013,7 +5639,8 @@
     "PokeAPI_id": 627,
     "PokeAPI_name": "Rufflet",
     "Pokemondb_name": "Rufflet",
-    "frontend_name": "Rufflet"
+    "frontend_name": "Rufflet",
+    "hidden_ability": "true"
   },
   {
     "id": 628,
@@ -5021,7 +5648,8 @@
     "PokeAPI_id": 628,
     "PokeAPI_name": "Braviary",
     "Pokemondb_name": "Braviary",
-    "frontend_name": "Braviary"
+    "frontend_name": "Braviary",
+    "hidden_ability": "true"
   },
   {
     "id": 629,
@@ -5029,7 +5657,8 @@
     "PokeAPI_id": 629,
     "PokeAPI_name": "Vullaby",
     "Pokemondb_name": "Vullaby",
-    "frontend_name": "Vullaby"
+    "frontend_name": "Vullaby",
+    "hidden_ability": "true"
   },
   {
     "id": 630,
@@ -5037,7 +5666,8 @@
     "PokeAPI_id": 630,
     "PokeAPI_name": "Mandibuzz",
     "Pokemondb_name": "Mandibuzz",
-    "frontend_name": "Mandibuzz"
+    "frontend_name": "Mandibuzz",
+    "hidden_ability": "true"
   },
   {
     "id": 631,
@@ -5045,7 +5675,8 @@
     "PokeAPI_id": 631,
     "PokeAPI_name": "Heatmor",
     "Pokemondb_name": "Heatmor",
-    "frontend_name": "Heatmor"
+    "frontend_name": "Heatmor",
+    "hidden_ability": "true"
   },
   {
     "id": 632,
@@ -5053,7 +5684,8 @@
     "PokeAPI_id": 632,
     "PokeAPI_name": "Durant",
     "Pokemondb_name": "Durant",
-    "frontend_name": "Durant"
+    "frontend_name": "Durant",
+    "hidden_ability": "true"
   },
   {
     "id": 633,
@@ -5061,7 +5693,8 @@
     "PokeAPI_id": 633,
     "PokeAPI_name": "Deino",
     "Pokemondb_name": "Deino",
-    "frontend_name": "Deino"
+    "frontend_name": "Deino",
+    "hidden_ability": "false"
   },
   {
     "id": 634,
@@ -5069,7 +5702,8 @@
     "PokeAPI_id": 634,
     "PokeAPI_name": "Zweilous",
     "Pokemondb_name": "Zweilous",
-    "frontend_name": "Zweilous"
+    "frontend_name": "Zweilous",
+    "hidden_ability": "false"
   },
   {
     "id": 635,
@@ -5077,7 +5711,8 @@
     "PokeAPI_id": 635,
     "PokeAPI_name": "Hydreigon",
     "Pokemondb_name": "Hydreigon",
-    "frontend_name": "Hydreigon"
+    "frontend_name": "Hydreigon",
+    "hidden_ability": "false"
   },
   {
     "id": 636,
@@ -5085,7 +5720,8 @@
     "PokeAPI_id": 636,
     "PokeAPI_name": "Larvesta",
     "Pokemondb_name": "Larvesta",
-    "frontend_name": "Larvesta"
+    "frontend_name": "Larvesta",
+    "hidden_ability": "true"
   },
   {
     "id": 637,
@@ -5093,7 +5729,8 @@
     "PokeAPI_id": 637,
     "PokeAPI_name": "Volcarona",
     "Pokemondb_name": "Volcarona",
-    "frontend_name": "Volcarona"
+    "frontend_name": "Volcarona",
+    "hidden_ability": "true"
   },
   {
     "id": 638,
@@ -5101,7 +5738,8 @@
     "PokeAPI_id": 638,
     "PokeAPI_name": "Cobalion",
     "Pokemondb_name": "Cobalion",
-    "frontend_name": "Cobalion"
+    "frontend_name": "Cobalion",
+    "hidden_ability": "false"
   },
   {
     "id": 639,
@@ -5109,7 +5747,8 @@
     "PokeAPI_id": 639,
     "PokeAPI_name": "Terrakion",
     "Pokemondb_name": "Terrakion",
-    "frontend_name": "Terrakion"
+    "frontend_name": "Terrakion",
+    "hidden_ability": "false"
   },
   {
     "id": 640,
@@ -5117,7 +5756,8 @@
     "PokeAPI_id": 640,
     "PokeAPI_name": "Virizion",
     "Pokemondb_name": "Virizion",
-    "frontend_name": "Virizion"
+    "frontend_name": "Virizion",
+    "hidden_ability": "false"
   },
   {
     "id": 641,
@@ -5125,7 +5765,8 @@
     "PokeAPI_id": 641,
     "PokeAPI_name": "Tornadus",
     "Pokemondb_name": "Tornadus",
-    "frontend_name": "Tornadus"
+    "frontend_name": "Tornadus",
+    "hidden_ability": "false"
   },
   {
     "id": 642,
@@ -5133,7 +5774,8 @@
     "PokeAPI_id": 642,
     "PokeAPI_name": "Thundurus",
     "Pokemondb_name": "Thundurus",
-    "frontend_name": "Thundurus"
+    "frontend_name": "Thundurus",
+    "hidden_ability": "false"
   },
   {
     "id": 643,
@@ -5141,7 +5783,8 @@
     "PokeAPI_id": 643,
     "PokeAPI_name": "Reshiram",
     "Pokemondb_name": "Reshiram",
-    "frontend_name": "Reshiram"
+    "frontend_name": "Reshiram",
+    "hidden_ability": "false"
   },
   {
     "id": 644,
@@ -5149,7 +5792,8 @@
     "PokeAPI_id": 644,
     "PokeAPI_name": "Zekrom",
     "Pokemondb_name": "Zekrom",
-    "frontend_name": "Zekrom"
+    "frontend_name": "Zekrom",
+    "hidden_ability": "false"
   },
   {
     "id": 645,
@@ -5157,7 +5801,8 @@
     "PokeAPI_id": 645,
     "PokeAPI_name": "Landorus",
     "Pokemondb_name": "Landorus",
-    "frontend_name": "Landorus"
+    "frontend_name": "Landorus",
+    "hidden_ability": "false"
   },
   {
     "id": 646,
@@ -5165,7 +5810,8 @@
     "PokeAPI_id": 646,
     "PokeAPI_name": "Kyurem",
     "Pokemondb_name": "Kyurem",
-    "frontend_name": "Kyurem"
+    "frontend_name": "Kyurem",
+    "hidden_ability": "false"
   },
   {
     "id": 647,
@@ -5173,7 +5819,8 @@
     "PokeAPI_id": 647,
     "PokeAPI_name": "Keldeo",
     "Pokemondb_name": "Keldeo",
-    "frontend_name": "Keldeo"
+    "frontend_name": "Keldeo",
+    "hidden_ability": "false"
   },
   {
     "id": 648,
@@ -5181,7 +5828,8 @@
     "PokeAPI_id": 648,
     "PokeAPI_name": "Meloetta",
     "Pokemondb_name": "Meloetta",
-    "frontend_name": "Meloetta"
+    "frontend_name": "Meloetta",
+    "hidden_ability": "false"
   },
   {
     "id": 649,
@@ -5189,7 +5837,8 @@
     "PokeAPI_id": 649,
     "PokeAPI_name": "Genesect",
     "Pokemondb_name": "Genesect",
-    "frontend_name": "Genesect"
+    "frontend_name": "Genesect",
+    "hidden_ability": "false"
   },
   {
     "id": 650,
@@ -5197,7 +5846,8 @@
     "PokeAPI_id": "386-attack",
     "PokeAPI_name": "Deoxys",
     "Pokemondb_name": "Deoxys",
-    "frontend_name": "Deoxys"
+    "frontend_name": "Deoxys",
+    "hidden_ability": "false"
   },
   {
     "id": 651,
@@ -5205,7 +5855,8 @@
     "PokeAPI_id": "386-defense",
     "PokeAPI_name": "Deoxys",
     "Pokemondb_name": "Deoxys",
-    "frontend_name": "Deoxys"
+    "frontend_name": "Deoxys",
+    "hidden_ability": "false"
   },
   {
     "id": 652,
@@ -5213,7 +5864,8 @@
     "PokeAPI_id": "386-speed",
     "PokeAPI_name": "Deoxys",
     "Pokemondb_name": "Deoxys",
-    "frontend_name": "Deoxys"
+    "frontend_name": "Deoxys",
+    "hidden_ability": "false"
   },
   {
     "id": 653,
@@ -5221,7 +5873,8 @@
     "PokeAPI_id": "413-sandy",
     "PokeAPI_name": "Wormadam",
     "Pokemondb_name": "Wormadam",
-    "frontend_name": "Wormadam"
+    "frontend_name": "Wormadam",
+    "hidden_ability": "false"
   },
   {
     "id": 654,
@@ -5229,7 +5882,8 @@
     "PokeAPI_id": "413-trash",
     "PokeAPI_name": "Wormadam",
     "Pokemondb_name": "Wormadam",
-    "frontend_name": "Wormadam"
+    "frontend_name": "Wormadam",
+    "hidden_ability": "false"
   },
   {
     "id": 655,
@@ -5237,7 +5891,8 @@
     "PokeAPI_id": "492-sky",
     "PokeAPI_name": "Shaymin",
     "Pokemondb_name": "Shaymin",
-    "frontend_name": "Shaymin"
+    "frontend_name": "Shaymin",
+    "hidden_ability": "false"
   },
   {
     "id": 656,
@@ -5245,7 +5900,8 @@
     "PokeAPI_id": "487-origin",
     "PokeAPI_name": "Giratina",
     "Pokemondb_name": "Giratina",
-    "frontend_name": "Giratina"
+    "frontend_name": "Giratina",
+    "hidden_ability": "false"
   },
   {
     "id": 657,
@@ -5253,7 +5909,8 @@
     "PokeAPI_id": "479-heat",
     "PokeAPI_name": "Rotom",
     "Pokemondb_name": "Rotom",
-    "frontend_name": "Rotom"
+    "frontend_name": "Rotom",
+    "hidden_ability": "false"
   },
   {
     "id": 658,
@@ -5261,7 +5918,8 @@
     "PokeAPI_id": "479-wash",
     "PokeAPI_name": "Rotom",
     "Pokemondb_name": "Rotom",
-    "frontend_name": "Rotom"
+    "frontend_name": "Rotom",
+    "hidden_ability": "false"
   },
   {
     "id": 659,
@@ -5269,7 +5927,8 @@
     "PokeAPI_id": "479-frost",
     "PokeAPI_name": "Rotom",
     "Pokemondb_name": "Rotom",
-    "frontend_name": "Rotom"
+    "frontend_name": "Rotom",
+    "hidden_ability": "false"
   },
   {
     "id": 660,
@@ -5277,7 +5936,8 @@
     "PokeAPI_id": "479-fan",
     "PokeAPI_name": "Rotom",
     "Pokemondb_name": "Rotom",
-    "frontend_name": "Rotom"
+    "frontend_name": "Rotom",
+    "hidden_ability": "false"
   },
   {
     "id": 661,
@@ -5285,7 +5945,8 @@
     "PokeAPI_id": "479-mow",
     "PokeAPI_name": "Rotom",
     "Pokemondb_name": "Rotom",
-    "frontend_name": "Rotom"
+    "frontend_name": "Rotom",
+    "hidden_ability": "false"
   },
   {
     "id": 662,
@@ -5293,7 +5954,8 @@
     "PokeAPI_id": "351-sunny",
     "PokeAPI_name": "Castform",
     "Pokemondb_name": "Castform",
-    "frontend_name": "Castform"
+    "frontend_name": "Castform",
+    "hidden_ability": "false"
   },
   {
     "id": 663,
@@ -5301,7 +5963,8 @@
     "PokeAPI_id": "351-rainy",
     "PokeAPI_name": "Castform",
     "Pokemondb_name": "Castform",
-    "frontend_name": "Castform"
+    "frontend_name": "Castform",
+    "hidden_ability": "false"
   },
   {
     "id": 664,
@@ -5309,7 +5972,8 @@
     "PokeAPI_id": "351-snowy",
     "PokeAPI_name": "Castform",
     "Pokemondb_name": "Castform",
-    "frontend_name": "Castform"
+    "frontend_name": "Castform",
+    "hidden_ability": "false"
   },
   {
     "id": 665,
@@ -5317,7 +5981,8 @@
     "PokeAPI_id": 665,
     "PokeAPI_name": "Basculin",
     "Pokemondb_name": "Basculin",
-    "frontend_name": "Basculin"
+    "frontend_name": "Basculin",
+    "hidden_ability": "false"
   },
   {
     "id": 666,
@@ -5325,7 +5990,8 @@
     "PokeAPI_id": 666,
     "PokeAPI_name": "Darmanitan",
     "Pokemondb_name": "Darmanitan",
-    "frontend_name": "Darmanitan"
+    "frontend_name": "Darmanitan",
+    "hidden_ability": "false"
   },
   {
     "id": 667,
@@ -5333,7 +5999,8 @@
     "PokeAPI_id": "648-pirouette",
     "PokeAPI_name": "Meloetta",
     "Pokemondb_name": "Meloetta",
-    "frontend_name": "Meloetta"
+    "frontend_name": "Meloetta",
+    "hidden_ability": "false"
   },
   {
     "id": 1000,
@@ -5341,7 +6008,8 @@
     "PokeAPI_id": 1000,
     "PokeAPI_name": "Pumpking",
     "Pokemondb_name": "Pumpking",
-    "frontend_name": "Pumpking"
+    "frontend_name": "Pumpking",
+    "hidden_ability": "false"
   },
   {
     "id": 1001,
@@ -5349,7 +6017,8 @@
     "PokeAPI_id": 1001,
     "PokeAPI_name": "Pumpking",
     "Pokemondb_name": "Pumpking",
-    "frontend_name": "Pumpking"
+    "frontend_name": "Pumpking",
+    "hidden_ability": "false"
   },
   {
     "id": 1002,
@@ -5357,7 +6026,8 @@
     "PokeAPI_id": 1002,
     "PokeAPI_name": "Pumpking",
     "Pokemondb_name": "Pumpking",
-    "frontend_name": "Pumpking"
+    "frontend_name": "Pumpking",
+    "hidden_ability": "false"
   },
   {
     "id": 1003,
@@ -5365,7 +6035,8 @@
     "PokeAPI_id": 1003,
     "PokeAPI_name": "Fighting Elfbot",
     "Pokemondb_name": "Fighting Elfbot",
-    "frontend_name": "Fighting Elfbot"
+    "frontend_name": "Fighting Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1004,
@@ -5373,7 +6044,8 @@
     "PokeAPI_id": 1004,
     "PokeAPI_name": "Flying Elfbot",
     "Pokemondb_name": "Flying Elfbot",
-    "frontend_name": "Flying Elfbot"
+    "frontend_name": "Flying Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1005,
@@ -5381,7 +6053,8 @@
     "PokeAPI_id": 1005,
     "PokeAPI_name": "Poison Elfbot",
     "Pokemondb_name": "Poison Elfbot",
-    "frontend_name": "Poison Elfbot"
+    "frontend_name": "Poison Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1006,
@@ -5389,7 +6062,8 @@
     "PokeAPI_id": 1006,
     "PokeAPI_name": "Ground Elfbot",
     "Pokemondb_name": "Ground Elfbot",
-    "frontend_name": "Ground Elfbot"
+    "frontend_name": "Ground Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1007,
@@ -5397,7 +6071,8 @@
     "PokeAPI_id": 1007,
     "PokeAPI_name": "Rock Elfbot",
     "Pokemondb_name": "Rock Elfbot",
-    "frontend_name": "Rock Elfbot"
+    "frontend_name": "Rock Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1008,
@@ -5405,7 +6080,8 @@
     "PokeAPI_id": 1008,
     "PokeAPI_name": "Bug Elfbot",
     "Pokemondb_name": "Bug Elfbot",
-    "frontend_name": "Bug Elfbot"
+    "frontend_name": "Bug Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1009,
@@ -5413,7 +6089,8 @@
     "PokeAPI_id": 1009,
     "PokeAPI_name": "Ghost Elfbot",
     "Pokemondb_name": "Ghost Elfbot",
-    "frontend_name": "Ghost Elfbot"
+    "frontend_name": "Ghost Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1010,
@@ -5421,7 +6098,8 @@
     "PokeAPI_id": 1010,
     "PokeAPI_name": "Steel Elfbot",
     "Pokemondb_name": "Steel Elfbot",
-    "frontend_name": "Steel Elfbot"
+    "frontend_name": "Steel Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1011,
@@ -5429,7 +6107,8 @@
     "PokeAPI_id": 1011,
     "PokeAPI_name": "Fire Elfbot",
     "Pokemondb_name": "Fire Elfbot",
-    "frontend_name": "Fire Elfbot"
+    "frontend_name": "Fire Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1012,
@@ -5437,7 +6116,8 @@
     "PokeAPI_id": 1012,
     "PokeAPI_name": "Water Elfbot",
     "Pokemondb_name": "Water Elfbot",
-    "frontend_name": "Water Elfbot"
+    "frontend_name": "Water Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1013,
@@ -5445,7 +6125,8 @@
     "PokeAPI_id": 1013,
     "PokeAPI_name": "Grass Elfbot",
     "Pokemondb_name": "Grass Elfbot",
-    "frontend_name": "Grass Elfbot"
+    "frontend_name": "Grass Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1014,
@@ -5453,7 +6134,8 @@
     "PokeAPI_id": 1014,
     "PokeAPI_name": "Electric Elfbot",
     "Pokemondb_name": "Electric Elfbot",
-    "frontend_name": "Electric Elfbot"
+    "frontend_name": "Electric Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1015,
@@ -5461,7 +6143,8 @@
     "PokeAPI_id": 1015,
     "PokeAPI_name": "Psychic Elfbot",
     "Pokemondb_name": "Psychic Elfbot",
-    "frontend_name": "Psychic Elfbot"
+    "frontend_name": "Psychic Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1016,
@@ -5469,7 +6152,8 @@
     "PokeAPI_id": 1016,
     "PokeAPI_name": "Ice Elfbot",
     "Pokemondb_name": "Ice Elfbot",
-    "frontend_name": "Ice Elfbot"
+    "frontend_name": "Ice Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1017,
@@ -5477,7 +6161,8 @@
     "PokeAPI_id": 1017,
     "PokeAPI_name": "Dragon Elfbot",
     "Pokemondb_name": "Dragon Elfbot",
-    "frontend_name": "Dragon Elfbot"
+    "frontend_name": "Dragon Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1018,
@@ -5485,7 +6170,8 @@
     "PokeAPI_id": 1018,
     "PokeAPI_name": "Dark Elfbot",
     "Pokemondb_name": "Dark Elfbot",
-    "frontend_name": "Dark Elfbot"
+    "frontend_name": "Dark Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1019,
@@ -5493,7 +6179,8 @@
     "PokeAPI_id": 1019,
     "PokeAPI_name": "Pumprince",
     "Pokemondb_name": "Pumprince",
-    "frontend_name": "Pumprince"
+    "frontend_name": "Pumprince",
+    "hidden_ability": "false"
   },
   {
     "id": 1020,
@@ -5501,7 +6188,8 @@
     "PokeAPI_id": 1020,
     "PokeAPI_name": "Pumprincess",
     "Pokemondb_name": "Pumprincess",
-    "frontend_name": "Pumprincess"
+    "frontend_name": "Pumprincess",
+    "hidden_ability": "false"
   },
   {
     "id": 1021,
@@ -5509,7 +6197,8 @@
     "PokeAPI_id": 1021,
     "PokeAPI_name": "Li'l Pump",
     "Pokemondb_name": "Li'l Pump",
-    "frontend_name": "Li'l Pump"
+    "frontend_name": "Li'l Pump",
+    "hidden_ability": "false"
   },
   {
     "id": 1022,
@@ -5517,7 +6206,8 @@
     "PokeAPI_id": 1022,
     "PokeAPI_name": "???",
     "Pokemondb_name": "???",
-    "frontend_name": "???"
+    "frontend_name": "???",
+    "hidden_ability": "false"
   },
   {
     "id": 1023,
@@ -5525,7 +6215,8 @@
     "PokeAPI_id": 1023,
     "PokeAPI_name": "Giratina",
     "Pokemondb_name": "Giratina",
-    "frontend_name": "Giratina"
+    "frontend_name": "Giratina",
+    "hidden_ability": "false"
   },
   {
     "id": 1024,
@@ -5533,7 +6224,8 @@
     "PokeAPI_id": 1024,
     "PokeAPI_name": "Nian",
     "Pokemondb_name": "Nian",
-    "frontend_name": "Nian"
+    "frontend_name": "Nian",
+    "hidden_ability": "false"
   },
   {
     "id": 1025,
@@ -5541,7 +6233,8 @@
     "PokeAPI_id": 1025,
     "PokeAPI_name": "Jumpeon",
     "Pokemondb_name": "Jumpeon",
-    "frontend_name": "Jumpeon"
+    "frontend_name": "Jumpeon",
+    "hidden_ability": "false"
   },
   {
     "id": 1026,
@@ -5549,7 +6242,8 @@
     "PokeAPI_id": 1026,
     "PokeAPI_name": "Circuitree",
     "Pokemondb_name": "Circuitree",
-    "frontend_name": "Circuitree"
+    "frontend_name": "Circuitree",
+    "hidden_ability": "false"
   },
   {
     "id": 1027,
@@ -5557,7 +6251,8 @@
     "PokeAPI_id": 1027,
     "PokeAPI_name": "Robosanta",
     "Pokemondb_name": "Robosanta",
-    "frontend_name": "Robosanta"
+    "frontend_name": "Robosanta",
+    "hidden_ability": "false"
   },
   {
     "id": 1028,
@@ -5565,7 +6260,8 @@
     "PokeAPI_id": 1028,
     "PokeAPI_name": "Mountain Muncher",
     "Pokemondb_name": "Mountain Muncher",
-    "frontend_name": "Mountain Muncher"
+    "frontend_name": "Mountain Muncher",
+    "hidden_ability": "false"
   },
   {
     "id": 1029,
@@ -5573,7 +6269,8 @@
     "PokeAPI_id": 1029,
     "PokeAPI_name": "Fighting Elfbot",
     "Pokemondb_name": "Fighting Elfbot",
-    "frontend_name": "Fighting Elfbot"
+    "frontend_name": "Fighting Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1030,
@@ -5581,7 +6278,8 @@
     "PokeAPI_id": 1030,
     "PokeAPI_name": "Flying Elfbot",
     "Pokemondb_name": "Flying Elfbot",
-    "frontend_name": "Flying Elfbot"
+    "frontend_name": "Flying Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1031,
@@ -5589,7 +6287,8 @@
     "PokeAPI_id": 1031,
     "PokeAPI_name": "Poison Elfbot",
     "Pokemondb_name": "Poison Elfbot",
-    "frontend_name": "Poison Elfbot"
+    "frontend_name": "Poison Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1032,
@@ -5597,7 +6296,8 @@
     "PokeAPI_id": 1032,
     "PokeAPI_name": "Ground Elfbot",
     "Pokemondb_name": "Ground Elfbot",
-    "frontend_name": "Ground Elfbot"
+    "frontend_name": "Ground Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1033,
@@ -5605,7 +6305,8 @@
     "PokeAPI_id": 1033,
     "PokeAPI_name": "Rock Elfbot",
     "Pokemondb_name": "Rock Elfbot",
-    "frontend_name": "Rock Elfbot"
+    "frontend_name": "Rock Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1034,
@@ -5613,7 +6314,8 @@
     "PokeAPI_id": 1034,
     "PokeAPI_name": "Bug Elfbot",
     "Pokemondb_name": "Bug Elfbot",
-    "frontend_name": "Bug Elfbot"
+    "frontend_name": "Bug Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1035,
@@ -5621,7 +6323,8 @@
     "PokeAPI_id": 1035,
     "PokeAPI_name": "Ghost Elfbot",
     "Pokemondb_name": "Ghost Elfbot",
-    "frontend_name": "Ghost Elfbot"
+    "frontend_name": "Ghost Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1036,
@@ -5629,7 +6332,8 @@
     "PokeAPI_id": 1036,
     "PokeAPI_name": "Steel Elfbot",
     "Pokemondb_name": "Steel Elfbot",
-    "frontend_name": "Steel Elfbot"
+    "frontend_name": "Steel Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1037,
@@ -5637,7 +6341,8 @@
     "PokeAPI_id": 1037,
     "PokeAPI_name": "Fire Elfbot",
     "Pokemondb_name": "Fire Elfbot",
-    "frontend_name": "Fire Elfbot"
+    "frontend_name": "Fire Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1038,
@@ -5645,7 +6350,8 @@
     "PokeAPI_id": 1038,
     "PokeAPI_name": "Water Elfbot",
     "Pokemondb_name": "Water Elfbot",
-    "frontend_name": "Water Elfbot"
+    "frontend_name": "Water Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1039,
@@ -5653,7 +6359,8 @@
     "PokeAPI_id": 1039,
     "PokeAPI_name": "Grass Elfbot",
     "Pokemondb_name": "Grass Elfbot",
-    "frontend_name": "Grass Elfbot"
+    "frontend_name": "Grass Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1040,
@@ -5661,7 +6368,8 @@
     "PokeAPI_id": 1040,
     "PokeAPI_name": "Electric Elfbot",
     "Pokemondb_name": "Electric Elfbot",
-    "frontend_name": "Electric Elfbot"
+    "frontend_name": "Electric Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1041,
@@ -5669,7 +6377,8 @@
     "PokeAPI_id": 1041,
     "PokeAPI_name": "Psychic Elfbot",
     "Pokemondb_name": "Psychic Elfbot",
-    "frontend_name": "Psychic Elfbot"
+    "frontend_name": "Psychic Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1042,
@@ -5677,7 +6386,8 @@
     "PokeAPI_id": 1042,
     "PokeAPI_name": "Ice Elfbot",
     "Pokemondb_name": "Ice Elfbot",
-    "frontend_name": "Ice Elfbot"
+    "frontend_name": "Ice Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1043,
@@ -5685,7 +6395,8 @@
     "PokeAPI_id": 1043,
     "PokeAPI_name": "Dragon Elfbot",
     "Pokemondb_name": "Dragon Elfbot",
-    "frontend_name": "Dragon Elfbot"
+    "frontend_name": "Dragon Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1044,
@@ -5693,7 +6404,8 @@
     "PokeAPI_id": 1044,
     "PokeAPI_name": "Dark Elfbot",
     "Pokemondb_name": "Dark Elfbot",
-    "frontend_name": "Dark Elfbot"
+    "frontend_name": "Dark Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1045,
@@ -5701,7 +6413,8 @@
     "PokeAPI_id": 1045,
     "PokeAPI_name": "Normal Elfbot",
     "Pokemondb_name": "Normal Elfbot",
-    "frontend_name": "Normal Elfbot"
+    "frontend_name": "Normal Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1046,
@@ -5709,7 +6422,8 @@
     "PokeAPI_id": 1046,
     "PokeAPI_name": "Normal Elfbot",
     "Pokemondb_name": "Normal Elfbot",
-    "frontend_name": "Normal Elfbot"
+    "frontend_name": "Normal Elfbot",
+    "hidden_ability": "false"
   },
   {
     "id": 1047,
@@ -5717,7 +6431,8 @@
     "PokeAPI_id": 1047,
     "PokeAPI_name": "Pumpaladin",
     "Pokemondb_name": "Pumpaladin",
-    "frontend_name": "Pumpaladin"
+    "frontend_name": "Pumpaladin",
+    "hidden_ability": "false"
   },
   {
     "id": 1048,
@@ -5725,7 +6440,8 @@
     "PokeAPI_id": 1048,
     "PokeAPI_name": "Pumpmage",
     "Pokemondb_name": "Pumpmage",
-    "frontend_name": "Pumpmage"
+    "frontend_name": "Pumpmage",
+    "hidden_ability": "false"
   },
   {
     "id": 1049,
@@ -5733,7 +6449,8 @@
     "PokeAPI_id": 1049,
     "PokeAPI_name": "Pumpreaper",
     "Pokemondb_name": "Pumpreaper",
-    "frontend_name": "Pumpreaper"
+    "frontend_name": "Pumpreaper",
+    "hidden_ability": "false"
   },
   {
     "id": 1050,
@@ -5741,7 +6458,8 @@
     "PokeAPI_id": 1050,
     "PokeAPI_name": "Botcracker",
     "Pokemondb_name": "Botcracker",
-    "frontend_name": "Botcracker"
+    "frontend_name": "Botcracker",
+    "hidden_ability": "false"
   },
   {
     "id": 1051,
@@ -5749,7 +6467,8 @@
     "PokeAPI_id": 1051,
     "PokeAPI_name": "Pumpthief",
     "Pokemondb_name": "Pumpthief",
-    "frontend_name": "Pumpthief"
+    "frontend_name": "Pumpthief",
+    "hidden_ability": "false"
   },
   {
     "id": 1052,
@@ -5757,6 +6476,7 @@
     "PokeAPI_id": 1052,
     "PokeAPI_name": "DEBUG_ST1000",
     "Pokemondb_name": "DEBUG_ST1000",
-    "frontend_name": "DEBUG_ST1000"
+    "frontend_name": "DEBUG_ST1000",
+    "hidden_ability": "false"
   }
 ]

@@ -63,7 +63,7 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
   background:var(--panel);
   padding:16px;
   transform:translateX(-100%);
-  transition:transform .25s ease;
+  transition: transform .25s ease;
   z-index:600;
 }
 
@@ -1173,6 +1173,161 @@ body.pory-full #poryBackground {
   padding: 10px;
   padding-bottom: 45px;       /* Increased slightly to ensure the sprite doesn't overlap the new footer */
 }
+
+.held-item-info-panel {
+  position: fixed;
+  top: clamp(56px, 25%, 200px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(760px, calc(100vw - 48px));
+  max-width: 760px;
+  z-index: 25;
+  background: color-mix(in srgb, var(--panel) 88%, var(--bg));
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: 28px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  padding: 42px 14px 14px;
+  box-sizing: border-box;
+  max-height: calc(100vh - 96px);
+  overflow: auto;
+  pointer-events: auto;
+  opacity: 0;
+  transition: opacity 60ms ease;
+}
+
+.held-item-info-panel.is-visible {
+  opacity: 1;
+}
+
+.held-item-info-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 24;
+  background: rgba(3, 7, 18, 0.18);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+.held-item-info-backdrop.is-visible {
+  opacity: 1;
+  background: rgba(3, 7, 18, 0.74);
+  pointer-events: auto;
+}
+
+.held-item-info-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  border: 1px solid color-mix(in srgb, var(--fg) 12%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  color: var(--fg);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.held-item-info-close:hover,
+.held-item-info-close:focus-visible {
+  background: color-mix(in srgb, var(--accent) 70%, transparent);
+  outline: none;
+}
+
+.held-item-info-panel.hidden {
+  display: none;
+}
+
+.held-item-info-card {
+  display: grid;
+  gap: 12px;
+}
+
+.held-item-info-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(240px, 1fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
+.held-item-info-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 8px 10px;
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--fg) 8%, transparent);
+}
+
+.held-item-info-image {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  flex: 0 0 auto;
+}
+
+.held-item-info-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.1;
+  word-break: break-word;
+}
+
+.held-item-info-tablet {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--panel) 92%, transparent), color-mix(in srgb, var(--bg) 75%, transparent));
+  border: 1px solid color-mix(in srgb, var(--fg) 8%, transparent);
+  align-content: center;
+}
+
+.held-item-info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.92rem;
+}
+
+.held-item-info-label {
+  color: var(--muted);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.held-item-info-value {
+  font-weight: 700;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.held-item-info-description {
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  border: 1px solid color-mix(in srgb, var(--fg) 8%, transparent);
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 900px) {
+  .held-item-info-panel {
+    width: calc(100vw - 24px);
+  }
+
+  .held-item-info-top {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* =============================================================
    FORMS DROPDOWN
 ============================================================= */
@@ -1237,7 +1392,7 @@ body.pory-full #poryBackground {
   }
 
   .pokedex-right {
-    padding-top: 0;
+    padding-top: 10px;
   }
 }
 
@@ -2800,11 +2955,11 @@ body.pory-full #poryBackground {
 .ability-section {
   border-radius: 8px;
   padding: 6px;
-  margin-top: 6px;
 }
 
 .ability-section-overworld {
   background: var(--accentT);
+  margin-bottom: 6px;
 }
 
 .ability-section-battle {
@@ -3024,6 +3179,7 @@ body.pory-full #poryBackground {
   border-radius:999px;
   cursor:pointer;
   background: color-mix(in srgb, var(--bg) 5%, transparent);
+  min-width: 0;
 }
 
 .held-chip:hover{
@@ -3037,12 +3193,56 @@ body.pory-full #poryBackground {
 }
 
 .ability-chip {
-  width: 132px;
+  width: fit-content;
   margin: 0;
-  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   text-align: center;
+  min-width: 0;
+  background:linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--accent) 50%, var(--panel)) 0%,
+    color-mix(in srgb, var(--altAccent) 50%, var(--panel)) 100%
+  );
+  color: var(--text);
+  transition: background 0.5s ease;
+}
+
+.ability-chip.active {
+  background:linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--accent) 80%, var(--panel)) 0%,
+    color-mix(in srgb, var(--altAccent) 80%, var(--panel)) 100%
+  );
+  border: 2px solid var(--text);
+  font-weight: bold;
+}
+
+.ability-chip-text {
+  min-width: 0;
+  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.ability-chip-icon {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+}
+
+.ability-inline-box img {
+  height: 20px;
+}
+
+.ability-inline-box {
+  margin-top: 10px;
+  border: 1px dashed var(--muted);
+  border-radius: 10px;
+  padding: 10px;
+  background: var(--panel);
 }
 
 .body-summary-card {

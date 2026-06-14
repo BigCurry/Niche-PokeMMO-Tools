@@ -4,7 +4,7 @@
         "name": "stench",
         "effect": {
             "battle": "Has a 10% chance of making target Pokémon flinch with each hit.",
-            "overworld": null
+            "overworld": "test"
         },
         "pokemon_with_ability": [
             {

@@ -1908,6 +1908,8 @@ const PokedexTool = (() => {
   let data = [];
   let compat = [];
   let filtered = [];
+  let ITEMS = [];
+  let ITEMS_BY_ID = new Map();
 
   let grid, modal, modalBody;
   let summaryEvoResizeObserver = null;
@@ -1948,6 +1950,8 @@ const PokedexTool = (() => {
   let modalMoveNoticeTimer = null;
   let modalMoveTabPulseTimer = null;
   let modalMoveSelectionState = null;
+  let heldItemInfoState = null;
+  let heldItemInfoHideTimer = null;
 
   const MAP_WORLD_WIDTH = 1662;
   const MAP_WORLD_HEIGHT = 1174;
@@ -2158,13 +2162,14 @@ const PokedexTool = (() => {
   }
 
   async function loadData() {
-    const [monRes, compatRes, locRes, abilityRes, moveRes, chainRes] = await Promise.all([
+    const [monRes, compatRes, locRes, abilityRes, moveRes, chainRes, itemRes] = await Promise.all([
       fetch("./monsters.json"),
       fetch("./dex_compatibility.json"),
       fetch("./locations.json"),
       fetch("./abilities.json"),
       fetch("./moves.json"),
-      fetch("./breeding_chains.json")
+      fetch("./breeding_chains.json"),
+      fetch("./items.json")
     ]);
 
     data = await monRes.json();
@@ -2178,6 +2183,12 @@ const PokedexTool = (() => {
         .map(move => [move.id, move])
     );
     BREEDING_CHAINS = await chainRes.json();
+    ITEMS = await itemRes.json();
+    ITEMS_BY_ID = new Map(
+      ITEMS
+        .filter(Boolean)
+        .map(item => [Number(item.id), item])
+    );
   }
 
 
@@ -2188,6 +2199,8 @@ const PokedexTool = (() => {
   function bindEvents() {
     searchInput.addEventListener("input", applyFilters);
     document.addEventListener("selectionchange", syncBrowserFindHighlight);
+    modalBody.addEventListener("click", handleDexModalClick);
+    document.addEventListener("keydown", handleDexModalKeydown);
 
     $("#toggleFilters").onclick = () => {
       $("#dexfiltersPanel").classList.toggle("collapsed");
@@ -4952,12 +4965,13 @@ const PokedexTool = (() => {
     window.clearTimeout(modalMoveNoticeTimer);
     window.clearTimeout(modalMoveTabPulseTimer);
     modalMoveSelectionState = null;
+    hideHeldItemInfo({ immediate: true });
     modalBody.innerHTML = buildModal(mon);
 
     initTabs();
     initFormsList(mon); // ✅ new
     bindEvolutionClicks();
-    bindSummaryAbilities();
+    bindSummaryAbilities(mon);
     bindModalMoves(mon);
     bindModalLocations(mon);
     bindBodySummaryTools();
@@ -4997,10 +5011,12 @@ const PokedexTool = (() => {
         ${buildRightPanel(mon)}
 
       </div>
+      <div id="heldItemInfoBackdrop" class="held-item-info-backdrop hidden" aria-hidden="true"></div>
+      <div id="heldItemInfoPanel" class="held-item-info-panel hidden" aria-live="polite"></div>
     `;
   }
 
-function buildLeftPanel(mon) {
+  function buildLeftPanel(mon) {
   const forms = getAlternateForms(mon);
   const held = getHeldItems(mon);
 
@@ -5026,11 +5042,11 @@ function buildLeftPanel(mon) {
             <img src="sprites/assets/held-item.png" alt="" style="padding-right: 4px;">
               ${held.length
                 ? held.map(i => `
-                  <button class="held-chip" data-item="${i}">
+                  <button type="button" class="held-chip" data-item="${i}" aria-label="View item ${i}">
                     <img src="sprites/items/${i}.png" alt="${i}">
                   </button>
                 `).join("")
-                : `<span>None<span>`}
+                : `<span>None</span>`}
           </div>
         </div>
       </div>
@@ -5081,6 +5097,134 @@ function buildLeftPanel(mon) {
     `;
   }
 
+  function buildItemInfoPanel(item) {
+    const details = [
+      ["Base price", item.base_price],
+      ["Sell price", item.sell_price],
+      ["Modifier", item.modifier]
+    ].filter(([, value]) => value !== null && value !== undefined);
+
+    return `
+      <div class="held-item-info-card">
+        <div class="held-item-info-top">
+          <div class="held-item-info-identity">
+            <img class="held-item-info-image"
+                 src="sprites/items/${item.id}.png"
+                 alt="${escapeHtml(item.name)}"
+                 onerror="this.onerror=null;this.src='sprites/assets/held-item.png';">
+            <div class="held-item-info-name">${escapeHtml(item.name)}</div>
+          </div>
+
+          ${details.length ? `
+            <div class="held-item-info-tablet">
+              ${details.map(([label, value]) => `
+                <div class="held-item-info-row">
+                  <span class="held-item-info-label">${label}</span>
+                  <span class="held-item-info-value">${formatItemDetailValue(value)}</span>
+                </div>
+              `).join("")}
+            </div>
+          ` : ""}
+        </div>
+
+        <div class="held-item-info-description">${formatItemDescription(item.description)}</div>
+      </div>
+    `;
+  }
+
+  function handleDexModalClick(event) {
+    const closeButton = event.target.closest(".held-item-info-close");
+    if (closeButton) {
+      hideHeldItemInfo();
+      return;
+    }
+
+    if (event.target.closest("#heldItemInfoBackdrop")) {
+      hideHeldItemInfo();
+      return;
+    }
+
+    const chip = event.target.closest(".held-chip");
+    if (!chip || !modalBody.contains(chip)) return;
+
+    const itemId = Number(chip.dataset.item);
+    showHeldItemInfo(itemId, chip);
+  }
+
+  function handleDexModalKeydown(event) {
+    if (event.key !== "Escape") return;
+    if (!$(".held-item-info-panel") || $(".held-item-info-panel").classList.contains("hidden")) return;
+    hideHeldItemInfo();
+  }
+
+  function showHeldItemInfo(itemId) {
+    const panel = $("#heldItemInfoPanel");
+    const backdrop = $("#heldItemInfoBackdrop");
+    const item = ITEMS_BY_ID.get(Number(itemId));
+
+    if (!panel || !item) {
+      hideHeldItemInfo();
+      return;
+    }
+
+    window.clearTimeout(heldItemInfoHideTimer);
+    panel.innerHTML = `
+      <button type="button" class="held-item-info-close" aria-label="Close held item details">&times;</button>
+      ${buildItemInfoPanel(item)}
+    `;
+    panel.classList.remove("hidden");
+    backdrop?.classList.remove("hidden");
+    requestAnimationFrame(() => {
+      panel.classList.add("is-visible");
+      backdrop?.classList.add("is-visible");
+      heldItemInfoState = { itemId: Number(itemId) };
+    });
+  }
+
+  function hideHeldItemInfo(options = {}) {
+    const panel = $("#heldItemInfoPanel");
+    const backdrop = $("#heldItemInfoBackdrop");
+    if (!panel) return;
+
+    const immediate = Boolean(options.immediate);
+
+    if (immediate) {
+      window.clearTimeout(heldItemInfoHideTimer);
+      panel.innerHTML = "";
+      panel.classList.add("hidden");
+      panel.classList.remove("is-visible");
+      panel.style.cssText = "";
+      backdrop?.classList.add("hidden");
+      backdrop?.classList.remove("is-visible");
+      heldItemInfoState = null;
+      return;
+    }
+
+    panel.classList.remove("is-visible");
+    backdrop?.classList.remove("is-visible");
+
+    window.clearTimeout(heldItemInfoHideTimer);
+    heldItemInfoHideTimer = window.setTimeout(() => {
+      panel.innerHTML = "";
+      panel.classList.add("hidden");
+      backdrop?.classList.add("hidden");
+      heldItemInfoState = null;
+    }, 180);
+  }
+
+  function formatItemDetailValue(value) {
+    if (typeof value === "number") return value.toLocaleString();
+    if (typeof value === "string") return escapeHtml(value);
+    if (Array.isArray(value) || (value && typeof value === "object")) {
+      return escapeHtml(JSON.stringify(value));
+    }
+    return escapeHtml(String(value));
+  }
+
+  function formatItemDescription(value) {
+    return escapeHtml(value ?? "").replace(/\n/g, "<br>");
+  }
+
   /* =============================================================
     TABS
   ============================================================= */
@@ -5119,7 +5263,7 @@ function buildLeftPanel(mon) {
     $("#locations").innerHTML = buildLocations(mon);
     $("#evolutions").innerHTML = buildEvolutions(mon);
     bindEvolutionClicks();
-    bindSummaryAbilities();
+    bindSummaryAbilities(mon);
     bindModalMoves(mon);
     bindModalLocations(mon);
     bindBodySummaryTools();
@@ -5211,6 +5355,7 @@ function buildLeftPanel(mon) {
 
 function buildSummary(mon) {
   const abilities = getUniqueAbilities(mon);
+  const hiddenAbility = getHiddenAbilityInfo(mon);
   const held = getHeldItems(mon);
   const evolutionMarkup = buildHorizontalEvolution(mon);
 
@@ -5234,7 +5379,10 @@ function buildSummary(mon) {
             ? abilities.map(a => `
               <button class="summary-chip ability-chip"
                 data-ability="${a}">
-                ${a}
+                ${hiddenAbility.enabled && a === hiddenAbility.name ? `
+                  <img class="ability-chip-icon" src="sprites/assets/hiddenability.png" alt="" aria-hidden="true">
+                ` : ""}
+                <span class="ability-chip-text">${escapeHtml(a)}</span>
               </button>
             `).join("")
             : "None"}
@@ -5434,6 +5582,20 @@ function buildSummary(mon) {
       .filter(a => a && a !== "--"))];
   }
 
+  function getHiddenAbilityInfo(mon) {
+    const abilityNames = (mon.abilities || [])
+      .map(a => a?.name)
+      .filter(a => a && a !== "--");
+    const hiddenAbilityName = abilityNames.at(-1) || null;
+    const compatEntry = compat.find(entry => Number(entry.id) === Number(mon.id));
+    const hiddenAbilityEnabled = String(compatEntry?.hidden_ability).toLowerCase() === "true";
+
+    return {
+      enabled: hiddenAbilityEnabled && Boolean(hiddenAbilityName),
+      name: hiddenAbilityName
+    };
+  }
+
   function getHeldItems(mon) {
     return (mon.held_items || []).map(i => i.id || i).filter(Boolean);
   }
@@ -5523,15 +5685,17 @@ function buildTypeChart(mon) {
     return { weak4x, weak2x, resist2x, resist4x, immune };
   }
 
-  function bindSummaryAbilities() {
+  function bindSummaryAbilities(mon) {
     modalBody.querySelectorAll(".ability-chip").forEach(btn => {
       btn.onclick = () => {
-        renderInlineAbilityInfo(btn.dataset.ability);
+        modalBody.querySelectorAll(".ability-chip").forEach(c => c.classList.remove("active"));
+        btn.classList.add("active");
+        renderInlineAbilityInfo(btn.dataset.ability, mon);
       };
     });
   }
 
-  function renderInlineAbilityInfo(name) {
+  function renderInlineAbilityInfo(name, mon) {
     const key = name.toLowerCase().replace(/\s+/g, "-");
     const ability = ABILITY_DATA[key];
 
@@ -5540,8 +5704,8 @@ function buildTypeChart(mon) {
 
     box.innerHTML = `
       <div class="ability-inline-box">
-        <div><b>Battle:</b> ${ability.effect?.battle || "None"}</div>
-        <div><b>Overworld:</b> ${ability.effect?.overworld || "None"}</div>
+        ${ability.effect?.overworld ? `<div class="ability-section ability-section-overworld"><b>Overworld:</b> ${ability.effect.overworld}</div>` : ""}
+        ${ability.effect?.battle ? `<div class="ability-section ability-section-battle"><b>Battle:</b> ${ability.effect.battle}</div>` : ""}
       </div>
     `;
   }
