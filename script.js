@@ -1953,6 +1953,10 @@ const PokedexTool = (() => {
   let heldItemInfoState = null;
   let heldItemInfoHideTimer = null;
 
+  /* =============================================================
+     Map-related
+  ============================================================= */
+
   const MAP_WORLD_WIDTH = 1662;
   const MAP_WORLD_HEIGHT = 1174;
   const MAP_MIN_SCALE = 1;
@@ -1963,6 +1967,59 @@ const PokedexTool = (() => {
     Kanto: { from: { x: 520.36, y: 844.31 }, to: { x: 1029.02, y: 1162.37 } },
     Sinnoh: { from: { x: 30.1, y: 369.6 }, to: { x: 442, y: 699.4 } },
     Unova: { from: { x: 595.75, y: 382.58 }, to: { x: 1052.02, y: 715.16 } }
+  };
+  /* =============================================================
+     SVGs
+  ============================================================= */
+  const MOVE_CLASS_SVGS = {
+    physical: `
+      <svg viewBox="0 0 100 100" class="move-class-svg physical">
+        <polygon fill="#e74c3c" points="
+          50,5 58,28 82,18 72,40 95,50 72,60
+          82,82 58,72 50,95 42,72 18,82 28,60
+          5,50 28,40 18,18 42,28
+        "/>
+      </svg>
+    `,
+    special: `
+      <svg viewBox="0 0 100 100" class="move-class-svg special">
+        <defs>
+          <mask id="ringMask">
+            <rect width="100" height="100" fill="white"/>
+            <circle cx="50" cy="50" r="40" fill="white"/>
+            <circle cx="50" cy="50" r="32" fill="black"/>
+            <circle cx="50" cy="50" r="24" fill="white"/>
+            <circle cx="50" cy="50" r="16" fill="black"/>
+            <circle cx="50" cy="50" r="8" fill="white"/>
+          </mask>
+        </defs>
+        <circle cx="50" cy="50" r="40" fill="#3498db" mask="url(#ringMask)"/>
+      </svg>
+    `,
+    status: `
+      <svg viewBox="0 0 100 100" class="move-class-svg status">
+        <defs>
+          <mask id="yinMask">
+            <rect width="100" height="100" fill="white"/>
+            <path d="
+              M50 10
+              A40 40 0 0 1 50 90
+              A20 20 0 0 0 50 50
+              A20 20 0 0 1 50 10
+            " fill="black"/>
+          </mask>
+        </defs>
+        <circle cx="50" cy="50" r="45" fill="#fff" mask="url(#yinMask)"/>
+      </svg>
+    `
+  };
+
+  const TIMING_ICONS = {
+    "day": `<svg fill="currentColor" class="timing-icon" viewBox="0 0 240 240" version="1.1" xmlns="http://www.w3.org/2000/svg"><g><path d="M58.57,25.81c-2.13-3.67-0.87-8.38,2.8-10.51c3.67-2.13,8.38-0.88,10.51,2.8l9.88,17.1c2.13,3.67,0.87,8.38-2.8,10.51 c-3.67,2.13-8.38,0.88-10.51-2.8L58.57,25.81L58.57,25.81z M120,51.17c19.01,0,36.21,7.7,48.67,20.16 C181.12,83.79,188.83,101,188.83,120c0,19.01-7.7,36.21-20.16,48.67c-12.46,12.46-29.66,20.16-48.67,20.16 c-19.01,0-36.21-7.7-48.67-20.16C58.88,156.21,51.17,139.01,51.17,120c0-19.01,7.7-36.21,20.16-48.67 C83.79,58.88,101,51.17,120,51.17L120,51.17z M158.27,81.73c-9.79-9.79-23.32-15.85-38.27-15.85c-14.95,0-28.48,6.06-38.27,15.85 c-9.79,9.79-15.85,23.32-15.85,38.27c0,14.95,6.06,28.48,15.85,38.27c9.79,9.79,23.32,15.85,38.27,15.85 c14.95,0,28.48-6.06,38.27-15.85c9.79-9.79,15.85-23.32,15.85-38.27C174.12,105.05,168.06,91.52,158.27,81.73L158.27,81.73z M113.88,7.71c0-4.26,3.45-7.71,7.71-7.71c4.26,0,7.71,3.45,7.71,7.71v19.75c0,4.26-3.45,7.71-7.71,7.71 c-4.26,0-7.71-3.45-7.71-7.71V7.71L113.88,7.71z M170.87,19.72c2.11-3.67,6.8-4.94,10.48-2.83c3.67,2.11,4.94,6.8,2.83,10.48 l-9.88,17.1c-2.11,3.67-6.8,4.94-10.48,2.83c-3.67-2.11-4.94-6.8-2.83-10.48L170.87,19.72L170.87,19.72z M214.19,58.57 c3.67-2.13,8.38-0.87,10.51,2.8c2.13,3.67,0.88,8.38-2.8,10.51l-17.1,9.88c-3.67,2.13-8.38,0.87-10.51-2.8 c-2.13-3.67-0.88-8.38,2.8-10.51L214.19,58.57L214.19,58.57z M232.29,113.88c4.26,0,7.71,3.45,7.71,7.71 c0,4.26-3.45,7.71-7.71,7.71h-19.75c-4.26,0-7.71-3.45-7.71-7.71c0-4.26,3.45-7.71,7.71-7.71H232.29L232.29,113.88z M220.28,170.87 c3.67,2.11,4.94,6.8,2.83,10.48c-2.11,3.67-6.8,4.94-10.48,2.83l-17.1-9.88c-3.67-2.11-4.94-6.8-2.83-10.48 c2.11-3.67,6.8-4.94,10.48-2.83L220.28,170.87L220.28,170.87z M181.43,214.19c2.13,3.67,0.87,8.38-2.8,10.51 c-3.67,2.13-8.38,0.88-10.51-2.8l-9.88-17.1c-2.13-3.67-0.87-8.38,2.8-10.51c3.67-2.13,8.38-0.88,10.51,2.8L181.43,214.19 L181.43,214.19z M126.12,232.29c0,4.26-3.45,7.71-7.71,7.71c-4.26,0-7.71-3.45-7.71-7.71v-19.75c0-4.26,3.45-7.71,7.71-7.71 c4.26,0,7.71,3.45,7.71,7.71V232.29L126.12,232.29z M69.13,220.28c-2.11,3.67-6.8,4.94-10.48,2.83c-3.67-2.11-4.94-6.8-2.83-10.48 l9.88-17.1c2.11-3.67,6.8-4.94,10.48-2.83c3.67,2.11,4.94,6.8,2.83,10.48L69.13,220.28L69.13,220.28z M25.81,181.43 c-3.67,2.13-8.38,0.87-10.51-2.8c-2.13-3.67-0.88-8.38,2.8-10.51l17.1-9.88c3.67-2.13,8.38-0.87,10.51,2.8 c2.13,3.67,0.88,8.38-2.8,10.51L25.81,181.43L25.81,181.43z M7.71,126.12c-4.26,0-7.71-3.45-7.71-7.71c0-4.26,3.45-7.71,7.71-7.71 h19.75c4.26,0,7.71,3.45,7.71,7.71c0,4.26-3.45,7.71-7.71,7.71H7.71L7.71,126.12z M19.72,69.13c-3.67-2.11-4.94-6.8-2.83-10.48 c2.11-3.67,6.8-4.94,10.48-2.83l17.1,9.88c3.67,2.11,4.94,6.8,2.83,10.48c-2.11,3.67-6.8,4.94-10.48,2.83L19.72,69.13L19.72,69.13z"/></g></svg>`,
+
+    "morning": `<svg fill="currentColor" class="timing-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23,16a1,1,0,0,1-1,1H2a1,1,0,0,1,0-2H22A1,1,0,0,1,23,16Zm-5,5a1,1,0,0,0,0-2H6a1,1,0,0,0,0,2ZM7,12a1,1,0,0,0,2,0,3,3,0,0,1,6,0,1,1,0,0,0,2,0A5,5,0,0,0,7,12Zm4-7a1,1,0,0,0,2,0V4a1,1,0,0,0-2,0Zm7,7a1,1,0,0,0,1,1h1a1,1,0,0,0,0-2H19A1,1,0,0,0,18,12ZM4,11a1,1,0,0,0,0,2H5a1,1,0,0,0,0-2ZM5.636,5.636a1,1,0,0,0,0,1.414l.707.707A1,1,0,0,0,7.757,6.343L7.05,5.636A1,1,0,0,0,5.636,5.636Zm11.314,0-.707.707a1,1,0,1,0,1.414,1.414l.707-.707A1,1,0,1,0,16.95,5.636Z"/></svg>`,
+
+    "night": `<svg class="timing-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.5739 1.11056L13.7826 2.69316C13.7632 2.73186 13.7319 2.76325 13.6932 2.7826L12.1106 3.5739C11.9631 3.64761 11.9631 3.85797 12.1106 3.93167L13.6932 4.72297C13.7319 4.74233 13.7632 4.77371 13.7826 4.81241L14.5739 6.39502C14.6476 6.54243 14.858 6.54243 14.9317 6.39502L15.723 4.81241C15.7423 4.77371 15.7737 4.74232 15.8124 4.72297L17.395 3.93167C17.5424 3.85797 17.5424 3.64761 17.395 3.5739L15.8124 2.7826C15.7737 2.76325 15.7423 2.73186 15.723 2.69316L14.9317 1.11056C14.858 0.963147 14.6476 0.963148 14.5739 1.11056Z" fill="currentColor"/><path d="M19.2419 5.07223L18.4633 7.40815C18.4434 7.46787 18.3965 7.51474 18.3368 7.53464L16.0009 8.31328C15.8185 8.37406 15.8185 8.63198 16.0009 8.69276L18.3368 9.4714C18.3965 9.4913 18.4434 9.53817 18.4633 9.59789L19.2419 11.9338C19.3027 12.1161 19.5606 12.1161 19.6214 11.9338L20.4 9.59789C20.42 9.53817 20.4668 9.4913 20.5265 9.4714L22.8625 8.69276C23.0448 8.63198 23.0448 8.37406 22.8625 8.31328L20.5265 7.53464C20.4668 7.51474 20.42 7.46787 20.4 7.40815L19.6214 5.07223C19.5606 4.88989 19.3027 4.88989 19.2419 5.07223Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M10.4075 13.6642C13.2348 16.4915 17.6517 16.7363 20.6641 14.3703C20.7014 14.341 20.7385 14.3113 20.7754 14.2812C20.9148 14.1674 21.051 14.0479 21.1837 13.9226C21.2376 13.8718 21.2909 13.8201 21.3436 13.7674C21.8557 13.2552 22.9064 13.5578 22.7517 14.2653C22.6983 14.5098 22.6365 14.7517 22.5667 14.9905C22.5253 15.1321 22.4811 15.2727 22.4341 15.4122C22.4213 15.4502 22.4082 15.4883 22.395 15.5262C20.8977 19.8142 16.7886 23.0003 12 23.0003C5.92487 23.0003 1 18.0754 1 12.0003C1 7.13315 4.29086 2.98258 8.66889 1.54252L8.72248 1.52504C8.8185 1.49401 8.91503 1.46428 9.01205 1.43587C9.26959 1.36046 9.5306 1.29438 9.79466 1.23801C10.5379 1.07934 10.8418 2.19074 10.3043 2.72815C10.251 2.78147 10.1987 2.83539 10.1473 2.88989C10.0456 2.99777 9.94766 3.10794 9.8535 3.22023C9.83286 3.24485 9.8124 3.26957 9.79212 3.29439C7.32966 6.30844 7.54457 10.8012 10.4075 13.6642ZM8.99331 15.0784C11.7248 17.8099 15.6724 18.6299 19.0872 17.4693C17.4281 19.6024 14.85 21.0003 12 21.0003C7.02944 21.0003 3 16.9709 3 12.0003C3 9.09163 4.45653 6.47161 6.66058 4.81846C5.41569 8.27071 6.2174 12.3025 8.99331 15.0784Z" fill="currentColor"/></svg>`
   };
   /* =============================================================
      const
@@ -2050,48 +2107,6 @@ const PokedexTool = (() => {
         normal: 0.5, grass: 0.5, ice: 0.5, flying: 0.5, psychic: 0.5, bug: 0.5, rock: 0.5, ghost: 0.5, dragon: 0.5, dark: 0.5, steel: 0.5, poison: 0
       }
   };
-  const MOVE_CLASS_SVGS = {
-    physical: `
-      <svg viewBox="0 0 100 100" class="move-class-svg physical">
-        <polygon fill="#e74c3c" points="
-          50,5 58,28 82,18 72,40 95,50 72,60
-          82,82 58,72 50,95 42,72 18,82 28,60
-          5,50 28,40 18,18 42,28
-        "/>
-      </svg>
-    `,
-    special: `
-      <svg viewBox="0 0 100 100" class="move-class-svg special">
-        <defs>
-          <mask id="ringMask">
-            <rect width="100" height="100" fill="white"/>
-            <circle cx="50" cy="50" r="40" fill="white"/>
-            <circle cx="50" cy="50" r="32" fill="black"/>
-            <circle cx="50" cy="50" r="24" fill="white"/>
-            <circle cx="50" cy="50" r="16" fill="black"/>
-            <circle cx="50" cy="50" r="8" fill="white"/>
-          </mask>
-        </defs>
-        <circle cx="50" cy="50" r="40" fill="#3498db" mask="url(#ringMask)"/>
-      </svg>
-    `,
-    status: `
-      <svg viewBox="0 0 100 100" class="move-class-svg status">
-        <defs>
-          <mask id="yinMask">
-            <rect width="100" height="100" fill="white"/>
-            <path d="
-              M50 10
-              A40 40 0 0 1 50 90
-              A20 20 0 0 0 50 50
-              A20 20 0 0 1 50 10
-            " fill="black"/>
-          </mask>
-        </defs>
-        <circle cx="50" cy="50" r="45" fill="#fff" mask="url(#yinMask)"/>
-      </svg>
-    `
-  };
 
   const filters = {
     types: [],
@@ -2136,6 +2151,114 @@ const PokedexTool = (() => {
 
   const BREEDING_VARIANT_INTERVAL_MS = 1500;
   const BREEDING_VARIANT_MANUAL_PAUSE_MS = 10000;
+
+  const BALL_CATCHRATES = {
+    "cherish": 1.5,
+    "dive": 3.5,
+    "dream": {
+      "min": {
+        "sleep_turn": 0,
+        "rate": 1
+      },
+      "max": {
+        "sleep_turn": 2,
+        "rate": 4
+      }
+    },
+    "dusk": 2.5,
+    "fast": 4,
+    "friend": 2.5,
+    "great": 1.5,
+    "heal": 1.25,
+    "heavy": 4,
+    "level": 4,
+    "love": 8,
+    "lure": 4,
+    "luxury": 2,
+    "master": 99999,
+    "moon": 4,
+    "nest": {
+      "min": {
+        "level": 31,
+        "rate": 1
+      },
+      "max": {
+        "level": 16,
+        "rate": 4
+      }
+    },
+    "net": 3.5,
+    "poké": 1,
+    "premier": 1.5,
+    "quick": {
+      "min": {
+        "turn": 2,
+        "rate": 1
+      },
+      "max": {
+        "turn": 1,
+        "rate": 5
+      }
+    },
+    "repeat": {
+      "min": {
+        "catch_streak": 0,
+        "rate": 1
+      },
+      "max": {
+        "catch_streak": 15,
+        "rate": 2.5
+      }
+    },
+    "safari": 1.25,
+    "timer": {
+      "min": {
+        "turn": 1,
+        "rate": 1
+      },
+      "max": {
+        "turn": 10,
+        "rate": 4
+      }
+    },
+    "ultra": 2
+  };
+
+  const BALL_PRIO = {
+    "cherish": 5,
+    "dive": 10,
+    "dream": 15,
+    "dusk": 2.5,
+    "fast": 4,
+    "friend": 2.5,
+    "great": 200,
+    "heal": 1.25,
+    "heavy": 16,
+    "level": 14,
+    "love": 20,
+    "lure": 13,
+    "luxury": 100,
+    "master": 1,
+    "moon": 25,
+    "nest": 50,
+    "net": 60,
+    "poké": 1000,
+    "premier": 150,
+    "quick": 70,
+    "repeat": 80,
+    "safari": 1000,
+    "timer": 150,
+    "ultra": 150
+  };
+
+  const STATUS_EFFECTS_CATCHRATES = {
+    "sleep": 2,
+    "paralyze": 1.5,
+    "poison": 1.5,
+    "freeze": 2,
+    "burn": 1.5
+  }
+
   /* =============================================================
      INIT
   ============================================================= */
@@ -4975,6 +5098,7 @@ const PokedexTool = (() => {
     bindModalMoves(mon);
     bindModalLocations(mon);
     bindBodySummaryTools();
+    bindCatchSummaryTools();
     initSummaryEvolutionTree();
   }
 
@@ -5017,58 +5141,58 @@ const PokedexTool = (() => {
   }
 
   function buildLeftPanel(mon) {
-  const forms = getAlternateForms(mon);
-  const held = getHeldItems(mon);
+    const forms = getAlternateForms(mon);
+    const held = getHeldItems(mon);
 
-  return `
-    <div class="pokedex-left">
+    return `
+      <div class="pokedex-left">
 
-      <div class="pokedex-name">
-        ${mon.name}
-      </div>
+        <div class="pokedex-name">
+          ${mon.name}
+        </div>
 
-      <div class="pokedex-image-container">
-        <img id="mainImage"
-            class="pokedex-modal-image-main"
-            src="${getAnimatedSprite(mon.id)}"
-            onerror="this.src='sprites/pokemon/0.png'">
+        <div class="pokedex-image-container">
+          <img id="mainImage"
+              class="pokedex-modal-image-main"
+              src="${getAnimatedSprite(mon.id)}"
+              onerror="this.src='sprites/pokemon/0.png'">
 
-        <div class="pokedex-image-footer">
-          <div class="pokedex-modal-image-types">
-              ${buildTypeBadges(mon.types)}
-          </div>
+          <div class="pokedex-image-footer">
+            <div class="pokedex-modal-image-types">
+                ${buildTypeBadges(mon.types)}
+            </div>
 
-          <div class="item-list pokedex-modal-item-list">
-            <img src="sprites/assets/held-item.png" alt="" style="padding-right: 4px;">
-              ${held.length
-                ? held.map(i => `
-                  <button type="button" class="held-chip" data-item="${i}" aria-label="View item ${i}">
-                    <img src="sprites/items/${i}.png" alt="${i}">
-                  </button>
-                `).join("")
-                : `<span>None</span>`}
+            <div class="item-list pokedex-modal-item-list">
+              <img src="sprites/assets/held-item.png" alt="" style="padding-right: 4px;">
+                ${held.length
+                  ? held.map(i => `
+                    <button type="button" class="held-chip" data-item="${i}" aria-label="View item ${i}">
+                      <img src="sprites/items/${i}.png" alt="${i}">
+                    </button>
+                  `).join("")
+                  : `<span>None</span>`}
+            </div>
           </div>
         </div>
-      </div>
 
-      ${forms.length ? `
-        <div class="forms-list">
-          ${forms.map(f => `
-            <button type="button" class="form-btn" data-id="${f.id}" aria-label="Open ${f.name}">
-              <img src="sprites/pokemon/${f.id}.png" onerror="this.onerror=null; this.src='sprites/pokemon/0.png';">
-              <span class="form-name">${f.name}</span>
-            </button>
-          `).join("")}
+        ${forms.length ? `
+          <div class="forms-list">
+            ${forms.map(f => `
+              <button type="button" class="form-btn" data-id="${f.id}" aria-label="Open ${f.name}">
+                <img src="sprites/pokemon/${f.id}.png" onerror="this.onerror=null; this.src='sprites/pokemon/0.png';">
+                <span class="form-name">${f.name}</span>
+              </button>
+            `).join("")}
+          </div>
+        ` : ""}
+
+        <div id="stats">
+          ${buildStats(mon)}
         </div>
-      ` : ""}
 
-      <div id="stats">
-        ${buildStats(mon)}
       </div>
-
-    </div>
-  `;
-}
+    `;
+  }
 
   function buildRightPanel(mon) {
     return `
@@ -5267,6 +5391,7 @@ const PokedexTool = (() => {
     bindModalMoves(mon);
     bindModalLocations(mon);
     bindBodySummaryTools();
+    bindCatchSummaryTools();
     initSummaryEvolutionTree();
   }
 
@@ -5353,57 +5478,514 @@ const PokedexTool = (() => {
      SUMMARY 
   ============================================================= */
 
-function buildSummary(mon) {
-  const abilities = getUniqueAbilities(mon);
-  const hiddenAbility = getHiddenAbilityInfo(mon);
-  const held = getHeldItems(mon);
-  const evolutionMarkup = buildHorizontalEvolution(mon);
+  function buildSummary(mon) {
+    const abilities = getUniqueAbilities(mon);
+    const hiddenAbility = getHiddenAbilityInfo(mon);
+    const held = getHeldItems(mon);
+    const evolutionMarkup = buildHorizontalEvolution(mon);
 
-  return `
-    <div class="summary-grid">
+    return `
+      <div class="summary-grid">
+        <div class="summary-card-group-1">
+          <!-- TYPES -->
+          <div class="summary-card type-chart-summary-card">
+            <h3>Typing Chart</h3>
 
-      <!-- TYPES -->
-      <div class="summary-card">
-        <h3>Typing Chart</h3>
-
-        ${buildTypeChart(mon)}
-      </div>
+            ${buildTypeChart(mon)}
+          </div>
 
 
-      <!-- ABILITIES -->
-      <div class="summary-card">
-        <h3>Abilities</h3>
+          <!-- ABILITIES -->
+          <div class="summary-card ability-summary-card">
+            <h3>Abilities</h3>
 
-        <div class="ability-list">
-          ${abilities.length
-            ? abilities.map(a => `
-              <button class="summary-chip ability-chip"
-                data-ability="${a}">
-                ${hiddenAbility.enabled && a === hiddenAbility.name ? `
-                  <img class="ability-chip-icon" src="sprites/assets/hiddenability.png" alt="" aria-hidden="true">
-                ` : ""}
-                <span class="ability-chip-text">${escapeHtml(a)}</span>
-              </button>
-            `).join("")
-            : "None"}
+            <div class="ability-list">
+              ${abilities.length
+                ? abilities.map(a => `
+                  <button class="summary-chip ability-chip"
+                    data-ability="${a}">
+                    ${hiddenAbility.enabled && a === hiddenAbility.name ? `
+                      <img class="ability-chip-icon" src="sprites/assets/hiddenability.png" alt="" aria-hidden="true">
+                    ` : ""}
+                    <span class="ability-chip-text">${escapeHtml(a)}</span>
+                  </button>
+                `).join("")
+                : "None"}
+            </div>
+
+            <div id="summaryAbilityInfo"></div>
+          </div>
+          
+          ${buildBodySummary(mon)}
         </div>
 
-        <div id="summaryAbilityInfo"></div>
-      </div>
-
-      ${buildBodySummary(mon)}
-
-      ${evolutionMarkup ? `
-        <div class="summary-card summary-evo-card">
-          <h3>Evolutions</h3>
-
-          ${evolutionMarkup}
+        <div class="summary-card-group-2">
+          ${buildCatchSummary(mon)}
         </div>
-      ` : ""}
+        
+        ${evolutionMarkup ? `
+          <div class="summary-card summary-evo-card">
+            <h3>Evolutions</h3>
 
-    </div>
-  `;
+            ${evolutionMarkup}
+          </div>
+        ` : ""}
+
+      </div>
+    `;
+  }
+
+  function getCompatibilityEntry(mon) {
+    if (!mon) return null;
+    // Fix: Coerce both fields to Numbers to prevent string-vs-number mismatches
+    return compat.find(entry => Number(entry.id) === Number(mon.id)) || null;
+  }
+
+  function getCatchRate(mon) {
+    const entry = getCompatibilityEntry(mon);
+    const value = Number(entry?.capture_rate ?? entry?.catch_rate ?? mon?.capture_rate ?? mon?.catch_rate);
+    return Number.isFinite(value) && value > 0 ? value : null;
+  }
+const getBallOrder = (ball) => {
+  const data = BALL_CATCHRATES[ball];
+  return typeof data === 'object' && data !== null ? data.max.rate : data;
+};
+
+function getAvailableCatchBalls(mon) {
+  const entry = getCompatibilityEntry(mon);
+  
+  // Default to showing baseline Poke Balls if entry isn't found
+  const balls = entry?.balls || { poke: true }; 
+
+  return Object.entries(balls)
+    // Filter out explicit false values
+    .filter(([, available]) => available === true)
+    .map(([key]) => {
+      const data = BALL_CATCHRATES[key];
+      return {
+        key,
+        label: formatCatchBallLabel(key),
+        multiplier: getBallOrder(key),
+        prio: BALL_PRIO[key] || 0, // Fallback to 0 if priority isn't defined
+      };
+    })
+    // Ensure we only keep balls that have a valid catch rate
+    .filter(ball => ball.multiplier !== undefined)
+    // Apply the main sorting logic
+    .sort((a, b) => {
+      // 1. Compare BALL_CATCHRATES (Greater value means closer to last -> Ascending)
+      if (a.multiplier !== b.multiplier) {
+        return a.multiplier - b.multiplier;
+      }
+      
+      // 2. Tie-breaker: Compare BALL_PRIO (Greater value means closer to first -> Descending)
+      if (a.prio !== b.prio) {
+        return b.prio - a.prio;
+      }
+      
+      // 3. Fallback: Alphabetical by label if both rates and priorities match
+      return a.label.localeCompare(b.label);
+    });
 }
+
+  function formatCatchBallLabel(key) {
+    if (!key) return "???";
+    return `${key.charAt(0).toUpperCase()}${key.slice(1)} Ball`;
+  }
+
+  function getBallMultiplier(ballKey, context = {}) {
+    const data = BALL_CATCHRATES[ballKey];
+    if (!data) return 1;
+
+    if (typeof data !== 'object') {
+      return Number(data) > 0 ? Number(data) : 1;
+    }
+
+    switch (ballKey) {
+      case "timer": {
+        const turn = Math.max(1, Number(context.battleTurn) || 1);
+        if (turn <= data.min.turn) return data.min.rate;
+        if (turn >= data.max.turn) return data.max.rate;
+        const rateStep = (data.max.rate - data.min.rate) / (data.max.turn - data.min.turn);
+        return data.min.rate + (turn - data.min.turn) * rateStep;
+      }
+      case "quick": {
+        const turn = Math.max(1, Number(context.battleTurn) || 1);
+        return turn === data.max.turn ? data.max.rate : data.min.rate;
+      }
+      case "dream": {
+        const sleepTurns = Math.max(0, Number(context.sleepTurns) || 0);
+        return sleepTurns >= data.max.sleep_turn ? data.max.rate : data.min.rate;
+      }
+      case "nest": {
+        const level = Math.max(1, Math.min(100, Number(context.targetLevel) || 1));
+        if (level <= data.max.level) return data.max.rate;
+        if (level >= data.min.level) return data.min.rate;
+        const rateStep = (data.max.rate - data.min.rate) / (data.min.level - data.max.level);
+        return data.max.rate - (level - data.max.level) * rateStep;
+      }
+      case "repeat": {
+        const streak = Math.max(0, Number(context.catchStreak) || 0);
+        if (streak <= data.min.catch_streak) return data.min.rate;
+        if (streak >= data.max.catch_streak) return data.max.rate;
+        const rateStep = (data.max.rate - data.min.rate) / (data.max.catch_streak - data.min.catch_streak);
+        return data.min.rate + (streak - data.min.catch_streak) * rateStep;
+      }
+      default:
+        return Number(data.max?.rate) > 0 ? Number(data.max.rate) : 1;
+    }
+  }
+
+  function getCatchStatuses() {
+    return [
+      { key: "none", label: "None", multiplier: 1 },
+      ...Object.entries(STATUS_EFFECTS_CATCHRATES).map(([key, multiplier]) => ({
+        key,
+        label: key.charAt(0).toUpperCase() + key.slice(1),
+        multiplier: Number(multiplier) || 1
+      }))
+    ];
+  }
+
+  function getCatchChance({ catchRate, hpPercent, ballMultiplier, statusMultiplier }) {
+    const hpFactor = (3 - 2 * hpPercent) / 3; 
+    const x = catchRate * ballMultiplier * hpFactor * statusMultiplier;
+    
+    if (x >= 255) return 1;
+    const normalizedChance = x / 255;
+    
+    return Math.max(0, Math.min(1, normalizedChance));
+  }
+
+  function formatChance(value) {
+    return `${(value * 100).toFixed(value >= 0.1 ? 1 : 2)}%`;
+  }
+
+  function buildCatchSummary(mon) {
+    const catchRate = getCatchRate(mon);
+    const balls = getAvailableCatchBalls(mon);
+    const ballKeys = balls.map(b => b.key);
+    
+    // Check if either Quick Ball or Timer Ball are present to render the unified turn slider
+    const needsTurnSlider = ballKeys.includes("timer") || ballKeys.includes("quick");
+
+    return `
+      <div class="summary-card summary-catch-card" data-target-id="${mon.id}">
+        <h3>Catch Chance</h3>
+
+        ${catchRate && balls.length ? `
+          <div class="catch-summary-meta">
+            <div class="catch-summary-stat">
+              <span>Catch rate</span>
+              <b>${catchRate}</b>
+            </div>
+            <div class="catch-summary-stat">
+              <span>Available balls</span>
+              <b>${balls.length}</b>
+            </div>
+          </div>
+
+          <div class="catch-summary-controls">
+            <label class="catch-summary-control">
+              <span>Current HP %</span>
+              <input type="range" min="1" max="100" value="100" step="1" class="catch-hp-slider">
+              <b class="catch-hp-value">100%</b>
+            </label>
+
+            ${needsTurnSlider ? `
+              <label class="catch-summary-control">
+                <span>Battle Turn</span>
+                <input type="range" min="1" max="15" value="1" step="1" class="catch-battle-turn-slider">
+                <b class="catch-battle-turn-value">1</b>
+              </label>
+            ` : ''}
+
+            ${ballKeys.includes("dream") ? `
+              <label class="catch-summary-control">
+                <span>Turns Asleep</span>
+                <input type="range" min="0" max="5" value="2" step="1" class="catch-sleep-turns-slider">
+                <b class="catch-sleep-turns-value">2</b>
+              </label>
+            ` : ''}
+
+            ${ballKeys.includes("nest") ? `
+              <label class="catch-summary-control">
+                <span>Target Level</span>
+                <input type="range" min="1" max="100" value="50" step="1" class="catch-target-level-slider">
+                <b class="catch-target-level-value">50</b>
+              </label>
+            ` : ''}
+
+            ${ballKeys.includes("repeat") ? `
+              <label class="catch-summary-control">
+                <span>Catch Streak</span>
+                <input type="range" min="0" max="30" value="15" step="1" class="catch-streak-slider">
+                <b class="catch-streak-value">15</b>
+              </label>
+            ` : ''}
+          </div>
+
+          <div class="catch-summary-best">
+            <div class="catch-summary-best-label">Best available combo</div>
+            <div class="catch-summary-best-value">Updating...</div>
+          </div>
+
+          <div class="catch-summary-bars" aria-label="Catch chance chart">
+            ${buildCatchSummaryBars({ catchRate, balls, hpPercent: 1, context: { battleTurn: 1, sleepTurns: 2, targetLevel: 50, catchStreak: 15 } }).markup}
+          </div>
+
+          <div class="catch-summary-note">
+            Sliders update parameters in real-time. Quick Ball rules apply on Turn 1; Timer Ball builds strength up to Turn 10. Bars collapse duplicate rates automatically.
+          </div>
+        ` : `
+          <div class="catch-summary-empty">Catch data is unavailable for this form.</div>
+        `}
+      </div>
+    `;
+  }
+
+  function getCatchSummaryRows({ catchRate, balls, hpPercent, context }) {
+    const statuses = getCatchStatuses();
+    const rows = [];
+
+    balls.forEach(ball => {
+      const ballMultiplier = getBallMultiplier(ball.key, context);
+
+      statuses.forEach(status => {
+        const chance = getCatchChance({
+          catchRate,
+          hpPercent,
+          ballMultiplier,
+          statusMultiplier: status.multiplier
+        });
+
+        rows.push({
+          ball: ball.label,
+          ballKey: ball.key,
+          status: status.label,
+          chance,
+          ballMultiplier,
+          statusMultiplier: status.multiplier
+        });
+      });
+    });
+
+    rows.sort((a, b) => b.chance - a.chance);
+    return rows;
+  }
+
+  function buildCatchSummaryBars({ catchRate, balls, hpPercent, context }) {
+    const rawRows = getCatchSummaryRows({ catchRate, balls, hpPercent, context });
+    const collapsedMap = new Map();
+
+    rawRows.forEach(row => {
+      const groupKey = `${row.ballKey}_${row.chance.toFixed(6)}`;
+
+      if (!collapsedMap.has(groupKey)) {
+        collapsedMap.set(groupKey, {
+          ball: row.ball,
+          ballKey: row.ballKey,
+          statuses: [row.status],
+          chance: row.chance,
+          ballMultiplier: row.ballMultiplier,
+          statusMultiplier: row.statusMultiplier
+        });
+      } else {
+        const existing = collapsedMap.get(groupKey);
+        if (!existing.statuses.includes(row.status)) {
+          existing.statuses.push(row.status);
+        }
+      }
+    });
+
+    const collapsedRows = Array.from(collapsedMap.values());
+    const topRows = collapsedRows.slice(0, 20);
+
+    const totalStatusCount = Object.keys(STATUS_EFFECTS_CATCHRATES).length;
+
+    return {
+      rows: collapsedRows,
+      markup: topRows.map((row, index) => {
+        const statusLabel = row.statuses.join(", ");
+        
+        let statusImagesHtml = "";
+        // All status condition
+        if (row.statuses.length === totalStatusCount) {
+          statusImagesHtml = `<img src="sprites/assets/allstatus.png" alt="All Status Effects">`;
+        // All status and no status condition
+        } else if (row.statuses.length === totalStatusCount + 1){
+          statusImagesHtml = `<img src="sprites/assets/allstatusstates.png" alt="All Status Effects + No Status Effect">`;
+        // One status condition
+        } else if (row.statuses.length === 1){
+          statusImagesHtml = `<img src="sprites/assets/${escapeHtml(row.statuses[0])}.png" alt="${escapeHtml(row.statuses[0])}">`;
+        } else {
+          const totalImages = row.statuses.length;
+          const durationPerImage = 0.5; // Seconds each image stays visible
+          const totalDuration = totalImages * durationPerImage;
+          
+          // Calculate the exact percentage chunk an individual image takes up in the timeline
+          const stepPercent = 100 / totalImages;
+
+          statusImagesHtml = `
+            <style>
+              /* Dynamic unique keyframe per row length to guarantee flawless instant cuts */
+              @keyframes cycleInstant-${totalImages} {
+                0%, ${stepPercent}% { opacity: 1; }
+                ${stepPercent + 0.001}%, 100% { opacity: 0; }
+              }
+            </style>
+            <div class="catch-summary-status-cycler" style="position: relative; display: inline-flex; width: 24px; height: 24px;">
+              ${row.statuses
+                .map((status, imgIndex) => {
+                  const delay = imgIndex * durationPerImage;
+                  return `
+                    <img src="sprites/assets/${escapeHtml(status)}.png" 
+                         alt="${escapeHtml(status)}" 
+                         style="
+                           position: absolute; 
+                           top: 0; 
+                           left: 0; 
+                           opacity: 0;
+                           animation: cycleInstant-${totalImages} ${totalDuration}s infinite steps(1);
+                           animation-delay: -${delay}s; /* Negative delay cuts out layout pop/blank cycles on init */
+                         "
+                    />`;
+                })
+                .join("")}
+            </div>
+          `;
+        }
+
+        return `
+          <div class="catch-summary-bar-row${index === 0 ? " catch-summary-bar-row-best" : ""}">
+            <div class="catch-summary-bar-label">
+              <span class="catch-summary-pill">
+                ${fetchItemImage(row.ball)}
+                <div class="catch-summary-pill-text">
+                  ${escapeHtml(row.ball)}
+                </div>
+              </span>
+              <span class="catch-summary-bar-status" title="${escapeHtml(statusLabel)}">
+                ${statusImagesHtml}
+              </span>
+            </div>
+            <div class="catch-summary-bar-track" title="${escapeHtml(row.ball)} + ${escapeHtml(statusLabel)}">
+              <div class="catch-summary-fill" style="width:${(row.chance * 100).toFixed(2)}%"></div>
+            </div>
+            <div class="catch-summary-bar-meta">
+              <b>${formatChance(row.chance)}</b>
+              <span style="font-size: 0.5rem; opacity: 0.5;">Ball Chance: ${row.ballMultiplier.toFixed(2).replace(/\.00$/, '')}</span>
+            </div>
+          </div>
+        `;
+      }).join("")
+    };
+  }
+
+  function fetchItemImage(item) {
+    let id = null;
+
+    // 1. Check if the input is a number
+    if (!isNaN(item)) {
+      id = Number(item);
+    } else {
+      // 2. If it's a name, search the ITEMS data
+      const cleanedName = String(item).trim().toLowerCase();
+      const foundItem = ITEMS.find(i => i && i.name && i.name.toLowerCase() === cleanedName);
+      
+      if (foundItem) {
+        id = foundItem.id;
+      } else {
+        console.warn(`Item with name "${item}" not found.`);
+        return ''; // Return empty string if item isn't found
+      }
+    }
+
+    // 3. Return the HTML img string
+    return `<img src="sprites/items/${id}.png" alt="${item}" />`;
+  }
+
+  function updateCatchSummaryCard(card) {
+    const targetId = Number(card.dataset.targetId);
+    const mon = data.find(entry => Number(entry.id) === targetId);
+    if (!mon) return;
+
+    const catchRate = getCatchRate(mon);
+    const balls = getAvailableCatchBalls(mon);
+    
+    const hpSlider = card.querySelector(".catch-hp-slider");
+    const battleTurnSlider = card.querySelector(".catch-battle-turn-slider");
+    const sleepTurnsSlider = card.querySelector(".catch-sleep-turns-slider");
+    const targetLevelSlider = card.querySelector(".catch-target-level-slider");
+    const streakSlider = card.querySelector(".catch-streak-slider");
+
+    const hpValue = card.querySelector(".catch-hp-value");
+    const battleTurnValue = card.querySelector(".catch-battle-turn-value");
+    const sleepTurnsValue = card.querySelector(".catch-sleep-turns-value");
+    const targetLevelValue = card.querySelector(".catch-target-level-value");
+    const streakValue = card.querySelector(".catch-streak-value");
+    const best = card.querySelector(".catch-summary-best-value");
+
+    if (!catchRate || !balls.length || !hpSlider || !best) return;
+
+    const hpPercent = Math.max(1, Math.min(100, Number(hpSlider.value) || 100)) / 100;
+    if (hpValue) hpValue.textContent = `${Math.round(hpPercent * 100)}%`;
+
+    const context = {
+      battleTurn: battleTurnSlider ? Math.max(1, Number(battleTurnSlider.value) || 1) : 1,
+      sleepTurns: sleepTurnsSlider ? Math.max(0, Number(sleepTurnsSlider.value) || 0) : 0,
+      targetLevel: targetLevelSlider ? Math.max(1, Math.min(100, Number(targetLevelSlider.value) || 1)) : 1,
+      catchStreak: streakSlider ? Math.max(0, Number(streakSlider.value) || 0) : 0
+    };
+
+    if (battleTurnSlider && battleTurnValue) battleTurnValue.textContent = String(context.battleTurn);
+    if (sleepTurnsSlider && sleepTurnsValue) sleepTurnsValue.textContent = String(context.sleepTurns);
+    if (targetLevelSlider && targetLevelValue) targetLevelValue.textContent = String(context.targetLevel);
+    if (streakSlider && streakValue) streakValue.textContent = String(context.catchStreak);
+
+    const { rows, markup } = buildCatchSummaryBars({ catchRate, balls, hpPercent, context });
+    const bestRow = rows[0];
+    const bars = card.querySelector(".catch-summary-bars");
+    if (bars) bars.innerHTML = markup;
+
+    if (!bestRow) {
+      best.textContent = "No valid catch combinations found.";
+      return;
+    }
+
+    const hpFactor = Math.max(0, Math.min(1, (3 - 2 * hpPercent) / 3));
+    const bestStatuses = bestRow.statuses.includes("None") 
+        ? "no status effects" 
+        : bestRow.statuses.join(" / ");
+    
+    best.innerHTML = `
+      <b>${escapeHtml(bestRow.ball)}</b> with <b>${escapeHtml(bestStatuses)}</b> at <b>${formatChance(bestRow.chance)} HP</b>
+    `;
+  }
+
+  function bindCatchSummaryTools() {
+    modalBody.querySelectorAll(".summary-catch-card").forEach(card => {
+      if (card.dataset.bound) return;
+      card.dataset.bound = "true";
+
+      const update = () => updateCatchSummaryCard(card);
+
+      const sliders = [
+        ".catch-hp-slider", 
+        ".catch-battle-turn-slider", 
+        ".catch-sleep-turns-slider", 
+        ".catch-target-level-slider", 
+        ".catch-streak-slider"
+      ];
+
+      sliders.forEach(selector => {
+        const el = card.querySelector(selector);
+        if (el) el.addEventListener("input", update);
+      });
+
+      update();
+    });
+  }
 
   function buildBodySummary(mon) {
     const baseWeight = getWeightKg(mon);
@@ -5600,47 +6182,47 @@ function buildSummary(mon) {
     return (mon.held_items || []).map(i => i.id || i).filter(Boolean);
   }
 
-function buildTypeChart(mon) {
-  const effects = getTypeEffectiveness(mon.types);
-  const { weak4x, weak2x, resist2x, resist4x, immune } = categorizeEffectiveness(effects);
+  function buildTypeChart(mon) {
+    const effects = getTypeEffectiveness(mon.types);
+    const { weak4x, weak2x, resist2x, resist4x, immune } = categorizeEffectiveness(effects);
 
-  // Helper to wrap badges in a flex container if they exist
-  const wrapBadges = (badgesHtml) => {
-    return badgesHtml ? `<div class="type-chart-table-badge-wrappers">${badgesHtml}</div>` : "None";
-  };
+    // Helper to wrap badges in a flex container if they exist
+    const wrapBadges = (badgesHtml) => {
+      return badgesHtml ? `<div class="type-chart-table-badge-wrappers">${badgesHtml}</div>` : "None";
+    };
 
-  return `
-    <table class="type-chart-table">
-      <tbody>
-        <tr class="row-weakness">
-          <td rowspan="2" class="category-header"><b>Weaknesses</b></td>
-          <td><b>4x</b></td>
-          <td>${wrapBadges(buildTypeBadges(weak4x))}</td>
-        </tr>
-        <tr class="row-weakness">
-          <td><b>2x</b></td>
-          <td>${wrapBadges(buildTypeBadges(weak2x))}</td>
-        </tr>
+    return `
+      <table class="type-chart-table">
+        <tbody>
+          <tr class="row-weakness">
+            <td rowspan="2" class="category-header"><b>Weaknesses</b></td>
+            <td><b>4x</b></td>
+            <td>${wrapBadges(buildTypeBadges(weak4x))}</td>
+          </tr>
+          <tr class="row-weakness">
+            <td><b>2x</b></td>
+            <td>${wrapBadges(buildTypeBadges(weak2x))}</td>
+          </tr>
 
-        <tr class="row-resistance">
-          <td rowspan="2" class="category-header"><b>Resistances</b></td>
-          <td><b>0.5x</b></td>
-          <td>${wrapBadges(buildTypeBadges(resist2x))}</td>
-        </tr>
-        <tr class="row-resistance">
-          <td><b>0.25x</b></td>
-          <td>${wrapBadges(buildTypeBadges(resist4x))}</td>
-        </tr>
+          <tr class="row-resistance">
+            <td rowspan="2" class="category-header"><b>Resistances</b></td>
+            <td><b>0.5x</b></td>
+            <td>${wrapBadges(buildTypeBadges(resist2x))}</td>
+          </tr>
+          <tr class="row-resistance">
+            <td><b>0.25x</b></td>
+            <td>${wrapBadges(buildTypeBadges(resist4x))}</td>
+          </tr>
 
-        <tr class="row-immunity">
-          <td><b>Immunities</b></td>
-          <td><b>0x</b></td>
-          <td>${wrapBadges(buildTypeBadges(immune))}</td>
-        </tr>
-      </tbody>
-    </table>
-  `;
-}
+          <tr class="row-immunity">
+            <td><b>Immunities</b></td>
+            <td><b>0x</b></td>
+            <td>${wrapBadges(buildTypeBadges(immune))}</td>
+          </tr>
+        </tbody>
+      </table>
+    `;
+  }
 
   function getTypeEffectiveness(types = []) {
     const result = {};
@@ -7692,75 +8274,67 @@ function getDirectChildBranches(branch) {
   }
 
   function buildModalLocationVariationRows(variants) {
-      // 1. Initial mapping to extract row raw data
-      const rawRows = variants.map(variant => ({
-        type: variant.loc.type || "Unknown",
-        rarity: variant.loc.rarity || "Unknown",
-        levels: variant.loc.min_level === variant.loc.max_level
-          ? `Lv ${variant.loc.min_level || "?"}`
-          : `Lv ${variant.loc.min_level || "?"}-${variant.loc.max_level || "?"}`,
-        timing: getModalLocationTimingLabel(variant) || "Any time",
-        exp: variant.expLabel || `EXP ${variant.exp || 0}`,
-        expKey: variant.expKey || String(variant.exp || 0),
-        moveNames: variant.moveNames || [],
-        moves: variant.moves || "",
-        movesKey: variant.movesKey || ""
-      }));
+    // 1. Initial mapping to extract row raw data
+    const rawRows = variants.map(variant => ({
+      type: variant.loc.type || "Unknown",
+      rarity: variant.loc.rarity || "Unknown",
+      levels: variant.loc.min_level === variant.loc.max_level
+        ? `Lv ${variant.loc.min_level || "?"}`
+        : `Lv ${variant.loc.min_level || "?"}-${variant.loc.max_level || "?"}`,
+      timing: getModalLocationTimingLabel(variant) || "Any time",
+      exp: variant.expLabel || `EXP ${variant.exp || 0}`,
+      expKey: variant.expKey || String(variant.exp || 0),
+      moveNames: variant.moveNames || [],
+      moves: variant.moves || "",
+      movesKey: variant.movesKey || ""
+    }));
 
-      // 2. Aggregate rows that are identical except for their seasonal timing
-      const aggregatedRows = [];
+    // 2. Aggregate rows that are identical except for their seasonal timing
+    const aggregatedRows = [];
 
-      rawRows.forEach(currentRow => {
-        // Look for an existing row that matches every single property except possibly timing
-        const match = aggregatedRows.find(existingRow => 
-          existingRow.type === currentRow.type &&
-          existingRow.rarity === currentRow.rarity &&
-          existingRow.levels === currentRow.levels &&
-          existingRow.expKey === currentRow.expKey &&
-          existingRow.movesKey === currentRow.movesKey &&
-          // Ensure day/night/morning sub-timings match if they exist in the string
-          getTimingTimeComponent(existingRow.timing) === getTimingTimeComponent(currentRow.timing)
-        );
+    rawRows.forEach(currentRow => {
+      // Look for an existing row that matches every single property except possibly timing
+      const match = aggregatedRows.find(existingRow => 
+        existingRow.type === currentRow.type &&
+        existingRow.rarity === currentRow.rarity &&
+        existingRow.levels === currentRow.levels &&
+        existingRow.expKey === currentRow.expKey &&
+        existingRow.movesKey === currentRow.movesKey &&
+        // Ensure day/night/morning sub-timings match if they exist in the string
+        getTimingTimeComponent(existingRow.timing) === getTimingTimeComponent(currentRow.timing)
+      );
 
-        if (match) {
-          // Combine timings if they aren't already identical
-          if (match.timing !== currentRow.timing) {
-            match.timing = combineSeasonalTimings(match.timing, currentRow.timing);
-          }
-        } else {
-          // Deep copy or clone to avoid mutating original references mid-loop
-          aggregatedRows.push({ ...currentRow });
+      if (match) {
+        // Combine timings if they aren't already identical
+        if (match.timing !== currentRow.timing) {
+          match.timing = combineSeasonalTimings(match.timing, currentRow.timing);
         }
-      });
+      } else {
+        // Deep copy or clone to avoid mutating original references mid-loop
+        aggregatedRows.push({ ...currentRow });
+      }
+    });
 
-      // 3. Compute rowspans on the collapsed dataset
-      const typeSpans = computeModalLocationRowspans(aggregatedRows, row => row.type);
-      const raritySpans = computeModalLocationRowspans(aggregatedRows, row => row.rarity);
-      const levelsSpans = computeModalLocationRowspans(aggregatedRows, row => row.levels);
-      const timingSpans = computeModalLocationRowspans(aggregatedRows, row => row.timing);
-      const expSpans = computeModalLocationRowspans(aggregatedRows, row => row.expKey);
-      const movesSpans = computeModalLocationRowspans(aggregatedRows, row => row.movesKey);
+    // 3. Compute rowspans on the collapsed dataset
+    const typeSpans = computeModalLocationRowspans(aggregatedRows, row => row.type);
+    const raritySpans = computeModalLocationRowspans(aggregatedRows, row => row.rarity);
+    const levelsSpans = computeModalLocationRowspans(aggregatedRows, row => row.levels);
+    const timingSpans = computeModalLocationRowspans(aggregatedRows, row => row.timing);
+    const expSpans = computeModalLocationRowspans(aggregatedRows, row => row.expKey);
+    const movesSpans = computeModalLocationRowspans(aggregatedRows, row => row.movesKey);
 
-      // 4. Render HTML from the aggregated rows
-      return aggregatedRows.map((row, index) => `
-        <tr>
-          ${typeSpans.has(index) ? `<td rowspan="${typeSpans.get(index)}"><img src="sprites/assets/${row.type.toLowerCase()}.webp" alt="${row.type}" class="pokedex-modal-location-variation-type-img" onerror="this.onerror=null;this.src='sprites/pokemon/0.png';"></td>` : ""}
-          ${raritySpans.has(index) ? `<td rowspan="${raritySpans.get(index)}">${row.rarity}</td>` : ""}
-          ${levelsSpans.has(index) ? `<td rowspan="${levelsSpans.get(index)}">${row.levels}</td>` : ""}
-          ${timingSpans.has(index) ? `<td rowspan="${timingSpans.get(index)}">${renderTimingAndSeasonIcons(row.timing)}</td>` : ""}
-          ${expSpans.has(index) ? `<td rowspan="${expSpans.get(index)}">${row.exp}</td>` : ""}
-          ${movesSpans.has(index) ? `<td rowspan="${movesSpans.get(index)}">${row.moveNames.length ? `<div class="modal-location-moves-list">${row.moveNames.map(move => renderModalLocationMoveButton(move)).join("")}</div>` : "—"}</td>` : ""}
-        </tr>
-      `).join("");
-    }
-
-  const TIMING_ICONS = {
-    "day": `<svg fill="currentColor" class="timing-icon" viewBox="0 0 240 240" version="1.1" xmlns="http://www.w3.org/2000/svg"><g><path d="M58.57,25.81c-2.13-3.67-0.87-8.38,2.8-10.51c3.67-2.13,8.38-0.88,10.51,2.8l9.88,17.1c2.13,3.67,0.87,8.38-2.8,10.51 c-3.67,2.13-8.38,0.88-10.51-2.8L58.57,25.81L58.57,25.81z M120,51.17c19.01,0,36.21,7.7,48.67,20.16 C181.12,83.79,188.83,101,188.83,120c0,19.01-7.7,36.21-20.16,48.67c-12.46,12.46-29.66,20.16-48.67,20.16 c-19.01,0-36.21-7.7-48.67-20.16C58.88,156.21,51.17,139.01,51.17,120c0-19.01,7.7-36.21,20.16-48.67 C83.79,58.88,101,51.17,120,51.17L120,51.17z M158.27,81.73c-9.79-9.79-23.32-15.85-38.27-15.85c-14.95,0-28.48,6.06-38.27,15.85 c-9.79,9.79-15.85,23.32-15.85,38.27c0,14.95,6.06,28.48,15.85,38.27c9.79,9.79,23.32,15.85,38.27,15.85 c14.95,0,28.48-6.06,38.27-15.85c9.79-9.79,15.85-23.32,15.85-38.27C174.12,105.05,168.06,91.52,158.27,81.73L158.27,81.73z M113.88,7.71c0-4.26,3.45-7.71,7.71-7.71c4.26,0,7.71,3.45,7.71,7.71v19.75c0,4.26-3.45,7.71-7.71,7.71 c-4.26,0-7.71-3.45-7.71-7.71V7.71L113.88,7.71z M170.87,19.72c2.11-3.67,6.8-4.94,10.48-2.83c3.67,2.11,4.94,6.8,2.83,10.48 l-9.88,17.1c-2.11,3.67-6.8,4.94-10.48,2.83c-3.67-2.11-4.94-6.8-2.83-10.48L170.87,19.72L170.87,19.72z M214.19,58.57 c3.67-2.13,8.38-0.87,10.51,2.8c2.13,3.67,0.88,8.38-2.8,10.51l-17.1,9.88c-3.67,2.13-8.38,0.87-10.51-2.8 c-2.13-3.67-0.88-8.38,2.8-10.51L214.19,58.57L214.19,58.57z M232.29,113.88c4.26,0,7.71,3.45,7.71,7.71 c0,4.26-3.45,7.71-7.71,7.71h-19.75c-4.26,0-7.71-3.45-7.71-7.71c0-4.26,3.45-7.71,7.71-7.71H232.29L232.29,113.88z M220.28,170.87 c3.67,2.11,4.94,6.8,2.83,10.48c-2.11,3.67-6.8,4.94-10.48,2.83l-17.1-9.88c-3.67-2.11-4.94-6.8-2.83-10.48 c2.11-3.67,6.8-4.94,10.48-2.83L220.28,170.87L220.28,170.87z M181.43,214.19c2.13,3.67,0.87,8.38-2.8,10.51 c-3.67,2.13-8.38,0.88-10.51-2.8l-9.88-17.1c-2.13-3.67-0.87-8.38,2.8-10.51c3.67-2.13,8.38-0.88,10.51,2.8L181.43,214.19 L181.43,214.19z M126.12,232.29c0,4.26-3.45,7.71-7.71,7.71c-4.26,0-7.71-3.45-7.71-7.71v-19.75c0-4.26,3.45-7.71,7.71-7.71 c4.26,0,7.71,3.45,7.71,7.71V232.29L126.12,232.29z M69.13,220.28c-2.11,3.67-6.8,4.94-10.48,2.83c-3.67-2.11-4.94-6.8-2.83-10.48 l9.88-17.1c2.11-3.67,6.8-4.94,10.48-2.83c3.67,2.11,4.94,6.8,2.83,10.48L69.13,220.28L69.13,220.28z M25.81,181.43 c-3.67,2.13-8.38,0.87-10.51-2.8c-2.13-3.67-0.88-8.38,2.8-10.51l17.1-9.88c3.67-2.13,8.38-0.87,10.51,2.8 c2.13,3.67,0.88,8.38-2.8,10.51L25.81,181.43L25.81,181.43z M7.71,126.12c-4.26,0-7.71-3.45-7.71-7.71c0-4.26,3.45-7.71,7.71-7.71 h19.75c4.26,0,7.71,3.45,7.71,7.71c0,4.26-3.45,7.71-7.71,7.71H7.71L7.71,126.12z M19.72,69.13c-3.67-2.11-4.94-6.8-2.83-10.48 c2.11-3.67,6.8-4.94,10.48-2.83l17.1,9.88c3.67,2.11,4.94,6.8,2.83,10.48c-2.11,3.67-6.8,4.94-10.48,2.83L19.72,69.13L19.72,69.13z"/></g></svg>`,
-
-    "morning": `<svg fill="currentColor" class="timing-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23,16a1,1,0,0,1-1,1H2a1,1,0,0,1,0-2H22A1,1,0,0,1,23,16Zm-5,5a1,1,0,0,0,0-2H6a1,1,0,0,0,0,2ZM7,12a1,1,0,0,0,2,0,3,3,0,0,1,6,0,1,1,0,0,0,2,0A5,5,0,0,0,7,12Zm4-7a1,1,0,0,0,2,0V4a1,1,0,0,0-2,0Zm7,7a1,1,0,0,0,1,1h1a1,1,0,0,0,0-2H19A1,1,0,0,0,18,12ZM4,11a1,1,0,0,0,0,2H5a1,1,0,0,0,0-2ZM5.636,5.636a1,1,0,0,0,0,1.414l.707.707A1,1,0,0,0,7.757,6.343L7.05,5.636A1,1,0,0,0,5.636,5.636Zm11.314,0-.707.707a1,1,0,1,0,1.414,1.414l.707-.707A1,1,0,1,0,16.95,5.636Z"/></svg>`,
-
-    "night": `<svg class="timing-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.5739 1.11056L13.7826 2.69316C13.7632 2.73186 13.7319 2.76325 13.6932 2.7826L12.1106 3.5739C11.9631 3.64761 11.9631 3.85797 12.1106 3.93167L13.6932 4.72297C13.7319 4.74233 13.7632 4.77371 13.7826 4.81241L14.5739 6.39502C14.6476 6.54243 14.858 6.54243 14.9317 6.39502L15.723 4.81241C15.7423 4.77371 15.7737 4.74232 15.8124 4.72297L17.395 3.93167C17.5424 3.85797 17.5424 3.64761 17.395 3.5739L15.8124 2.7826C15.7737 2.76325 15.7423 2.73186 15.723 2.69316L14.9317 1.11056C14.858 0.963147 14.6476 0.963148 14.5739 1.11056Z" fill="currentColor"/><path d="M19.2419 5.07223L18.4633 7.40815C18.4434 7.46787 18.3965 7.51474 18.3368 7.53464L16.0009 8.31328C15.8185 8.37406 15.8185 8.63198 16.0009 8.69276L18.3368 9.4714C18.3965 9.4913 18.4434 9.53817 18.4633 9.59789L19.2419 11.9338C19.3027 12.1161 19.5606 12.1161 19.6214 11.9338L20.4 9.59789C20.42 9.53817 20.4668 9.4913 20.5265 9.4714L22.8625 8.69276C23.0448 8.63198 23.0448 8.37406 22.8625 8.31328L20.5265 7.53464C20.4668 7.51474 20.42 7.46787 20.4 7.40815L19.6214 5.07223C19.5606 4.88989 19.3027 4.88989 19.2419 5.07223Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M10.4075 13.6642C13.2348 16.4915 17.6517 16.7363 20.6641 14.3703C20.7014 14.341 20.7385 14.3113 20.7754 14.2812C20.9148 14.1674 21.051 14.0479 21.1837 13.9226C21.2376 13.8718 21.2909 13.8201 21.3436 13.7674C21.8557 13.2552 22.9064 13.5578 22.7517 14.2653C22.6983 14.5098 22.6365 14.7517 22.5667 14.9905C22.5253 15.1321 22.4811 15.2727 22.4341 15.4122C22.4213 15.4502 22.4082 15.4883 22.395 15.5262C20.8977 19.8142 16.7886 23.0003 12 23.0003C5.92487 23.0003 1 18.0754 1 12.0003C1 7.13315 4.29086 2.98258 8.66889 1.54252L8.72248 1.52504C8.8185 1.49401 8.91503 1.46428 9.01205 1.43587C9.26959 1.36046 9.5306 1.29438 9.79466 1.23801C10.5379 1.07934 10.8418 2.19074 10.3043 2.72815C10.251 2.78147 10.1987 2.83539 10.1473 2.88989C10.0456 2.99777 9.94766 3.10794 9.8535 3.22023C9.83286 3.24485 9.8124 3.26957 9.79212 3.29439C7.32966 6.30844 7.54457 10.8012 10.4075 13.6642ZM8.99331 15.0784C11.7248 17.8099 15.6724 18.6299 19.0872 17.4693C17.4281 19.6024 14.85 21.0003 12 21.0003C7.02944 21.0003 3 16.9709 3 12.0003C3 9.09163 4.45653 6.47161 6.66058 4.81846C5.41569 8.27071 6.2174 12.3025 8.99331 15.0784Z" fill="currentColor"/></svg>`
-  };
+    // 4. Render HTML from the aggregated rows
+    return aggregatedRows.map((row, index) => `
+      <tr>
+        ${typeSpans.has(index) ? `<td rowspan="${typeSpans.get(index)}"><img src="sprites/assets/${row.type.toLowerCase()}.webp" alt="${row.type}" class="pokedex-modal-location-variation-type-img" onerror="this.onerror=null;this.src='sprites/pokemon/0.png';"></td>` : ""}
+        ${raritySpans.has(index) ? `<td rowspan="${raritySpans.get(index)}">${row.rarity}</td>` : ""}
+        ${levelsSpans.has(index) ? `<td rowspan="${levelsSpans.get(index)}">${row.levels}</td>` : ""}
+        ${timingSpans.has(index) ? `<td rowspan="${timingSpans.get(index)}">${renderTimingAndSeasonIcons(row.timing)}</td>` : ""}
+        ${expSpans.has(index) ? `<td rowspan="${expSpans.get(index)}">${row.exp}</td>` : ""}
+        ${movesSpans.has(index) ? `<td rowspan="${movesSpans.get(index)}">${row.moveNames.length ? `<div class="modal-location-moves-list">${row.moveNames.map(move => renderModalLocationMoveButton(move)).join("")}</div>` : "—"}</td>` : ""}
+      </tr>
+    `).join("");
+  }
 
   function getTimingTimeComponent(timingLabel) {
     const lower = timingLabel.toLowerCase();

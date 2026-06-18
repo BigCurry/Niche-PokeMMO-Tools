@@ -1,60 +1,91 @@
 import json
 import os
 
-def update_hidden_abilities(synergy_path, compatibility_path):
-    # 1. Load the data files securely
-    if not os.path.exists(synergy_path) or not os.path.exists(compatibility_path):
-        print("Error: One or both JSON files could not be found.")
+def merge_pokemon_data():
+    source_file = 'synergymmodata.json'
+    target_file = 'dex_compatibility.json'
+    
+    # 1. Safety check to ensure files exist
+    if not os.path.exists(source_file) or not os.path.exists(target_file):
+        print(f"Error: Make sure both '{source_file}' and '{target_file}' are in this directory.")
         return
 
-    with open(synergy_path, "r", encoding="utf-8") as f:
-        synergy_data = json.load(f)
-
-    with open(compatibility_path, "r", encoding="utf-8") as f:
-        compatibility_data = json.load(f)
-
-    # 2. Extract the set of Pokémon names that possess a hidden ability
-    # Using a set for quick O(1) lookups later
-    pokemon_with_ha = set()
-
-    for pkmn_key, pkmn_details in synergy_data.items():
-        # Safeguard against missing or malformed "abilities" arrays
-        abilities = pkmn_details.get("abilities", [])
+    # 2. Load data from files
+    print("Loading datasets...")
+    with open(source_file, 'r', encoding='utf-8') as f:
+        mmo_data = json.load(f)
         
-        # Check if any ability object has "is_hidden" set to True
-        has_hidden = any(ability.get("is_hidden") is True for ability in abilities)
-        
-        if has_hidden:
-            # Add the canonical name (or the key) in lowercase for standardized matching
-            name_to_store = pkmn_details.get("name", pkmn_key).strip().lower()
-            pokemon_with_ha.add(name_to_store)
+    with open(target_file, 'r', encoding='utf-8') as f:
+        dex_compatibility = json.load(f)
 
-    # 3. Update the matching items inside dex_compatibility.json
-    modified_count = 0
+    # 3. Create lookup tables for both names and IDs
+    mmo_name_lookup = {}
+    mmo_id_lookup = {}
     
-    # dex_compatibility.json contains a list of objects
-    for entry in compatibility_data:
-        entry_name = entry.get("name")
-        if entry_name and isinstance(entry_name, str):
-            normalized_name = entry_name.strip().lower()
+    for key, value in mmo_data.items():
+        # Map by lowercase name key
+        mmo_name_lookup[key.lower()] = value
+        
+        # Map by numerical ID if it exists in the source object
+        if isinstance(value, dict) and "id" in value:
+            mmo_id_lookup[int(value["id"])] = value
+
+    updated_by_name = 0
+    updated_by_id = 0
+    missing_matches = []
+
+    # 4. Iterate over target items and inject the new keys
+    print("Processing updates...")
+    for pokemon in dex_compatibility:
+        pkmn_name = pokemon.get("name", "").lower()
+        pkmn_id = pokemon.get("id") or pokemon.get("PokeAPI_id")
+        
+        source_obj = None
+        matched_via = None
+        
+        # Strategy A: Attempt Name Matching
+        if pkmn_name in mmo_name_lookup:
+            source_obj = mmo_name_lookup[pkmn_name]
+            matched_via = "name"
+        
+        # Strategy B: Fallback to ID Matching if name match failed
+        elif pkmn_id is not None:
+            try:
+                target_id_int = int(pkmn_id)
+                if target_id_int in mmo_id_lookup:
+                    source_obj = mmo_id_lookup[target_id_int]
+                    matched_via = "id"
+            except (ValueError, TypeError):
+                pass # Handle cases where id might not be a valid integer conversion
+
+        # Apply updates if a match was found by either method
+        if source_obj:
+            pokemon["capture_rate"] = source_obj.get("capture_rate", None)
+            pokemon["alpha"] = source_obj.get("alpha", "no")
+            pokemon["obtainable"] = source_obj.get("obtainable", False)
             
-            # Check if this Pokémon was flagged as having a hidden ability
-            if normalized_name in pokemon_with_ha:
-                # Update the value to the string format "true" as specified in your sample
-                if entry.get("hidden_ability") != "true":
-                    entry["hidden_ability"] = "true"
-                    modified_count += 1
+            if matched_via == "name":
+                updated_by_name += 1
+            elif matched_via == "id":
+                updated_by_id += 1
+        else:
+            missing_matches.append(pokemon.get("name") or f"ID {pkmn_id}")
 
-    # 4. Save the updated layout clean and formatted back to the file
-    with open(compatibility_path, "w", encoding="utf-8") as f:
-        json.dump(compatibility_data, f, indent=2, ensure_ascii=False)
+    # 5. Save the modified destination structure back to the file
+    with open(target_file, 'w', encoding='utf-8') as f:
+        json.dump(dex_compatibility, f, indent=2, ensure_ascii=False)
 
-    print(f"Update complete! Modified {modified_count} records in '{compatibility_path}'.")
+    # 6. Detailed Summary Report
+    print("\n--- Summary ---")
+    print(f"Successfully updated {updated_by_name + updated_by_id} Pokémon entries.")
+    print(f"  - Matched by Name: {updated_by_name}")
+    print(f"  - Matched by ID Fallback: {updated_by_id}")
+    
+    if missing_matches:
+        print(f"\nWarning: Could not match {len(missing_matches)} entries by name or ID.")
+        print(f"Skipped: {', '.join(str(item) for item in missing_matches[:15])}...")
+    else:
+        print("Perfect fit! All entries matched perfectly.")
 
 if __name__ == "__main__":
-    # Update these paths if your files are stored in another folder directory
-    SYNERGY_FILE = "unused/synergymmodata.json"
-    COMPATIBILITY_FILE = "dex_compatibility.json"
-
-    update_hidden_abilities(SYNERGY_FILE, COMPATIBILITY_FILE)
-    print("done")
+    merge_pokemon_data()
