@@ -1952,6 +1952,8 @@ const PokedexTool = (() => {
   let modalMoveSelectionState = null;
   let heldItemInfoState = null;
   let heldItemInfoHideTimer = null;
+  let catchSummaryStateById = new Map();
+  let catchSummaryGlobalListenersBound = false;
 
   /* =============================================================
      Map-related
@@ -2170,7 +2172,16 @@ const PokedexTool = (() => {
     "friend": 2.5,
     "great": 1.5,
     "heal": 1.25,
-    "heavy": 4,
+    "heavy": {
+      "min": {
+        "weight": 0,
+        "rate": 1
+      },
+      "max": {
+        "weight": 3000,
+        "rate": 4
+      }
+    },
     "level": 4,
     "love": 8,
     "lure": 4,
@@ -5277,8 +5288,20 @@ const PokedexTool = (() => {
 
   function handleDexModalKeydown(event) {
     if (event.key !== "Escape") return;
-    if (!$(".held-item-info-panel") || $(".held-item-info-panel").classList.contains("hidden")) return;
-    hideHeldItemInfo();
+    const heldItemPanel = $(".held-item-info-panel");
+    if (heldItemPanel && !heldItemPanel.classList.contains("hidden")) {
+      hideHeldItemInfo();
+      return;
+    }
+
+    modalBody.querySelectorAll(".summary-catch-card").forEach(card => {
+      const state = getCatchSummaryState(data.find(entry => Number(entry.id) === Number(card.dataset.targetId)));
+      if (!state || !state.searchActive) return;
+      state.searchActive = false;
+      const searchInputEl = card.querySelector(".catch-summary-search");
+      if (searchInputEl) searchInputEl.blur();
+      updateCatchSummaryCard(card);
+    });
   }
 
   function showHeldItemInfo(itemId) {
@@ -5546,47 +5569,256 @@ const PokedexTool = (() => {
     const value = Number(entry?.capture_rate ?? entry?.catch_rate ?? mon?.capture_rate ?? mon?.catch_rate);
     return Number.isFinite(value) && value > 0 ? value : null;
   }
-const getBallOrder = (ball) => {
-  const data = BALL_CATCHRATES[ball];
-  return typeof data === 'object' && data !== null ? data.max.rate : data;
-};
 
-function getAvailableCatchBalls(mon) {
-  const entry = getCompatibilityEntry(mon);
-  
-  // Default to showing baseline Poke Balls if entry isn't found
-  const balls = entry?.balls || { poke: true }; 
+  const getBallOrder = (ball) => {
+    const data = BALL_CATCHRATES[ball];
+    return typeof data === "object" && data !== null ? data.max.rate : data;
+  };
 
-  return Object.entries(balls)
-    // Filter out explicit false values
-    .filter(([, available]) => available === true)
-    .map(([key]) => {
-      const data = BALL_CATCHRATES[key];
-      return {
+  function normalizeCatchQuery(value) {
+    return String(value ?? "")
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim();
+  }
+
+  function getDefaultNestTargetLevel(mon) {
+    const levels = (mon?.locations || [])
+      .map(loc => Number(loc?.min_level))
+      .filter(Number.isFinite);
+
+    if (!levels.length) return 50;
+    return Math.max(1, Math.min(...levels));
+  }
+
+  function getCatchBallOptions(mon) {
+    const entry = getCompatibilityEntry(mon);
+    const compatBalls = entry?.balls || { "poké": true };
+
+    return Object.entries(BALL_CATCHRATES)
+      .map(([key]) => ({
         key,
         label: formatCatchBallLabel(key),
         multiplier: getBallOrder(key),
-        prio: BALL_PRIO[key] || 0, // Fallback to 0 if priority isn't defined
-      };
-    })
-    // Ensure we only keep balls that have a valid catch rate
-    .filter(ball => ball.multiplier !== undefined)
-    // Apply the main sorting logic
-    .sort((a, b) => {
-      // 1. Compare BALL_CATCHRATES (Greater value means closer to last -> Ascending)
-      if (a.multiplier !== b.multiplier) {
-        return a.multiplier - b.multiplier;
-      }
-      
-      // 2. Tie-breaker: Compare BALL_PRIO (Greater value means closer to first -> Descending)
-      if (a.prio !== b.prio) {
-        return b.prio - a.prio;
-      }
-      
-      // 3. Fallback: Alphabetical by label if both rates and priorities match
-      return a.label.localeCompare(b.label);
-    });
-}
+        prio: BALL_PRIO[key] || 0,
+        enabledByDefault: compatBalls[key] === true
+      }))
+      .filter(ball => ball.multiplier !== undefined)
+      .sort((a, b) => {
+        if (a.multiplier !== b.multiplier) {
+          return a.multiplier - b.multiplier;
+        }
+
+        if (a.prio !== b.prio) {
+          return b.prio - a.prio;
+        }
+
+        return a.label.localeCompare(b.label);
+      });
+  }
+
+  function getCatchSummaryState(mon) {
+    const id = Number(mon?.id);
+    if (!Number.isFinite(id)) return null;
+
+    if (!catchSummaryStateById.has(id)) {
+      const entry = getCompatibilityEntry(mon);
+      const ballOptions = getCatchBallOptions(mon);
+      const ballEnabled = Object.fromEntries(
+        ballOptions.map(ball => [ball.key, ball.enabledByDefault])
+      );
+
+      catchSummaryStateById.set(id, {
+        filtersOpen: false,
+        overlayDismissed: false,
+        ballSearch: "",
+        searchActive: false,
+        manualBattleTurn: false,
+        hpPercent: 100,
+        battleTurn: 1,
+        sleepTurns: 2,
+        targetLevel: getDefaultNestTargetLevel(mon),
+        catchStreak: 15,
+        alphaEnabled: false,
+        ballEnabled
+      });
+    }
+
+    return catchSummaryStateById.get(id);
+  }
+
+  function getCatchStatuses(ballKey) {
+    if (ballKey === "safari") {
+      return [
+        { key: "none", label: "None", multiplier: 1 }
+      ];
+    }
+
+    if (ballKey === "dream") {
+      return [
+        { key: "sleep", label: "Sleep", multiplier: STATUS_EFFECTS_CATCHRATES.sleep }
+      ];
+    }
+
+    if (ballKey === "quick") {
+      return [
+        { key: "none", label: "None", multiplier: 1 },
+        { key: "sleep", label: "Sleep", multiplier: STATUS_EFFECTS_CATCHRATES.sleep }
+      ];
+    }
+
+    return [
+      { key: "none", label: "None", multiplier: 1 },
+      ...Object.entries(STATUS_EFFECTS_CATCHRATES).map(([key, multiplier]) => ({
+        key,
+        label: key.charAt(0).toUpperCase() + key.slice(1),
+        multiplier: Number(multiplier) || 1
+      }))
+    ];
+  }
+
+  function getEffectiveCatchRate(mon, state = null) {
+    const entry = getCompatibilityEntry(mon);
+    const baseRate = getCatchRate(mon);
+
+    if (entry?.alpha && state?.alphaEnabled !== false) {
+      return 10;
+    }
+
+    return baseRate;
+  }
+
+  function getCatchBallToggleMarkup(ball, state, selectedBallKey = "") {
+    const enabled = Boolean(state.ballEnabled[ball.key]);
+    const isSelected = selectedBallKey === ball.key;
+    const statusClass = enabled ? "is-enabled" : "is-disabled";
+    const compatClass = ball.enabledByDefault ? "is-compat-true" : "is-compat-false";
+
+    return `
+      <label class="catch-summary-ball-toggle ${statusClass} ${compatClass}${isSelected ? " is-selected" : ""}" data-ball-key="${escapeHtml(ball.key)}" data-default-enabled="${ball.enabledByDefault ? "true" : "false"}">
+        <input type="checkbox" data-ball-toggle="${escapeHtml(ball.key)}" ${enabled ? "checked" : ""}>
+        <span class="catch-summary-ball-toggle-icon">${fetchItemImage(ball.label)}</span>
+        <span class="catch-summary-ball-toggle-text">
+          <span class="catch-summary-ball-toggle-name">${escapeHtml(ball.label)}</span>
+          <span class="catch-summary-ball-toggle-state">${enabled ? "Enabled" : "Disabled"}</span>
+        </span>
+      </label>
+    `;
+  }
+
+  function getCatchBestStatusMarkup(statuses) {
+    const compactClass = statuses.length >= 4 ? " is-compact" : "";
+
+    return `
+      <span class="catch-summary-best-statuses${compactClass}" data-status-count="${statuses.length}">
+        ${statuses.map(status => {
+      const fileKey = status.key === "none" ? "none" : status.key.toLowerCase();
+      return `<img class="catch-summary-status-icon" src="sprites/assets/${fileKey}.png" alt="${escapeHtml(status.label)}" title="${escapeHtml(status.label)}">`;
+    }).join("")}
+      </span>
+    `;
+  }
+
+  function getCatchBestBallMarkup(ball) {
+    return `${fetchItemImage(ball.label)}<span class="catch-summary-best-ball-label">${escapeHtml(ball.label)}</span>`;
+  }
+
+  function getCatchSummaryPanelMarkup(mon, state) {
+    const entry = getCompatibilityEntry(mon);
+    const ballOptions = getCatchBallOptions(mon);
+    const enabledCount = ballOptions.filter(ball => state.ballEnabled[ball.key]).length;
+    const targetLevelDefault = getDefaultNestTargetLevel(mon);
+    const hasDream = ballOptions.some(ball => ball.key === "dream");
+    const hasNest = ballOptions.some(ball => ball.key === "nest");
+    const hasRepeat = ballOptions.some(ball => ball.key === "repeat");
+
+    return `
+      <div class="catch-summary-toolbar">
+        <div class="catch-summary-search-wrap">
+          <div class="catch-summary-search-row">
+            <input
+              type="search"
+              class="mc-input catch-summary-search"
+              placeholder="Search balls..."
+              value="${escapeHtml(state.ballSearch || "")}"
+              autocomplete="off"
+            >
+            <button type="button" class="btn btn--panel catch-summary-search-enable hidden">Enable</button>
+          </div>
+          <div class="catch-summary-search-dropdown hidden" role="listbox" aria-label="Ball search results"></div>
+        </div>
+
+        <button type="button" class="btn btn--panel catch-summary-filters-button" aria-label="Toggle catch filters">
+          <svg width="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+          </svg>
+        </button>
+      </div>
+
+      <div class="catch-summary-filters-panel ${state.filtersOpen ? "" : "collapsed"}">
+        <div class="catch-summary-meta">
+          <div class="catch-summary-stat">
+            <span>Catch rate</span>
+            <b>${entry?.alpha && state.alphaEnabled ? 10 : getCatchRate(mon) ?? "?"}</b>
+          </div>
+          <div class="catch-summary-stat">
+            <span>Enabled balls</span>
+            <b>${enabledCount}</b>
+          </div>
+        </div>
+
+        <div class="catch-summary-controls">
+          <label class="catch-summary-control">
+            <span>Current HP %</span>
+            <input type="range" min="1" max="100" value="${state.hpPercent}" step="1" class="catch-hp-slider">
+            <b class="catch-hp-value">${state.hpPercent}%</b>
+          </label>
+
+          <label class="catch-summary-control">
+            <span>Battle Turn</span>
+            <input type="range" min="1" max="15" value="${state.battleTurn}" step="1" class="catch-battle-turn-slider" data-manual="${state.manualBattleTurn ? "true" : "false"}">
+            <b class="catch-battle-turn-value">${state.manualBattleTurn ? String(state.battleTurn) : "∅"}</b>
+          </label>
+
+          ${hasDream ? `
+            <label class="catch-summary-control">
+              <span>Turns Asleep</span>
+              <input type="range" min="0" max="5" value="${state.sleepTurns}" step="1" class="catch-sleep-turns-slider">
+              <b class="catch-sleep-turns-value">${state.sleepTurns}</b>
+            </label>
+          ` : ""}
+
+          ${hasNest ? `
+            <label class="catch-summary-control">
+              <span>Target Level</span>
+              <input type="range" min="1" max="100" value="${state.targetLevel}" step="1" class="catch-target-level-slider" data-default-value="${targetLevelDefault}">
+              <b class="catch-target-level-value">${state.targetLevel}</b>
+            </label>
+          ` : ""}
+
+          ${hasRepeat ? `
+            <label class="catch-summary-control">
+              <span>Catch Streak</span>
+              <input type="range" min="0" max="30" value="${state.catchStreak}" step="1" class="catch-streak-slider">
+              <b class="catch-streak-value">${state.catchStreak}</b>
+            </label>
+          ` : ""}
+        </div>
+
+        ${entry?.alpha ? `
+          <label class="catch-summary-alpha-toggle">
+            <input type="checkbox" class="catch-alpha-toggle" ${state.alphaEnabled ? "checked" : ""}>
+            <span>Use <img src="sprites/assets/alpha.png" style="height: 15px" alt="alpha"> catch rate (10)</span>
+          </label>
+        ` : ""}
+
+        <div class="catch-summary-ball-controls">
+          ${ballOptions.map(ball => getCatchBallToggleMarkup(ball, state, normalizeCatchQuery(state.ballSearch))).join("")}
+        </div>
+      </div>
+    `;
+  }
 
   function formatCatchBallLabel(key) {
     if (!key) return "???";
@@ -5602,15 +5834,22 @@ function getAvailableCatchBalls(mon) {
     }
 
     switch (ballKey) {
+      case "heavy": {
+        const weight = Math.max(0, Number(context.weightKg) || Number(context.targetWeightKg) || 0);
+        if (weight >= 3000) return 4;
+        if (weight >= 2000) return 3;
+        if (weight >= 1000) return 2;
+        return data.min.rate;
+      }
       case "timer": {
-        const turn = Math.max(1, Number(context.battleTurn) || 1);
+        const turn = context.battleTurnManual ? Math.max(1, Number(context.battleTurn) || 1) : data.max.turn;
         if (turn <= data.min.turn) return data.min.rate;
         if (turn >= data.max.turn) return data.max.rate;
         const rateStep = (data.max.rate - data.min.rate) / (data.max.turn - data.min.turn);
         return data.min.rate + (turn - data.min.turn) * rateStep;
       }
       case "quick": {
-        const turn = Math.max(1, Number(context.battleTurn) || 1);
+        const turn = context.battleTurnManual ? Math.max(1, Number(context.battleTurn) || 1) : data.max.turn;
         return turn === data.max.turn ? data.max.rate : data.min.rate;
       }
       case "dream": {
@@ -5636,17 +5875,6 @@ function getAvailableCatchBalls(mon) {
     }
   }
 
-  function getCatchStatuses() {
-    return [
-      { key: "none", label: "None", multiplier: 1 },
-      ...Object.entries(STATUS_EFFECTS_CATCHRATES).map(([key, multiplier]) => ({
-        key,
-        label: key.charAt(0).toUpperCase() + key.slice(1),
-        multiplier: Number(multiplier) || 1
-      }))
-    ];
-  }
-
   function getCatchChance({ catchRate, hpPercent, ballMultiplier, statusMultiplier }) {
     const hpFactor = (3 - 2 * hpPercent) / 3; 
     const x = catchRate * ballMultiplier * hpFactor * statusMultiplier;
@@ -5662,99 +5890,60 @@ function getAvailableCatchBalls(mon) {
   }
 
   function buildCatchSummary(mon) {
-    const catchRate = getCatchRate(mon);
-    const balls = getAvailableCatchBalls(mon);
-    const ballKeys = balls.map(b => b.key);
-    
-    // Check if either Quick Ball or Timer Ball are present to render the unified turn slider
-    const needsTurnSlider = ballKeys.includes("timer") || ballKeys.includes("quick");
+    const state = getCatchSummaryState(mon);
+    const catchRate = getEffectiveCatchRate(mon, state);
+    const ballOptions = getCatchBallOptions(mon);
+    const enabledBalls = ballOptions.filter(ball => state.ballEnabled[ball.key]);
+    const catchable = Number(catchRate) > 0;
+    const entry = getCompatibilityEntry(mon);
+    const isObtainable = entry?.obtainable !== false;
 
     return `
       <div class="summary-card summary-catch-card" data-target-id="${mon.id}">
         <h3>Catch Chance</h3>
 
-        ${catchRate && balls.length ? `
-          <div class="catch-summary-meta">
-            <div class="catch-summary-stat">
-              <span>Catch rate</span>
-              <b>${catchRate}</b>
-            </div>
-            <div class="catch-summary-stat">
-              <span>Available balls</span>
-              <b>${balls.length}</b>
-            </div>
-          </div>
-
-          <div class="catch-summary-controls">
-            <label class="catch-summary-control">
-              <span>Current HP %</span>
-              <input type="range" min="1" max="100" value="100" step="1" class="catch-hp-slider">
-              <b class="catch-hp-value">100%</b>
-            </label>
-
-            ${needsTurnSlider ? `
-              <label class="catch-summary-control">
-                <span>Battle Turn</span>
-                <input type="range" min="1" max="15" value="1" step="1" class="catch-battle-turn-slider">
-                <b class="catch-battle-turn-value">1</b>
-              </label>
-            ` : ''}
-
-            ${ballKeys.includes("dream") ? `
-              <label class="catch-summary-control">
-                <span>Turns Asleep</span>
-                <input type="range" min="0" max="5" value="2" step="1" class="catch-sleep-turns-slider">
-                <b class="catch-sleep-turns-value">2</b>
-              </label>
-            ` : ''}
-
-            ${ballKeys.includes("nest") ? `
-              <label class="catch-summary-control">
-                <span>Target Level</span>
-                <input type="range" min="1" max="100" value="50" step="1" class="catch-target-level-slider">
-                <b class="catch-target-level-value">50</b>
-              </label>
-            ` : ''}
-
-            ${ballKeys.includes("repeat") ? `
-              <label class="catch-summary-control">
-                <span>Catch Streak</span>
-                <input type="range" min="0" max="30" value="15" step="1" class="catch-streak-slider">
-                <b class="catch-streak-value">15</b>
-              </label>
-            ` : ''}
-          </div>
+        ${catchable ? `
+          ${getCatchSummaryPanelMarkup(mon, state)}
 
           <div class="catch-summary-best">
             <div class="catch-summary-best-label">Best available combo</div>
             <div class="catch-summary-best-value">Updating...</div>
           </div>
 
-          <div class="catch-summary-bars" aria-label="Catch chance chart">
-            ${buildCatchSummaryBars({ catchRate, balls, hpPercent: 1, context: { battleTurn: 1, sleepTurns: 2, targetLevel: 50, catchStreak: 15 } }).markup}
-          </div>
+          <div class="catch-summary-bars" aria-label="Catch chance chart"></div>
 
           <div class="catch-summary-note">
-            Sliders update parameters in real-time. Quick Ball rules apply on Turn 1; Timer Ball builds strength up to Turn 10. Bars collapse duplicate rates automatically.
+            Filters and sliders are tucked behind the panel. Quick and Timer Balls use optimal turns until you change the turn slider.
           </div>
         ` : `
-          <div class="catch-summary-empty">Catch data is unavailable for this form.</div>
+          <div class="catch-summary-empty">${enabledBalls.length ? "Catch data is unavailable for this form." : "No balls are enabled. Open filters to turn some back on."}</div>
         `}
+
+        ${!isObtainable ? `
+          <div class="catch-summary-overlay" role="dialog" aria-modal="true">
+            <div class="catch-summary-overlay-card">
+              <h4>Impossible catch</h4>
+              <p>This Pokemon cannot be caught in normal play. You can still inspect the data if you want the theoretical breakdown.</p>
+              <button type="button" class="btn btn--panel catch-summary-overlay-dismiss">View info anyway</button>
+            </div>
+          </div>
+        ` : ""}
       </div>
     `;
   }
 
   function getCatchSummaryRows({ catchRate, balls, hpPercent, context }) {
-    const statuses = getCatchStatuses();
     const rows = [];
 
     balls.forEach(ball => {
+      const statuses = getCatchStatuses(ball.key);
       const ballMultiplier = getBallMultiplier(ball.key, context);
+      const effectiveHpPercent = ball.key === "quick" ? 1 : hpPercent;
 
       statuses.forEach(status => {
         const chance = getCatchChance({
           catchRate,
-          hpPercent,
+          hpPercent: effectiveHpPercent,
           ballMultiplier,
           statusMultiplier: status.multiplier
         });
@@ -5801,53 +5990,47 @@ function getAvailableCatchBalls(mon) {
     const collapsedRows = Array.from(collapsedMap.values());
     const topRows = collapsedRows.slice(0, 20);
 
-    const totalStatusCount = Object.keys(STATUS_EFFECTS_CATCHRATES).length;
-
     return {
       rows: collapsedRows,
       markup: topRows.map((row, index) => {
         const statusLabel = row.statuses.join(", ");
-        
+        const statusCount = row.statuses.length;
         let statusImagesHtml = "";
-        // All status condition
-        if (row.statuses.length === totalStatusCount) {
+
+        if (statusCount === Object.keys(STATUS_EFFECTS_CATCHRATES).length) {
           statusImagesHtml = `<img src="sprites/assets/allstatus.png" alt="All Status Effects">`;
-        // All status and no status condition
-        } else if (row.statuses.length === totalStatusCount + 1){
+        } else if (statusCount === Object.keys(STATUS_EFFECTS_CATCHRATES).length + 1) {
           statusImagesHtml = `<img src="sprites/assets/allstatusstates.png" alt="All Status Effects + No Status Effect">`;
-        // One status condition
-        } else if (row.statuses.length === 1){
-          statusImagesHtml = `<img src="sprites/assets/${escapeHtml(row.statuses[0])}.png" alt="${escapeHtml(row.statuses[0])}">`;
+        } else if (statusCount === 1) {
+          statusImagesHtml = `<img src="sprites/assets/${escapeHtml(row.statuses[0].toLowerCase())}.png" alt="${escapeHtml(row.statuses[0])}">`;
         } else {
           const totalImages = row.statuses.length;
-          const durationPerImage = 0.5; // Seconds each image stays visible
+          const durationPerImage = 0.5;
           const totalDuration = totalImages * durationPerImage;
-          
-          // Calculate the exact percentage chunk an individual image takes up in the timeline
           const stepPercent = 100 / totalImages;
 
           statusImagesHtml = `
             <style>
-              /* Dynamic unique keyframe per row length to guarantee flawless instant cuts */
               @keyframes cycleInstant-${totalImages} {
                 0%, ${stepPercent}% { opacity: 1; }
                 ${stepPercent + 0.001}%, 100% { opacity: 0; }
               }
             </style>
-            <div class="catch-summary-status-cycler" style="position: relative; display: inline-flex; width: 24px; height: 24px;">
+            <div class="catch-summary-status-cycler">
               ${row.statuses
                 .map((status, imgIndex) => {
                   const delay = imgIndex * durationPerImage;
+                  const fileKey = status.toLowerCase();
                   return `
-                    <img src="sprites/assets/${escapeHtml(status)}.png" 
-                         alt="${escapeHtml(status)}" 
+                    <img src="sprites/assets/${escapeHtml(fileKey)}.png"
+                         alt="${escapeHtml(status)}"
                          style="
-                           position: absolute; 
-                           top: 0; 
-                           left: 0; 
+                           position: absolute;
+                           top: 0;
+                           left: 0;
                            opacity: 0;
                            animation: cycleInstant-${totalImages} ${totalDuration}s infinite steps(1);
-                           animation-delay: -${delay}s; /* Negative delay cuts out layout pop/blank cycles on init */
+                           animation-delay: -${delay}s;
                          "
                     />`;
                 })
@@ -5910,57 +6093,121 @@ function getAvailableCatchBalls(mon) {
     const mon = data.find(entry => Number(entry.id) === targetId);
     if (!mon) return;
 
-    const catchRate = getCatchRate(mon);
-    const balls = getAvailableCatchBalls(mon);
+    const state = getCatchSummaryState(mon);
+    if (!state) return;
+
+    const entry = getCompatibilityEntry(mon);
+    const catchRate = getEffectiveCatchRate(mon, state);
+    const ballOptions = getCatchBallOptions(mon);
+    const enabledBalls = ballOptions.filter(ball => state.ballEnabled[ball.key]);
+    const searchQuery = normalizeCatchQuery(state.ballSearch);
     
     const hpSlider = card.querySelector(".catch-hp-slider");
     const battleTurnSlider = card.querySelector(".catch-battle-turn-slider");
     const sleepTurnsSlider = card.querySelector(".catch-sleep-turns-slider");
     const targetLevelSlider = card.querySelector(".catch-target-level-slider");
     const streakSlider = card.querySelector(".catch-streak-slider");
+    const alphaToggle = card.querySelector(".catch-alpha-toggle");
+    const searchInputEl = card.querySelector(".catch-summary-search");
+    const searchDropdown = card.querySelector(".catch-summary-search-dropdown");
+    const searchEnableBtn = card.querySelector(".catch-summary-search-enable");
+    const overlay = card.querySelector(".catch-summary-overlay");
+    const bars = card.querySelector(".catch-summary-bars");
+    const best = card.querySelector(".catch-summary-best-value");
 
     const hpValue = card.querySelector(".catch-hp-value");
     const battleTurnValue = card.querySelector(".catch-battle-turn-value");
     const sleepTurnsValue = card.querySelector(".catch-sleep-turns-value");
     const targetLevelValue = card.querySelector(".catch-target-level-value");
     const streakValue = card.querySelector(".catch-streak-value");
-    const best = card.querySelector(".catch-summary-best-value");
 
-    if (!catchRate || !balls.length || !hpSlider || !best) return;
+    if (!catchRate || !hpSlider || !best || !bars) return;
 
-    const hpPercent = Math.max(1, Math.min(100, Number(hpSlider.value) || 100)) / 100;
-    if (hpValue) hpValue.textContent = `${Math.round(hpPercent * 100)}%`;
+    state.hpPercent = Math.max(1, Math.min(100, Number(hpSlider.value) || 100));
+    const hpPercent = state.hpPercent / 100;
+    if (hpValue) hpValue.textContent = `${state.hpPercent}%`;
+
+    if (alphaToggle) {
+      state.alphaEnabled = alphaToggle.checked;
+    }
+
+    if (searchInputEl) {
+      state.ballSearch = searchInputEl.value;
+    }
+
+    if (searchEnableBtn) {
+      const exactMatch = ballOptions.find(ball => normalizeCatchQuery(ball.label) === searchQuery || normalizeCatchQuery(ball.key) === searchQuery);
+      const canEnable = exactMatch && !state.ballEnabled[exactMatch.key];
+      searchEnableBtn.classList.toggle("hidden", !canEnable);
+      if (canEnable) {
+        searchEnableBtn.textContent = `Enable ${exactMatch.label}`;
+        searchEnableBtn.dataset.ballKey = exactMatch.key;
+        searchEnableBtn.dataset.ballLabel = exactMatch.label;
+      }
+    }
+
+    if (searchDropdown) {
+      const dropdownMatches = ballOptions.filter(ball => !searchQuery || normalizeCatchQuery(ball.label).includes(searchQuery) || normalizeCatchQuery(ball.key).includes(searchQuery));
+      searchDropdown.innerHTML = dropdownMatches.length ? dropdownMatches.map(ball => {
+        const enabled = Boolean(state.ballEnabled[ball.key]);
+        return `
+          <button type="button" class="catch-summary-search-item ${enabled ? "is-enabled" : "is-disabled"}" data-ball-key="${escapeHtml(ball.key)}">
+            <span class="catch-summary-search-item-icon">${fetchItemImage(ball.label)}</span>
+            <span class="catch-summary-search-item-text">${escapeHtml(ball.label)}</span>
+            <span class="catch-summary-search-item-state">${enabled ? "Enabled" : "Disabled"}</span>
+          </button>
+        `;
+      }).join("") : `<div class="catch-summary-search-empty">No balls match "${escapeHtml(state.ballSearch || "")}".</div>`;
+      const searchIsOpen = state.searchActive && Boolean(searchInputEl && document.activeElement === searchInputEl || searchDropdown.contains(document.activeElement));
+      searchDropdown.classList.toggle("hidden", !searchIsOpen);
+    }
+
+    const filtersPanel = card.querySelector(".catch-summary-filters-panel");
+    if (filtersPanel) {
+      filtersPanel.classList.toggle("collapsed", !state.filtersOpen);
+    }
 
     const context = {
       battleTurn: battleTurnSlider ? Math.max(1, Number(battleTurnSlider.value) || 1) : 1,
+      battleTurnManual: battleTurnSlider ? battleTurnSlider.dataset.manual === "true" : false,
       sleepTurns: sleepTurnsSlider ? Math.max(0, Number(sleepTurnsSlider.value) || 0) : 0,
       targetLevel: targetLevelSlider ? Math.max(1, Math.min(100, Number(targetLevelSlider.value) || 1)) : 1,
-      catchStreak: streakSlider ? Math.max(0, Number(streakSlider.value) || 0) : 0
+      catchStreak: streakSlider ? Math.max(0, Number(streakSlider.value) || 0) : 0,
+      weightKg: getWeightKg(mon)
     };
 
-    if (battleTurnSlider && battleTurnValue) battleTurnValue.textContent = String(context.battleTurn);
+    if (battleTurnSlider && battleTurnValue) {
+      battleTurnValue.textContent = context.battleTurnManual ? String(context.battleTurn) : "∅";
+    }
     if (sleepTurnsSlider && sleepTurnsValue) sleepTurnsValue.textContent = String(context.sleepTurns);
     if (targetLevelSlider && targetLevelValue) targetLevelValue.textContent = String(context.targetLevel);
     if (streakSlider && streakValue) streakValue.textContent = String(context.catchStreak);
 
-    const { rows, markup } = buildCatchSummaryBars({ catchRate, balls, hpPercent, context });
+    const visibleBalls = enabledBalls.filter(ball => !searchQuery || normalizeCatchQuery(ball.label).includes(searchQuery) || normalizeCatchQuery(ball.key).includes(searchQuery));
+    const { rows, markup } = buildCatchSummaryBars({ catchRate, balls: visibleBalls, hpPercent, context });
     const bestRow = rows[0];
-    const bars = card.querySelector(".catch-summary-bars");
-    if (bars) bars.innerHTML = markup;
+    const showOverlay = entry?.obtainable === false && !state.overlayDismissed;
+    bars.innerHTML = markup;
 
     if (!bestRow) {
       best.textContent = "No valid catch combinations found.";
+      if (overlay) overlay.classList.toggle("hidden", !showOverlay);
       return;
     }
 
-    const hpFactor = Math.max(0, Math.min(1, (3 - 2 * hpPercent) / 3));
-    const bestStatuses = bestRow.statuses.includes("None") 
-        ? "no status effects" 
-        : bestRow.statuses.join(" / ");
-    
+    const bestStatusesMarkup = getCatchBestStatusMarkup(bestRow.statuses.map(status => ({
+      key: normalizeCatchQuery(status),
+      label: status
+    })));
+
     best.innerHTML = `
-      <b>${escapeHtml(bestRow.ball)}</b> with <b>${escapeHtml(bestStatuses)}</b> at <b>${formatChance(bestRow.chance)} HP</b>
+      ${getCatchBestBallMarkup({ label: bestRow.ball })}
+      with ${bestStatusesMarkup}
+      at <b>${Math.round((bestRow.ballKey === "quick" ? 1 : hpPercent) * 100)}% HP</b>
+      for <b>${formatChance(bestRow.chance)} Capture Rate</b>
     `;
+
+    if (overlay) overlay.classList.toggle("hidden", !showOverlay);
   }
 
   function bindCatchSummaryTools() {
@@ -5969,22 +6216,146 @@ function getAvailableCatchBalls(mon) {
       card.dataset.bound = "true";
 
       const update = () => updateCatchSummaryCard(card);
+      const getState = () => getCatchSummaryState(data.find(entry => Number(entry.id) === Number(card.dataset.targetId)));
 
-      const sliders = [
-        ".catch-hp-slider", 
-        ".catch-battle-turn-slider", 
-        ".catch-sleep-turns-slider", 
-        ".catch-target-level-slider", 
-        ".catch-streak-slider"
-      ];
+      card.addEventListener("input", (event) => {
+        const target = event.target;
+        const state = getState();
+        if (!state) return;
 
-      sliders.forEach(selector => {
-        const el = card.querySelector(selector);
-        if (el) el.addEventListener("input", update);
+        if (target.matches(".catch-hp-slider, .catch-sleep-turns-slider, .catch-target-level-slider, .catch-streak-slider, .catch-summary-search")) {
+          if (target.matches(".catch-summary-search")) {
+            state.ballSearch = target.value;
+            state.searchActive = true;
+          }
+          update();
+          return;
+        }
+
+        if (target.matches(".catch-battle-turn-slider")) {
+          state.manualBattleTurn = true;
+          target.dataset.manual = "true";
+          update();
+        }
+      });
+
+      card.addEventListener("change", (event) => {
+        const target = event.target;
+        const state = getState();
+        if (!state) return;
+
+        if (target.matches("[data-ball-toggle]")) {
+          state.ballEnabled[target.dataset.ballToggle] = target.checked;
+          update();
+          return;
+        }
+
+        if (target.matches(".catch-battle-turn-slider")) {
+          state.manualBattleTurn = true;
+          target.dataset.manual = "true";
+          update();
+        }
+      });
+
+      card.addEventListener("click", (event) => {
+        const target = event.target;
+        const mon = data.find(entry => Number(entry.id) === Number(card.dataset.targetId));
+        const state = getState();
+        if (!state) return;
+        const ballOptions = getCatchBallOptions(mon);
+        const filtersPanel = card.querySelector(".catch-summary-filters-panel");
+        const searchInputEl = card.querySelector(".catch-summary-search");
+        const searchDropdown = card.querySelector(".catch-summary-search-dropdown");
+
+        if (target.closest(".catch-summary-filters-button")) {
+          state.filtersOpen = !state.filtersOpen;
+          if (filtersPanel) filtersPanel.classList.toggle("collapsed", !state.filtersOpen);
+          update();
+          return;
+        }
+
+        if (target.closest(".catch-summary-overlay-dismiss")) {
+          state.overlayDismissed = true;
+          update();
+          return;
+        }
+
+        if (target.closest(".catch-summary-search-dropdown") || target.closest(".catch-summary-search") || target.closest(".catch-summary-search-enable")) {
+          state.searchActive = true;
+          if (searchInputEl) searchInputEl.focus();
+        }
+
+        const searchEnableBtn = target.closest(".catch-summary-search-enable");
+        if (searchEnableBtn && searchEnableBtn.dataset.ballKey) {
+          state.ballEnabled[searchEnableBtn.dataset.ballKey] = true;
+          state.ballSearch = searchEnableBtn.dataset.ballLabel || searchEnableBtn.textContent.replace(/^Enable\s+/, "");
+          const searchInputEl = card.querySelector(".catch-summary-search");
+          if (searchInputEl) searchInputEl.value = state.ballSearch;
+          state.searchActive = false;
+          if (searchInputEl) searchInputEl.blur();
+          update();
+          return;
+        }
+
+        const searchItem = target.closest(".catch-summary-search-item");
+        if (searchItem && searchItem.dataset.ballKey) {
+          const match = ballOptions.find(option => option.key === searchItem.dataset.ballKey);
+          if (match) {
+            state.ballSearch = match.label;
+            const searchInputEl = card.querySelector(".catch-summary-search");
+            if (searchInputEl) searchInputEl.value = state.ballSearch;
+            state.searchActive = false;
+            if (searchInputEl) searchInputEl.blur();
+            update();
+          }
+        }
+      });
+
+      card.addEventListener("focusin", (event) => {
+        const state = getState();
+        if (!state) return;
+        if (event.target.matches(".catch-summary-search")) {
+          state.searchActive = true;
+          update();
+        }
+      });
+
+      card.addEventListener("focusout", (event) => {
+        const state = getState();
+        if (!state) return;
+        const related = event.relatedTarget;
+        if (!related || (!related.closest?.(".catch-summary-search-wrap") && !related.closest?.(".catch-summary-search-dropdown"))) {
+          state.searchActive = false;
+          update();
+        }
       });
 
       update();
     });
+
+    if (!catchSummaryGlobalListenersBound) {
+      catchSummaryGlobalListenersBound = true;
+
+      document.addEventListener("pointerdown", (event) => {
+        modalBody.querySelectorAll(".summary-catch-card").forEach(card => {
+          const state = getCatchSummaryState(data.find(entry => Number(entry.id) === Number(card.dataset.targetId)));
+          if (!state || !state.searchActive) return;
+          if (card.contains(event.target)) return;
+          state.searchActive = false;
+          updateCatchSummaryCard(card);
+        });
+      }, { passive: true });
+
+      document.addEventListener("touchstart", (event) => {
+        modalBody.querySelectorAll(".summary-catch-card").forEach(card => {
+          const state = getCatchSummaryState(data.find(entry => Number(entry.id) === Number(card.dataset.targetId)));
+          if (!state || !state.searchActive) return;
+          if (card.contains(event.target)) return;
+          state.searchActive = false;
+          updateCatchSummaryCard(card);
+        });
+      }, { passive: true });
+    }
   }
 
   function buildBodySummary(mon) {
