@@ -1699,9 +1699,6 @@ body.pory-full #poryBackground {
   gap: 10px;
 }
 
-.modal-location-filter-box {
-}
-
 .modal-location-filters-panel {
   margin-bottom: 0;
   padding-bottom: 10px;
@@ -1723,10 +1720,45 @@ body.pory-full #poryBackground {
   margin-top: 2px;
 }
 
-@media (max-width: 900px) {
-  .modal-location-filters-grid {
-    grid-template-columns: 1fr;
-  }
+.modal-location-body {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 12px;
+  min-height: 520px;
+  min-width: 0;
+  align-items: stretch;
+}
+
+.modal-location-map-shell {
+  align-self: start;
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  min-width: 0;
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.modal-location-map-toggle {
+  justify-self: center;
+}
+
+.modal-location-list {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: stretch;
+  justify-self: stretch;
+  width: 100%;
+  max-height: none;
+  min-height: 0;
+}
+
+.modal-location-info {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: stretch;
+  min-width: 0;
+  position: static;
 }
 
 .modal-location-filter-label,
@@ -1735,15 +1767,6 @@ body.pory-full #poryBackground {
   font-size: 0.74rem;
   font-weight: 700;
   text-transform: uppercase;
-}
-
-.modal-location-list {
-  max-height: 520px;
-}
-
-.modal-location-map-shell {
-  display: grid;
-  gap: 8px;
 }
 
 .modal-location-map-controls {
@@ -1756,8 +1779,8 @@ body.pory-full #poryBackground {
 }
 
 .modal-location-info-map-viewport {
-  width: calc(40vmin*1662 / 1174);
-  height: 40vmin;
+  width: auto;
+  height: auto;
   aspect-ratio: 1662 / 1174;
   overflow: hidden;
   border-radius: 0px;
@@ -1776,6 +1799,29 @@ body.pory-full #poryBackground {
   width: 100%;
   height: 100%;
   transform-origin: 0 0;
+}
+
+@media (max-width: 900px) {
+  .modal-location-filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-location-body {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    min-height: 0;
+  }
+
+  .modal-location-map-shell,
+  .modal-location-list,
+  .modal-location-info {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .modal-location-list {
+    max-height: 320px;
+  }
 }
 
 .modal-location-map-region {
@@ -3187,6 +3233,10 @@ body.pory-full #poryBackground {
   gap: 12px;
 }
 
+.summary-catch-card.catch-overlay-active {
+  background: var(--panel);
+}
+
 .summary-evo-card{
   grid-column: span 3;
 }
@@ -3428,7 +3478,7 @@ body.pory-full #poryBackground {
 .catch-summary-ball-controls {
   display: grid;
   gap: 6px;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
 }
 
 .catch-summary-ball-toggle {
@@ -3470,12 +3520,12 @@ body.pory-full #poryBackground {
 }
 
 .catch-summary-ball-toggle-name {
-  font-size: 0.9rem;
+  font-size: 0.7rem;
   line-height: 1.2;
 }
 
 .catch-summary-ball-toggle-state {
-  font-size: 0.72rem;
+  font-size: 0.5rem;
   color: var(--muted);
 }
 
@@ -3509,7 +3559,7 @@ body.pory-full #poryBackground {
 
 .catch-summary-controls {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   gap: 10px;
 }
 
@@ -3519,7 +3569,7 @@ body.pory-full #poryBackground {
   padding: 10px;
   display: grid;
   gap: 8px;
-  background: var(--accentT);
+  background: var(--altAccentT);
 }
 
 .catch-summary-control input[type="range"] {
@@ -3531,17 +3581,23 @@ body.pory-full #poryBackground {
   background: transparent;
 }
 
+.catch-summary-control-slider {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 5px;
+}
+
 .catch-summary-best {
-  border: 1px solid color-mix(in srgb, var(--accent) 36%, transparent);
+  border: 2px inset var(--accent);
   border-radius: 10px;
-  background: color-mix(in srgb, var(--accentT) 44%, transparent);
+  background: var(--accentT);
   padding: 10px;
   display: grid;
   gap: 4px;
 }
 
 .catch-summary-best-label {
-  color: var(--muted);
+  color: var(--accent);
   font-size: 0.76rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -3640,7 +3696,7 @@ body.pory-full #poryBackground {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 10px;
-  max-height: 80vh;
+  max-height: clamp(100px, 80vh, 400px);
   overflow: scroll;
   
 }
@@ -3657,7 +3713,7 @@ body.pory-full #poryBackground {
 
 .catch-summary-bar-row-best {
   border-color: color-mix(in srgb, var(--accent) 34%, transparent);
-  background: color-mix(in srgb, var(--accentT) 20%, transparent);
+  background: var(--accentT);
 }
 
 .catch-summary-bar-label {
@@ -3730,7 +3786,6 @@ body.pory-full #poryBackground {
   place-items: center;
   padding: 16px;
   background: color-mix(in srgb, var(--bg) 72%, transparent);
-  backdrop-filter: blur(6px);
 }
 
 .catch-summary-overlay.hidden {

@@ -1,22 +1,32 @@
 import json
 import os
+from pathlib import Path
 
-def load_json_file(filename):
-    """Safely loads a JSON file."""
-    if not os.path.exists(filename):
-        print(f"Error: {filename} not found.")
+# Get the directory of the current script
+SCRIPT_DIR = Path(__file__).parent.resolve()
+
+def load_json_file(file_path):
+    """Safely loads a JSON file using a Path object or string."""
+    target_path = Path(file_path)
+    
+    if not target_path.exists():
+        print(f"Error: {target_path} not found.")
         return None
     try:
-        with open(filename, 'r', encoding='utf-8') as f:
+        with open(target_path, 'r', encoding='utf-8') as f:
             return json.load(f)
     except json.JSONDecodeError as e:
-        print(f"Error parsing JSON from {filename}: {e}")
+        print(f"Error parsing JSON from {target_path}: {e}")
         return None
 
 def find_missing_locations():
+    # Construct absolute paths relative to this script's directory
+    monsters_path = SCRIPT_DIR / 'data' / 'pokedex' / 'monsters.json'
+    locations_path = SCRIPT_DIR / 'data' / 'pokedex' / 'locations.json'
+    
     # Load data files
-    monsters_data = load_json_file('monsters.json')
-    locations_data = load_json_file('locations.json')
+    monsters_data = load_json_file(monsters_path)
+    locations_data = load_json_file(locations_path)
     
     if monsters_data is None or locations_data is None:
         return

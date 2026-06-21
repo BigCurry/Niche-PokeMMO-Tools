@@ -3,7 +3,7 @@
    ============================================================= */
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => Array.from(document.querySelectorAll(s));
-const ENABLE_MAP_POINT_EDITOR = false;
+const ENABLE_MAP_POINT_EDITOR = true;
 
 /* =============================================================
    Link Dropdown
@@ -470,7 +470,7 @@ const MoveChecker = (()=>{
 
   async function load(){
     try{
-      const res=await fetch("./monsters.json");
+      const res=await fetch("./data/pokedex/monsters.json");
       if(!res.ok) throw new Error("Failed to load monsters.json");
       pokedex=await res.json();
       indexMoves();
@@ -735,7 +735,7 @@ const EncounterTool = (() => {
   const ROW_HEIGHT = 60; // Approximate row height for virtualization
 
   async function load() {
-    data = await (await fetch("./monsters.json")).json();
+    data = await (await fetch("./data/pokedex/monsters.json")).json();
     buildFilters();
     buildColumnFilters();
     buildColumnPresetUI()
@@ -2297,13 +2297,13 @@ const PokedexTool = (() => {
 
   async function loadData() {
     const [monRes, compatRes, locRes, abilityRes, moveRes, chainRes, itemRes] = await Promise.all([
-      fetch("./monsters.json"),
-      fetch("./dex_compatibility.json"),
-      fetch("./locations.json"),
-      fetch("./abilities.json"),
-      fetch("./moves.json"),
-      fetch("./breeding_chains.json"),
-      fetch("./items.json")
+      fetch("./data/pokedex/monsters.json"),
+      fetch("./data/pokedex/dex_compatibility.json"),
+      fetch("./data/pokedex/locations.json"),
+      fetch("./data/pokedex/abilities.json"),
+      fetch("./data/pokedex/moves.json"),
+      fetch("./data/pokedex/breeding_chains.json"),
+      fetch("./data/pokedex/items.json")
     ]);
 
     data = await monRes.json();
@@ -5771,37 +5771,47 @@ const PokedexTool = (() => {
         <div class="catch-summary-controls">
           <label class="catch-summary-control">
             <span>Current HP %</span>
-            <input type="range" min="1" max="100" value="${state.hpPercent}" step="1" class="catch-hp-slider">
-            <b class="catch-hp-value">${state.hpPercent}%</b>
+            <div class="catch-summary-control-slider">
+              <input type="range" min="1" max="100" value="${state.hpPercent}" step="1" class="catch-hp-slider">
+              <b class="catch-hp-value">${state.hpPercent}%</b>
+            </div>
           </label>
 
           <label class="catch-summary-control">
             <span>Battle Turn</span>
-            <input type="range" min="1" max="15" value="${state.battleTurn}" step="1" class="catch-battle-turn-slider" data-manual="${state.manualBattleTurn ? "true" : "false"}">
-            <b class="catch-battle-turn-value">${state.manualBattleTurn ? String(state.battleTurn) : "∅"}</b>
+            <div class="catch-summary-control-slider">
+              <input type="range" min="1" max="15" value="${state.battleTurn}" step="1" class="catch-battle-turn-slider" data-manual="${state.manualBattleTurn ? "true" : "false"}">
+              <b class="catch-battle-turn-value">${state.manualBattleTurn ? String(state.battleTurn) : "∅"}</b>
+            </div>
           </label>
 
           ${hasDream ? `
             <label class="catch-summary-control">
               <span>Turns Asleep</span>
-              <input type="range" min="0" max="5" value="${state.sleepTurns}" step="1" class="catch-sleep-turns-slider">
-              <b class="catch-sleep-turns-value">${state.sleepTurns}</b>
+              <div class="catch-summary-control-slider">
+                <input type="range" min="0" max="5" value="${state.sleepTurns}" step="1" class="catch-sleep-turns-slider">
+                <b class="catch-sleep-turns-value">${state.sleepTurns}</b>
+              </div>
             </label>
           ` : ""}
 
           ${hasNest ? `
             <label class="catch-summary-control">
               <span>Target Level</span>
-              <input type="range" min="1" max="100" value="${state.targetLevel}" step="1" class="catch-target-level-slider" data-default-value="${targetLevelDefault}">
-              <b class="catch-target-level-value">${state.targetLevel}</b>
+              <div class="catch-summary-control-slider">
+                <input type="range" min="1" max="100" value="${state.targetLevel}" step="1" class="catch-target-level-slider" data-default-value="${targetLevelDefault}">
+                <b class="catch-target-level-value">${state.targetLevel}</b>
+              </div>
             </label>
           ` : ""}
 
           ${hasRepeat ? `
             <label class="catch-summary-control">
               <span>Catch Streak</span>
-              <input type="range" min="0" max="30" value="${state.catchStreak}" step="1" class="catch-streak-slider">
-              <b class="catch-streak-value">${state.catchStreak}</b>
+              <div class="catch-summary-control-slider">
+                <input type="range" min="0" max="30" value="${state.catchStreak}" step="1" class="catch-streak-slider">
+                <b class="catch-streak-value">${state.catchStreak}</b>
+              </div>
             </label>
           ` : ""}
         </div>
@@ -6188,6 +6198,7 @@ const PokedexTool = (() => {
     const bestRow = rows[0];
     const showOverlay = entry?.obtainable === false && !state.overlayDismissed;
     bars.innerHTML = markup;
+    card.classList.toggle("catch-overlay-active", Boolean(overlay) && showOverlay);
 
     if (!bestRow) {
       best.textContent = "No valid catch combinations found.";
@@ -7469,52 +7480,51 @@ function getDirectChildBranches(branch) {
               </div>
             </div>
 
-            <div class="modal-location-map-shell">
-              <button type="button" id="modalLocationMapToggle" class="map-toggle-button map-viewport-toggle modal-location-map-toggle" aria-controls="modalLocationMapViewport" aria-expanded="false">
-                <span class="sr-only">Open map</span>
-                
-                <span class="map-toggle-icon">
-                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M18 20.75H12C11.8011 20.75 11.6103 20.671 11.4697 20.5303C11.329 20.3897 11.25 20.1989 11.25 20C11.25 19.8011 11.329 19.6103 11.4697 19.4697C11.6103 19.329 11.8011 19.25 12 19.25H18C18.3315 19.25 18.6495 19.1183 18.8839 18.8839C19.1183 18.6495 19.25 18.3315 19.25 18V6C19.25 5.66848 19.1183 5.35054 18.8839 5.11612C18.6495 4.8817 18.3315 4.75 18 4.75H6C5.66848 4.75 5.35054 4.8817 5.11612 5.11612C4.8817 5.35054 4.75 5.66848 4.75 6V12C4.75 12.1989 4.67098 12.3897 4.53033 12.5303C4.38968 12.671 4.19891 12.75 4 12.75C3.80109 12.75 3.61032 12.671 3.46967 12.5303C3.32902 12.3897 3.25 12.1989 3.25 12V6C3.25 5.27065 3.53973 4.57118 4.05546 4.05546C4.57118 3.53973 5.27065 3.25 6 3.25H18C18.7293 3.25 19.4288 3.53973 19.9445 4.05546C20.4603 4.57118 20.75 5.27065 20.75 6V18C20.75 18.7293 20.4603 19.4288 19.9445 19.9445C19.4288 20.4603 18.7293 20.75 18 20.75Z" fill="currentColor"/>
-                    <path d="M16 12.75C15.8019 12.7474 15.6126 12.6676 15.4725 12.5275C15.3324 12.3874 15.2526 12.1981 15.25 12V8.75H12C11.8011 8.75 11.6103 8.67098 11.4697 8.53033C11.329 8.38968 11.25 8.19891 11.25 8C11.25 7.80109 11.329 7.61032 11.4697 7.46967C11.6103 7.32902 11.8011 7.25 12 7.25H16C16.1981 7.25259 16.3874 7.33244 16.5275 7.47253C16.6676 7.61263 16.7474 7.80189 16.75 8V12C16.7474 12.1981 16.6676 12.3874 16.5275 12.5275C16.3874 12.6676 16.1981 12.7474 16 12.75Z" fill="currentColor"/>
-                    <path d="M11.5 13.25C11.3071 13.2352 11.1276 13.1455 11 13C10.877 12.8625 10.809 12.6845 10.809 12.5C10.809 12.3155 10.877 12.1375 11 12L15.5 7.5C15.6422 7.36752 15.8302 7.29539 16.0245 7.29882C16.2188 7.30225 16.4042 7.38096 16.5416 7.51838C16.679 7.65579 16.7578 7.84117 16.7612 8.03548C16.7646 8.22978 16.6925 8.41782 16.56 8.56L12 13C11.8724 13.1455 11.6929 13.2352 11.5 13.25Z" fill="currentColor"/>
-                    <path d="M8 20.75H5C4.53668 20.7474 4.09309 20.5622 3.76546 20.2345C3.43784 19.9069 3.25263 19.4633 3.25 19V16C3.25263 15.5367 3.43784 15.0931 3.76546 14.7655C4.09309 14.4378 4.53668 14.2526 5 14.25H8C8.46332 14.2526 8.90691 14.4378 9.23454 14.7655C9.56216 15.0931 9.74738 15.5367 9.75 16V19C9.74738 19.4633 9.56216 19.9069 9.23454 20.2345C8.90691 20.5622 8.46332 20.7474 8 20.75ZM5 15.75C4.9337 15.75 4.87011 15.7763 4.82322 15.8232C4.77634 15.8701 4.75 15.9337 4.75 16V19C4.75 19.0663 4.77634 19.1299 4.82322 19.1768C4.87011 19.2237 4.9337 19.25 5 19.25H8C8.0663 19.25 8.12989 19.2237 8.17678 19.1768C8.22366 19.1299 8.25 19.0663 8.25 19V16C8.25 15.9337 8.22366 15.8701 8.17678 15.8232C8.12989 15.7763 8.0663 15.75 8 15.75H5Z" fill="currentColor"/>
-                  </svg>
-                </span>
-              </button>
-              <div class="map-viewport modal-location-map-viewport hidden" id="modalLocationMapViewport">
-                <div class="map-controls modal-location-map-controls">
-                  <button type="button" class="map-controls-handle" aria-label="Move map controls" title="Move controls">::</button>
-                  <select id="modalLocationMapRegionSelect" class="dex-input map-region-select" aria-label="Location map region">
-                    <option value="">All regions</option>
-                    ${regions.map(region => `<option value="${region}">${region}</option>`).join("")}
-                  </select>
-                  <label class="map-zoom-control">
-                    <span>Zoom</span>
-                    <input id="modalLocationMapZoomSlider" type="range" min="0" max="500" step="1" value="0">
-                    <output id="modalLocationMapZoomValue" for="modalLocationMapZoomSlider">0%</output>
-                  </label>
-                </div>
-                <svg id="modalLocationMapSvg" viewBox="0 0 1662 1174" preserveAspectRatio="none">
-                  <image href="maps/World Map.png" x="0" y="0" width="1662" height="1174"/>
-                  <g id="modalLocationMapRegions"></g>
-                  <g id="modalLocationMapPins"></g>
-                </svg>
-                <button type="button" id="modalLocationMapCollapse" class="map-viewport-collapse" aria-label="Hide map" title="Hide map">
-                    <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M18 3.25H6C5.27065 3.25 4.57118 3.53973 4.05546 4.05546C3.53973 4.57118 3.25 5.27065 3.25 6V12C3.25 12.1989 3.32902 12.3897 3.46967 12.5303C3.61032 12.671 3.80109 12.75 4 12.75C4.19891 12.75 4.38968 12.671 4.53033 12.5303C4.67098 12.3897 4.75 12.1989 4.75 12V6C4.75 5.66848 4.8817 5.35054 5.11612 5.11612C5.35054 4.8817 5.66848 4.75 6 4.75H18C18.3315 4.75 18.6495 4.8817 18.8839 5.11612C19.1183 5.35054 19.25 5.66848 19.25 6V18C19.25 18.3315 19.1183 18.6495 18.8839 18.8839C18.6495 19.1183 18.3315 19.25 18 19.25H12C11.8011 19.25 11.6103 19.329 11.4697 19.4697C11.329 19.6103 11.25 19.8011 11.25 20C11.25 20.1989 11.329 20.3897 11.4697 20.5303C11.6103 20.671 11.8011 20.75 12 20.75H18C18.7293 20.75 19.4288 20.4603 19.9445 19.9445C20.4603 19.4288 20.75 18.7293 20.75 18V6C20.75 5.27065 20.4603 4.57118 19.9445 4.05546C19.4288 3.53973 18.7293 3.25 18 3.25Z" fill="currentColor"/>
-                      <path d="M11.21 13.19C11.3017 13.2291 11.4003 13.2495 11.5 13.25H15.5C15.6989 13.25 15.8897 13.171 16.0303 13.0304C16.171 12.8897 16.25 12.6989 16.25 12.5C16.25 12.3011 16.171 12.1104 16.0303 11.9697C15.8897 11.829 15.6989 11.75 15.5 11.75H13.31L16.53 8.53003C16.6625 8.38785 16.7346 8.19981 16.7312 8.00551C16.7277 7.81121 16.649 7.62582 16.5116 7.48841C16.3742 7.35099 16.1888 7.27228 15.9945 7.26885C15.8002 7.26543 15.6122 7.33755 15.47 7.47003L12.25 10.69V8.50003C12.25 8.30112 12.171 8.11035 12.0303 7.9697C11.8897 7.82905 11.6989 7.75003 11.5 7.75003C11.3011 7.75003 11.1103 7.82905 10.9697 7.9697C10.829 8.11035 10.75 8.30112 10.75 8.50003V12.5C10.7505 12.5997 10.7709 12.6983 10.81 12.79C10.8457 12.8806 10.8996 12.9628 10.9684 13.0316C11.0373 13.1004 11.1195 13.1543 11.21 13.19Z" fill="currentColor"/>
-                      <path d="M8 14.25H5C4.53668 14.2526 4.09309 14.4378 3.76546 14.7655C3.43784 15.0931 3.25263 15.5367 3.25 16V19C3.25263 19.4633 3.43784 19.9069 3.76546 20.2345C4.09309 20.5622 4.53668 20.7474 5 20.75H8C8.46332 20.7474 8.90691 20.5622 9.23454 20.2345C9.56216 19.9069 9.74738 19.4633 9.75 19V16C9.74738 15.5367 9.56216 15.0931 9.23454 14.7655C8.90691 14.4378 8.46332 14.2526 8 14.25ZM8.25 19C8.25 19.0663 8.22366 19.1299 8.17678 19.1768C8.12989 19.2237 8.0663 19.25 8 19.25H5C4.9337 19.25 4.87011 19.2237 4.82322 19.1768C4.77634 19.1299 4.75 19.0663 4.75 19V16C4.75 15.9337 4.77634 15.8701 4.82322 15.8232C4.87011 15.7763 4.9337 15.75 5 15.75H8C8.0663 15.75 8.12989 15.7763 8.17678 15.8232C8.22366 15.8701 8.25 15.9337 8.25 16V19Z" fill="currentColor"/>
-                    </svg>
-                </button>
-              </div>
-            </div>
-
             <button id="modalLocationClearFilters" class="btn btn--tertiary modal-location-clear-filters">Clear Filters</button>
           </div>
         </div>
 
-        <div class="modal-moves-body">
+        <div class="modal-location-body">
+          <div class="modal-location-map-shell">
+            <button type="button" id="modalLocationMapToggle" class="map-toggle-button map-viewport-toggle modal-location-map-toggle" aria-controls="modalLocationMapViewport" aria-expanded="false">
+              <span class="sr-only">Open map</span>
+              
+              <span class="map-toggle-icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18 20.75H12C11.8011 20.75 11.6103 20.671 11.4697 20.5303C11.329 20.3897 11.25 20.1989 11.25 20C11.25 19.8011 11.329 19.6103 11.4697 19.4697C11.6103 19.329 11.8011 19.25 12 19.25H18C18.3315 19.25 18.6495 19.1183 18.8839 18.8839C19.1183 18.6495 19.25 18.3315 19.25 18V6C19.25 5.66848 19.1183 5.35054 18.8839 5.11612C18.6495 4.8817 18.3315 4.75 18 4.75H6C5.66848 4.75 5.35054 4.8817 5.11612 5.11612C4.8817 5.35054 4.75 5.66848 4.75 6V12C4.75 12.1989 4.67098 12.3897 4.53033 12.5303C4.38968 12.671 4.19891 12.75 4 12.75C3.80109 12.75 3.61032 12.671 3.46967 12.5303C3.32902 12.3897 3.25 12.1989 3.25 12V6C3.25 5.27065 3.53973 4.57118 4.05546 4.05546C4.57118 3.53973 5.27065 3.25 6 3.25H18C18.7293 3.25 19.4288 3.53973 19.9445 4.05546C20.4603 4.57118 20.75 5.27065 20.75 6V18C20.75 18.7293 20.4603 19.4288 19.9445 19.9445C19.4288 20.4603 18.7293 20.75 18 20.75Z" fill="currentColor"/>
+                  <path d="M16 12.75C15.8019 12.7474 15.6126 12.6676 15.4725 12.5275C15.3324 12.3874 15.2526 12.1981 15.25 12V8.75H12C11.8011 8.75 11.6103 8.67098 11.4697 8.53033C11.329 8.38968 11.25 8.19891 11.25 8C11.25 7.80109 11.329 7.61032 11.4697 7.46967C11.6103 7.32902 11.8011 7.25 12 7.25H16C16.1981 7.25259 16.3874 7.33244 16.5275 7.47253C16.6676 7.61263 16.7474 7.80189 16.75 8V12C16.7474 12.1981 16.6676 12.3874 16.5275 12.5275C16.3874 12.6676 16.1981 12.7474 16 12.75Z" fill="currentColor"/>
+                  <path d="M11.5 13.25C11.3071 13.2352 11.1276 13.1455 11 13C10.877 12.8625 10.809 12.6845 10.809 12.5C10.809 12.3155 10.877 12.1375 11 12L15.5 7.5C15.6422 7.36752 15.8302 7.29539 16.0245 7.29882C16.2188 7.30225 16.4042 7.38096 16.5416 7.51838C16.679 7.65579 16.7578 7.84117 16.7612 8.03548C16.7646 8.22978 16.6925 8.41782 16.56 8.56L12 13C11.8724 13.1455 11.6929 13.2352 11.5 13.25Z" fill="currentColor"/>
+                  <path d="M8 20.75H5C4.53668 20.7474 4.09309 20.5622 3.76546 20.2345C3.43784 19.9069 3.25263 19.4633 3.25 19V16C3.25263 15.5367 3.43784 15.0931 3.76546 14.7655C4.09309 14.4378 4.53668 14.2526 5 14.25H8C8.46332 14.2526 8.90691 14.4378 9.23454 14.7655C9.56216 15.0931 9.74738 15.5367 9.75 16V19C9.74738 19.4633 9.56216 19.9069 9.23454 20.2345C8.90691 20.5622 8.46332 20.7474 8 20.75ZM5 15.75C4.9337 15.75 4.87011 15.7763 4.82322 15.8232C4.77634 15.8701 4.75 15.9337 4.75 16V19C4.75 19.0663 4.77634 19.1299 4.82322 19.1768C4.87011 19.2237 4.9337 19.25 5 19.25H8C8.0663 19.25 8.12989 19.2237 8.17678 19.1768C8.22366 19.1299 8.25 19.0663 8.25 19V16C8.25 15.9337 8.22366 15.8701 8.17678 15.8232C8.12989 15.7763 8.0663 15.75 8 15.75H5Z" fill="currentColor"/>
+                </svg>
+              </span>
+            </button>
+            <div class="map-viewport modal-location-map-viewport hidden" id="modalLocationMapViewport">
+              <div class="map-controls modal-location-map-controls">
+                <button type="button" class="map-controls-handle" aria-label="Move map controls" title="Move controls">::</button>
+                <select id="modalLocationMapRegionSelect" class="dex-input map-region-select" aria-label="Location map region">
+                  <option value="">All regions</option>
+                  ${regions.map(region => `<option value="${region}">${region}</option>`).join("")}
+                </select>
+                <label class="map-zoom-control">
+                  <span>Zoom</span>
+                  <input id="modalLocationMapZoomSlider" type="range" min="0" max="500" step="1" value="0">
+                  <output id="modalLocationMapZoomValue" for="modalLocationMapZoomSlider">0%</output>
+                </label>
+              </div>
+              <svg id="modalLocationMapSvg" viewBox="0 0 1662 1174" preserveAspectRatio="none">
+                <image href="maps/World Map.png" x="0" y="0" width="1662" height="1174"/>
+                <g id="modalLocationMapRegions"></g>
+                <g id="modalLocationMapPins"></g>
+              </svg>
+              <button type="button" id="modalLocationMapCollapse" class="map-viewport-collapse" aria-label="Hide map" title="Hide map">
+                  <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 3.25H6C5.27065 3.25 4.57118 3.53973 4.05546 4.05546C3.53973 4.57118 3.25 5.27065 3.25 6V12C3.25 12.1989 3.32902 12.3897 3.46967 12.5303C3.61032 12.671 3.80109 12.75 4 12.75C4.19891 12.75 4.38968 12.671 4.53033 12.5303C4.67098 12.3897 4.75 12.1989 4.75 12V6C4.75 5.66848 4.8817 5.35054 5.11612 5.11612C5.35054 4.8817 5.66848 4.75 6 4.75H18C18.3315 4.75 18.6495 4.8817 18.8839 5.11612C19.1183 5.35054 19.25 5.66848 19.25 6V18C19.25 18.3315 19.1183 18.6495 18.8839 18.8839C18.6495 19.1183 18.3315 19.25 18 19.25H12C11.8011 19.25 11.6103 19.329 11.4697 19.4697C11.329 19.6103 11.25 19.8011 11.25 20C11.25 20.1989 11.329 20.3897 11.4697 20.5303C11.6103 20.671 11.8011 20.75 12 20.75H18C18.7293 20.75 19.4288 20.4603 19.9445 19.9445C20.4603 19.4288 20.75 18.7293 20.75 18V6C20.75 5.27065 20.4603 4.57118 19.9445 4.05546C19.4288 3.53973 18.7293 3.25 18 3.25Z" fill="currentColor"/>
+                    <path d="M11.21 13.19C11.3017 13.2291 11.4003 13.2495 11.5 13.25H15.5C15.6989 13.25 15.8897 13.171 16.0303 13.0304C16.171 12.8897 16.25 12.6989 16.25 12.5C16.25 12.3011 16.171 12.1104 16.0303 11.9697C15.8897 11.829 15.6989 11.75 15.5 11.75H13.31L16.53 8.53003C16.6625 8.38785 16.7346 8.19981 16.7312 8.00551C16.7277 7.81121 16.649 7.62582 16.5116 7.48841C16.3742 7.35099 16.1888 7.27228 15.9945 7.26885C15.8002 7.26543 15.6122 7.33755 15.47 7.47003L12.25 10.69V8.50003C12.25 8.30112 12.171 8.11035 12.0303 7.9697C11.8897 7.82905 11.6989 7.75003 11.5 7.75003C11.3011 7.75003 11.1103 7.82905 10.9697 7.9697C10.829 8.11035 10.75 8.30112 10.75 8.50003V12.5C10.7505 12.5997 10.7709 12.6983 10.81 12.79C10.8457 12.8806 10.8996 12.9628 10.9684 13.0316C11.0373 13.1004 11.1195 13.1543 11.21 13.19Z" fill="currentColor"/>
+                    <path d="M8 14.25H5C4.53668 14.2526 4.09309 14.4378 3.76546 14.7655C3.43784 15.0931 3.25263 15.5367 3.25 16V19C3.25263 19.4633 3.43784 19.9069 3.76546 20.2345C4.09309 20.5622 4.53668 20.7474 5 20.75H8C8.46332 20.7474 8.90691 20.5622 9.23454 20.2345C9.56216 19.9069 9.74738 19.4633 9.75 19V16C9.74738 15.5367 9.56216 15.0931 9.23454 14.7655C8.90691 14.4378 8.46332 14.2526 8 14.25ZM8.25 19C8.25 19.0663 8.22366 19.1299 8.17678 19.1768C8.12989 19.2237 8.0663 19.25 8 19.25H5C4.9337 19.25 4.87011 19.2237 4.82322 19.1768C4.77634 19.1299 4.75 19.0663 4.75 19V16C4.75 15.9337 4.77634 15.8701 4.82322 15.8232C4.87011 15.7763 4.9337 15.75 5 15.75H8C8.0663 15.75 8.12989 15.7763 8.17678 15.8232C8.22366 15.8701 8.25 15.9337 8.25 16V19Z" fill="currentColor"/>
+                  </svg>
+              </button>
+            </div>
+
           <div class="modal-move-list modal-location-list" role="list">
             ${encounters.map((encounter, index) => buildModalLocationRow(encounter, index)).join("")}
             <div class="modal-move-empty modal-location-empty hidden">No matching locations</div>
