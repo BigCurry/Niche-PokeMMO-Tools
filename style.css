@@ -2452,6 +2452,7 @@ body.pory-full #poryBackground {
   border-radius: 8px;
   gap: 8px;
   padding: 5px;
+  margin-bottom: 5px;
 }
 
 .map-toggle-button {
@@ -3785,7 +3786,7 @@ body.pory-full #poryBackground {
   display: grid;
   place-items: center;
   padding: 16px;
-  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
 }
 
 .catch-summary-overlay.hidden {
@@ -3812,17 +3813,6 @@ body.pory-full #poryBackground {
   margin: 0;
   color: var(--muted);
   line-height: 1.4;
-}
-
-@media (max-width: 760px) {
-
-  .catch-summary-search-row {
-    flex-wrap: wrap;
-  }
-
-  .catch-summary-search-enable {
-    width: 100%;
-  }
 }
 
 .body-measure-grid {

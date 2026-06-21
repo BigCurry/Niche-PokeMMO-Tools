@@ -3,7 +3,7 @@
    ============================================================= */
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => Array.from(document.querySelectorAll(s));
-const ENABLE_MAP_POINT_EDITOR = true;
+const ENABLE_MAP_POINT_EDITOR = false;
 
 /* =============================================================
    Link Dropdown
@@ -1899,376 +1899,378 @@ const PoryBackground = (() => {
 const PokedexTool = (() => {
 
   /* =============================================================
-     STATE
+     STATES
   ============================================================= */
 
-  let readyResolve;
-  const ready = new Promise(r => readyResolve = r);
+    let readyResolve;
+    const ready = new Promise(r => readyResolve = r);
 
-  let data = [];
-  let compat = [];
-  let filtered = [];
-  let ITEMS = [];
-  let ITEMS_BY_ID = new Map();
+    let data = [];
+    let compat = [];
+    let filtered = [];
+    let ITEMS = [];
+    let ITEMS_BY_ID = new Map();
 
-  let grid, modal, modalBody;
-  let summaryEvoResizeObserver = null;
-  let summaryEvoLayoutFrame = 0;
-  let summaryEvoCleanup = [];
+    let grid, modal, modalBody;
+    let summaryEvoResizeObserver = null;
+    let summaryEvoLayoutFrame = 0;
+    let summaryEvoCleanup = [];
 
-  let searchInput;
-  let browserFindHighlightedCard = null;
-  let ALL_MOVES = [];
-  let ALL_ABILITIES = [];
-  let ALL_LOCATIONS = [];
-  let ALL_POKEMON = [];
+    let searchInput;
+    let browserFindHighlightedCard = null;
+    let ALL_MOVES = [];
+    let ALL_ABILITIES = [];
+    let ALL_LOCATIONS = [];
+    let ALL_POKEMON = [];
 
-  let LOCATION_DATA = [];
-  let ABILITY_DATA = [];
-  let MOVE_DATA = {};
-  let MOVE_DATA_BY_ID = new Map();
-  let BREEDING_CHAINS = {};
-  let breedingChainVariantTimer = null;
-  let breedingChainVariantPausedUntil = 0;
-  let pokemonById = new Map();
-  let evolutionParentById = new Map();
-  let evolutionFamilyRootById = new Map();
+    let LOCATION_DATA = [];
+    let ABILITY_DATA = [];
+    let MOVE_DATA = {};
+    let MOVE_DATA_BY_ID = new Map();
+    let BREEDING_CHAINS = {};
+    let breedingChainVariantTimer = null;
+    let breedingChainVariantPausedUntil = 0;
+    let pokemonById = new Map();
+    let evolutionParentById = new Map();
+    let evolutionFamilyRootById = new Map();
 
-  let viewport;
-  let mapSvgEl;
-  let mapZoomSlider;
-  let mapZoomValue;
-  let mapRegionSelect;
-  let mapViewportToggleButton;
-  let mapScale = 1;
-  let mapX = 0;
-  let mapY = 0;
-  let mapSuppressLocationClickUntil = 0;
-  let modalLocationMapState = null;
-  let modalLocationMapCleanup = null;
-  let modalLocationMapToggleButton;
-  let modalMoveNoticeTimer = null;
-  let modalMoveTabPulseTimer = null;
-  let modalMoveSelectionState = null;
-  let heldItemInfoState = null;
-  let heldItemInfoHideTimer = null;
-  let catchSummaryStateById = new Map();
-  let catchSummaryGlobalListenersBound = false;
+    let viewport;
+    let mapSvgEl;
+    let mapZoomSlider;
+    let mapZoomValue;
+    let mapRegionSelect;
+    let mapViewportToggleButton;
+    let mapScale = 1;
+    let mapX = 0;
+    let mapY = 0;
+    let mapSuppressLocationClickUntil = 0;
+    let modalLocationMapState = null;
+    let modalLocationMapCleanup = null;
+    let modalLocationMapToggleButton;
+    let modalMoveNoticeTimer = null;
+    let modalMoveTabPulseTimer = null;
+    let modalMoveSelectionState = null;
+    let heldItemInfoState = null;
+    let heldItemInfoHideTimer = null;
+    let catchSummaryStateById = new Map();
+    let catchSummaryGlobalListenersBound = false;
 
   /* =============================================================
      Map-related
   ============================================================= */
 
-  const MAP_WORLD_WIDTH = 1662;
-  const MAP_WORLD_HEIGHT = 1174;
-  const MAP_MIN_SCALE = 1;
-  const MAP_MAX_SCALE = 6;
-  const MAP_REGION_VIEWPORTS = {
-    Hoenn: { from: { x: 553.92, y: 34.05 }, to: { x: 1005.49, y: 277.89 } },
-    Johto: { from: { x: 1180.33, y: 439.45 }, to: { x: 1614.03, y: 671.92 } },
-    Kanto: { from: { x: 520.36, y: 844.31 }, to: { x: 1029.02, y: 1162.37 } },
-    Sinnoh: { from: { x: 30.1, y: 369.6 }, to: { x: 442, y: 699.4 } },
-    Unova: { from: { x: 595.75, y: 382.58 }, to: { x: 1052.02, y: 715.16 } }
-  };
+    const MAP_WORLD_WIDTH = 1662;
+    const MAP_WORLD_HEIGHT = 1174;
+    const MAP_MIN_SCALE = 1;
+    const MAP_MAX_SCALE = 6;
+    const MAP_REGION_VIEWPORTS = {
+      Hoenn: { from: { x: 553.92, y: 34.05 }, to: { x: 1005.49, y: 277.89 } },
+      Johto: { from: { x: 1180.33, y: 439.45 }, to: { x: 1614.03, y: 671.92 } },
+      Kanto: { from: { x: 520.36, y: 844.31 }, to: { x: 1029.02, y: 1162.37 } },
+      Sinnoh: { from: { x: 30.1, y: 369.6 }, to: { x: 442, y: 699.4 } },
+      Unova: { from: { x: 595.75, y: 382.58 }, to: { x: 1052.02, y: 715.16 } }
+    };
   /* =============================================================
      SVGs
   ============================================================= */
-  const MOVE_CLASS_SVGS = {
-    physical: `
-      <svg viewBox="0 0 100 100" class="move-class-svg physical">
-        <polygon fill="#e74c3c" points="
-          50,5 58,28 82,18 72,40 95,50 72,60
-          82,82 58,72 50,95 42,72 18,82 28,60
-          5,50 28,40 18,18 42,28
-        "/>
-      </svg>
-    `,
-    special: `
-      <svg viewBox="0 0 100 100" class="move-class-svg special">
-        <defs>
-          <mask id="ringMask">
-            <rect width="100" height="100" fill="white"/>
-            <circle cx="50" cy="50" r="40" fill="white"/>
-            <circle cx="50" cy="50" r="32" fill="black"/>
-            <circle cx="50" cy="50" r="24" fill="white"/>
-            <circle cx="50" cy="50" r="16" fill="black"/>
-            <circle cx="50" cy="50" r="8" fill="white"/>
-          </mask>
-        </defs>
-        <circle cx="50" cy="50" r="40" fill="#3498db" mask="url(#ringMask)"/>
-      </svg>
-    `,
-    status: `
-      <svg viewBox="0 0 100 100" class="move-class-svg status">
-        <defs>
-          <mask id="yinMask">
-            <rect width="100" height="100" fill="white"/>
-            <path d="
-              M50 10
-              A40 40 0 0 1 50 90
-              A20 20 0 0 0 50 50
-              A20 20 0 0 1 50 10
-            " fill="black"/>
-          </mask>
-        </defs>
-        <circle cx="50" cy="50" r="45" fill="#fff" mask="url(#yinMask)"/>
-      </svg>
-    `
-  };
+    const MOVE_CLASS_SVGS = {
+      physical: `
+        <svg viewBox="0 0 100 100" class="move-class-svg physical">
+          <polygon fill="#e74c3c" points="
+            50,5 58,28 82,18 72,40 95,50 72,60
+            82,82 58,72 50,95 42,72 18,82 28,60
+            5,50 28,40 18,18 42,28
+          "/>
+        </svg>
+      `,
+      special: `
+        <svg viewBox="0 0 100 100" class="move-class-svg special">
+          <defs>
+            <mask id="ringMask">
+              <rect width="100" height="100" fill="white"/>
+              <circle cx="50" cy="50" r="40" fill="white"/>
+              <circle cx="50" cy="50" r="32" fill="black"/>
+              <circle cx="50" cy="50" r="24" fill="white"/>
+              <circle cx="50" cy="50" r="16" fill="black"/>
+              <circle cx="50" cy="50" r="8" fill="white"/>
+            </mask>
+          </defs>
+          <circle cx="50" cy="50" r="40" fill="#3498db" mask="url(#ringMask)"/>
+        </svg>
+      `,
+      status: `
+        <svg viewBox="0 0 100 100" class="move-class-svg status">
+          <defs>
+            <mask id="yinMask">
+              <rect width="100" height="100" fill="white"/>
+              <path d="
+                M50 10
+                A40 40 0 0 1 50 90
+                A20 20 0 0 0 50 50
+                A20 20 0 0 1 50 10
+              " fill="black"/>
+            </mask>
+          </defs>
+          <circle cx="50" cy="50" r="45" fill="#fff" mask="url(#yinMask)"/>
+        </svg>
+      `
+    };
 
-  const TIMING_ICONS = {
-    "day": `<svg fill="currentColor" class="timing-icon" viewBox="0 0 240 240" version="1.1" xmlns="http://www.w3.org/2000/svg"><g><path d="M58.57,25.81c-2.13-3.67-0.87-8.38,2.8-10.51c3.67-2.13,8.38-0.88,10.51,2.8l9.88,17.1c2.13,3.67,0.87,8.38-2.8,10.51 c-3.67,2.13-8.38,0.88-10.51-2.8L58.57,25.81L58.57,25.81z M120,51.17c19.01,0,36.21,7.7,48.67,20.16 C181.12,83.79,188.83,101,188.83,120c0,19.01-7.7,36.21-20.16,48.67c-12.46,12.46-29.66,20.16-48.67,20.16 c-19.01,0-36.21-7.7-48.67-20.16C58.88,156.21,51.17,139.01,51.17,120c0-19.01,7.7-36.21,20.16-48.67 C83.79,58.88,101,51.17,120,51.17L120,51.17z M158.27,81.73c-9.79-9.79-23.32-15.85-38.27-15.85c-14.95,0-28.48,6.06-38.27,15.85 c-9.79,9.79-15.85,23.32-15.85,38.27c0,14.95,6.06,28.48,15.85,38.27c9.79,9.79,23.32,15.85,38.27,15.85 c14.95,0,28.48-6.06,38.27-15.85c9.79-9.79,15.85-23.32,15.85-38.27C174.12,105.05,168.06,91.52,158.27,81.73L158.27,81.73z M113.88,7.71c0-4.26,3.45-7.71,7.71-7.71c4.26,0,7.71,3.45,7.71,7.71v19.75c0,4.26-3.45,7.71-7.71,7.71 c-4.26,0-7.71-3.45-7.71-7.71V7.71L113.88,7.71z M170.87,19.72c2.11-3.67,6.8-4.94,10.48-2.83c3.67,2.11,4.94,6.8,2.83,10.48 l-9.88,17.1c-2.11,3.67-6.8,4.94-10.48,2.83c-3.67-2.11-4.94-6.8-2.83-10.48L170.87,19.72L170.87,19.72z M214.19,58.57 c3.67-2.13,8.38-0.87,10.51,2.8c2.13,3.67,0.88,8.38-2.8,10.51l-17.1,9.88c-3.67,2.13-8.38,0.87-10.51-2.8 c-2.13-3.67-0.88-8.38,2.8-10.51L214.19,58.57L214.19,58.57z M232.29,113.88c4.26,0,7.71,3.45,7.71,7.71 c0,4.26-3.45,7.71-7.71,7.71h-19.75c-4.26,0-7.71-3.45-7.71-7.71c0-4.26,3.45-7.71,7.71-7.71H232.29L232.29,113.88z M220.28,170.87 c3.67,2.11,4.94,6.8,2.83,10.48c-2.11,3.67-6.8,4.94-10.48,2.83l-17.1-9.88c-3.67-2.11-4.94-6.8-2.83-10.48 c2.11-3.67,6.8-4.94,10.48-2.83L220.28,170.87L220.28,170.87z M181.43,214.19c2.13,3.67,0.87,8.38-2.8,10.51 c-3.67,2.13-8.38,0.88-10.51-2.8l-9.88-17.1c-2.13-3.67-0.87-8.38,2.8-10.51c3.67-2.13,8.38-0.88,10.51,2.8L181.43,214.19 L181.43,214.19z M126.12,232.29c0,4.26-3.45,7.71-7.71,7.71c-4.26,0-7.71-3.45-7.71-7.71v-19.75c0-4.26,3.45-7.71,7.71-7.71 c4.26,0,7.71,3.45,7.71,7.71V232.29L126.12,232.29z M69.13,220.28c-2.11,3.67-6.8,4.94-10.48,2.83c-3.67-2.11-4.94-6.8-2.83-10.48 l9.88-17.1c2.11-3.67,6.8-4.94,10.48-2.83c3.67,2.11,4.94,6.8,2.83,10.48L69.13,220.28L69.13,220.28z M25.81,181.43 c-3.67,2.13-8.38,0.87-10.51-2.8c-2.13-3.67-0.88-8.38,2.8-10.51l17.1-9.88c3.67-2.13,8.38-0.87,10.51,2.8 c2.13,3.67,0.88,8.38-2.8,10.51L25.81,181.43L25.81,181.43z M7.71,126.12c-4.26,0-7.71-3.45-7.71-7.71c0-4.26,3.45-7.71,7.71-7.71 h19.75c4.26,0,7.71,3.45,7.71,7.71c0,4.26-3.45,7.71-7.71,7.71H7.71L7.71,126.12z M19.72,69.13c-3.67-2.11-4.94-6.8-2.83-10.48 c2.11-3.67,6.8-4.94,10.48-2.83l17.1,9.88c3.67,2.11,4.94,6.8,2.83,10.48c-2.11,3.67-6.8,4.94-10.48,2.83L19.72,69.13L19.72,69.13z"/></g></svg>`,
+    const TIMING_ICONS = {
+      "day": `<svg fill="currentColor" class="timing-icon" viewBox="0 0 240 240" version="1.1" xmlns="http://www.w3.org/2000/svg"><g><path d="M58.57,25.81c-2.13-3.67-0.87-8.38,2.8-10.51c3.67-2.13,8.38-0.88,10.51,2.8l9.88,17.1c2.13,3.67,0.87,8.38-2.8,10.51 c-3.67,2.13-8.38,0.88-10.51-2.8L58.57,25.81L58.57,25.81z M120,51.17c19.01,0,36.21,7.7,48.67,20.16 C181.12,83.79,188.83,101,188.83,120c0,19.01-7.7,36.21-20.16,48.67c-12.46,12.46-29.66,20.16-48.67,20.16 c-19.01,0-36.21-7.7-48.67-20.16C58.88,156.21,51.17,139.01,51.17,120c0-19.01,7.7-36.21,20.16-48.67 C83.79,58.88,101,51.17,120,51.17L120,51.17z M158.27,81.73c-9.79-9.79-23.32-15.85-38.27-15.85c-14.95,0-28.48,6.06-38.27,15.85 c-9.79,9.79-15.85,23.32-15.85,38.27c0,14.95,6.06,28.48,15.85,38.27c9.79,9.79,23.32,15.85,38.27,15.85 c14.95,0,28.48-6.06,38.27-15.85c9.79-9.79,15.85-23.32,15.85-38.27C174.12,105.05,168.06,91.52,158.27,81.73L158.27,81.73z M113.88,7.71c0-4.26,3.45-7.71,7.71-7.71c4.26,0,7.71,3.45,7.71,7.71v19.75c0,4.26-3.45,7.71-7.71,7.71 c-4.26,0-7.71-3.45-7.71-7.71V7.71L113.88,7.71z M170.87,19.72c2.11-3.67,6.8-4.94,10.48-2.83c3.67,2.11,4.94,6.8,2.83,10.48 l-9.88,17.1c-2.11,3.67-6.8,4.94-10.48,2.83c-3.67-2.11-4.94-6.8-2.83-10.48L170.87,19.72L170.87,19.72z M214.19,58.57 c3.67-2.13,8.38-0.87,10.51,2.8c2.13,3.67,0.88,8.38-2.8,10.51l-17.1,9.88c-3.67,2.13-8.38,0.87-10.51-2.8 c-2.13-3.67-0.88-8.38,2.8-10.51L214.19,58.57L214.19,58.57z M232.29,113.88c4.26,0,7.71,3.45,7.71,7.71 c0,4.26-3.45,7.71-7.71,7.71h-19.75c-4.26,0-7.71-3.45-7.71-7.71c0-4.26,3.45-7.71,7.71-7.71H232.29L232.29,113.88z M220.28,170.87 c3.67,2.11,4.94,6.8,2.83,10.48c-2.11,3.67-6.8,4.94-10.48,2.83l-17.1-9.88c-3.67-2.11-4.94-6.8-2.83-10.48 c2.11-3.67,6.8-4.94,10.48-2.83L220.28,170.87L220.28,170.87z M181.43,214.19c2.13,3.67,0.87,8.38-2.8,10.51 c-3.67,2.13-8.38,0.88-10.51-2.8l-9.88-17.1c-2.13-3.67-0.87-8.38,2.8-10.51c3.67-2.13,8.38-0.88,10.51,2.8L181.43,214.19 L181.43,214.19z M126.12,232.29c0,4.26-3.45,7.71-7.71,7.71c-4.26,0-7.71-3.45-7.71-7.71v-19.75c0-4.26,3.45-7.71,7.71-7.71 c4.26,0,7.71,3.45,7.71,7.71V232.29L126.12,232.29z M69.13,220.28c-2.11,3.67-6.8,4.94-10.48,2.83c-3.67-2.11-4.94-6.8-2.83-10.48 l9.88-17.1c2.11-3.67,6.8-4.94,10.48-2.83c3.67,2.11,4.94,6.8,2.83,10.48L69.13,220.28L69.13,220.28z M25.81,181.43 c-3.67,2.13-8.38,0.87-10.51-2.8c-2.13-3.67-0.88-8.38,2.8-10.51l17.1-9.88c3.67-2.13,8.38-0.87,10.51,2.8 c2.13,3.67,0.88,8.38-2.8,10.51L25.81,181.43L25.81,181.43z M7.71,126.12c-4.26,0-7.71-3.45-7.71-7.71c0-4.26,3.45-7.71,7.71-7.71 h19.75c4.26,0,7.71,3.45,7.71,7.71c0,4.26-3.45,7.71-7.71,7.71H7.71L7.71,126.12z M19.72,69.13c-3.67-2.11-4.94-6.8-2.83-10.48 c2.11-3.67,6.8-4.94,10.48-2.83l17.1,9.88c3.67,2.11,4.94,6.8,2.83,10.48c-2.11,3.67-6.8,4.94-10.48,2.83L19.72,69.13L19.72,69.13z"/></g></svg>`,
 
-    "morning": `<svg fill="currentColor" class="timing-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23,16a1,1,0,0,1-1,1H2a1,1,0,0,1,0-2H22A1,1,0,0,1,23,16Zm-5,5a1,1,0,0,0,0-2H6a1,1,0,0,0,0,2ZM7,12a1,1,0,0,0,2,0,3,3,0,0,1,6,0,1,1,0,0,0,2,0A5,5,0,0,0,7,12Zm4-7a1,1,0,0,0,2,0V4a1,1,0,0,0-2,0Zm7,7a1,1,0,0,0,1,1h1a1,1,0,0,0,0-2H19A1,1,0,0,0,18,12ZM4,11a1,1,0,0,0,0,2H5a1,1,0,0,0,0-2ZM5.636,5.636a1,1,0,0,0,0,1.414l.707.707A1,1,0,0,0,7.757,6.343L7.05,5.636A1,1,0,0,0,5.636,5.636Zm11.314,0-.707.707a1,1,0,1,0,1.414,1.414l.707-.707A1,1,0,1,0,16.95,5.636Z"/></svg>`,
+      "morning": `<svg fill="currentColor" class="timing-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23,16a1,1,0,0,1-1,1H2a1,1,0,0,1,0-2H22A1,1,0,0,1,23,16Zm-5,5a1,1,0,0,0,0-2H6a1,1,0,0,0,0,2ZM7,12a1,1,0,0,0,2,0,3,3,0,0,1,6,0,1,1,0,0,0,2,0A5,5,0,0,0,7,12Zm4-7a1,1,0,0,0,2,0V4a1,1,0,0,0-2,0Zm7,7a1,1,0,0,0,1,1h1a1,1,0,0,0,0-2H19A1,1,0,0,0,18,12ZM4,11a1,1,0,0,0,0,2H5a1,1,0,0,0,0-2ZM5.636,5.636a1,1,0,0,0,0,1.414l.707.707A1,1,0,0,0,7.757,6.343L7.05,5.636A1,1,0,0,0,5.636,5.636Zm11.314,0-.707.707a1,1,0,1,0,1.414,1.414l.707-.707A1,1,0,1,0,16.95,5.636Z"/></svg>`,
 
-    "night": `<svg class="timing-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.5739 1.11056L13.7826 2.69316C13.7632 2.73186 13.7319 2.76325 13.6932 2.7826L12.1106 3.5739C11.9631 3.64761 11.9631 3.85797 12.1106 3.93167L13.6932 4.72297C13.7319 4.74233 13.7632 4.77371 13.7826 4.81241L14.5739 6.39502C14.6476 6.54243 14.858 6.54243 14.9317 6.39502L15.723 4.81241C15.7423 4.77371 15.7737 4.74232 15.8124 4.72297L17.395 3.93167C17.5424 3.85797 17.5424 3.64761 17.395 3.5739L15.8124 2.7826C15.7737 2.76325 15.7423 2.73186 15.723 2.69316L14.9317 1.11056C14.858 0.963147 14.6476 0.963148 14.5739 1.11056Z" fill="currentColor"/><path d="M19.2419 5.07223L18.4633 7.40815C18.4434 7.46787 18.3965 7.51474 18.3368 7.53464L16.0009 8.31328C15.8185 8.37406 15.8185 8.63198 16.0009 8.69276L18.3368 9.4714C18.3965 9.4913 18.4434 9.53817 18.4633 9.59789L19.2419 11.9338C19.3027 12.1161 19.5606 12.1161 19.6214 11.9338L20.4 9.59789C20.42 9.53817 20.4668 9.4913 20.5265 9.4714L22.8625 8.69276C23.0448 8.63198 23.0448 8.37406 22.8625 8.31328L20.5265 7.53464C20.4668 7.51474 20.42 7.46787 20.4 7.40815L19.6214 5.07223C19.5606 4.88989 19.3027 4.88989 19.2419 5.07223Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M10.4075 13.6642C13.2348 16.4915 17.6517 16.7363 20.6641 14.3703C20.7014 14.341 20.7385 14.3113 20.7754 14.2812C20.9148 14.1674 21.051 14.0479 21.1837 13.9226C21.2376 13.8718 21.2909 13.8201 21.3436 13.7674C21.8557 13.2552 22.9064 13.5578 22.7517 14.2653C22.6983 14.5098 22.6365 14.7517 22.5667 14.9905C22.5253 15.1321 22.4811 15.2727 22.4341 15.4122C22.4213 15.4502 22.4082 15.4883 22.395 15.5262C20.8977 19.8142 16.7886 23.0003 12 23.0003C5.92487 23.0003 1 18.0754 1 12.0003C1 7.13315 4.29086 2.98258 8.66889 1.54252L8.72248 1.52504C8.8185 1.49401 8.91503 1.46428 9.01205 1.43587C9.26959 1.36046 9.5306 1.29438 9.79466 1.23801C10.5379 1.07934 10.8418 2.19074 10.3043 2.72815C10.251 2.78147 10.1987 2.83539 10.1473 2.88989C10.0456 2.99777 9.94766 3.10794 9.8535 3.22023C9.83286 3.24485 9.8124 3.26957 9.79212 3.29439C7.32966 6.30844 7.54457 10.8012 10.4075 13.6642ZM8.99331 15.0784C11.7248 17.8099 15.6724 18.6299 19.0872 17.4693C17.4281 19.6024 14.85 21.0003 12 21.0003C7.02944 21.0003 3 16.9709 3 12.0003C3 9.09163 4.45653 6.47161 6.66058 4.81846C5.41569 8.27071 6.2174 12.3025 8.99331 15.0784Z" fill="currentColor"/></svg>`
-  };
+      "night": `<svg class="timing-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.5739 1.11056L13.7826 2.69316C13.7632 2.73186 13.7319 2.76325 13.6932 2.7826L12.1106 3.5739C11.9631 3.64761 11.9631 3.85797 12.1106 3.93167L13.6932 4.72297C13.7319 4.74233 13.7632 4.77371 13.7826 4.81241L14.5739 6.39502C14.6476 6.54243 14.858 6.54243 14.9317 6.39502L15.723 4.81241C15.7423 4.77371 15.7737 4.74232 15.8124 4.72297L17.395 3.93167C17.5424 3.85797 17.5424 3.64761 17.395 3.5739L15.8124 2.7826C15.7737 2.76325 15.7423 2.73186 15.723 2.69316L14.9317 1.11056C14.858 0.963147 14.6476 0.963148 14.5739 1.11056Z" fill="currentColor"/><path d="M19.2419 5.07223L18.4633 7.40815C18.4434 7.46787 18.3965 7.51474 18.3368 7.53464L16.0009 8.31328C15.8185 8.37406 15.8185 8.63198 16.0009 8.69276L18.3368 9.4714C18.3965 9.4913 18.4434 9.53817 18.4633 9.59789L19.2419 11.9338C19.3027 12.1161 19.5606 12.1161 19.6214 11.9338L20.4 9.59789C20.42 9.53817 20.4668 9.4913 20.5265 9.4714L22.8625 8.69276C23.0448 8.63198 23.0448 8.37406 22.8625 8.31328L20.5265 7.53464C20.4668 7.51474 20.42 7.46787 20.4 7.40815L19.6214 5.07223C19.5606 4.88989 19.3027 4.88989 19.2419 5.07223Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M10.4075 13.6642C13.2348 16.4915 17.6517 16.7363 20.6641 14.3703C20.7014 14.341 20.7385 14.3113 20.7754 14.2812C20.9148 14.1674 21.051 14.0479 21.1837 13.9226C21.2376 13.8718 21.2909 13.8201 21.3436 13.7674C21.8557 13.2552 22.9064 13.5578 22.7517 14.2653C22.6983 14.5098 22.6365 14.7517 22.5667 14.9905C22.5253 15.1321 22.4811 15.2727 22.4341 15.4122C22.4213 15.4502 22.4082 15.4883 22.395 15.5262C20.8977 19.8142 16.7886 23.0003 12 23.0003C5.92487 23.0003 1 18.0754 1 12.0003C1 7.13315 4.29086 2.98258 8.66889 1.54252L8.72248 1.52504C8.8185 1.49401 8.91503 1.46428 9.01205 1.43587C9.26959 1.36046 9.5306 1.29438 9.79466 1.23801C10.5379 1.07934 10.8418 2.19074 10.3043 2.72815C10.251 2.78147 10.1987 2.83539 10.1473 2.88989C10.0456 2.99777 9.94766 3.10794 9.8535 3.22023C9.83286 3.24485 9.8124 3.26957 9.79212 3.29439C7.32966 6.30844 7.54457 10.8012 10.4075 13.6642ZM8.99331 15.0784C11.7248 17.8099 15.6724 18.6299 19.0872 17.4693C17.4281 19.6024 14.85 21.0003 12 21.0003C7.02944 21.0003 3 16.9709 3 12.0003C3 9.09163 4.45653 6.47161 6.66058 4.81846C5.41569 8.27071 6.2174 12.3025 8.99331 15.0784Z" fill="currentColor"/></svg>`
+    };
   /* =============================================================
-     const
+     CONST
   ============================================================= */
-  const TYPE_CHART = {
-      normal: { fighting: 2, ghost: 0 },
+    // Grid 
 
-      fire: {
-        water: 2, ground: 2, rock: 2,
-        fire: 0.5, grass: 0.5, ice: 0.5, bug: 0.5, steel: 0.5
-      },
+      const filters = {
+        types: [],
+        eggGroups: [],
+        ability: "",
+        moves: ["", "", "", ""],
+        location: "",
+        stats: {
+          hp: 0,
+          attack: 0,
+          defense: 0,
+          sp_attack: 0,
+          sp_defense: 0,
+          speed: 0
+        },
+        lockedStats: new Set()
+      };
 
-      water: {
-        electric: 2, grass: 2,
-        fire: 0.5, water: 0.5, ice: 0.5, steel: 0.5
-      },
+      filters.lockedStats = new Set();
 
-      grass: {
-        fire: 2, ice: 2, poison: 2, flying: 2, bug: 2,
-        water: 0.5, electric: 0.5, grass: 0.5, ground: 0.5
-      },
+      const MAX_BASE_ID = 649;
 
-      electric: {
-        ground: 2,
-        electric: 0.5, flying: 0.5, steel: 0.5
-      },
+      // ✅ manually allow specific IDs ≥ 650 (non-forms, special cases)
+      const ID_OVERRIDE = new Set([
+      ]);
+    
+    // Modal
+      // Summary
+        const TYPE_CHART = {
+            normal: { fighting: 2, ghost: 0 },
 
-      ice: {
-        fire: 2, fighting: 2, rock: 2, steel: 2,
-        ice: 0.5
-      },
+            fire: {
+              water: 2, ground: 2, rock: 2,
+              fire: 0.5, grass: 0.5, ice: 0.5, bug: 0.5, steel: 0.5
+            },
 
-      fighting: {
-        flying: 2, psychic: 2,
-        bug: 0.5, rock: 0.5, dark: 0.5
-      },
+            water: {
+              electric: 2, grass: 2,
+              fire: 0.5, water: 0.5, ice: 0.5, steel: 0.5
+            },
 
-      poison: {
-        ground: 2, psychic: 2,
-        grass: 0.5, fighting: 0.5, poison: 0.5, bug: 0.5
-      },
+            grass: {
+              fire: 2, ice: 2, poison: 2, flying: 2, bug: 2,
+              water: 0.5, electric: 0.5, grass: 0.5, ground: 0.5
+            },
 
-      ground: {
-        water: 2, grass: 2, ice: 2,
-        poison: 0.5, rock: 0.5, electric: 0
-      },
+            electric: {
+              ground: 2,
+              electric: 0.5, flying: 0.5, steel: 0.5
+            },
 
-      flying: {
-        electric: 2, ice: 2, rock: 2,
-        grass: 0.5, fighting: 0.5, bug: 0.5, ground: 0
-      },
+            ice: {
+              fire: 2, fighting: 2, rock: 2, steel: 2,
+              ice: 0.5
+            },
 
-      psychic: {
-        bug: 2, ghost: 2, dark: 2,
-        fighting: 0.5, psychic: 0.5
-      },
+            fighting: {
+              flying: 2, psychic: 2,
+              bug: 0.5, rock: 0.5, dark: 0.5
+            },
 
-      bug: {
-        fire: 2, flying: 2, rock: 2,
-        grass: 0.5, fighting: 0.5, ground: 0.5
-      },
+            poison: {
+              ground: 2, psychic: 2,
+              grass: 0.5, fighting: 0.5, poison: 0.5, bug: 0.5
+            },
 
-      rock: {
-        water: 2, grass: 2, fighting: 2, ground: 2, steel: 2,
-        normal: 0.5, fire: 0.5, poison: 0.5, flying: 0.5
-      },
+            ground: {
+              water: 2, grass: 2, ice: 2,
+              poison: 0.5, rock: 0.5, electric: 0
+            },
 
-      ghost: {
-        ghost: 2, dark: 2,
-        poison: 0.5, bug: 0.5, normal: 0, fighting: 0
-      },
+            flying: {
+              electric: 2, ice: 2, rock: 2,
+              grass: 0.5, fighting: 0.5, bug: 0.5, ground: 0
+            },
 
-      dragon: {
-        ice: 2, dragon: 2,
-        fire: 0.5, water: 0.5, grass: 0.5, electric: 0.5
-      },
+            psychic: {
+              bug: 2, ghost: 2, dark: 2,
+              fighting: 0.5, psychic: 0.5
+            },
 
-      dark: {
-        fighting: 2, bug: 2,
-        ghost: 0.5, dark: 0.5, psychic: 0
-      },
+            bug: {
+              fire: 2, flying: 2, rock: 2,
+              grass: 0.5, fighting: 0.5, ground: 0.5
+            },
 
-      steel: {
-        fire: 2, fighting: 2, ground: 2,
-        normal: 0.5, grass: 0.5, ice: 0.5, flying: 0.5, psychic: 0.5, bug: 0.5, rock: 0.5, ghost: 0.5, dragon: 0.5, dark: 0.5, steel: 0.5, poison: 0
-      }
-  };
+            rock: {
+              water: 2, grass: 2, fighting: 2, ground: 2, steel: 2,
+              normal: 0.5, fire: 0.5, poison: 0.5, flying: 0.5
+            },
 
-  const filters = {
-    types: [],
-    eggGroups: [],
-    ability: "",
-    moves: ["", "", "", ""],
-    location: "",
-    stats: {
-      hp: 0,
-      attack: 0,
-      defense: 0,
-      sp_attack: 0,
-      sp_defense: 0,
-      speed: 0
-    },
-    lockedStats: new Set()
-  };
+            ghost: {
+              ghost: 2, dark: 2,
+              poison: 0.5, bug: 0.5, normal: 0, fighting: 0
+            },
 
-  filters.lockedStats = new Set();
+            dragon: {
+              ice: 2, dragon: 2,
+              fire: 0.5, water: 0.5, grass: 0.5, electric: 0.5
+            },
 
+            dark: {
+              fighting: 2, bug: 2,
+              ghost: 0.5, dark: 0.5, psychic: 0
+            },
 
-  const MAX_BASE_ID = 649;
+            steel: {
+              fire: 2, fighting: 2, ground: 2,
+              normal: 0.5, grass: 0.5, ice: 0.5, flying: 0.5, psychic: 0.5, bug: 0.5, rock: 0.5, ghost: 0.5, dragon: 0.5, dark: 0.5, steel: 0.5, poison: 0
+            }
+        };
 
-  // ✅ manually allow specific IDs ≥ 650 (non-forms, special cases)
-  const ID_OVERRIDE = new Set([
-    1052
-  ]);
+        const BALL_CATCHRATES = {
+          "cherish": 1.5,
+          "dive": 3.5,
+          "dream": {
+            "min": {
+              "sleep_turn": 0,
+              "rate": 1
+            },
+            "max": {
+              "sleep_turn": 2,
+              "rate": 4
+            }
+          },
+          "dusk": 2.5,
+          "fast": 4,
+          "friend": 2.5,
+          "great": 1.5,
+          "heal": 1.25,
+          "heavy": {
+            "min": {
+              "weight": 0,
+              "rate": 1
+            },
+            "max": {
+              "weight": 3000,
+              "rate": 4
+            }
+          },
+          "level": 4,
+          "love": 8,
+          "lure": 4,
+          "luxury": 2,
+          "master": 99999,
+          "moon": 4,
+          "nest": {
+            "min": {
+              "level": 31,
+              "rate": 1
+            },
+            "max": {
+              "level": 16,
+              "rate": 4
+            }
+          },
+          "net": 3.5,
+          "poké": 1,
+          "premier": 1.5,
+          "quick": {
+            "min": {
+              "turn": 2,
+              "rate": 1
+            },
+            "max": {
+              "turn": 1,
+              "rate": 5
+            }
+          },
+          "repeat": {
+            "min": {
+              "catch_streak": 0,
+              "rate": 1
+            },
+            "max": {
+              "catch_streak": 15,
+              "rate": 2.5
+            }
+          },
+          "safari": 1.25,
+          "timer": {
+            "min": {
+              "turn": 1,
+              "rate": 1
+            },
+            "max": {
+              "turn": 10,
+              "rate": 4
+            }
+          },
+          "ultra": 2
+        };
 
-  const BODY_MOVE_KEYS = new Set([
-    "low-kick",
-    "grass-knot",
-    "heavy-slam",
-    "heat-crash",
-    "sky-drop",
-    "autotomize"
-  ]);
+        const BALL_PRIO = {
+          "cherish": 5,
+          "dive": 10,
+          "dream": 15,
+          "dusk": 2.5,
+          "fast": 4,
+          "friend": 2.5,
+          "great": 200,
+          "heal": 1.25,
+          "heavy": 16,
+          "level": 14,
+          "love": 20,
+          "lure": 13,
+          "luxury": 100,
+          "master": 1,
+          "moon": 25,
+          "nest": 50,
+          "net": 60,
+          "poké": 1000,
+          "premier": 150,
+          "quick": 70,
+          "repeat": 80,
+          "safari": 1000,
+          "timer": 150,
+          "ultra": 150
+        };
 
-  const BODY_WEIGHT_ABILITIES = new Set([
-    "Heavy Metal",
-    "Light Metal"
-  ]);
+        const STATUS_EFFECTS_CATCHRATES = {
+          "sleep": 2,
+          "paralyze": 1.5,
+          "poison": 1.5,
+          "freeze": 2,
+          "burn": 1.5
+        }
+      // Moves
+        const BODY_MOVE_KEYS = new Set([
+          "low-kick",
+          "grass-knot",
+          "heavy-slam",
+          "heat-crash",
+          "sky-drop",
+          "autotomize"
+        ]);
 
-  const BREEDING_VARIANT_INTERVAL_MS = 1500;
-  const BREEDING_VARIANT_MANUAL_PAUSE_MS = 10000;
+        const BODY_WEIGHT_ABILITIES = new Set([
+          "Heavy Metal",
+          "Light Metal"
+        ]);
 
-  const BALL_CATCHRATES = {
-    "cherish": 1.5,
-    "dive": 3.5,
-    "dream": {
-      "min": {
-        "sleep_turn": 0,
-        "rate": 1
-      },
-      "max": {
-        "sleep_turn": 2,
-        "rate": 4
-      }
-    },
-    "dusk": 2.5,
-    "fast": 4,
-    "friend": 2.5,
-    "great": 1.5,
-    "heal": 1.25,
-    "heavy": {
-      "min": {
-        "weight": 0,
-        "rate": 1
-      },
-      "max": {
-        "weight": 3000,
-        "rate": 4
-      }
-    },
-    "level": 4,
-    "love": 8,
-    "lure": 4,
-    "luxury": 2,
-    "master": 99999,
-    "moon": 4,
-    "nest": {
-      "min": {
-        "level": 31,
-        "rate": 1
-      },
-      "max": {
-        "level": 16,
-        "rate": 4
-      }
-    },
-    "net": 3.5,
-    "poké": 1,
-    "premier": 1.5,
-    "quick": {
-      "min": {
-        "turn": 2,
-        "rate": 1
-      },
-      "max": {
-        "turn": 1,
-        "rate": 5
-      }
-    },
-    "repeat": {
-      "min": {
-        "catch_streak": 0,
-        "rate": 1
-      },
-      "max": {
-        "catch_streak": 15,
-        "rate": 2.5
-      }
-    },
-    "safari": 1.25,
-    "timer": {
-      "min": {
-        "turn": 1,
-        "rate": 1
-      },
-      "max": {
-        "turn": 10,
-        "rate": 4
-      }
-    },
-    "ultra": 2
-  };
-
-  const BALL_PRIO = {
-    "cherish": 5,
-    "dive": 10,
-    "dream": 15,
-    "dusk": 2.5,
-    "fast": 4,
-    "friend": 2.5,
-    "great": 200,
-    "heal": 1.25,
-    "heavy": 16,
-    "level": 14,
-    "love": 20,
-    "lure": 13,
-    "luxury": 100,
-    "master": 1,
-    "moon": 25,
-    "nest": 50,
-    "net": 60,
-    "poké": 1000,
-    "premier": 150,
-    "quick": 70,
-    "repeat": 80,
-    "safari": 1000,
-    "timer": 150,
-    "ultra": 150
-  };
-
-  const STATUS_EFFECTS_CATCHRATES = {
-    "sleep": 2,
-    "paralyze": 1.5,
-    "poison": 1.5,
-    "freeze": 2,
-    "burn": 1.5
-  }
+        const BREEDING_VARIANT_INTERVAL_MS = 1500;
+        const BREEDING_VARIANT_MANUAL_PAUSE_MS = 10000;
 
   /* =============================================================
      INIT
@@ -3435,13 +3437,13 @@ const PokedexTool = (() => {
         }
       });
 
-      const matches = [...unique.values()].slice(0, 10);
+      const matches = [...unique.values()].slice(0, 100);
 
       dropdown.innerHTML = matches.map(l => `
         <div class="dropdown-item" 
             data-name="${l.name}" 
             data-region="${l.region}">
-          ${l.name} (${l.region})
+          <img src="maps/${l.region}.png" style="max-height: 20px" alt="(${l.region})"> ${l.name} 
         </div>
       `).join("");
 
@@ -6150,7 +6152,7 @@ const PokedexTool = (() => {
       const canEnable = exactMatch && !state.ballEnabled[exactMatch.key];
       searchEnableBtn.classList.toggle("hidden", !canEnable);
       if (canEnable) {
-        searchEnableBtn.textContent = `Enable ${exactMatch.label}`;
+        searchEnableBtn.innerHTML = `${fetchItemImage(exactMatch.label)} Enable`;
         searchEnableBtn.dataset.ballKey = exactMatch.key;
         searchEnableBtn.dataset.ballLabel = exactMatch.label;
       }
