@@ -40,23 +40,74 @@ const routeToTool = Object.fromEntries(
   Object.entries(toolRoutes).map(([k, v]) => [v, k])
 );
 
-function getRouteData() {
-  const hash = window.location.hash.replace(/^#/, "");
-  const parts = hash.split("/").filter(Boolean);
+const DEX_MODAL_TABS = new Set(["summary", "moves", "locations"]);
 
-  return {
-    section: parts[0] || "",
-    tool: parts[1] || "about",
-    param: parts[2] || null
-  };
+function normalizeDexTab(tab) {
+  return DEX_MODAL_TABS.has(tab) ? tab : "summary";
+}
+
+function isDexSlug(value) {
+  return typeof value === "string" && /_(\d+)$/.test(value);
+}
+
+function buildDexRoute({ view = "grid", slug = "", id = null, tab = "summary", queryParams = new URLSearchParams() } = {}) {
+  let path = "/tools/dex/grid";
+  
+  if (view === "modal") {
+    const parts = ["/tools/dex/modal", slug || id || ""];
+    const normalizedTab = normalizeDexTab(tab);
+    if (normalizedTab !== "summary") parts.push(normalizedTab);
+    path = parts.join("/");
+  }
+
+  const qs = queryParams.toString();
+  return qs ? `${path}?${qs}` : path;
+}
+
+function getRouteData() {
+  const fullHash = window.location.hash.replace(/^#/, "");
+  const [path, queryString] = fullHash.split("?"); // Split path from params
+  const parts = path.split("/").filter(Boolean);
+  const tool = parts[1] || "about";
+  const rest = parts.slice(2);
+  const queryParams = new URLSearchParams(queryString || "");
+
+  let dex = null;
+  if (tool === "dex") {
+    const view = rest[0] === "modal" || isDexSlug(rest[0]) ? "modal" : "grid";
+    const slug = view === "modal" ? (rest[0] === "modal" ? rest[1] : rest[0]) || "" : "";
+    const tab = view === "modal" ? normalizeDexTab(rest[0] === "modal" ? rest[2] : rest[1]) : "summary";
+    dex = { view, slug, tab, queryParams };
+  }
+
+  return { section: parts[0] || "", tool, param: parts[2] || null, rest, dex };
+}
+
+function setHashRoute(route, { replace = false } = {}) {
+  const target = `#${route}`;
+
+  if (window.location.hash === target) return;
+
+  if (replace && window.history?.replaceState) {
+    window.history.replaceState(null, "", target);
+    return;
+  }
+
+  window.location.hash = route;
 }
 
 async function handleRoute() {
-  const { tool, param } = getRouteData();
+  const { tool, dex } = getRouteData();
 
   if (tool === "dex") {
-    showTool(param ? "pokedexModal" : "pokedexTool");
-    await handleDexRoute(param);
+    if (!dex || dex.view === "grid") {
+      showTool("pokedexTool");
+      await handleDexGridRoute(dex || { filtersOpen: false });
+      return;
+    }
+
+    showTool("pokedexModal");
+    await handleDexRoute(dex);
     return;
   }
 
@@ -64,22 +115,25 @@ async function handleRoute() {
   showTool(toolId);
 }
 
-async function handleDexRoute(param) {
-  // wait until dex tool finished loading
+async function handleDexGridRoute(routeState = {}) {
   await PokedexTool.ready;
+  PokedexTool.closeFromRouter();
+  
+  // Pass 'grid' as the context
+  PokedexTool.hydrateFromURL(routeState.queryParams, 'grid');
+  PokedexTool.setGridFiltersOpen(routeState.queryParams?.get("filtersOpen") === "true", { syncRoute: false });
+}
 
-  // normal dex page
-  if (!param) {
-    PokedexTool.closeFromRouter();
-    return;
-  }
-
-  // try modal deep-link
-  const success = PokedexTool.openFromSlug(param);
-
-  // invalid slug -> fallback to dex home
-  if (!success) {
-    window.location.hash = "/tools/dex";
+async function handleDexRoute(routeState) {
+  await PokedexTool.ready;
+  
+  const success = PokedexTool.openFromSlug(routeState.slug, routeState);
+  
+  if (success) {
+    // Pass 'modal' as the context
+    PokedexTool.hydrateFromURL(routeState.queryParams, 'modal');
+  } else {
+    window.location.hash = "/tools/dex/grid";
   }
 }
 
@@ -87,7 +141,7 @@ function navigateToTool(toolId, push = true) {
   const route = toolRoutes[toolId] || "about";
 
   if (push) {
-    window.location.hash = `/tools/${route}`;
+    window.location.hash = route === "dex" ? "/tools/dex/grid" : `/tools/${route}`;
   }
 
   showTool(toolId);
@@ -1931,6 +1985,7 @@ const PokedexTool = (() => {
     let breedingChainVariantTimer = null;
     let breedingChainVariantPausedUntil = 0;
     let pokemonById = new Map();
+    let pokemonByName = new Map();
     let evolutionParentById = new Map();
     let evolutionFamilyRootById = new Map();
 
@@ -1954,6 +2009,21 @@ const PokedexTool = (() => {
     let heldItemInfoHideTimer = null;
     let catchSummaryStateById = new Map();
     let catchSummaryGlobalListenersBound = false;
+    
+    let currentModalMon = null;
+    let currentModalTab = "summary";
+    let currentModalLocationFiltersOpen = false;
+    let currentGridFiltersOpen = false;
+    let isHydrating = false;
+    let modalLocationFilterState = {
+        region: {},
+        rarity: {},
+        season: {},
+        time: {}
+      };
+    let modalLocationApplyFiltersFn = null;
+    let urlUpdateTimer = null;
+    let isMountingModal = false;
 
   /* =============================================================
      Map-related
@@ -1964,10 +2034,10 @@ const PokedexTool = (() => {
     const MAP_MIN_SCALE = 1;
     const MAP_MAX_SCALE = 6;
     const MAP_REGION_VIEWPORTS = {
-      Hoenn: { from: { x: 553.92, y: 34.05 }, to: { x: 1005.49, y: 277.89 } },
+      Hoenn: { from: { x: 553.92, y: 34.05 }, to: { x: 1010, y: 277.89 } },
       Johto: { from: { x: 1180.33, y: 439.45 }, to: { x: 1614.03, y: 671.92 } },
       Kanto: { from: { x: 520.36, y: 844.31 }, to: { x: 1029.02, y: 1162.37 } },
-      Sinnoh: { from: { x: 30.1, y: 369.6 }, to: { x: 442, y: 699.4 } },
+      Sinnoh: { from: { x: 30.1, y: 340 }, to: { x: 442, y: 699.4 } },
       Unova: { from: { x: 595.75, y: 382.58 }, to: { x: 1052.02, y: 715.16 } }
     };
   /* =============================================================
@@ -2272,6 +2342,216 @@ const PokedexTool = (() => {
         const BREEDING_VARIANT_INTERVAL_MS = 1500;
         const BREEDING_VARIANT_MANUAL_PAUSE_MS = 10000;
 
+
+  /* =============================================================
+     URL PARAMETER REGISTRY (Context-Aware)
+  ============================================================= */
+  const URLRegistry = {
+    grid: [
+      {
+        key: "search",
+        serialize: () => searchInput.value || null,
+        deserialize: (val) => { searchInput.value = val; }
+      },
+      {
+        key: "types",
+        serialize: () => filters.types.length ? filters.types.join("_") : null,
+        deserialize: (val) => {
+          filters.types = val ? val.split("_") : [];
+          document.querySelectorAll("#typePills .pill").forEach(p => {
+            p.classList.toggle("active", filters.types.includes(p.dataset.type));
+          });
+        }
+      },
+      {
+        key: "egggroup",
+        serialize: () => filters.eggGroups.length ? filters.eggGroups.join("_") : null,
+        deserialize: (val) => {
+          filters.eggGroups = val ? val.split("_") : [];
+          document.querySelectorAll("#eggPills .pill").forEach(p => {
+            p.classList.toggle("active", filters.eggGroups.includes(p.dataset.egg));
+          });
+        }
+      },
+      {
+        key: "location",
+        serialize: () => filters.location ? `${filters.location.name.replace(/\s+/g, "-")}_${filters.location.region}` : null,
+        deserialize: (val) => {
+          if (!val) {
+            filters.location = "";
+            $("#filterLocation").value = "";
+            return;
+          }
+          const [namePart, region] = val.split("_");
+          filters.location = { name: namePart.replace(/-/g, " "), region };
+          $("#filterLocation").value = `${filters.location.name} (${region})`;
+        }
+      },
+      {
+        key: "moves",
+        serialize: () => {
+           const active = filters.moves.filter(Boolean);
+           return active.length ? filters.moves.map(m => m || "").join("_") : null;
+        },
+        deserialize: (val) => {
+           filters.moves = val.split("_").map(m => m || "");
+           while(filters.moves.length < 4) filters.moves.push("");
+           document.querySelectorAll(".moves-grid .dex-input").forEach((input, i) => {
+             input.value = filters.moves[i] || "";
+           });
+           renderMoveInfo();
+        }
+      },
+      {
+        key: "ability",
+        serialize: () => filters.ability || null,
+        deserialize: (val) => {
+           filters.ability = val;
+           $("#filterAbility").value = val;
+           renderAbilityInfo(val);
+        }
+      },
+      {
+        key: "stats",
+        serialize: () => {
+           const s = filters.stats;
+           if (Object.values(s).some(v => v > 0)) {
+              return `${s.hp}_${s.attack}_${s.defense}_${s.sp_attack}_${s.sp_defense}_${s.speed}`;
+           }
+           return null;
+        },
+        deserialize: (val) => {
+           const parts = val.split("_").map(Number);
+           filters.stats = { hp: parts[0]||0, attack: parts[1]||0, defense: parts[2]||0, sp_attack: parts[3]||0, sp_defense: parts[4]||0, speed: parts[5]||0 };
+           syncInputs();
+        }
+      }
+    ],
+
+    modal_summary: [
+      {
+        key: "catch_search",
+        serialize: () => getCatchSummaryState(currentModalMon)?.ballSearch || null,
+        deserialize: (val) => {
+           const s = getCatchSummaryState(currentModalMon);
+           if (s) { s.ballSearch = val; s.searchActive = true; }
+        }
+      },
+      {
+        key: "catch_enabled",
+        serialize: () => {
+           const s = getCatchSummaryState(currentModalMon);
+           if (!s) return null;
+           const enabled = Object.keys(s.ballEnabled).filter(k => s.ballEnabled[k]);
+           return enabled.length ? enabled.join("_") : null;
+        },
+        deserialize: (val) => {
+           const s = getCatchSummaryState(currentModalMon);
+           if (s && val) {
+              const keys = new Set(val.split("_"));
+              Object.keys(s.ballEnabled).forEach(k => s.ballEnabled[k] = keys.has(k));
+           }
+        }
+      },
+      {
+         key: "catch_alpha",
+         serialize: () => getCatchSummaryState(currentModalMon)?.alphaEnabled ? "true" : null,
+         deserialize: (val) => { const s = getCatchSummaryState(currentModalMon); if(s) s.alphaEnabled = (val === "true"); }
+      },
+      {
+         key: "catch_hp",
+         serialize: () => {
+           const s = getCatchSummaryState(currentModalMon);
+           return s && s.hpPercent !== 100 ? String(s.hpPercent) : null;
+         },
+         deserialize: (val) => { const s = getCatchSummaryState(currentModalMon); if(s) s.hpPercent = Number(val); }
+      },
+      {
+         key: "catch_turns",
+         serialize: () => {
+           const s = getCatchSummaryState(currentModalMon);
+           return s && s.manualBattleTurn ? String(s.battleTurn) : null;
+         },
+         deserialize: (val) => {
+           const s = getCatchSummaryState(currentModalMon);
+           if(s && val) { s.battleTurn = Number(val); s.manualBattleTurn = true; }
+         }
+      }
+    ],
+
+    modal_moves: [
+      {
+        key: "selected_moves",
+        serialize: () => {
+          if (!modalMoveSelectionState || !modalMoveSelectionState.selectedIndices.size) return null;
+          const moves = getModalMoves(currentModalMon);
+          return [...modalMoveSelectionState.selectedIndices].map(idx => normalizeMoveName(moves[idx]?.name || "")).join("_");
+        },
+        deserialize: (val) => {
+          if (!val || !modalMoveSelectionState) return;
+          const moves = getModalMoves(currentModalMon);
+          const targets = new Set(val.split("_"));
+          moves.forEach((m, idx) => {
+             if (targets.has(normalizeMoveName(m.name))) {
+               modalMoveSelectionState.selectedIndices.add(idx);
+             }
+          });
+        }
+      }
+    ],
+
+    modal_locations: [
+      {
+        key: "loc_search",
+        serialize: () => $("#modalLocationSearch")?.value || null,
+        deserialize: (val) => {
+          const el = $("#modalLocationSearch");
+          if (el) el.value = val;
+        }
+      },
+      {
+        key: "loc_region",
+        serialize: () => serializeModalLocFilter("region"),
+        deserialize: (val) => deserializeModalLocFilter("region", val)
+      },
+      {
+        key: "loc_rarity",
+        serialize: () => serializeModalLocFilter("rarity"),
+        deserialize: (val) => deserializeModalLocFilter("rarity", val)
+      },
+      {
+        key: "loc_season",
+        serialize: () => serializeModalLocFilter("season"),
+        deserialize: (val) => deserializeModalLocFilter("season", val)
+      },
+      {
+        key: "loc_time",
+        serialize: () => serializeModalLocFilter("time"),
+        deserialize: (val) => deserializeModalLocFilter("time", val)
+      }
+    ]
+  };
+
+  function serializeModalLocFilter(group) {
+    const inc = Object.entries(modalLocationFilterState[group]).filter(([,v]) => v === "include").map(([k]) => k);
+    const exc = Object.entries(modalLocationFilterState[group]).filter(([,v]) => v === "exclude").map(([k]) => k);
+    if (!inc.length && !exc.length) return null;
+    return [...inc.map(k => `${k}-include`), ...exc.map(k => `${k}-exclude`)].join("_");
+  }
+
+  function deserializeModalLocFilter(group, val) {
+    if (!val) return;
+    val.split("_").forEach(part => {
+      const splitIdx = part.lastIndexOf("-");
+      if (splitIdx > 0) {
+        const k = part.substring(0, splitIdx);
+        const state = part.substring(splitIdx + 1);
+        if (modalLocationFilterState[group]) {
+          modalLocationFilterState[group][k] = state;
+        }
+      }
+    });
+  }
   /* =============================================================
      INIT
   ============================================================= */
@@ -2285,7 +2565,6 @@ const PokedexTool = (() => {
     initMapControls()
     bindEvents();
     preloadImages();
-    applyFilters();
 
     readyResolve();
   }
@@ -2339,7 +2618,7 @@ const PokedexTool = (() => {
     document.addEventListener("keydown", handleDexModalKeydown);
 
     $("#toggleFilters").onclick = () => {
-      $("#dexfiltersPanel").classList.toggle("collapsed");
+      setGridFiltersOpen(!isGridFiltersOpen());
     };
 
     $("#closeModal").onclick = closeModal;
@@ -2389,6 +2668,37 @@ const PokedexTool = (() => {
 
     renderGrid();
     updateResetButtons();
+    updateURL(null, { replace: true });
+  }
+
+  function isGridFiltersOpen() {
+    return currentGridFiltersOpen || !$("#dexfiltersPanel")?.classList.contains("collapsed");
+  }
+
+  function setGridFiltersOpen(open, { syncRoute = true } = {}) {
+    const panel = $("#dexfiltersPanel");
+    currentGridFiltersOpen = Boolean(open);
+
+    if (panel) {
+      panel.classList.toggle("collapsed", !currentGridFiltersOpen);
+    }
+
+    if (syncRoute && currentModalMon == null) {
+      updateURL(null, { replace: true });
+    }
+  }
+
+  function setModalLocationFiltersOpen(open, { syncRoute = true } = {}) {
+    const panel = $("#modalLocationFiltersPanel");
+    currentModalLocationFiltersOpen = Boolean(open);
+
+    if (panel) {
+      panel.classList.toggle("collapsed", !currentModalLocationFiltersOpen);
+    }
+
+    if (syncRoute && currentModalMon) {
+      updateURL(currentModalMon, { replace: true });
+    }
   }
 
   function matchTypes(mon) {
@@ -2444,6 +2754,7 @@ const PokedexTool = (() => {
 
   function preprocessData() {
     pokemonById = new Map(data.map(mon => [mon.id, mon]));
+    pokemonByName = new Map(data.map(mon => [mon.name.toLowerCase(), mon]));
     evolutionParentById = new Map();
     evolutionFamilyRootById = new Map();
 
@@ -4710,7 +5021,9 @@ const PokedexTool = (() => {
     const pokemon = new Set();
 
     data.forEach(mon => {
-      pokemon.add(mon.name);
+      if (isEligible(mon)) {
+        pokemon.add(mon.name);
+      }
 
       (mon.abilities || []).forEach(a => abilities.add(a.name));
       (mon.locations || []).forEach(l => locations.add(l.location));
@@ -4727,7 +5040,8 @@ const PokedexTool = (() => {
     ALL_POKEMON = [...pokemon].sort();
   }
 
-  function attachAutocomplete(input, dataList, onSelect) {
+// Added optional 'getImageSrc' callback
+  function attachAutocomplete(input, dataList, onSelect, getImageSrc = null) {
     const wrapper = document.createElement("div");
     wrapper.className = "autocomplete-wrapper";
 
@@ -4742,7 +5056,6 @@ const PokedexTool = (() => {
 
     input.addEventListener("input", () => {
       const val = input.value.toLowerCase();
-
       dropdown.innerHTML = "";
       currentFocus = -1;
 
@@ -4751,19 +5064,51 @@ const PokedexTool = (() => {
         return;
       }
 
-      const matches = dataList
-        .filter(item => item.toLowerCase().includes(val))
-        .slice(0, 50);
+      const matches = dataList.filter(item => item.toLowerCase().includes(val));
 
-      if (!matches.length) {
+      matches.sort((a, b) => {
+        const lowerA = a.toLowerCase();
+        const lowerB = b.toLowerCase();
+        const isStartA = lowerA.startsWith(val);
+        const isStartB = lowerB.startsWith(val);
+        const isWordStartA = lowerA.split(/[\s-]/).some(word => word.startsWith(val));
+        const isWordStartB = lowerB.split(/[\s-]/).some(word => word.startsWith(val));
+
+        if (isStartA && !isStartB) return -1;
+        if (!isStartA && isStartB) return 1;
+        if (isWordStartA && !isWordStartB) return -1;
+        if (!isWordStartA && isWordStartB) return 1;
+        return a.localeCompare(b);
+      });
+
+      const finalMatches = matches.slice(0, 50);
+
+      if (!finalMatches.length) {
         dropdown.classList.add("hidden");
         return;
       }
 
-      matches.forEach(item => {
+      finalMatches.forEach(item => {
         const div = document.createElement("div");
         div.className = "autocomplete-item";
-        div.textContent = item;
+
+        // --- ADDED IMAGE LOGIC ---
+        if (getImageSrc) {
+          const imgSrc = getImageSrc(item);
+          if (imgSrc) {
+            const img = document.createElement("img");
+            img.src = imgSrc;
+            img.className = "autocomplete-item-img";
+            img.onerror = () => {img.src = "sprites/monstericons/0-0.png";};
+            div.appendChild(img);
+          }
+        }
+
+        const text = document.createElement("span");
+        text.className = "autocomplete-item-text"
+        text.textContent = item;
+        div.appendChild(text);
+        // -------------------------
 
         div.onclick = () => {
           input.value = item;
@@ -4895,10 +5240,21 @@ const PokedexTool = (() => {
   ============================================================= */
 
   function enhancePokemonSearch() {
-    attachAutocomplete(searchInput, ALL_POKEMON, (value) => {
-      searchInput.value = value;
-      applyFilters();
-    });
+    attachAutocomplete(
+      searchInput, 
+      ALL_POKEMON, 
+      (value) => {
+        searchInput.value = value;
+        applyFilters();
+      }, 
+      (name) => {
+        // Find the specific mon object using the name
+        const mon = pokemonByName.get(name.toLowerCase());
+        
+        // If the pokemon exists, return the path; otherwise, return null
+        return mon ? `sprites/monstericons/${mon.id}-0.png` : null;
+      }
+    );
   }
 
   function renderGrid() {
@@ -4980,7 +5336,7 @@ const PokedexTool = (() => {
 
   function isEligible(mon) {
     return (
-      mon.id <= MAX_BASE_ID ||   // base Pokémon
+      isBasePokemon(mon) ||      // base Pokémon
       isVariant(mon) ||          // ALL variants always allowed
       isAllowedOverride(mon)     // manual overrides
     );
@@ -5095,13 +5451,18 @@ const PokedexTool = (() => {
     setTimeout(() => clone.remove(), 250);
   }
 
-  function showModal(mon) {
+  function showModal(mon, routeState = {}) {
+    isMountingModal = true;
+
     disconnectSummaryEvolutionTree();
     cleanupModalLocationMap();
     window.clearTimeout(modalMoveNoticeTimer);
     window.clearTimeout(modalMoveTabPulseTimer);
     modalMoveSelectionState = null;
     hideHeldItemInfo({ immediate: true });
+    currentModalMon = mon;
+    currentModalTab = normalizeDexTab(routeState.tab || "summary");
+    currentModalLocationFiltersOpen = Boolean(routeState.filtersOpen);
     modalBody.innerHTML = buildModal(mon);
 
     initTabs();
@@ -5113,10 +5474,17 @@ const PokedexTool = (() => {
     bindBodySummaryTools();
     bindCatchSummaryTools();
     initSummaryEvolutionTree();
+
+    activateModalTab(currentModalTab, { focus: false, syncRoute: false });
+    setModalLocationFiltersOpen(currentModalLocationFiltersOpen, { syncRoute: false });
+    isMountingModal = false;
   }
 
   function closeModal() {
-    navigateToTool("pokedexTool");
+    setHashRoute(buildDexRoute({
+      view: "grid",
+      filtersOpen: currentGridFiltersOpen
+    }));
   }
 
   function switchForm(id) {
@@ -5383,7 +5751,7 @@ const PokedexTool = (() => {
 
     tabs.forEach(tab => {
       tab.onclick = () => {
-        activateModalTab(tab.dataset.tab);
+        activateModalTab(tab.dataset.tab, { syncRoute: true });
       };
     });
   }
@@ -5442,19 +5810,22 @@ const PokedexTool = (() => {
 
   const STAT_LABELS = {
     hp: "HP", attack: "Atk", defense: "Def",
-    speed: "Spe", sp_attack: "SpA", sp_defense: "SpD"
+     sp_attack: "SpA", sp_defense: "SpD", speed: "Spe"
   };
   
   const MAX_STATS = {
     hp: 255, attack: 180, defense: 230,
-    speed: 180, sp_attack: 180, sp_defense: 230
+    sp_attack: 180, sp_defense: 230, speed: 180
   };
 
   const MAX_BST = 720;
 
   function buildStats(mon) {
     const stats = mon.stats || {};
-    const rows = Object.entries(stats).map(([k, v]) => buildStatRow(k, v)).join("");
+    const rows = STAT_KEYS.map(key => {
+        const value = stats[key] || null;
+        return buildStatRow(key, value);
+      }).join("");
 
     const bst = Object.values(stats).reduce((a, b) => a + (b || 0), 0);
     return rows + buildBSTRow(bst);
@@ -5741,7 +6112,7 @@ const PokedexTool = (() => {
           <div class="catch-summary-search-row">
             <input
               type="search"
-              class="mc-input catch-summary-search"
+              class="mc-input dex-input catch-summary-search"
               placeholder="Search balls..."
               value="${escapeHtml(state.ballSearch || "")}"
               autocomplete="off"
@@ -5751,7 +6122,7 @@ const PokedexTool = (() => {
           <div class="catch-summary-search-dropdown hidden" role="listbox" aria-label="Ball search results"></div>
         </div>
 
-        <button type="button" class="btn btn--panel catch-summary-filters-button" aria-label="Toggle catch filters">
+        <button type="button" class="btn btn--gradient catch-summary-filters-button" aria-label="Toggle catch filters">
           <svg width="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
           </svg>
@@ -5848,9 +6219,9 @@ const PokedexTool = (() => {
     switch (ballKey) {
       case "heavy": {
         const weight = Math.max(0, Number(context.weightKg) || Number(context.targetWeightKg) || 0);
-        if (weight >= 3000) return 4;
-        if (weight >= 2000) return 3;
-        if (weight >= 1000) return 2;
+        if (weight >= 3) return 4;
+        if (weight >= 2) return 3;
+        if (weight >= 1) return 2;
         return data.min.rate;
       }
       case "timer": {
@@ -5888,13 +6259,27 @@ const PokedexTool = (() => {
   }
 
   function getCatchChance({ catchRate, hpPercent, ballMultiplier, statusMultiplier }) {
-    const hpFactor = (3 - 2 * hpPercent) / 3; 
-    const x = catchRate * ballMultiplier * hpFactor * statusMultiplier;
-    
-    if (x >= 255) return 1;
-    const normalizedChance = x / 255;
-    
-    return Math.max(0, Math.min(1, normalizedChance));
+    // Based on the bulbapedia info for gen 3/4 (https://bulbapedia.bulbagarden.net/wiki/Catch_rate#Capture_method_(Generation_III-IV))
+    // Calculate modified catch rate 'a'
+    const hpFactor = (3 * 1 - 2 * hpPercent) / 3 * 1;
+    const a = Math.floor(hpFactor * catchRate * ballMultiplier * statusMultiplier);
+
+    // If 'a' >= 255, capture is guaranteed
+    if (a >= 255) return 1;
+
+    // Calculate shake probability 'b'
+    // Note: All divisions and square roots round down (Math.floor)
+    const val = Math.floor(16711680 / a);
+    const sqrt1 = Math.floor(Math.sqrt(val));
+    const sqrt2 = Math.floor(Math.sqrt(sqrt1));
+    const b = Math.floor(1048560 / sqrt2);
+
+    // The Pokémon is caught if all 4 shake checks succeed.
+    // Each check succeeds if a random number [0, 65535] < b.
+    // Probability of one check succeeding: p = b / 65535
+    // Probability of 4 checks succeeding: p^4
+    const shakeSuccessProb = Math.min(b, 65535) / 65535;
+    return Math.pow(shakeSuccessProb, 4);
   }
 
   function formatChance(value) {
@@ -6078,25 +6463,7 @@ const PokedexTool = (() => {
   }
 
   function fetchItemImage(item) {
-    let id = null;
-
-    // 1. Check if the input is a number
-    if (!isNaN(item)) {
-      id = Number(item);
-    } else {
-      // 2. If it's a name, search the ITEMS data
-      const cleanedName = String(item).trim().toLowerCase();
-      const foundItem = ITEMS.find(i => i && i.name && i.name.toLowerCase() === cleanedName);
-      
-      if (foundItem) {
-        id = foundItem.id;
-      } else {
-        console.warn(`Item with name "${item}" not found.`);
-        return ''; // Return empty string if item isn't found
-      }
-    }
-
-    // 3. Return the HTML img string
+    const id = fetchItem(item);
     return `<img src="sprites/items/${id}.png" alt="${item}" />`;
   }
 
@@ -6135,17 +6502,17 @@ const PokedexTool = (() => {
 
     if (!catchRate || !hpSlider || !best || !bars) return;
 
-    state.hpPercent = Math.max(1, Math.min(100, Number(hpSlider.value) || 100));
+
+    if (hpSlider) hpSlider.value = state.hpPercent;
+    if (battleTurnSlider) battleTurnSlider.value = state.battleTurn;
+    if (sleepTurnsSlider) sleepTurnsSlider.value = state.sleepTurns;
+    if (targetLevelSlider) targetLevelSlider.value = state.targetLevel;
+    if (streakSlider) streakSlider.value = state.catchStreak;
+    if (alphaToggle) alphaToggle.checked = state.alphaEnabled;
+    if (searchInputEl && document.activeElement !== searchInputEl) searchInputEl.value = state.ballSearch;
+
     const hpPercent = state.hpPercent / 100;
     if (hpValue) hpValue.textContent = `${state.hpPercent}%`;
-
-    if (alphaToggle) {
-      state.alphaEnabled = alphaToggle.checked;
-    }
-
-    if (searchInputEl) {
-      state.ballSearch = searchInputEl.value;
-    }
 
     if (searchEnableBtn) {
       const exactMatch = ballOptions.find(ball => normalizeCatchQuery(ball.label) === searchQuery || normalizeCatchQuery(ball.key) === searchQuery);
@@ -6228,7 +6595,10 @@ const PokedexTool = (() => {
       if (card.dataset.bound) return;
       card.dataset.bound = "true";
 
-      const update = () => updateCatchSummaryCard(card);
+      const update = () => {
+        updateCatchSummaryCard(card);
+        updateURL(currentModalMon, { replace: true });
+      };
       const getState = () => getCatchSummaryState(data.find(entry => Number(entry.id) === Number(card.dataset.targetId)));
 
       card.addEventListener("input", (event) => {
@@ -6236,26 +6606,31 @@ const PokedexTool = (() => {
         const state = getState();
         if (!state) return;
 
-        if (target.matches(".catch-hp-slider, .catch-sleep-turns-slider, .catch-target-level-slider, .catch-streak-slider, .catch-summary-search")) {
-          if (target.matches(".catch-summary-search")) {
-            state.ballSearch = target.value;
-            state.searchActive = true;
-          }
-          update();
-          return;
+        // 🔥 SYNC STATE FROM DOM
+        if (target.matches(".catch-hp-slider")) state.hpPercent = Math.max(1, Math.min(100, Number(target.value) || 100));
+        if (target.matches(".catch-battle-turn-slider")) state.battleTurn = Math.max(1, Number(target.value) || 1);
+        if (target.matches(".catch-sleep-turns-slider")) state.sleepTurns = Math.max(0, Number(target.value) || 0);
+        if (target.matches(".catch-target-level-slider")) state.targetLevel = Math.max(1, Math.min(100, Number(target.value) || 1));
+        if (target.matches(".catch-streak-slider")) state.catchStreak = Math.max(0, Number(target.value) || 0);
+
+        if (target.matches(".catch-summary-search")) {
+          state.ballSearch = target.value;
+          state.searchActive = true;
         }
 
-        if (target.matches(".catch-battle-turn-slider")) {
-          state.manualBattleTurn = true;
-          target.dataset.manual = "true";
-          update();
-        }
+        update();
       });
 
       card.addEventListener("change", (event) => {
         const target = event.target;
         const state = getState();
         if (!state) return;
+
+        if (target.matches(".catch-alpha-toggle")) {
+          state.alphaEnabled = target.checked;
+          update();
+          return;
+        }
 
         if (target.matches("[data-ball-toggle]")) {
           state.ballEnabled[target.dataset.ballToggle] = target.checked;
@@ -7238,6 +7613,7 @@ function getDirectChildBranches(branch) {
       applyRowState(row);
       renderSelectedMoveInfo();
       updateModalMoveTabState();
+      updateURL(currentModalMon, { replace: true });
     };
 
     const toggleMove = (row) => {
@@ -7254,6 +7630,7 @@ function getDirectChildBranches(branch) {
       applyRowState(row);
       renderSelectedMoveInfo();
       updateModalMoveTabState();
+      updateURL(currentModalMon, { replace: true });
     };
 
     const applyModalMoveFilters = () => {
@@ -7294,6 +7671,7 @@ function getDirectChildBranches(branch) {
       applyRowState(rows[index]);
       renderSelectedMoveInfo();
       updateModalMoveTabState();
+      updateURL(currentModalMon, { replace: true });
     });
 
     search.addEventListener("input", applyModalMoveFilters);
@@ -7333,21 +7711,22 @@ function getDirectChildBranches(branch) {
     }
   }
 
-  function activateModalTab(tabName, { pulse = false, focus = true } = {}) {
+  function activateModalTab(tabName, { pulse = false, focus = true, syncRoute = true } = {}) {
+    currentModalTab = normalizeDexTab(tabName);
     const tabs = [...document.querySelectorAll(".tab")];
     const contents = [...document.querySelectorAll(".tab-content")];
-    const targetTab = tabs.find(tab => tab.dataset.tab === tabName);
+    const targetTab = tabs.find(tab => tab.dataset.tab === currentModalTab);
 
-    tabs.forEach(tab => tab.classList.toggle("active", tab.dataset.tab === tabName));
-    contents.forEach(content => content.classList.toggle("active", content.id === tabName));
+    tabs.forEach(tab => tab.classList.toggle("active", tab.dataset.tab === currentModalTab));
+    contents.forEach(content => content.classList.toggle("active", content.id === currentModalTab));
 
-    if (tabName === "summary") {
+    if (currentModalTab === "summary") {
       initSummaryEvolutionTree();
     } else {
       disconnectSummaryEvolutionTree();
     }
 
-    if (tabName === "moves") {
+    if (currentModalTab === "moves") {
       if (pulse && targetTab) {
         targetTab.classList.remove("tab-pulse");
         void targetTab.offsetWidth;
@@ -7357,9 +7736,13 @@ function getDirectChildBranches(branch) {
       if (focus) $("#modalMoveSearch")?.focus();
     }
 
-    if (tabName === "locations") {
+    if (currentModalTab === "locations") {
       if (focus) $("#modalLocationSearch")?.focus();
       refreshModalLocationMapViewport();
+    }
+
+    if (syncRoute && currentModalMon) {
+      updateURL(currentModalMon, { replace: true });
     }
 
     updateModalMoveTabState();
@@ -7738,6 +8121,8 @@ function getDirectChildBranches(branch) {
     const clearFiltersBtn = $("#modalLocationClearFilters");
     if (!container || !search || !info || !filtersBtn || !filtersPanel || !clearFiltersBtn) return;
 
+    filtersPanel.classList.toggle("collapsed", !currentModalLocationFiltersOpen);
+
     const encounters = getModalLocationEncounters(mon);
     const rows = [...container.querySelectorAll(".modal-location-row")];
     const emptyState = container.querySelector(".modal-location-empty");
@@ -7747,15 +8132,11 @@ function getDirectChildBranches(branch) {
       season: [...container.querySelectorAll('.modal-location-filter[data-filter="season"]')],
       time: [...container.querySelectorAll('.modal-location-filter[data-filter="time"]')]
     };
-    const filterState = {
-      region: Object.create(null),
-      rarity: Object.create(null),
-      season: Object.create(null),
-      time: Object.create(null)
-    };
+    
     let selectedIndex = -1;
     let applyLocationFilters = () => {};
-
+    
+    modalLocationApplyFiltersFn = applyLocationFilters;
     const renderSelectedLocationInfo = () => {
       const encounter = encounters[selectedIndex];
       info.innerHTML = encounter
@@ -7780,21 +8161,21 @@ function getDirectChildBranches(branch) {
     };
 
     const setFilterGroupState = (group, value, state) => {
-      if (!filterState[group]) return;
-      filterState[group][value] = state;
+      if (!modalLocationFilterState[group]) return;
+      modalLocationFilterState[group][value] = state;
       filterGroups[group]
         ?.filter(button => button.dataset.value === value)
         .forEach(button => setFilterButtonState(button, state));
     };
 
     const resetFilterGroup = (group) => {
-      Object.keys(filterState[group] || {}).forEach(value => {
-        filterState[group][value] = "none";
+      Object.keys(modalLocationFilterState[group] || {}).forEach(value => {
+        modalLocationFilterState[group][value] = "none";
       });
       filterGroups[group]?.forEach(button => setFilterButtonState(button, "none"));
     };
 
-    const getFilterValues = (group, state) => Object.entries(filterState[group] || {})
+    const getFilterValues = (group, state) => Object.entries(modalLocationFilterState[group] || {})
       .filter(([, value]) => value === state)
       .map(([value]) => value);
 
@@ -7852,7 +8233,7 @@ function getDirectChildBranches(branch) {
 
     const clearLocationFiltersForMapSelection = () => {
       search.value = "";
-      Object.keys(filterState).forEach(resetFilterGroup);
+      Object.keys(modalLocationFilterState).forEach(resetFilterGroup);
       if (modalLocationMapState?.regionSelect) modalLocationMapState.regionSelect.value = "";
       if (modalLocationMapState?.zoomSlider) modalLocationMapState.zoomSlider.value = "0";
       applyLocationFilters();
@@ -7885,15 +8266,17 @@ function getDirectChildBranches(branch) {
       refreshModalLocationMapViewport();
 
       emptyState?.classList.toggle("hidden", rows.some(row => !row.classList.contains("hidden")));
+
+      updateURL(currentModalMon, { replace: true });
     };
 
     filtersBtn.addEventListener("click", () => {
-      filtersPanel.classList.toggle("collapsed");
+      setModalLocationFiltersOpen(filtersPanel.classList.contains("collapsed"));
     });
 
     clearFiltersBtn.addEventListener("click", () => {
       search.value = "";
-      Object.keys(filterState).forEach(resetFilterGroup);
+      Object.keys(modalLocationFilterState).forEach(resetFilterGroup);
       if (modalLocationMapState?.regionSelect) modalLocationMapState.regionSelect.value = "";
       if (modalLocationMapState?.zoomSlider) modalLocationMapState.zoomSlider.value = "0";
       applyLocationFilters();
@@ -7904,11 +8287,11 @@ function getDirectChildBranches(branch) {
       const value = button.dataset.value;
       if (!group || !value) return;
 
-      filterState[group][value] = "none";
+      modalLocationFilterState[group][value] = "none";
       setFilterButtonState(button, "none");
 
       button.addEventListener("click", () => {
-        const current = filterState[group][value] || "none";
+        const current = modalLocationFilterState[group][value] || "none";
         const next = current === "none" ? "include" : current === "include" ? "exclude" : "none";
         setFilterGroupState(group, value, next);
         applyLocationFilters();
@@ -8881,15 +9264,109 @@ function initFormsList() {
   ============================================================= */
 
   function preloadImages() {
+    preloadBalls()
+    preloadPokemonSprites();
+    preloadOtherAssets();
+  }
+
+  function preloadPokemonSprites() {
     let i = 0;
 
-    function next() {
-      if (i >= data.length) return;
-      new Image().src = `sprites/pokemon/${data[i++].id}.png`;
-      setTimeout(next, 10);
+      function imgHTML(src) {
+        const img = new Image();
+        img.onerror = function() {console.warn("["+src+"] failed to preload" )};
+        img.src = src;
+      }
+      
+    imgHTML(`sprites/pokemon/${data[i++].id}.png`);
+    imgHTML(`sprites/monstericons/${data[i++].id}-0.png`);
+  }
+
+  function preloadBalls() {
+    for (const ball in BALL_CATCHRATES) {
+      imgHTML(fetchItem(`${ball} ball`))
     }
 
-    next();
+    function imgHTML(identifier) {
+      const img = new Image();
+      img.onerror = function() {/*Do nothing*/};
+      img.src = `sprites/items/${identifier}.png`;
+    }
+  }
+
+  function fetchItem(item) {
+    let id = null;
+
+    // 1. Check if the input is a number
+    if (!isNaN(item)) {
+      id = Number(item);
+    } else {
+      // 2. If it's a name, search the ITEMS data
+      const cleanedName = String(item).trim().toLowerCase();
+      const foundItem = ITEMS.find(i => i && i.name && i.name.toLowerCase() === cleanedName);
+      
+      if (foundItem) {
+        id = foundItem.id;
+      } else {
+        console.warn(`Item with name "${item}" not found.`);
+        return ''; // Return empty string if item isn't found
+      }
+    }
+
+    return id;
+  }
+
+  const assetSrc = [
+    `sprites/assets/allseasons.png`,
+    `sprites/assets/allstatus.png`,
+    `sprites/assets/allstatusstates.png`,
+    `sprites/assets/alpha.png`,
+    `sprites/assets/autumn.png`,
+    `sprites/assets/battle.webp`,
+    `sprites/assets/burn.png`,
+    `sprites/assets/cave.webp`,
+    `sprites/assets/dark grass.webp`,
+    `sprites/assets/dust cloud.webp`,
+    `sprites/assets/fishing.webp`,
+    `sprites/assets/freeze.png`,
+    `sprites/assets/good rod.webp`,
+    `sprites/assets/grass.webp`,
+    `sprites/assets/headbutt.webp`,
+    `sprites/assets/held-item.png`,
+    `sprites/assets/hiddenability.png`,
+    `sprites/assets/honey tree.webp`,
+    `sprites/assets/inside.webp`,
+    `sprites/assets/none.png`,
+    `sprites/assets/old rod.webp`,
+    `sprites/assets/overworld.webp`,
+    `sprites/assets/paralyze.png`,
+    `sprites/assets/pheno-water.webp`,
+    `sprites/assets/poison.png`,
+    `sprites/assets/rocks.webp`,
+    `sprites/assets/sleep.png`,
+    `sprites/assets/spring.png`,
+    `sprites/assets/summer.png`,
+    `sprites/assets/super rod.webp`,
+    `sprites/assets/water.webp`,
+    `sprites/assets/winter.png`,
+    `maps/World Map.png`,
+    `maps/Hoenn.png`,
+    `maps/Kanto.png`,
+    `maps/Johto.png`,
+    `maps/Sinnoh.png`,
+    `maps/Unova.png`,
+  ]
+
+  function preloadOtherAssets(){
+    for (const asset of assetSrc) {
+      imgHTML(asset)
+    }
+
+    function imgHTML(src) {
+      const img = new Image();
+      img.onerror = function() {console.warn("Img at ["+src+"] not preloaded")};
+      img.src = src;
+    }
   }
 
     /* =============================================================
@@ -8906,10 +9383,13 @@ function initFormsList() {
   function closeFromRouter() {
     disconnectSummaryEvolutionTree();
     cleanupModalLocationMap();
+    currentModalMon = null;
+    currentModalTab = "summary";
+    currentModalLocationFiltersOpen = false;
     if (!modalBody) modalBody = $("#modalBody");
   }
 
-  function openFromSlug(slug) {
+  function openFromSlug(slug, routeState = {}) {
     if (!modalBody) modalBody = $("#modalBody");
 
     if (!slug || !data.length) return false;
@@ -8929,7 +9409,7 @@ function initFormsList() {
     // require BOTH correct id and matching name
     if (slugifyMonName(mon.name) !== urlName) return false;
 
-    showModal(mon);
+    showModal(mon, routeState);
     return true;
   }
 
@@ -8943,14 +9423,91 @@ function initFormsList() {
       .replace(/[^\w-]/g, "");
   }
 
-  function updateURL(mon) {
-    const slug = slugifyMonName(mon.name);
+  function updateURL(mon = null, { replace = false, immediate = false } = {}) {
+    if (isHydrating || isMountingModal) return;
 
-    const target = `/tools/dex/${slug}_${mon.id}`;
+    const executeUpdate = () => {
+      const queryParams = new URLSearchParams();
+      const activeContext = mon ? `modal_${currentModalTab}` : 'grid';
 
-    if (window.location.hash !== `#${target}`) {
-      window.location.hash = target;
+      if (URLRegistry[activeContext]) {
+        URLRegistry[activeContext].forEach(param => {
+          const value = param.serialize();
+          if (value !== null && value !== undefined && value !== "") {
+            queryParams.set(param.key, value);
+          }
+        });
+      }
+
+      // Preserve filter panel states explicitly
+      if (!mon && currentGridFiltersOpen) {
+        queryParams.set("filtersOpen", "true");
+      }
+      if (mon && currentModalLocationFiltersOpen && currentModalTab === 'locations') {
+        queryParams.set("filtersOpen", "true");
+      }
+
+      const routeConfig = mon 
+        ? { view: "modal", slug: `${slugifyMonName(mon.name)}_${mon.id}`, tab: currentModalTab, queryParams } 
+        : { view: "grid", queryParams };
+
+      setHashRoute(buildDexRoute(routeConfig), { replace });
+    };
+
+    if (immediate) {
+      clearTimeout(urlUpdateTimer);
+      executeUpdate();
+    } else {
+      clearTimeout(urlUpdateTimer);
+      // Debounce the URL update so typing doesn't spam the history API
+      urlUpdateTimer = setTimeout(executeUpdate, 350); 
     }
+  }
+
+function hydrateFromURL(queryParams, context = 'grid') {
+    isHydrating = true; 
+    const activeContext = context === 'grid' ? 'grid' : `modal_${currentModalTab}`;
+
+    if (queryParams && queryParams.toString() !== "" && URLRegistry[activeContext]) {
+      URLRegistry[activeContext].forEach(param => {
+        const value = queryParams.get(param.key);
+        if (value !== null) {
+          param.deserialize(value);
+        }
+      });
+    }
+
+    if (context === 'grid') {
+      applyFilters(); // Always render the grid, regardless of query params
+      updateResetButtons();
+    } else if (context === 'modal') {
+      if (currentModalTab === 'summary') {
+        modalBody.querySelectorAll(".summary-catch-card").forEach(updateCatchSummaryCard);
+      } 
+      else if (currentModalTab === 'moves') {
+        if (modalMoveSelectionState && modalMoveSelectionState.syncRowStates) {
+          modalMoveSelectionState.syncRowStates();
+          modalMoveSelectionState.renderSelectedMoveInfo();
+        }
+      }
+      else if (currentModalTab === 'locations') {
+        if (modalLocationApplyFiltersFn) {
+           document.querySelectorAll(".modal-location-filter").forEach(btn => {
+             const grp = btn.dataset.filter;
+             const val = btn.dataset.value;
+             const state = modalLocationFilterState[grp]?.[val] || "none";
+             btn.dataset.state = state;
+             btn.classList.toggle("include", state === "include");
+             btn.classList.toggle("exclude", state === "exclude");
+             const box = btn.querySelector(".filter-box");
+             if (box) box.textContent = state === "none" ? "◯" : state === "include" ? "✔" : "✖";
+           });
+           modalLocationApplyFiltersFn();
+        }
+      }
+    }
+    
+    isHydrating = false;
   }
 
   function capitalize(word) {
@@ -8960,7 +9517,7 @@ function initFormsList() {
      PUBLIC API
   ============================================================= */
 
-  return { load, ready, switchForm , openFromSlug, closeFromRouter};
+  return { load, ready, switchForm , openFromSlug, closeFromRouter, setGridFiltersOpen, hydrateFromURL };
 
 })();
 

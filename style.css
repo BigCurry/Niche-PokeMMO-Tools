@@ -2362,6 +2362,17 @@ body.pory-full #poryBackground {
   display: block;
 }
 
+.dex-search-mon-bar, .dex-top-1 > div > .autocomplete-dropdown{
+  margin: 0 auto;
+  width: 200px;
+}
+
+@media (max-width: 250px) {
+  .dex-search-mon-bar, .dex-top-1 > div > .autocomplete-dropdown{
+    width: 100%;
+  }
+}
+
 .dex-filters-panel {
   background: color-mix(in srgb, var(--altAccentT) 50%, var(--bg));
   border-radius: 20px;
@@ -2634,7 +2645,7 @@ body.pory-full #poryBackground {
   top: 100%;
   left: 0;
   right: 0;
-  max-height: 200px;
+  max-height: 70vh;
   overflow-y: auto;
   background: var(--panel);
   border-radius: 8px;
@@ -2643,14 +2654,57 @@ body.pory-full #poryBackground {
 }
 
 .autocomplete-item {
-  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   cursor: pointer;
+  padding: 5px;
 }
 
 .autocomplete-item:hover,
 .autocomplete-item.active {
   background: var(--accent);
   color: black;
+}
+
+.dex-top-1 > div > .autocomplete-dropdown > .autocomplete-item {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--altAccent) 20%, var(--panel)) 20%,
+    color-mix(in srgb, var(--accent) 20%, var(--panel)) 31%
+  );
+  border: 1px solid color-mix(in srgb, var(--panel) 50%, transparent);
+  border-radius: 10px;
+  min-height: 51px;
+}
+
+.dex-top-1 > div > .autocomplete-dropdown > .autocomplete-item:hover, 
+.dex-top-1 > div > .autocomplete-dropdown > .autocomplete-item.active {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--altAccent) 70%, var(--panel)) 20%,
+    color-mix(in srgb, var(--accent) 70%, var(--panel)) 31%
+  );;
+  color: var(--text);
+}
+
+.autocomplete-item-img{
+  width: 30px;
+  min-height: 30px;
+  background: linear-gradient(
+    110deg,
+    color-mix(in srgb, var(--altAccent) 40%, var(--panel)) 0%,
+    color-mix(in srgb, var(--accent) 10%, transparent) 90%
+  );;
+  padding-bottom: 10px;
+  border-radius: 20px;
+  object-fit: contain;
+}
+
+.dex-top-1 > div > .autocomplete-dropdown > .autocomplete-item > .autocomplete-item-text{
+  margin: 0 auto;
+  position: relative;
+  left: -20px;
 }
 
 .autocomplete-dropdown.hidden {
@@ -3374,11 +3428,14 @@ body.pory-full #poryBackground {
 .catch-summary-search {
   flex: 1 1 auto;
   min-width: 0;
+  height: 44px;
 }
 
 .catch-summary-search-enable {
-  white-space: nowrap;
-  flex: 0 0 auto;
+  font-size: xx-small;
+  background: var(--altAccentT);
+  padding: 0;
+  border: 1px solid var(--altAccent)
 }
 
 .catch-summary-filters-button {
