@@ -1067,6 +1067,10 @@ body.pory-full #poryBackground {
   /* Move the width constraints from the img to this container */
   width: min(100%, 220px);
   max-width: 220px;
+  padding-bottom: 20px;
+  background: linear-gradient(0deg, color-mix(in srgb, var(--accent) 50%, transparent) 0%, color-mix(in srgb, var(--altAccent) 50%, transparent) 100%);
+  border: 1px inset var(--panel);
+  border-radius: 20px;
 }
 
 .pokedex-image-footer {
@@ -1157,21 +1161,95 @@ body.pory-full #poryBackground {
   min-height: 25px;
 }
 
-/* --- Adjusted Existing Style --- */
-.pokedex-modal-image-main {
+/* Apply the container styles to the new wrapper */
+.pokedex-modal-image-wrapper {
   display: block;
-  width: 100%;
-  max-height: clamp(200px, 26vw, 220px);
-  height: auto;
   min-height: 200px;
+  padding: 10px;
+  /* Flex centers the image inside this box */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* The img now just fills the wrapper */
+.pokedex-modal-image-main {
+  width: 100%;
+  max-height: 220px;
   object-fit: contain;
   image-rendering: crisp-edges;
+}
 
-  background: linear-gradient(0deg, color-mix(in srgb, var(--accent) 50%, transparent) 0%, color-mix(in srgb, var(--altAccent) 50%, transparent) 100%);
-  border: 1px inset var(--panel);
-  border-radius: 20px;
-  padding: 10px;
-  padding-bottom: 45px;       /* Increased slightly to ensure the sprite doesn't overlap the new footer */
+/* Target the img specifically for the glow */
+.pokedex-modal-image-main.alpha {
+  animation: alphaPulse 2s infinite ease-in-out;
+}
+
+@keyframes alphaPulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px rgba(255,0,0,1)) drop-shadow(0 0 4px rgba(255,50,50,0.8));
+  }
+  50% {
+    filter: drop-shadow(0 0 8px rgba(255,0,0,1)) drop-shadow(0 0 16px rgba(255,80,80,0.8));
+  }
+}
+
+/* =============================================================
+   ALPHA GLOW TOGGLE
+============================================================= */
+
+.alpha-glow-toggle {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 20px;
+  height: 20px;
+  background: color-mix(in srgb, var(--panel) 85%, transparent);
+  border: 1px solid var(--muted);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  padding: 2px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.alpha-glow-toggle img {
+  width: 100%;
+  height: 100%;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.alpha-glow-toggle:hover:not(.disabled) {
+  background: color-mix(in srgb, var(--danger) 20%, var(--panel));
+  border-color: var(--danger);
+  transform: scale(1.05);
+}
+
+.alpha-glow-toggle:hover:not(.disabled) img {
+  opacity: 1;
+}
+
+.alpha-glow-toggle.active {
+  background: color-mix(in srgb, var(--danger) 75%, transparent);
+  border-color: #ff5252;
+  box-shadow: 0 0 8px rgba(255, 82, 82, 0.6);
+}
+
+.alpha-glow-toggle.active img {
+  opacity: 1;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.8));
+}
+
+.alpha-glow-toggle.disabled {
+  cursor: not-allowed;
+  opacity: 0.80;
+  filter: grayscale(100%);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .held-item-info-panel {
@@ -2371,6 +2449,10 @@ body.pory-full #poryBackground {
   .dex-search-mon-bar, .dex-top-1 > div > .autocomplete-dropdown{
     width: 100%;
   }
+}
+
+.body-summary-target-input, .body-summary-matchup > div > div > div > .autocomplete-dropdown{
+  width: 150px;
 }
 
 .dex-filters-panel {
@@ -3617,7 +3699,7 @@ body.pory-full #poryBackground {
 
 .catch-summary-controls {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 10px;
 }
 
@@ -3641,8 +3723,29 @@ body.pory-full #poryBackground {
 
 .catch-summary-control-slider {
   display: grid;
-  grid-template-columns: auto auto;
-  gap: 5px;
+  grid-template-columns: 1fr auto; /* Slider takes remaining space, input stays fixed */
+  align-items: center;
+  gap: 10px;
+}
+
+.catch-hp-value {
+  width: 40px; /* Set a fixed width for the input box */
+  padding: 2px 5px;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  
+}
+
+/* Chrome, Safari, Edge, Opera */
+.catch-hp-value::-webkit-inner-spin-button,
+.catch-hp-value::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.catch-hp-value {
+  -moz-appearance: textfield; /* Removed !important, it shouldn't be needed if class is correct */
 }
 
 .catch-summary-best {
@@ -3754,7 +3857,7 @@ body.pory-full #poryBackground {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 10px;
-  max-height: clamp(100px, 80vh, 400px);
+  max-height: clamp(100px, 80vh, 500px);
   overflow: scroll;
   
 }
@@ -4368,4 +4471,89 @@ body.pory-full #poryBackground {
 
 .pokedex-modal-location-variation-type-img{
   max-width: 30px;
+}
+
+/* =============================================================
+   BODY DYNAMICS HORIZONTAL CHECKLIST
+============================================================= */
+
+.body-checklist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.body-checklist-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border: 2px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--panel) 80%, var(--bg));
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.body-checklist-pill:hover {
+  background: var(--accentT);
+  border-color: var(--accent);
+}
+
+.body-checklist-pill.active {
+  background: var(--accent);
+  color: black;
+  border-color: var(--accent);
+}
+
+.body-checklist-pill.combined-pill {
+  padding: 0;
+  overflow: hidden;
+  border-color: transparent;
+}
+
+.body-checklist-pill.combined-pill.active {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.combined-pill-half {
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bp-badge {
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+}
+
+.body-checklist-pill.immune {
+  border-color: var(--success);
+}
+.body-checklist-pill.immune .sd-icon {
+  color: var(--success);
+}
+
+.body-checklist-pill.affected {
+  border-color: var(--danger);
+}
+.body-checklist-pill.affected .sd-icon {
+  color: var(--danger);
+}
+
+.body-detail-pane {
+  background: color-mix(in srgb, var(--panel) 60%, transparent);
+  border: 1px dashed var(--muted);
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  animation: fadeIn 0.3s ease;
 }

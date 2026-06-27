@@ -5422,7 +5422,7 @@ const PokedexTool = (() => {
 
   function openModal(card, mon) {
     animateCardToModal(card);
-    setTimeout(() => updateURL(mon), 250);
+    updateURL(mon);
   }
 
   function animateCardToModal(card) {
@@ -5481,17 +5481,14 @@ const PokedexTool = (() => {
   }
 
   function closeModal() {
-    setHashRoute(buildDexRoute({
-      view: "grid",
-      filtersOpen: currentGridFiltersOpen
-    }));
+    updateURL(null, { replace: false, immediate: true })
   }
 
   function switchForm(id) {
     const mon = data.find(m => m.id === id);
     if (!mon) return;
 
-    updateURL(mon);
+    updateURL(mon, {immediate: true});
   }
 
   function updateModal(mon) {
@@ -5525,6 +5522,10 @@ const PokedexTool = (() => {
     const forms = getAlternateForms(mon);
     const held = getHeldItems(mon);
 
+    const entry = getCompatibilityEntry(mon);
+    const canBeAlpha = entry?.alpha === true;
+    const state = getCatchSummaryState(mon);
+    const isAlphaActive = canBeAlpha && state?.alphaEnabled === true;
     return `
       <div class="pokedex-left">
 
@@ -5533,10 +5534,20 @@ const PokedexTool = (() => {
         </div>
 
         <div class="pokedex-image-container">
-          <img id="mainImage"
-              class="pokedex-modal-image-main"
-              src="${getAnimatedSprite(mon.id)}"
-              onerror="this.src='sprites/pokemon/0.png'">
+          <button type="button" 
+                  class="alpha-glow-toggle ${canBeAlpha ? '' : 'disabled'} ${isAlphaActive ? 'active' : ''}" 
+                  ${canBeAlpha ? '' : 'disabled'} 
+                  aria-label="Toggle Alpha Glow"
+                  data-target-id="${mon.id}">
+            <img src="sprites/assets/alpha.png" alt="Alpha Toggle">
+          </button>
+
+          <div class="pokedex-modal-image-wrapper">
+            <img id="mainImage"
+                class="pokedex-modal-image-main ${isAlphaActive ? 'alpha' : ''}"
+                src="${getAnimatedSprite(mon.id)}"
+                onerror="this.src='sprites/pokemon/0.png'">
+          </div>
 
           <div class="pokedex-image-footer">
             <div class="pokedex-modal-image-types">
@@ -5638,6 +5649,37 @@ const PokedexTool = (() => {
   }
 
   function handleDexModalClick(event) {
+    //Alpha Glow
+    const alphaToggle = event.target.closest(".alpha-glow-toggle");
+    if (alphaToggle && !alphaToggle.classList.contains("disabled")) {
+      const monId = Number(alphaToggle.dataset.targetId);
+      const mon = data.find(m => m.id === monId);
+      if (!mon) return;
+
+      const state = getCatchSummaryState(mon);
+      if (!state) return;
+
+      // Toggle state
+      state.alphaEnabled = !state.alphaEnabled;
+      
+      // Update UI elements
+      const img = $("#mainImage");
+      if (img) img.classList.toggle("alpha", state.alphaEnabled);
+      alphaToggle.classList.toggle("active", state.alphaEnabled);
+
+      // Sync with the Catch Summary tool if it exists in the DOM
+      const catchCard = document.querySelector(`.summary-catch-card[data-target-id="${monId}"]`);
+      if (catchCard) {
+        const toggleCb = catchCard.querySelector(".catch-alpha-toggle");
+        if (toggleCb) toggleCb.checked = state.alphaEnabled;
+        updateCatchSummaryCard(catchCard);
+      }
+      
+      // Update URL parameters
+      updateURL(currentModalMon, { replace: true, immediate: true });
+      return;
+    }
+    //Held Item Info
     const closeButton = event.target.closest(".held-item-info-close");
     if (closeButton) {
       hideHeldItemInfo();
@@ -5770,6 +5812,22 @@ const PokedexTool = (() => {
     const img = $("#mainImage");
     img.src = getAnimatedSprite(mon.id);
     img.onerror = () => img.src = `sprites/pokemon/${mon.id}.png`;
+
+    // --- NEW: Sync alpha state on form change ---
+    const entry = getCompatibilityEntry(mon);
+    const canBeAlpha = entry?.alpha === true;
+    const state = getCatchSummaryState(mon);
+    const isAlphaActive = canBeAlpha && state?.alphaEnabled === true;
+
+    img.classList.toggle("alpha", isAlphaActive);
+
+    const alphaBtn = $(".alpha-glow-toggle");
+    if (alphaBtn) {
+      alphaBtn.disabled = !canBeAlpha;
+      alphaBtn.classList.toggle("disabled", !canBeAlpha);
+      alphaBtn.classList.toggle("active", isAlphaActive);
+      alphaBtn.dataset.targetId = mon.id;
+    }
   }
 
   function updateSections(mon) {
@@ -6145,8 +6203,10 @@ const PokedexTool = (() => {
           <label class="catch-summary-control">
             <span>Current HP %</span>
             <div class="catch-summary-control-slider">
-              <input type="range" min="1" max="100" value="${state.hpPercent}" step="1" class="catch-hp-slider">
-              <b class="catch-hp-value">${state.hpPercent}%</b>
+              <input type="range" id="hp-slider" min="1" max="100" value="${state.hpPercent}" step="0.1" class="catch-hp-slider">
+              <div class="input-wrapper">
+                <input type="number" id="hp-input" min="1" max="100" value="${state.hpPercent}" step="0.001" class="catch-hp-value"><b>%</b>
+              </div>
             </div>
           </label>
 
@@ -6261,11 +6321,11 @@ const PokedexTool = (() => {
   function getCatchChance({ catchRate, hpPercent, ballMultiplier, statusMultiplier }) {
     // Based on the bulbapedia info for gen 3/4 (https://bulbapedia.bulbagarden.net/wiki/Catch_rate#Capture_method_(Generation_III-IV))
     // Calculate modified catch rate 'a'
-    const hpFactor = (3 * 1 - 2 * hpPercent) / 3 * 1;
+    const hpFactor = (3 - 2 * hpPercent) / 3 ;
     const a = Math.floor(hpFactor * catchRate * ballMultiplier * statusMultiplier);
 
-    // If 'a' >= 255, capture is guaranteed
-    if (a >= 255) return 1;
+    // If 'a' > 255, capture is guaranteed
+    if (a > 255) return 1;
 
     // Calculate shake probability 'b'
     // Note: All divisions and square roots round down (Math.floor)
@@ -6278,12 +6338,19 @@ const PokedexTool = (() => {
     // Each check succeeds if a random number [0, 65535] < b.
     // Probability of one check succeeding: p = b / 65535
     // Probability of 4 checks succeeding: p^4
-    const shakeSuccessProb = Math.min(b, 65535) / 65535;
+    const shakeSuccessProb = Math.min(b, 65535) / 65536;
     return Math.pow(shakeSuccessProb, 4);
   }
 
   function formatChance(value) {
-    return `${(value * 100).toFixed(value >= 0.1 ? 1 : 2)}%`;
+    const decimalToPercent= value * 100
+    if (decimalToPercent == 100) {
+      return `${decimalToPercent.toFixed(0)}%`;
+    } else if (decimalToPercent < 0.1 || (decimalToPercent > 99.9)) {
+      return `${decimalToPercent.toFixed(3)}%`;
+    } else {
+      return `${decimalToPercent.toFixed(1)}%`
+    } 
   }
 
   function buildCatchSummary(mon) {
@@ -6297,7 +6364,7 @@ const PokedexTool = (() => {
 
     return `
       <div class="summary-card summary-catch-card" data-target-id="${mon.id}">
-        <h3>Catch Chance</h3>
+        <h3>Catch Chance (WIP)</h3>
 
         ${catchable ? `
           ${getCatchSummaryPanelMarkup(mon, state)}
@@ -6583,7 +6650,7 @@ const PokedexTool = (() => {
     best.innerHTML = `
       ${getCatchBestBallMarkup({ label: bestRow.ball })}
       with ${bestStatusesMarkup}
-      at <b>${Math.round((bestRow.ballKey === "quick" ? 1 : hpPercent) * 100)}% HP</b>
+      at <b>${(bestRow.ballKey === "quick" ? 1 : hpPercent) * 100}% HP</b>
       for <b>${formatChance(bestRow.chance)} Capture Rate</b>
     `;
 
@@ -6597,7 +6664,7 @@ const PokedexTool = (() => {
 
       const update = () => {
         updateCatchSummaryCard(card);
-        updateURL(currentModalMon, { replace: true });
+        updateURL(currentModalMon, { replace: true, immediate: true });
       };
       const getState = () => getCatchSummaryState(data.find(entry => Number(entry.id) === Number(card.dataset.targetId)));
 
@@ -6606,8 +6673,15 @@ const PokedexTool = (() => {
         const state = getState();
         if (!state) return;
 
-        // 🔥 SYNC STATE FROM DOM
-        if (target.matches(".catch-hp-slider")) state.hpPercent = Math.max(1, Math.min(100, Number(target.value) || 100));
+        // 1. Sync DOM values for slider <-> input pairs
+        if (target.id === 'hp-slider') {
+          card.querySelector('#hp-input').value = target.value;
+        } else if (target.id === 'hp-input') {
+          card.querySelector('#hp-slider').value = target.value;
+        }
+
+        // 2. SYNC STATE FROM DOM
+        if (target.matches(".catch-hp-slider, #hp-input")) state.hpPercent = Math.max(1, Math.min(100, Number(target.value) || 100));
         if (target.matches(".catch-battle-turn-slider")) state.battleTurn = Math.max(1, Number(target.value) || 1);
         if (target.matches(".catch-sleep-turns-slider")) state.sleepTurns = Math.max(0, Number(target.value) || 0);
         if (target.matches(".catch-target-level-slider")) state.targetLevel = Math.max(1, Math.min(100, Number(target.value) || 1));
@@ -6618,7 +6692,7 @@ const PokedexTool = (() => {
           state.searchActive = true;
         }
 
-        update();
+        update(); // This triggers the re-calculation
       });
 
       card.addEventListener("change", (event) => {
@@ -6629,6 +6703,12 @@ const PokedexTool = (() => {
         if (target.matches(".catch-alpha-toggle")) {
           state.alphaEnabled = target.checked;
           update();
+
+          const img = $("#mainImage");
+          const alphaBtn = $(".alpha-glow-toggle");
+          if (img) img.classList.toggle("alpha", state.alphaEnabled);
+          if (alphaBtn) alphaBtn.classList.toggle("active", state.alphaEnabled);
+
           return;
         }
 
@@ -6746,79 +6826,383 @@ const PokedexTool = (() => {
     }
   }
 
-  function buildBodySummary(mon) {
-    const baseWeight = getWeightKg(mon);
-    const height = getHeightM(mon);
-    const weightVariants = getWeightVariants(mon);
-    const lowKickPower = getWeightTierPower(baseWeight);
-    const crashLearners = getBodyCrashLearners();
-    const defaultCrashAttacker = crashLearners.find(attacker => attacker.id !== mon.id) || crashLearners[0];
-    const crashPower = defaultCrashAttacker
-      ? getWeightRatioPower(getWeightKg(defaultCrashAttacker), baseWeight)
-      : null;
+/* =============================================================
+   BODY SPECS & MECHANICS REFACTOR
+============================================================= */
 
-    return `
-      <div class="summary-card body-summary-card">
-        <h3>Body</h3>
+function buildBodySummary(mon) {
+  const baseWeight = getWeightKg(mon);
+  const height = getHeightM(mon);
+  const weightVariants = getWeightVariants(mon);
+  const lowKickPower = getWeightTierPower(baseWeight);
 
-        <div class="body-measure-grid">
-          <div class="body-measure">
-            <span>Height</span>
-            <b>${formatMeters(height)}</b>
-          </div>
-          <div class="body-measure">
-            <span>Weight</span>
-            <b>${formatKg(baseWeight)}
-            ${weightVariants.length ? `
-                ${weightVariants.map(v => `/ ${formatKg(v.weight)}`).join(" · ")}
-            ` : ""}</b>
-          </div>
-        </div>
+  // Sky Drop Logic
+  const tooHeavy = baseWeight >= 200;
+  const isFlying = (mon.types || []).some(type => type.toLowerCase() === "flying");
+  const immuneToSkyDrop = tooHeavy || isFlying;
 
-        <div class="body-mechanics">
-          <div>
-            <b>Sky Drop:</b>
-            ${getSkyDropResult(mon)}
+  return `
+    <div class="summary-card body-summary-card">
+      <h3>Body Specs & Mechanics</h3>
+
+      <div class="body-mechanics-checklist" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
+        
+        <button type="button" class="body-pill" data-target="panel-compare" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: var(--panel); border: 1px solid var(--muted); color: var(--text); cursor: pointer;">
+          <span>📏</span>
+          <b>Compare Size</b>
+        </button>
+
+        <button type="button" class="body-pill" data-target="panel-skydrop" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: var(--panel); border: 1px solid var(--muted); color: var(--text); cursor: pointer;">
+          <span>${immuneToSkyDrop ? '✔️' : '❌'}</span>
+          <b>Sky Drop</b>
+        </button>
+
+        <button type="button" class="body-pill" data-target="panel-knot" style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: var(--panel); border: 1px solid var(--muted); color: var(--text); cursor: pointer;">
+          <div style="display: flex; gap: 2px; height: 18px;">
+            ${MOVE_CLASS_SVGS.special} 
           </div>
-          <div>
-            <b>Grass Knot:</b>
-            ${lowKickPower} power
+          <b>Grass Knot  /</b>
+          <div style="display: flex; gap: 2px; height: 18px;">
+            ${MOVE_CLASS_SVGS.physical}
           </div>
-          <div>
-            <b>Low Kick:</b>
-            ${lowKickPower} power
-          </div>
-          <div class="body-summary-matchup" data-target-id="${mon.id}">
-            <b>Heat Crash / Heavy Slam:</b> Against
-            <select class="body-summary-attacker">
-              ${buildPokemonOptions(crashLearners, defaultCrashAttacker?.id)}
-            </select>
-            <span class="body-summary-result">
-              ${defaultCrashAttacker ? `damages at <b>${crashPower}</b> power` : "no eligible attackers found"}
-            </span>
-          </div>
-        </div>
+          
+          <b>Low Kick</b> 
+          <span style="opacity: 0.8; font-size: 0.85rem;">(${lowKickPower} BP)</span>
+        </button>
+
+        <button type="button" class="body-pill" data-target="panel-crash" style="display: inline-flex; align-items: center; gap: 10px; padding: 6px 12px; border-radius: 999px; background: linear-gradient(90deg, #F08030 49%, #B8B8D0 49%); border: none; color: #000; cursor: pointer;">
+          <div><b>Heat Crash &nbsp; Heavy Slam</b></div>
+        </button>
       </div>
-    `;
-  }
 
-  function bindBodySummaryTools() {
-    modalBody.querySelectorAll(".body-summary-matchup").forEach(tool => {
-      const select = tool.querySelector(".body-summary-attacker");
-      const result = tool.querySelector(".body-summary-result");
-      if (!select || !result || select.dataset.bound) return;
+      <div class="body-mechanics-panels">
+        
+        <div id="panel-compare" class="body-panel hidden" style="padding: 12px; background: var(--accentT); border-radius: 8px; font-size: 0.85rem;">
+          <div class="body-measure-grid" style="margin-bottom: 16px;">
+            <div class="body-measure">
+              <span>Height</span>
+              <b>${formatMeters(height)}</b>
+            </div>
+            <div class="body-measure">
+              <span>Weight</span>
+              <b>${formatKg(baseWeight)}
+              ${weightVariants.length ? `
+                  ${weightVariants.map(v => `/ ${formatKg(v.weight)}`).join(" · ")}
+              ` : ""}</b>
+            </div>
+          </div>
 
-      select.dataset.bound = "true";
-      select.addEventListener("change", () => {
-        const attacker = data.find(mon => mon.id === Number(select.value));
-        const target = data.find(mon => mon.id === Number(tool.dataset.targetId));
-        const power = attacker && target
-          ? getWeightRatioPower(getWeightKg(attacker), getWeightKg(target))
-          : null;
-        result.textContent = power ? `damages at ${power} base power` : "no eligible attackers found";
+          <div class="body-summary-matchup" data-target-id="${mon.id}">
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <b style="min-width: 100px;">Compare with:</b>
+              <div class="autocomplete-wrapper" style="flex: 1; min-width: 150px;">
+                <input type="text" class="dex-input body-summary-target-input" value="Player" placeholder="Search Pokemon..." style="padding: 6px;">
+              </div>
+            </div>
+            
+            <div class="body-summary-result" style="margin-top: 8px;"></div>
+            
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px;">
+              <div class="height-comparison" style="flex: 1; min-width: 140px; display: flex; align-items: flex-end; justify-content: space-around; height: 160px; background: color-mix(in srgb, var(--panel) 60%, transparent); border-radius: 8px; border: 1px solid var(--muted); padding: 10px;"></div>
+              
+              <div style="flex: 2; min-width: 200px; text-align: center;">
+                <canvas class="weight-balance-canvas" width="400" height="160" style="width: 100%; max-width: 400px; background: color-mix(in srgb, var(--panel) 60%, transparent); border-radius: 8px; border: 1px solid var(--muted);"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="panel-skydrop" class="body-panel hidden" style="padding: 12px; background: var(--accentT); border-radius: 8px; font-size: 0.85rem;">
+          <b>Sky Drop:</b> ${immuneToSkyDrop ? 'Immune (Target weighs 200kg+ or is a Flying type).' : 'Vulnerable to being lifted.'}
+        </div>
+
+        <div id="panel-knot" class="body-panel hidden" style="padding: 12px; background: var(--accentT); border-radius: 8px; font-size: 0.85rem;">
+          <b>Grass Knot (Special) / Low Kick (Physical):</b>
+          <div style="margin-top: 4px;">Base power against this Pokemon is <b>${lowKickPower}</b> due to its ${formatKg(baseWeight)} weight.</div>
+        </div>
+
+        <div id="panel-crash" class="body-panel hidden" style="padding: 12px; background: var(--accentT); border-radius: 8px; font-size: 0.85rem;">
+          <b>Heat Crash / Heavy Slam:</b>
+          <div id="crash-result" style="margin: 8px 0; font-weight: bold;"></div> <div style="margin-top: 4px;">Damage dealt depends on the weight ratio:</div>
+          <ul style="margin: 4px 0 0 16px; padding:0; opacity: 0.9;">
+            <li>120 BP: Target is ≤ 20% of user's weight</li>
+            <li>100 BP: Target is ≤ 25% of user's weight</li>
+            <li>80 BP: Target is ≤ 33.3% of user's weight</li>
+            <li>60 BP: Target is ≤ 50% of user's weight</li>
+            <li>40 BP: Target is > 50% of user's weight</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  `;
+}
+
+function bindBodySummaryTools() {
+  const cards = modalBody.querySelectorAll(".body-summary-card");
+
+  cards.forEach(card => {
+    // --- Checklist Panel Toggling ---
+    const pills = card.querySelectorAll(".body-pill");
+    const panels = card.querySelectorAll(".body-panel");
+
+    pills.forEach(pill => {
+      pill.addEventListener("click", () => {
+        const targetId = pill.dataset.target;
+        const targetPanel = card.querySelector(`#${targetId}`);
+        const isCurrentlyHidden = targetPanel.classList.contains("hidden");
+
+        // Reset all
+        panels.forEach(p => p.classList.add("hidden"));
+        pills.forEach(p => {
+          p.style.outline = "none";
+          p.style.transform = "scale(1)";
+        });
+
+        // Expand clicked
+        if (isCurrentlyHidden) {
+          targetPanel.classList.remove("hidden");
+          pill.style.outline = "2px solid var(--text)";
+          pill.style.transform = "scale(1.02)";
+        }
       });
     });
+
+    // Ensure the size comparison pill is opened by default
+    const comparePill = card.querySelector('[data-target="panel-compare"]');
+    if (comparePill) comparePill.click();
+
+
+    // --- Matchup & Canvas Animation Logic ---
+    const matchupTool = card.querySelector(".body-summary-matchup");
+    if (!matchupTool || matchupTool.dataset.bound) return;
+    matchupTool.dataset.bound = "true";
+
+    const input = matchupTool.querySelector(".body-summary-target-input");
+    const result = matchupTool.querySelector(".body-summary-result");
+    const heightContainer = matchupTool.querySelector(".height-comparison");
+    const canvas = matchupTool.querySelector(".weight-balance-canvas");
+
+    const updateMatchup = () => {
+      const val = input.value.toLowerCase().trim();
+      let attacker;
+
+      if (val === "player") {
+        attacker = { id: 'player', name: 'Player', weight: 800, height: 18.288, sprite: 'sprites/assets/player_sprite.png' };
+      } else {
+        attacker = pokemonByName.get(val);
+      }
+
+      const targetId = Number(matchupTool.dataset.targetId);
+      const target = data.find(mon => mon.id === targetId);
+
+      if (!attacker || !target) return;
+
+      const wA = getWeightKg(attacker);
+      const wT = getWeightKg(target);
+      const hA = getHeightM(attacker);
+      const hT = getHeightM(target);
+
+      const power = getWeightRatioPower(wA, wT);
+      const crashResult = card.querySelector("#crash-result");
+      if (crashResult) {
+        crashResult.innerHTML = `Calculated Power: ${power} BP<br>
+          <span style="font-weight: normal; font-size: 0.75rem; color: var(--muted);">
+            (${attacker.name}: ${formatKg(wA)} vs ${target.name}: ${formatKg(wT)})
+          </span>`;
+      }
+      
+      result.innerHTML = `<span style="font-size: 0.75rem; color: var(--muted);">(${attacker.name}: ${formatKg(wA)} vs ${target.name}: ${formatKg(wT)})</span>`;
+
+      // Draw the height ratio graph dynamically
+      const maxH = Math.max(hA, hT, 0.1);
+      const pxPerM = 100 / maxH;
+      const getSprite = (ent) => ent.sprite || `sprites/pokemon/${ent.id}.png`;
+
+      heightContainer.innerHTML = `
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:flex-end; width: 45%;">
+          <span style="font-size:10px; opacity:0.8;">${formatMeters(hA)}</span>
+          <img src="${getSprite(attacker)}" style="height: ${Math.max(20, hA * pxPerM)}px; max-width: 100%; object-fit: contain; image-rendering: ${attacker.id === 'player' ? 'auto' : 'pixelated'}; margin-bottom: 4px;" onerror="this.src='sprites/pokemon/0.png'">
+          <span style="font-size:11px; font-weight:bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">${attacker.name}</span>
+        </div>
+        <div style="border-left: 1px dashed var(--muted); height: 80%; align-self: center;"></div>
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:flex-end; width: 45%;">
+          <span style="font-size:10px; opacity:0.8;">${formatMeters(hT)}</span>
+          <img src="${getSprite(target)}" style="height: ${Math.max(20, hT * pxPerM)}px; max-width: 100%; object-fit: contain; image-rendering: pixelated; margin-bottom: 4px;" onerror="this.src='sprites/pokemon/0.png'">
+          <span style="font-size:11px; font-weight:bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">${target.name}</span>
+        </div>
+      `;
+
+      startBalanceAnimation(canvas, attacker, target, wA, wT);
+    };
+
+    // Include the "Player" option in the dropdown list pool alongside Pokemon data
+    const pool = ["Player", ...ALL_POKEMON];
+    attachAutocomplete(input, pool, (val) => {
+      input.value = val;
+      updateMatchup();
+    }, (name) => {
+      if (name.toLowerCase() === "player") return "sprites/assets/player.png";
+      const mon = pokemonByName.get(name.toLowerCase());
+      return mon ? `sprites/monstericons/${mon.id}-0.png` : null;
+    });
+
+    input.addEventListener("change", updateMatchup);
+
+    updateMatchup(); // Run once on init
+  });
+}
+
+function getCanvasSpritePath(entity) {
+  if (entity.id === 'player') return 'sprites/assets/player.png';
+  return `sprites/monstericons/${entity.id}-0.png`;
+}
+
+function startBalanceAnimation(canvas, attacker, target, wA, wT) {
+  const ctx = canvas.getContext("2d");
+  ctx.imageSmoothingEnabled = false;
+  const startTime = performance.now();
+
+  const imgA = new Image();
+  imgA.src = getCanvasSpritePath(attacker);
+  const imgT = new Image();
+  imgT.src = getCanvasSpritePath(target);
+
+  imgA.onerror = () => { imgA.src = 'sprites/pokemon/0.png'; };
+  imgT.onerror = () => { imgT.src = 'sprites/pokemon/0.png'; };
+
+  function draw(time) {
+    if (!canvas.isConnected) return; 
+
+    const elapsed = (time - startTime) / 1000;
+    const duration = 3.0; // Trimmed duration to remove the "fade to flat" reset phase
+    const t = elapsed % duration;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const cx = canvas.width / 2;
+    const cy = canvas.height - 40;
+
+    // Draw Fulcrum Base
+    ctx.fillStyle = "#6b6b6b";
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx - 20, cy + 40);
+    ctx.lineTo(cx + 20, cy + 40);
+    ctx.fill();
+
+    // --- Physics Constants ---
+    const safeWT = Math.max(wT, 0.1);
+    const safeWA = Math.max(wA, 0.1);
+    const heavy = Math.max(safeWA, safeWT);
+    const light = Math.min(safeWA, safeWT);
+    const ratio = heavy / light;
+    const aIsHeavy = safeWA >= safeWT;
+
+    const maxAngle = Math.PI / 7; // Max tilt angle (~25 degrees)
+    const dir = aIsHeavy ? -1 : 1; // Negative tilts left (attacker), Positive tilts right (target)
+    const targetAngle = dir * maxAngle * Math.min(ratio / 4, 1);
+
+    let currentAngle = 0;
+    let yAOffset = 0;
+    let yTOffset = 0;
+    let xAOffset = 0;
+    let xTOffset = 0;
+
+    // --- Animation Phases ---
+    if (t < 0.5) { 
+      // 1. Drop In (Linear Fall)
+      const p = t / 0.5;
+      yAOffset = -150 * (1 - p);
+      yTOffset = -150 * (1 - p);
+    } else { 
+      // 2. Impact & Tipping Logic
+      const tImp = t - 0.5; // Time since impact
+
+      if (ratio < 1.05) {
+        // TIER 1: Equal / Identical Weights (Wobbles noticeably left/right then settles flat)
+        const omega = 16; 
+        const decay = 1.5; 
+        // Force the prominent wobble even if ratio/targetAngle is zero.
+        const baseWobble = (Math.PI / 8) * Math.exp(-decay * tImp) * Math.sin(omega * tImp);
+        const settlement = targetAngle * (1 - Math.exp(-decay * tImp) * Math.cos(omega * tImp));
+        
+        currentAngle = baseWobble + settlement;
+      } 
+      else if (ratio <= 3.0) {
+        // TIER 2: Imbalanced (Direct tip, speed scales with ratio)
+        const tipDuration = Math.max(0.15, 0.5 - ((ratio - 1.5) / 1.5) * 0.35);
+        const p = Math.min(tImp / tipDuration, 1);
+        currentAngle = targetAngle * p * (2 - p); 
+      } 
+      else {
+        // TIER 3: Highly Imbalanced (Max speed tip + Launch + Shake)
+        const tipDuration = 0.08; 
+        const p = Math.min(tImp / tipDuration, 1);
+        currentAngle = targetAngle * p; 
+
+        // Launch Math
+        const launchHeight = Math.min(80 + (ratio - 3) * 20, 250); 
+        const launchDuration = Math.min(0.8 + (ratio - 3) * 0.05, 1.3); 
+
+        if (tImp < launchDuration) {
+          const pAir = tImp / launchDuration;
+          const flyHeight = -launchHeight * Math.sin(pAir * Math.PI);
+          if (aIsHeavy) yTOffset = flyHeight; else yAOffset = flyHeight;
+        } else {
+          const tShake = tImp - launchDuration;
+          if (tShake < 0.4) {
+            const shakeDamp = 1 - (tShake / 0.4); 
+            const shakeX = 8 * Math.sin(tShake * Math.PI * 40) * shakeDamp; 
+            if (aIsHeavy) xTOffset = shakeX; else xAOffset = shakeX;
+          }
+        }
+      }
+    } 
+
+    // --- Draw Scene ---
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(currentAngle);
+
+    // Draw Balance Beam
+    ctx.lineWidth = 6;
+    ctx.strokeStyle = "#488eff";
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(-100, 0);
+    ctx.lineTo(100, 0);
+    ctx.stroke();
+
+    const drawEntity = (xBase, yOff, xOff, img) => {
+      ctx.save();
+      ctx.translate(xBase, 0);
+      ctx.rotate(-currentAngle); 
+
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = "#9a9a9a";
+      ctx.beginPath();
+      ctx.moveTo(-25, 0);
+      ctx.lineTo(25, 0);
+      ctx.stroke();
+
+      if (img.complete) {
+        const size = 64;
+        ctx.drawImage(img, (-size / 2) + xOff, yOff - size, size, size);
+      }
+      ctx.restore();
+    };
+
+    drawEntity(-100, yAOffset, xAOffset, imgA); // Attacker (Left)
+    drawEntity(100, yTOffset, xTOffset, imgT);  // Target (Right)
+
+    ctx.restore();
+    canvas.animId = requestAnimationFrame(draw);
   }
+
+  if (canvas.animId) cancelAnimationFrame(canvas.animId);
+  canvas.animId = requestAnimationFrame(draw);
+}
 
   function getWeightKg(mon) {
     return (Number(mon?.weight) || 0) / 10;
@@ -7613,7 +7997,7 @@ function getDirectChildBranches(branch) {
       applyRowState(row);
       renderSelectedMoveInfo();
       updateModalMoveTabState();
-      updateURL(currentModalMon, { replace: true });
+      updateURL(currentModalMon, { replace: true, immediate: true });
     };
 
     const toggleMove = (row) => {
@@ -7630,7 +8014,7 @@ function getDirectChildBranches(branch) {
       applyRowState(row);
       renderSelectedMoveInfo();
       updateModalMoveTabState();
-      updateURL(currentModalMon, { replace: true });
+      updateURL(currentModalMon, { replace: true, immediate: true });
     };
 
     const applyModalMoveFilters = () => {
@@ -7671,7 +8055,7 @@ function getDirectChildBranches(branch) {
       applyRowState(rows[index]);
       renderSelectedMoveInfo();
       updateModalMoveTabState();
-      updateURL(currentModalMon, { replace: true });
+      updateURL(currentModalMon, { replace: true, immediate: true });
     });
 
     search.addEventListener("input", applyModalMoveFilters);
@@ -7742,7 +8126,7 @@ function getDirectChildBranches(branch) {
     }
 
     if (syncRoute && currentModalMon) {
-      updateURL(currentModalMon, { replace: true });
+      updateURL(currentModalMon, { replace: true, immediate: true });
     }
 
     updateModalMoveTabState();
