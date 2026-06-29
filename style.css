@@ -1174,10 +1174,11 @@ body.pory-full #poryBackground {
   max-height: 220px;
   object-fit: contain;
   image-rendering: crisp-edges;
+  will-change: filter;
 }
 
 /* Target the img specifically for the glow */
-.pokedex-modal-image-main.alpha {
+.pokedex-modal-image-main.alpha:not(.shiny) {
   animation: alphaPulse 4s infinite ease-in-out;
 }
 
@@ -1187,16 +1188,17 @@ body.pory-full #poryBackground {
 
 @keyframes alphaPulse {
   0%, 100% {
-    filter: drop-shadow(0 0 2px rgba(255,0,0,1)) drop-shadow(0 0 4px color-mix(in srgb, rgba(255,50,50,0.8) 80%, var(--panel)));
+    filter: drop-shadow(0 0 2px rgba(255,0,0,1)) drop-shadow(0 0 4px rgba(255,50,50,0.5));
   }
   50% {
     filter: drop-shadow(0 0 4px rgba(255,0,0,1)) drop-shadow(0 0 4px rgba(255,80,80,0.8));
   }
 }
 
+
 @keyframes alphaPulseShiny {
   0%, 100% {
-    filter: drop-shadow(0 0 2px rgba(251,205,50,1)) drop-shadow(0 0 4px color-mix(in srgb, rgba(251,205,50,0.8) 80%, var(--text)));
+    filter: drop-shadow(0 0 2px rgba(251,205,50,1)) drop-shadow(0 0 4px rgba(251,205,50,0.5));
   }
   50% {
     filter: drop-shadow(0 0 4px rgba(251,205,50,1)) drop-shadow(0 0 4px rgba(251,205,50,0.8));
@@ -1216,8 +1218,8 @@ body.pory-full #poryBackground {
 
 .alpha-glow-toggle,
 .shiny-toggle {
-  width: 25px;
-  height: 25px;
+  width: 20px;
+  height: 20px;
   background: color-mix(in srgb, var(--panel) 85%, transparent);
   border: 1px solid var(--muted);
   border-radius: 50%;
@@ -2189,7 +2191,6 @@ body.pory-full #poryBackground {
 ============================================================= */
 
 .pokedex-stats {
-  background: color-mix(in srgb, var(--panel) 50%, transparent);
   padding: 10px;
   border-radius: 10px;
 }
