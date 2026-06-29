@@ -1163,13 +1163,9 @@ body.pory-full #poryBackground {
 
 /* Apply the container styles to the new wrapper */
 .pokedex-modal-image-wrapper {
-  display: block;
   min-height: 200px;
-  padding: 10px;
-  /* Flex centers the image inside this box */
+  padding: 20px;
   display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 /* The img now just fills the wrapper */
@@ -1182,28 +1178,46 @@ body.pory-full #poryBackground {
 
 /* Target the img specifically for the glow */
 .pokedex-modal-image-main.alpha {
-  animation: alphaPulse 2s infinite ease-in-out;
+  animation: alphaPulse 4s infinite ease-in-out;
+}
+
+.pokedex-modal-image-main.alpha.shiny {
+  animation: alphaPulseShiny 4s infinite ease-in-out;
 }
 
 @keyframes alphaPulse {
   0%, 100% {
-    filter: drop-shadow(0 0 2px rgba(255,0,0,1)) drop-shadow(0 0 4px rgba(255,50,50,0.8));
+    filter: drop-shadow(0 0 2px rgba(255,0,0,1)) drop-shadow(0 0 4px color-mix(in srgb, rgba(255,50,50,0.8) 80%, var(--panel)));
   }
   50% {
-    filter: drop-shadow(0 0 8px rgba(255,0,0,1)) drop-shadow(0 0 16px rgba(255,80,80,0.8));
+    filter: drop-shadow(0 0 4px rgba(255,0,0,1)) drop-shadow(0 0 4px rgba(255,80,80,0.8));
+  }
+}
+
+@keyframes alphaPulseShiny {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px rgba(251,205,50,1)) drop-shadow(0 0 4px color-mix(in srgb, rgba(251,205,50,0.8) 80%, var(--text)));
+  }
+  50% {
+    filter: drop-shadow(0 0 4px rgba(251,205,50,1)) drop-shadow(0 0 4px rgba(251,205,50,0.8));
   }
 }
 
 /* =============================================================
    ALPHA GLOW TOGGLE
 ============================================================= */
+.pokedex-image-container-toggles{
+  position:absolute;
+  display: flex;
+  top: 8px;
+  left: 8px;
+  gap: 4px;
+}
 
-.alpha-glow-toggle {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  width: 20px;
-  height: 20px;
+.alpha-glow-toggle,
+.shiny-toggle {
+  width: 25px;
+  height: 25px;
   background: color-mix(in srgb, var(--panel) 85%, transparent);
   border: 1px solid var(--muted);
   border-radius: 50%;
@@ -1217,35 +1231,51 @@ body.pory-full #poryBackground {
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-.alpha-glow-toggle img {
+.alpha-glow-toggle img,
+.shiny-toggle img {
   width: 100%;
   height: 100%;
   opacity: 0.6;
   transition: opacity 0.2s ease;
 }
 
+/* Hover States */
 .alpha-glow-toggle:hover:not(.disabled) {
   background: color-mix(in srgb, var(--danger) 20%, var(--panel));
   border-color: var(--danger);
   transform: scale(1.05);
 }
+.shiny-toggle:hover:not(.disabled) {
+  background: color-mix(in srgb, #fbcd32 20%, var(--panel));
+  border-color: #fbcd32;
+  transform: scale(1.05);
+}
 
-.alpha-glow-toggle:hover:not(.disabled) img {
+.alpha-glow-toggle:hover:not(.disabled) img,
+.shiny-toggle:hover:not(.disabled) img {
   opacity: 1;
 }
 
+/* Active States */
 .alpha-glow-toggle.active {
   background: color-mix(in srgb, var(--danger) 75%, transparent);
   border-color: #ff5252;
   box-shadow: 0 0 8px rgba(255, 82, 82, 0.6);
 }
+.shiny-toggle.active {
+  background: color-mix(in srgb, #fbcd32 75%, transparent);
+  border-color: #fbcd32;
+  box-shadow: 0 0 8px rgba(251, 205, 50, 0.6);
+}
 
-.alpha-glow-toggle.active img {
+.alpha-glow-toggle.active img,
+.shiny-toggle.active img {
   opacity: 1;
   filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.8));
 }
 
-.alpha-glow-toggle.disabled {
+.alpha-glow-toggle.disabled,
+.shiny-toggle.disabled {
   cursor: not-allowed;
   opacity: 0.80;
   filter: grayscale(100%);
@@ -2159,7 +2189,7 @@ body.pory-full #poryBackground {
 ============================================================= */
 
 .pokedex-stats {
-  background: color-mix(in srgb, var(--accent) 10%, var(--panel));
+  background: color-mix(in srgb, var(--panel) 50%, transparent);
   padding: 10px;
   border-radius: 10px;
 }
@@ -2171,6 +2201,26 @@ body.pory-full #poryBackground {
   gap: 6px;
   margin-bottom: 4px;
   font-size: 0.8rem;
+
+  background: linear-gradient( 
+    90deg, 
+    color-mix(in srgb, var(--panel) 60%, var(--accent)) 
+    5%, 
+    color-mix(in srgb, var(--panel) 80%, var(--accent))
+    20%,
+    color-mix(in srgb, var(--panel) 80%, var(--accent))
+    80%,
+    color-mix(in srgb, var(--panel) 60%, var(--accent)) 
+    95% );
+  border-radius: 99px 0 0 99px;
+  border: 2px solid color-mix(in srgb, var(--panel) 60%, var(--accent))
+}
+
+.stat-name {
+  background: var(--accentT);
+  padding: 2px;
+  border-radius: 99px 0 0 99px;
+  text-align: center;
 }
 
 .stat-bar {
@@ -2180,15 +2230,19 @@ body.pory-full #poryBackground {
   background: color-mix(in srgb, var(--text) 10%, transparent);
 }
 
+.stat-value{
+  padding: 2px;
+  text-align: center;
+  background: var(--accentT);
+}
+
 .stat-fill {
   height: 100%;
 }
 
 .bst-row {
-  margin-top: 6px;
-  padding-top: 6px;
+  margin-top: 12px;
   font-weight: bold;
-  border-top: 1px solid rgba(255,255,255,0.1);
 }
 
 
@@ -4008,11 +4062,6 @@ body.pory-full #poryBackground {
   line-height: 1.3;
 }
 
-
-.body-summary-result {
-
-}
-
 .summary-evo-tree{
   position:relative;
   width:100%;
@@ -4556,4 +4605,192 @@ body.pory-full #poryBackground {
   font-size: 0.9rem;
   line-height: 1.5;
   animation: fadeIn 0.3s ease;
+}
+
+.body-pill{
+  display: inline-flex; 
+  align-items: center; 
+  gap: 6px; 
+  padding: 6px 12px; 
+  border-radius: 999px; 
+  background: var(--panel); 
+  border: 1px solid var(--muted); 
+  color: var(--text); 
+  cursor: pointer;
+}
+
+/* --- Body Summary Main Layout --- */
+.body-mechanics-checklist {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.body-panel {
+  padding: 12px;
+  background: var(--accentT);
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+/* --- Interactive Pills --- */
+.body-pill {
+  transition: transform 0.1s ease, outline 0.1s ease;
+  outline: none;
+  transform: scale(1);
+}
+
+.body-pill.active {
+  outline: 2px solid var(--text);
+  transform: scale(1.02);
+}
+
+.move-class-icon-wrapper {
+  display: flex;
+  gap: 2px;
+  height: 18px;
+}
+
+.low-kick-bp-text {
+  opacity: 0.8;
+  font-size: 0.85rem;
+}
+
+.crash-slam-pill {
+  background: linear-gradient(90deg, #F08030 48.8%, #B8B8D0 48.8%);
+  border: none;
+  color: #000;
+}
+
+/* --- Size Comparison Panel --- */
+.body-measure-grid {
+  margin-bottom: 16px;
+}
+
+.compare-input-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.compare-label {
+  min-width: 100px;
+}
+
+.autocomplete-wrapper {
+  flex: 1;
+  min-width: 150px;
+}
+
+.body-summary-target-input {
+  padding: 6px;
+}
+
+.body-summary-result {
+  margin-top: 8px;
+  text-align: right;
+}
+
+.comparison-visuals-container {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(1, 1fr);
+  margin-top: 12px;
+}
+
+/* --- Canvas and Visual Graphs --- */
+.height-comparison {
+  grid-column: span 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  height: 160px;
+  background: color-mix(in srgb, var(--panel) 60%, transparent);
+  border-radius: 8px;
+  border: 1px solid var(--muted);
+  padding: 10px;
+}
+
+.weight-canvas-wrapper {
+  grid-column: span 1;
+  min-width: 200px;
+  text-align: center;
+}
+
+.weight-balance-canvas {
+  width: 100%;
+  max-width: 500px;
+  background: color-mix(in srgb, var(--panel) 60%, transparent);
+  border-radius: 8px;
+  border: 1px solid var(--muted);
+}
+
+/* --- Move Details --- */
+.mechanic-description {
+  margin-top: 4px;
+}
+
+#crash-result {
+  margin: 8px 0;
+  font-weight: bold;
+}
+
+.crash-multiplier-list {
+  margin: 4px 0 0 16px;
+  padding: 0;
+  opacity: 0.9;
+}
+
+/* --- Dynamic JavaScript Components --- */
+.matchup-subtitle {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.matchup-subtitle.normal-weight {
+  font-weight: normal;
+}
+
+.height-entity-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  width: 45%;
+}
+
+.height-text {
+  font-size: 10px;
+  opacity: 0.8;
+}
+
+.height-sprite {
+  max-width: 100%;
+  object-fit: contain;
+  margin-bottom: 4px;
+}
+
+.height-sprite-crisp {
+  image-rendering: crisp-edges;
+}
+
+.height-sprite-pixelated {
+  image-rendering: pixelated;
+}
+
+.height-entity-name {
+  font-size: 11px;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.height-divider {
+  border-left: 1px dashed var(--muted);
+  height: 80%;
+  align-self: center;
 }
