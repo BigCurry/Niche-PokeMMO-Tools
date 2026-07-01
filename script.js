@@ -7102,21 +7102,13 @@ function startBalanceAnimation(canvas, attacker, target, wA, wT) {
     if (!canvas.isConnected) return; 
 
     const elapsed = (time - startTime) / 1000;
-    const duration = 3.0; // Trimmed duration to remove the "fade to flat" reset phase
+    const duration = 6;
     const t = elapsed % duration;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const cx = canvas.width / 2;
     const cy = canvas.height - 40;
-
-    // Draw Fulcrum Base
-    ctx.fillStyle = "#6b6b6b";
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.lineTo(cx - 20, cy + 40);
-    ctx.lineTo(cx + 20, cy + 40);
-    ctx.fill();
 
     // --- Physics Constants ---
     const safeWT = Math.max(wT, 0.1);
@@ -7128,13 +7120,15 @@ function startBalanceAnimation(canvas, attacker, target, wA, wT) {
 
     const maxAngle = Math.PI / 7; // Max tilt angle (~25 degrees)
     const dir = aIsHeavy ? -1 : 1; // Negative tilts left (attacker), Positive tilts right (target)
-    const targetAngle = dir * maxAngle * Math.min(ratio / 4, 1);
+    const targetAngle = dir * maxAngle * Math.min(ratio / 6, 1);
 
     let currentAngle = 0;
-    let yAOffset = 0;
-    let yTOffset = 0;
-    let xAOffset = 0;
-    let xTOffset = 0;
+    const yOffset = -16;
+    let yAOffset = yOffset;
+    let yTOffset = yOffset;
+    const xOffset = 0;
+    let xAOffset = xOffset;
+    let xTOffset = xOffset;
 
     // --- Animation Phases ---
     if (t < 0.5) { 
@@ -7146,13 +7140,18 @@ function startBalanceAnimation(canvas, attacker, target, wA, wT) {
       // 2. Impact & Tipping Logic
       const tImp = t - 0.5; // Time since impact
 
-      if (ratio < 1.05) {
+      if (ratio < 1.5) {
         // TIER 1: Equal / Identical Weights (Wobbles noticeably left/right then settles flat)
-        const omega = 16; 
+        const omega = 10; 
         const decay = 1.5; 
         // Force the prominent wobble even if ratio/targetAngle is zero.
         const baseWobble = (Math.PI / 8) * Math.exp(-decay * tImp) * Math.sin(omega * tImp);
-        const settlement = targetAngle * (1 - Math.exp(-decay * tImp) * Math.cos(omega * tImp));
+        let settlement;
+        if (ratio == 1) {
+          settlement = 0;
+        } else {
+          settlement = targetAngle * (1 - Math.exp(-decay * tImp) * Math.cos(omega * tImp));
+        }
         
         currentAngle = baseWobble + settlement;
       } 
@@ -7169,19 +7168,42 @@ function startBalanceAnimation(canvas, attacker, target, wA, wT) {
         currentAngle = targetAngle * p; 
 
         // Launch Math
-        const launchHeight = Math.min(80 + (ratio - 3) * 20, 250); 
-        const launchDuration = Math.min(0.8 + (ratio - 3) * 0.05, 1.3); 
+        const launchHeight = 80 + (ratio - 3) * 20; 
+        const launchDuration = Math.min(0.8 + (ratio - 3) * 0.05, 5); 
+
+        // Calculate rotation components for the current angle
+        // We use -currentAngle to rotate the offsets back to global space
+        const cosA = Math.cos(-currentAngle);
+        const sinA = Math.sin(-currentAngle);
 
         if (tImp < launchDuration) {
           const pAir = tImp / launchDuration;
           const flyHeight = -launchHeight * Math.sin(pAir * Math.PI);
-          if (aIsHeavy) yTOffset = flyHeight; else yAOffset = flyHeight;
+          
+          // Apply to global Y, and use currentAngle to keep X stable
+          const localY = flyHeight;
+          const localX = 0;
+          
+          const finalX = localX * cosA - localY * sinA;
+          const finalY = localX * sinA + localY * cosA;
+
+          if (aIsHeavy) { xTOffset = finalX; yTOffset = finalY; } else { xAOffset = finalX; yAOffset = finalY; }
         } else {
           const tShake = tImp - launchDuration;
           if (tShake < 0.4) {
             const shakeDamp = 1 - (tShake / 0.4); 
-            const shakeX = 8 * Math.sin(tShake * Math.PI * 40) * shakeDamp; 
-            if (aIsHeavy) xTOffset = shakeX; else xAOffset = shakeX;
+            const shakeVal = 8 * Math.sin(tShake * Math.PI * 40) * shakeDamp; 
+            
+            // Shake should happen perpendicular to the tilt to feel "straight"
+            // or strictly on the global axis depending on your animation needs
+            const localY = 0;
+            const localX = shakeVal;
+            
+            const finalX = localX * cosA - localY * sinA;
+            const finalY = localX * sinA + localY * cosA;
+
+            if (aIsHeavy) { xTOffset = finalX; yTOffset = yOffset + finalY; } 
+            else { xAOffset = finalX; yAOffset = yOffset + finalY; }
           }
         }
       }
@@ -7192,38 +7214,124 @@ function startBalanceAnimation(canvas, attacker, target, wA, wT) {
     ctx.translate(cx, cy);
     ctx.rotate(currentAngle);
 
-    // Draw Balance Beam
-    ctx.lineWidth = 6;
-    ctx.strokeStyle = "#488eff";
-    ctx.lineCap = "round";
-    ctx.beginPath();
-    ctx.moveTo(-100, 0);
-    ctx.lineTo(100, 0);
-    ctx.stroke();
+        // Configuration
+    const segmentWidth = 14;
+    const startX = -105;
+    const endX = 105;
 
-    const drawEntity = (xBase, yOff, xOff, img) => {
-      ctx.save();
-      ctx.translate(xBase, 0);
-      ctx.rotate(-currentAngle); 
+    // Top Line Colors
+    const topColors = ["#C7DFFF", "#EFEFEF"];
+    // Bottom Line Colors
+    const bottomColors = ["#6DA6FF", "#C7DFFF"];
 
-      ctx.lineWidth = 4;
-      ctx.strokeStyle = "#9a9a9a";
+    ctx.lineWidth = 3; // Split 6px total into two 3px lines
+    ctx.lineCap = "butt"; // Using butt to create a seamless bar look
+
+    for (let i = startX; i < endX; i += segmentWidth) {
+      const index = ((i - startX) / segmentWidth) % 2;
+
+      // Draw Top Half
+      ctx.strokeStyle = topColors[index];
       ctx.beginPath();
-      ctx.moveTo(-25, 0);
-      ctx.lineTo(25, 0);
+      ctx.moveTo(i, -1.5);
+      ctx.lineTo(i + segmentWidth, -1.5);
       ctx.stroke();
 
+      // Draw Bottom Half
+      ctx.strokeStyle = bottomColors[index];
+      ctx.beginPath();
+      ctx.moveTo(i, 1.5);
+      ctx.lineTo(i + segmentWidth, 1.5);
+      ctx.stroke();
+    }
+
+    // Reset lineCap for other elements
+    ctx.lineCap = "round";
+
+
+
+    const drawEntity = (xBase, yBase, yOff, xOff, img) => {
+      ctx.save();
+      // Translate to the attachment point on the beam
+      ctx.translate(xBase, yBase); 
+      ctx.rotate(-currentAngle);
+
+      ctx.fillStyle = "#5e521b";
+      ctx.beginPath();
+      ctx.ellipse(0, -5, 20, 10, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#978328";
+      ctx.beginPath();
+      ctx.ellipse(0, -9, 30, 11, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#F3D341";
+      ctx.beginPath();
+      ctx.ellipse(0, -10, 30, 10, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#b9a030";
+      ctx.beginPath();
+      ctx.ellipse(0, -10.5, 26, 7.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#FBFBFB";
+      ctx.beginPath();
+      ctx.ellipse(0, -11, 26, 7, 0, 0, Math.PI * 2);
+      ctx.fill(); 
+
+      // --- IMAGE (Includes the dynamic yOffset) ---
+      // Here we apply the yOffset passed from your animation logic
       if (img.complete) {
         const size = 64;
-        ctx.drawImage(img, (-size / 2) + xOff, yOff - size, size, size);
+        // We add yOffset to the vertical position to animate the image
+        ctx.drawImage(img, -size / 2, yOff - yBase/2 - size, size, size);
       }
+
       ctx.restore();
     };
 
-    drawEntity(-100, yAOffset, xAOffset, imgA); // Attacker (Left)
-    drawEntity(100, yTOffset, xTOffset, imgT);  // Target (Right)
+    // --- Updated Draw Calls ---
+    // The ovals stay at y=0 (relative to the beam), 
+    // while yAOffset/yTOffset only affects the image
+    drawEntity(-95 - xOffset, yOffset, yAOffset, xAOffset, imgA); 
+    drawEntity(95 + xOffset, yOffset, yTOffset, xTOffset, imgT);
 
+    // End caps (Green squares)
+    ctx.fillStyle = "#55BE6D";
+    ctx.fillRect(-100, -13, 10, 10);
+    ctx.fillRect(90, -13, 10, 10);
     ctx.restore();
+
+    // 1. Draw the Base Fill
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx - 20, cy + 40);
+    ctx.lineTo(cx + 20, cy + 40);
+    ctx.closePath();
+    ctx.fillStyle = "#FB7171";
+    ctx.fill();
+
+    // 2. Draw the 2px Highlights on the two top edges
+    // We draw these as separate paths to isolate the highlight color
+    ctx.strokeStyle = "#FBA2A2";
+    const baseLineWidth = 3
+    ctx.lineWidth = baseLineWidth;
+    ctx.lineCap = "round";
+
+    // Left slope highlight
+    ctx.beginPath();
+    ctx.moveTo(cx, cy + baseLineWidth);
+    ctx.lineTo(cx - 20 + baseLineWidth, cy + 40);
+    ctx.stroke();
+
+    // Right slope highlight
+    ctx.beginPath();
+    ctx.moveTo(cx, cy + baseLineWidth);
+    ctx.lineTo(cx + 20 - baseLineWidth, cy + 40);
+    ctx.stroke();
+
     canvas.animId = requestAnimationFrame(draw);
   }
 
