@@ -4759,7 +4759,7 @@ body.pory-full #poryBackground {
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  width: 45%;
+  width: 50%;
 }
 
 .height-text {
@@ -4768,9 +4768,10 @@ body.pory-full #poryBackground {
 }
 
 .height-sprite {
-  max-width: 100%;
+  max-width: none;
   object-fit: contain;
   margin-bottom: 4px;
+  flex-shrink: 0;
 }
 
 .height-sprite-crisp {

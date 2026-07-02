@@ -2755,7 +2755,22 @@ const PokedexTool = (() => {
 
   function preprocessData() {
     pokemonById = new Map(data.map(mon => [mon.id, mon]));
-    pokemonByName = new Map(data.map(mon => [mon.name.toLowerCase(), mon]));
+    pokemonByName = new Map();
+    data.forEach(mon => {
+      const nameKey = mon.name.toLowerCase();
+      
+      if (!pokemonByName.has(nameKey)) {
+        // If it's the first time we see this name, save it
+        pokemonByName.set(nameKey, mon);
+      } else {
+        // If the name already exists, only overwrite it if the NEW monster 
+        // is a primary form. (This ensures that if form 656 loaded first, 
+        // base 487 will correctly overwrite it).
+        if (mon.id <= MAX_BASE_ID || ID_OVERRIDE.has(mon.id)) {
+          pokemonByName.set(nameKey, mon);
+        }
+      }
+    });
     evolutionParentById = new Map();
     evolutionFamilyRootById = new Map();
 
@@ -7010,12 +7025,16 @@ function bindBodySummaryTools() {
     const heightContainer = matchupTool.querySelector(".height-comparison");
     const canvas = matchupTool.querySelector(".weight-balance-canvas");
 
-    const updateMatchup = () => {
+    let currentRenderId = 0;
+
+    const updateMatchup = async () => {
+      const renderId = ++currentRenderId;
+
       const val = input.value.toLowerCase().trim();
       let attacker;
 
       if (val === "player") {
-        attacker = { id: 'player', name: 'Player', weight: 800, height: 18.288, sprite: 'sprites/assets/player_sprite.png' };
+        attacker = { id: 'player', name: 'Player', weight: 800, height: 18.3, sprite: 'sprites/assets/player_sprite.png' };
       } else {
         attacker = pokemonByName.get(val);
       }
@@ -7045,17 +7064,23 @@ function bindBodySummaryTools() {
       const maxH = Math.max(hA, hT, 0.1);
       const pxPerM = 100 / maxH;
       const getSprite = (ent) => ent.sprite || `sprites/pokemon/${ent.id}.png`;
-
+      heightContainer.style.opacity = '0.5';
+      const [trimmedAttacker, trimmedTarget] = await Promise.all([
+        getTrimmedSprite(getSprite(attacker)),
+        getTrimmedSprite(getSprite(target))
+      ]);
+      if (renderId !== currentRenderId) return;
+      heightContainer.style.opacity = '1';
       heightContainer.innerHTML = `
         <div class="height-entity-col">
           <span class="height-text">${formatMeters(hA)}</span>
-          <img src="${getSprite(attacker)}" class="height-sprite height-sprite-crisp" style="height: ${Math.max(20, hA * pxPerM)}px;" onerror="this.src='sprites/pokemon/0.png'">
+          <img src="${trimmedAttacker}" class="height-sprite height-sprite-crisp" style="height: ${Math.max(20, hA * pxPerM)}px;" onerror="this.src='sprites/pokemon/0.png'">
           <span class="height-entity-name">${attacker.name}</span>
         </div>
         <div class="height-divider"></div>
         <div class="height-entity-col">
           <span class="height-text">${formatMeters(hT)}</span>
-          <img src="${getSprite(target)}" class="height-sprite height-sprite-pixelated" style="height: ${Math.max(20, hT * pxPerM)}px;" onerror="this.src='sprites/pokemon/0.png'">
+          <img src="${trimmedTarget}" class="height-sprite height-sprite-pixelated" style="height: ${Math.max(20, hT * pxPerM)}px;" onerror="this.src='sprites/pokemon/0.png'">
           <span class="height-entity-name">${target.name}</span>
         </div>
       `;
@@ -7070,8 +7095,22 @@ function bindBodySummaryTools() {
       updateMatchup();
     }, (name) => {
       if (name.toLowerCase() === "player") return "sprites/assets/player.png";
-      const mon = pokemonByName.get(name.toLowerCase());
-      return mon ? `sprites/monstericons/${mon.id}-0.png` : null;
+      
+      let mon = pokemonByName.get(name.toLowerCase());
+
+      // If your map stores an array of Pokémon forms for a single name, find the primary one
+      if (Array.isArray(mon)) {
+        mon = mon.find(m => m.id <= MAX_BASE_ID || ID_OVERRIDE.has(m.id)) || mon[0];
+      }
+
+      // Verify the final 'mon' object meets your primary form ID criteria
+      if (mon && (mon.id <= MAX_BASE_ID || ID_OVERRIDE.has(mon.id))) {
+        return `sprites/monstericons/${mon.id}-0.png`;
+      } else {
+        // mon?.id safely falls back to 'undefined' instead of throwing an error
+        console.warn(`Couldn't find valid primary form image for ${name} (ID: ${mon?.id || 'unknown'})`);
+        return ""; // Optional: return a fallback placeholder image path here
+      }
     });
 
     input.addEventListener("change", updateMatchup);
@@ -7083,6 +7122,63 @@ function bindBodySummaryTools() {
 function getCanvasSpritePath(entity) {
   if (entity.id === 'player') return 'sprites/assets/player.png';
   return `sprites/monstericons/${entity.id}-0.png`;
+}
+
+function getTrimmedSprite(src) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "Anonymous"; // Prevents canvas tainting if assets are on a CDN
+    
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      ctx.drawImage(img, 0, 0);
+
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imgData.data;
+      
+      let top = null, bottom = null, left = null, right = null;
+
+      // Scan pixel data to find the colored bounding box
+      for (let y = 0; y < canvas.height; y++) {
+        for (let x = 0; x < canvas.width; x++) {
+          const alpha = data[(y * canvas.width + x) * 4 + 3];
+          if (alpha > 0) {
+            if (top === null) top = y;
+            bottom = y;
+            if (left === null || x < left) left = x;
+            if (right === null || x > right) right = x;
+          }
+        }
+      }
+
+      // If the image is completely transparent or empty, return original
+      if (top === null) {
+        return resolve(src); 
+      }
+
+      const trimWidth = right - left + 1;
+      const trimHeight = bottom - top + 1;
+
+      const trimCanvas = document.createElement('canvas');
+      trimCanvas.width = trimWidth;
+      trimCanvas.height = trimHeight;
+      const trimCtx = trimCanvas.getContext('2d');
+      
+      trimCtx.drawImage(
+        canvas,
+        left, top, trimWidth, trimHeight,
+        0, 0, trimWidth, trimHeight
+      );
+
+      resolve(trimCanvas.toDataURL());
+    };
+    
+    img.onerror = () => resolve(src); // Fallback to original if loading fails
+    img.src = src;
+  });
 }
 
 function startBalanceAnimation(canvas, attacker, target, wA, wT) {
@@ -7155,9 +7251,10 @@ function startBalanceAnimation(canvas, attacker, target, wA, wT) {
         
         currentAngle = baseWobble + settlement;
       } 
-      else if (ratio <= 3.0) {
-        // TIER 2: Imbalanced (Direct tip, speed scales with ratio)
-        const tipDuration = Math.max(0.15, 0.5 - ((ratio - 1.5) / 1.5) * 0.35);
+      else if (ratio <= 10.0) {
+        // TIER 2: Imbalanced (Direct tip, speed scales with ratio up to 10.0)
+        // Spans a difference of 8.5 (from 1.5 to 10.0), scaling duration down from 0.5s to 0.08s
+        const tipDuration = Math.max(0.08, 0.5 - ((ratio - 1.5) / 8.5) * 0.42);
         const p = Math.min(tImp / tipDuration, 1);
         currentAngle = targetAngle * p * (2 - p); 
       } 
@@ -7167,9 +7264,10 @@ function startBalanceAnimation(canvas, attacker, target, wA, wT) {
         const p = Math.min(tImp / tipDuration, 1);
         currentAngle = targetAngle * p; 
 
-        // Launch Math
-        const launchHeight = 80 + (ratio - 3) * 20; 
-        const launchDuration = Math.min(0.8 + (ratio - 3) * 0.05, 5); 
+        // Launch Math (Starts scaling at ratio > 10)
+        // Capped at 400 height to prevent extreme values at massive ratios (e.g. 9999x)
+        const launchHeight = Math.min(80 + (ratio - 10) * 8, 999); 
+        const launchDuration = Math.min(0.8 + (ratio - 10) * 0.02, 5); 
 
         // Calculate rotation components for the current angle
         // We use -currentAngle to rotate the offsets back to global space
@@ -7207,7 +7305,7 @@ function startBalanceAnimation(canvas, attacker, target, wA, wT) {
           }
         }
       }
-    } 
+    }
 
     // --- Draw Scene ---
     ctx.save();
@@ -7256,14 +7354,14 @@ function startBalanceAnimation(canvas, attacker, target, wA, wT) {
       ctx.translate(xBase, yBase); 
       ctx.rotate(-currentAngle);
 
-      ctx.fillStyle = "#5e521b";
+      ctx.fillStyle = "#826a02";
       ctx.beginPath();
-      ctx.ellipse(0, -5, 20, 10, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, -5, 20, 15, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.fillStyle = "#978328";
+      ctx.fillStyle = "#ae9730";
       ctx.beginPath();
-      ctx.ellipse(0, -9, 30, 11, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, -9, 30, 12, 0, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.fillStyle = "#F3D341";
@@ -7300,8 +7398,8 @@ function startBalanceAnimation(canvas, attacker, target, wA, wT) {
 
     // End caps (Green squares)
     ctx.fillStyle = "#55BE6D";
-    ctx.fillRect(-100, -13, 10, 10);
-    ctx.fillRect(90, -13, 10, 10);
+    ctx.fillRect(-100, -7, 10, 5);
+    ctx.fillRect(90, -7, 10, 5);
     ctx.restore();
 
     // 1. Draw the Base Fill
@@ -7316,7 +7414,7 @@ function startBalanceAnimation(canvas, attacker, target, wA, wT) {
     // 2. Draw the 2px Highlights on the two top edges
     // We draw these as separate paths to isolate the highlight color
     ctx.strokeStyle = "#FBA2A2";
-    const baseLineWidth = 3
+    const baseLineWidth = 2
     ctx.lineWidth = baseLineWidth;
     ctx.lineCap = "round";
 
