@@ -2477,7 +2477,28 @@ const PokedexTool = (() => {
            const s = getCatchSummaryState(currentModalMon);
            if(s && val) { s.battleTurn = Number(val); s.manualBattleTurn = true; }
          }
-      }
+      },
+      {
+        key: "ballOverrides",
+        serialize: () => {
+          const s = getCatchSummaryState(currentModalMon);
+          // Only serialize if there are overrides to save
+          return s && s.ballOverrides && Object.keys(s.ballOverrides).length > 0 
+            ? JSON.stringify(s.ballOverrides) 
+            : null;
+        },
+        deserialize: (val) => {
+          const s = getCatchSummaryState(currentModalMon);
+          if (s && val) {
+            try {
+              s.ballOverrides = JSON.parse(val);
+            } catch (e) {
+              console.warn("Failed to parse ballOverrides", e);
+              s.ballOverrides = {}; // Fallback
+            }
+          }
+        }
+      },
     ],
 
     modal_moves: [
@@ -6131,7 +6152,8 @@ const PokedexTool = (() => {
         catchStreak: 15,
         alphaEnabled: false,
         shinySprite: false,
-        ballEnabled
+        ballEnabled,
+        ballOverrides: {}
       });
     }
 
@@ -6338,9 +6360,9 @@ const PokedexTool = (() => {
     switch (ballKey) {
       case "heavy": {
         const weight = Math.max(0, Number(context.weightKg) || Number(context.targetWeightKg) || 0);
-        if (weight >= 3) return 4;
-        if (weight >= 2) return 3;
-        if (weight >= 1) return 2;
+        if (weight >= 300) return 4;
+        if (weight >= 200) return 3;
+        if (weight >= 100) return 2;
         return data.min.rate;
       }
       case "timer": {
@@ -6455,12 +6477,16 @@ const PokedexTool = (() => {
     `;
   }
 
-  function getCatchSummaryRows({ catchRate, balls, hpPercent, context }) {
+  function getCatchSummaryRows({ catchRate, balls, hpPercent, context, state }) {
     const rows = [];
 
     balls.forEach(ball => {
       const statuses = getCatchStatuses(ball.key);
       const ballMultiplier = getBallMultiplier(ball.key, context);
+      const isOverridden = state?.ballOverrides?.[ball.key];
+      if (isOverridden && typeof BALL_CATCHRATES[ball.key] === 'object') {
+        ballMultiplier = BALL_CATCHRATES[ball.key].max.rate;
+      }
       const effectiveHpPercent = ball.key === "quick" ? 1 : hpPercent;
 
       statuses.forEach(status => {
@@ -6486,7 +6512,7 @@ const PokedexTool = (() => {
     return rows;
   }
 
-  function buildCatchSummaryBars({ catchRate, balls, hpPercent, context }) {
+  function buildCatchSummaryBars({ catchRate, balls, hpPercent, context, state }) {
     const rawRows = getCatchSummaryRows({ catchRate, balls, hpPercent, context });
     const collapsedMap = new Map();
 
@@ -6562,6 +6588,16 @@ const PokedexTool = (() => {
           `;
         }
 
+        const isVariable = typeof BALL_CATCHRATES[row.ballKey] === 'object';
+        const naturalMultiplier = getBallMultiplier(row.ballKey, context);
+        const maxRate = BALL_CATCHRATES[row.ballKey]?.max?.rate;
+        const isOverridden = state?.ballOverrides?.[row.ballKey];
+        
+        let overrideBtn = "";
+        if (isVariable && (isOverridden || naturalMultiplier < maxRate)) {
+          overrideBtn = `<button type="button" class="catch-summary-override-btn ${isOverridden ? 'active' : ''}" data-ball="${escapeHtml(row.ballKey)}" title="Force Max Catch Rate">MAX</button>`;
+        }
+
         return `
           <div class="catch-summary-bar-row${index === 0 ? " catch-summary-bar-row-best" : ""}">
             <div class="catch-summary-bar-label">
@@ -6570,6 +6606,7 @@ const PokedexTool = (() => {
                 <div class="catch-summary-pill-text">
                   ${escapeHtml(row.ball)}
                 </div>
+                ${overrideBtn}
               </span>
               <span class="catch-summary-bar-status" title="${escapeHtml(statusLabel)}">
                 ${statusImagesHtml}
@@ -6689,7 +6726,7 @@ const PokedexTool = (() => {
     if (streakSlider && streakValue) streakValue.textContent = String(context.catchStreak);
 
     const visibleBalls = enabledBalls.filter(ball => !searchQuery || normalizeCatchQuery(ball.label).includes(searchQuery) || normalizeCatchQuery(ball.key).includes(searchQuery));
-    const { rows, markup } = buildCatchSummaryBars({ catchRate, balls: visibleBalls, hpPercent, context });
+    const { rows, markup } = buildCatchSummaryBars({ catchRate, balls: visibleBalls, hpPercent, context, state });
     const bestRow = rows[0];
     const showOverlay = entry?.obtainable === false && !state.overlayDismissed;
     bars.innerHTML = markup;
@@ -6761,7 +6798,7 @@ const PokedexTool = (() => {
 
         if (target.matches(".catch-alpha-toggle")) {
           state.alphaEnabled = target.checked;
-          update();
+          updateURL(currentModalMon, { replace: true, immediate: true })
 
           const img = $("#mainImage");
           const alphaBtn = $(".alpha-glow-toggle");
@@ -6789,6 +6826,15 @@ const PokedexTool = (() => {
         const mon = data.find(entry => Number(entry.id) === Number(card.dataset.targetId));
         const state = getState();
         if (!state) return;
+
+        const overrideBtn = target.closest(".catch-summary-override-btn");
+        if (overrideBtn) {
+          const ballKey = overrideBtn.dataset.ball;
+          state.ballOverrides[ballKey] = !state.ballOverrides[ballKey];
+          update();
+          return;
+        }
+
         const ballOptions = getCatchBallOptions(mon);
         const filtersPanel = card.querySelector(".catch-summary-filters-panel");
         const searchInputEl = card.querySelector(".catch-summary-search");
@@ -6889,11 +6935,17 @@ const PokedexTool = (() => {
    BODY SPECS & MECHANICS REFACTOR
 ============================================================= */
 
+function getFontWeightFromBP(bp) {
+  const map = { 20: 300, 40: 400, 60: 500, 80: 700, 100: 800, 120: 900 };
+  return map[bp] || 400;
+}
+
 function buildBodySummary(mon) {
   const baseWeight = getWeightKg(mon);
   const height = getHeightM(mon);
   const weightVariants = getWeightVariants(mon);
   const lowKickPower = getWeightTierPower(baseWeight);
+  const lowKickFontWeight = getFontWeightFromBP(lowKickPower);
 
   // Sky Drop Logic
   const tooHeavy = baseWeight >= 200;
@@ -6905,39 +6957,23 @@ function buildBodySummary(mon) {
       <h3>Body Specs & Mechanics</h3>
 
       <div class="body-mechanics-checklist">
-        
         <button type="button" class="body-pill" data-target="panel-compare">
           <span>📏</span>
           <b>Compare Size</b>
         </button>
 
-        <button type="button" class="body-pill" data-target="panel-skydrop">
-          <span>${immuneToSkyDrop ? '✔️' : '❌'}</span>
-          <b>Sky Drop</b>
-        </button>
-
-        <button type="button" class="body-pill" data-target="panel-knot">
-          <div class="move-class-icon-wrapper">
-            ${MOVE_CLASS_SVGS.special} 
-          </div>
-          <b>Grass Knot  /</b>
-          <div class="move-class-icon-wrapper">
-            ${MOVE_CLASS_SVGS.physical}
-          </div>
-          
-          <b>Low Kick</b> 
-          <span class="low-kick-bp-text">(${lowKickPower} BP)</span>
-        </button>
-
-        <button type="button" class="body-pill crash-slam-pill" data-target="panel-crash">
-          <div><b>Heat Crash &nbsp; Heavy Slam</b></div>
+        <button type="button" class="body-pill" data-target="panel-bodymoves">
+          <span style="color: ${immuneToSkyDrop ? '#55BE6D' : '#FB7171'}; font-weight: bold;">Sky Drop</span>
+          <span style="margin: 0 6px; color: var(--muted);">|</span>
+          <span style="font-weight: ${lowKickFontWeight};">Grass Knot & Low Kick</span>
+          <span style="margin: 0 6px; color: var(--muted);">|</span>
+          <span id="pill-crash-text" style="font-weight: 400;">Heavy Slam & Heat Crash</span>
         </button>
       </div>
 
       <div class="body-mechanics-panels">
         
         <div id="panel-compare" class="body-panel hidden">
-
           <div class="body-summary-matchup" data-target-id="${mon.id}">
             <div class="compare-input-wrapper">
               <b class="compare-label">Compare with:</b>
@@ -6950,7 +6986,6 @@ function buildBodySummary(mon) {
             
             <div class="comparison-visuals-container">
               <div class="height-comparison"></div>
-              
               <div class="weight-canvas-wrapper">
                 <canvas class="weight-balance-canvas" width="400" height="160"></canvas>
               </div>
@@ -6958,28 +6993,48 @@ function buildBodySummary(mon) {
           </div>
         </div>
 
-        <div id="panel-skydrop" class="body-panel hidden">
-          <b>Sky Drop:</b> ${immuneToSkyDrop ? 'Immune (Target weighs 200kg+ or is a Flying type).' : 'Vulnerable to being lifted.'}
-        </div>
+        <div id="panel-bodymoves" class="body-panel hidden" data-target-id="${mon.id}">
+          
+          <div class="move-anim-row">
+            <canvas class="move-canvas" id="canvas-skydrop" width="200" height="120"></canvas>
+            <div class="move-info">
+              <b>Sky Drop:</b> ${immuneToSkyDrop ? '<span style="color:#55BE6D">Immune</span> (Target weighs 200kg+ or is Flying).' : '<span style="color:#FB7171">Full Damage</span> (Vulnerable to being lifted).'}
+            </div>
+          </div>
 
-        <div id="panel-knot" class="body-panel hidden">
-          <b>Grass Knot (Special) / Low Kick (Physical):</b>
-          <div class="mechanic-description">Base power against this Pokemon is <b>${lowKickPower}</b> due to its ${formatKg(baseWeight)} weight.</div>
-        </div>
+          <div class="move-anim-row">
+            <canvas class="move-canvas" id="canvas-knot" width="200" height="100"></canvas>
+            <div class="move-info">
+              <b>Grass Knot / Low Kick:</b>
+              <div class="mechanic-description">Base power against this Pokemon is <b style="font-weight: ${lowKickFontWeight}">${lowKickPower} BP</b> due to its ${formatKg(baseWeight)} weight.</div>
+            </div>
+          </div>
 
-        <div id="panel-crash" class="body-panel hidden">
-          <b>Heat Crash / Heavy Slam:</b>
-          <div id="crash-result"></div> 
-          <div class="mechanic-description">Damage dealt depends on the weight ratio:</div>
-          <ul class="crash-multiplier-list">
-            <li>120 BP: Target is ≤ 20% of user's weight</li>
-            <li>100 BP: Target is ≤ 25% of user's weight</li>
-            <li>80 BP: Target is ≤ 33.3% of user's weight</li>
-            <li>60 BP: Target is ≤ 50% of user's weight</li>
-            <li>40 BP: Target is > 50% of user's weight</li>
-          </ul>
-        </div>
+          <div class="move-anim-row">
+            <canvas class="move-canvas" id="canvas-crash" width="200" height="120"></canvas>
+            <div class="move-info">
+              <b>Heavy Slam / Heat Crash:</b>
+              <div class="crash-matchup-container">
+                <div class="compare-input-wrapper">
+                  <b class="compare-label">Attacker:</b>
+                  <div class="autocomplete-wrapper">
+                    <input type="text" class="dex-input crash-summary-target-input" placeholder="Search Attacker...">
+                  </div>
+                </div>
+                <div id="crash-result" class="body-summary-result"></div>
+              </div>
+              <div class="mechanic-description">Damage dealt depends on the weight ratio:</div>
+              <ul class="crash-multiplier-list">
+                <li>120 BP: Target is ≤ 20% of user's weight</li>
+                <li>100 BP: Target is ≤ 25% of user's weight</li>
+                <li>80 BP: Target is ≤ 33.3% of user's weight</li>
+                <li>60 BP: Target is ≤ 50% of user's weight</li>
+                <li>40 BP: Target is > 50% of user's weight</li>
+              </ul>
+            </div>
+          </div>
 
+        </div>
       </div>
     </div>
   `;
@@ -6999,11 +7054,9 @@ function bindBodySummaryTools() {
         const targetPanel = card.querySelector(`#${targetId}`);
         const isCurrentlyHidden = targetPanel.classList.contains("hidden");
 
-        // Reset all
         panels.forEach(p => p.classList.add("hidden"));
         pills.forEach(p => p.classList.remove("active"));
 
-        // Expand clicked
         if (isCurrentlyHidden) {
           targetPanel.classList.remove("hidden");
           pill.classList.add("active");
@@ -7011,111 +7064,162 @@ function bindBodySummaryTools() {
       });
     });
 
-    // Ensure the size comparison pill is opened by default
     const comparePill = card.querySelector('[data-target="panel-compare"]');
     if (comparePill) comparePill.click();
 
-    // --- Matchup & Canvas Animation Logic ---
-    const matchupTool = card.querySelector(".body-summary-matchup");
-    if (!matchupTool || matchupTool.dataset.bound) return;
-    matchupTool.dataset.bound = "true";
-
-    const input = matchupTool.querySelector(".body-summary-target-input");
-    const result = matchupTool.querySelector(".body-summary-result");
-    const heightContainer = matchupTool.querySelector(".height-comparison");
-    const canvas = matchupTool.querySelector(".weight-balance-canvas");
-
-    let currentRenderId = 0;
-
-    const updateMatchup = async () => {
-      const renderId = ++currentRenderId;
-
-      const val = input.value.toLowerCase().trim();
-      let attacker;
-
-      if (val === "player") {
-        attacker = { id: 'player', name: 'Player', weight: 800, height: 18.3, sprite: 'sprites/assets/player_sprite.png' };
-      } else {
-        attacker = pokemonByName.get(val);
-      }
-
-      const targetId = Number(matchupTool.dataset.targetId);
-      const target = data.find(mon => mon.id === targetId);
-
-      if (!attacker || !target) return;
-
-      const wA = getWeightKg(attacker);
-      const wT = getWeightKg(target);
-      const hA = getHeightM(attacker);
-      const hT = getHeightM(target);
-
-      const power = getWeightRatioPower(wA, wT);
-      const crashResult = card.querySelector("#crash-result");
-      if (crashResult) {
-        crashResult.innerHTML = `Calculated Power: ${power} BP<br>
-          <span class="matchup-subtitle normal-weight">
-            (${attacker.name}: ${formatKg(wA)} vs ${target.name}: ${formatKg(wT)})
-          </span>`;
-      }
-      
-      result.innerHTML = `<span class="matchup-subtitle">(${attacker.name}: ${formatKg(wA)} vs ${target.name}: ${formatKg(wT)})</span>`;
-
-      // Draw the height ratio graph dynamically
-      const maxH = Math.max(hA, hT, 0.1);
-      const pxPerM = 100 / maxH;
-      const getSprite = (ent) => ent.sprite || `sprites/pokemon/${ent.id}.png`;
-      heightContainer.style.opacity = '0.5';
-      const [trimmedAttacker, trimmedTarget] = await Promise.all([
-        getTrimmedSprite(getSprite(attacker)),
-        getTrimmedSprite(getSprite(target))
-      ]);
-      if (renderId !== currentRenderId) return;
-      heightContainer.style.opacity = '1';
-      heightContainer.innerHTML = `
-        <div class="height-entity-col">
-          <span class="height-text">${formatMeters(hA)}</span>
-          <img src="${trimmedAttacker}" class="height-sprite height-sprite-crisp" style="height: ${Math.max(20, hA * pxPerM)}px;" onerror="this.src='sprites/pokemon/0.png'">
-          <span class="height-entity-name">${attacker.name}</span>
-        </div>
-        <div class="height-divider"></div>
-        <div class="height-entity-col">
-          <span class="height-text">${formatMeters(hT)}</span>
-          <img src="${trimmedTarget}" class="height-sprite height-sprite-pixelated" style="height: ${Math.max(20, hT * pxPerM)}px;" onerror="this.src='sprites/pokemon/0.png'">
-          <span class="height-entity-name">${target.name}</span>
-        </div>
-      `;
-
-      startBalanceAnimation(canvas, attacker, target, wA, wT);
-    };
-
-    // Include the "Player" option in the dropdown list pool alongside Pokemon data
-    const pool = ["Player", ...ALL_POKEMON];
-    attachAutocomplete(input, pool, (val) => {
-      input.value = val;
-      updateMatchup();
-    }, (name) => {
+    const getAutocompleteIcon = (name) => {
       if (name.toLowerCase() === "player") return "sprites/assets/player.png";
-      
       let mon = pokemonByName.get(name.toLowerCase());
-
-      // If your map stores an array of Pokémon forms for a single name, find the primary one
       if (Array.isArray(mon)) {
         mon = mon.find(m => m.id <= MAX_BASE_ID || ID_OVERRIDE.has(m.id)) || mon[0];
       }
+      return (mon && (mon.id <= MAX_BASE_ID || ID_OVERRIDE.has(mon.id))) ? `sprites/monstericons/${mon.id}-0.png` : ""; 
+    };
 
-      // Verify the final 'mon' object meets your primary form ID criteria
-      if (mon && (mon.id <= MAX_BASE_ID || ID_OVERRIDE.has(mon.id))) {
-        return `sprites/monstericons/${mon.id}-0.png`;
-      } else {
-        // mon?.id safely falls back to 'undefined' instead of throwing an error
-        console.warn(`Couldn't find valid primary form image for ${name} (ID: ${mon?.id || 'unknown'})`);
-        return ""; // Optional: return a fallback placeholder image path here
+    // --- Compare Size Logic (Panel 1) ---
+    const matchupTool = card.querySelector(".body-summary-matchup");
+    if (matchupTool && !matchupTool.dataset.bound) {
+      matchupTool.dataset.bound = "true";
+
+      const input = matchupTool.querySelector(".body-summary-target-input");
+      const result = matchupTool.querySelector(".body-summary-result");
+      const heightContainer = matchupTool.querySelector(".height-comparison");
+      const canvas = matchupTool.querySelector(".weight-balance-canvas");
+
+      let currentRenderId = 0;
+
+      const updateMatchup = async () => {
+        const renderId = ++currentRenderId;
+        const val = input.value.toLowerCase().trim();
+        let attacker;
+
+        if (val === "player") {
+          attacker = { id: 'player', name: 'Player', weight: 800, height: 18.3, sprite: 'sprites/assets/player_sprite.png' };
+        } else {
+          attacker = pokemonByName.get(val);
+        }
+
+        const targetId = Number(matchupTool.dataset.targetId);
+        const target = data.find(mon => mon.id === targetId);
+
+        if (!attacker || !target) return;
+
+        const wA = getWeightKg(attacker);
+        const wT = getWeightKg(target);
+        const hA = getHeightM(attacker);
+        const hT = getHeightM(target);
+        
+        result.innerHTML = `<span class="matchup-subtitle">(${attacker.name}: ${formatKg(wA)} vs ${target.name}: ${formatKg(wT)})</span>`;
+
+        // Draw the height ratio graph dynamically
+        const maxH = Math.max(hA, hT, 0.1);
+        const pxPerM = 100 / maxH;
+        const getSprite = (ent) => ent.sprite || `sprites/pokemon/${ent.id}.png`;
+        heightContainer.style.opacity = '0.5';
+        
+        const [trimmedAttacker, trimmedTarget] = await Promise.all([
+          getTrimmedSprite(getSprite(attacker)),
+          getTrimmedSprite(getSprite(target))
+        ]);
+        
+        if (renderId !== currentRenderId) return;
+        
+        heightContainer.style.opacity = '1';
+        heightContainer.innerHTML = `
+          <div class="height-entity-col">
+            <span class="height-text">${formatMeters(hA)}</span>
+            <img src="${trimmedAttacker}" class="height-sprite height-sprite-crisp" style="height: ${Math.max(20, hA * pxPerM)}px;" onerror="this.src='sprites/pokemon/0.png'">
+            <span class="height-entity-name">${attacker.name}</span>
+          </div>
+          <div class="height-divider"></div>
+          <div class="height-entity-col">
+            <span class="height-text">${formatMeters(hT)}</span>
+            <img src="${trimmedTarget}" class="height-sprite height-sprite-pixelated" style="height: ${Math.max(20, hT * pxPerM)}px;" onerror="this.src='sprites/pokemon/0.png'">
+            <span class="height-entity-name">${target.name}</span>
+          </div>
+        `;
+
+        startBalanceAnimation(canvas, attacker, target, wA, wT);
+      };
+
+      // Note: Assuming ALL_POKEMON is available in your scope
+      const comparePool = typeof ALL_POKEMON !== 'undefined' ? ["Player", ...ALL_POKEMON] : ["Player"];
+      attachAutocomplete(input, comparePool, (val) => {
+        input.value = val;
+        updateMatchup();
+      }, getAutocompleteIcon);
+
+      input.addEventListener("change", updateMatchup);
+      updateMatchup();
+    }
+
+    // --- Unified Body Moves Logic ---
+    const bodymovesPanel = card.querySelector('#panel-bodymoves');
+    if (bodymovesPanel && !bodymovesPanel.dataset.bound) {
+      bodymovesPanel.dataset.bound = "true";
+
+      const targetId = Number(bodymovesPanel.dataset.targetId);
+      const targetMon = data.find(mon => mon.id === targetId);
+      
+      const immuneToSkyDrop = getWeightKg(targetMon) >= 200 || (targetMon.types || []).some(type => type.toLowerCase() === "flying");
+
+      const canvasSky = bodymovesPanel.querySelector('#canvas-skydrop');
+      const canvasKnot = bodymovesPanel.querySelector('#canvas-knot');
+      const canvasCrash = bodymovesPanel.querySelector('#canvas-crash');
+
+      startSkyDropAnimation(canvasSky, targetMon, immuneToSkyDrop);
+      startKnotAnimation(canvasKnot, targetMon);
+      
+      // Setup Heat Crash / Heavy Slam calculations
+      const crashInput = bodymovesPanel.querySelector(".crash-summary-target-input");
+      const crashResult = bodymovesPanel.querySelector("#crash-result");
+      const pillCrashText = card.querySelector("#pill-crash-text");
+      
+      const crashLearnerNames = getBodyCrashLearners().map(m => m.name);
+
+      const updateCrashMatchup = () => {
+        const val = crashInput.value.toLowerCase().trim();
+        const attacker = pokemonByName.get(val);
+
+        if (!attacker || !targetMon) {
+          crashResult.innerHTML = `<span class="matchup-subtitle">Please select a valid attacker.</span>`;
+          if (pillCrashText) pillCrashText.style.fontWeight = 400;
+          
+          // Clear animation if invalid
+          startCrashAnimation(canvasCrash, targetMon, null);
+          return;
+        }
+
+        const wA = getWeightKg(attacker);
+        const wT = getWeightKg(targetMon);
+        const power = getWeightRatioPower(wA, wT);
+        
+        // Dynamically update the pill text thickness
+        if (pillCrashText) {
+          pillCrashText.style.fontWeight = getFontWeightFromBP(power);
+        }
+
+        crashResult.innerHTML = `Calculated Power: <b>${power} BP</b><br>
+          <span class="matchup-subtitle normal-weight">
+            (${attacker.name}: ${formatKg(wA)} vs ${targetMon.name}: ${formatKg(wT)})
+          </span>`;
+          
+        // Start animation with the newly selected attacker
+        startCrashAnimation(canvasCrash, targetMon, attacker);
+      };
+
+      attachAutocomplete(crashInput, crashLearnerNames, (val) => {
+        crashInput.value = val;
+        updateCrashMatchup();
+      }, getAutocompleteIcon);
+
+      crashInput.addEventListener("change", updateCrashMatchup);
+
+      if (crashLearnerNames.length > 0) {
+        crashInput.value = crashLearnerNames[0];
+        updateCrashMatchup();
       }
-    });
-
-    input.addEventListener("change", updateMatchup);
-
-    updateMatchup(); // Run once on init
+    }   
   });
 }
 
@@ -7285,7 +7389,7 @@ function startBalanceAnimation(canvas, attacker, target, wA, wT) {
           const finalX = localX * cosA - localY * sinA;
           const finalY = localX * sinA + localY * cosA;
 
-          if (aIsHeavy) { xTOffset = finalX; yTOffset = finalY; } else { xAOffset = finalX; yAOffset = finalY; }
+          if (aIsHeavy) { xTOffset = finalX; yTOffset = yOffset + finalY; } else { xAOffset = finalX; yAOffset = yOffset + finalY; }
         } else {
           const tShake = tImp - launchDuration;
           if (tShake < 0.4) {
@@ -7433,6 +7537,189 @@ function startBalanceAnimation(canvas, attacker, target, wA, wT) {
     canvas.animId = requestAnimationFrame(draw);
   }
 
+  if (canvas.animId) cancelAnimationFrame(canvas.animId);
+  canvas.animId = requestAnimationFrame(draw);
+}
+
+function startSkyDropAnimation(canvas, targetMon, isImmune) {
+  const ctx = canvas.getContext("2d");
+  ctx.imageSmoothingEnabled = false;
+  const startTime = performance.now();
+  
+  const imgTarget = new Image(); imgTarget.src = getCanvasSpritePath(targetMon);
+  const imgAero = new Image(); imgAero.src = 'sprites/monstericons/142-0.png'; // Aerodactyl
+  
+  imgTarget.onerror = () => { imgTarget.src = 'sprites/pokemon/0.png'; };
+  imgAero.onerror = () => { imgAero.src = 'sprites/pokemon/0.png'; };
+
+  function draw(time) {
+    if (!canvas.isConnected) return;
+    const t = ((time - startTime) / 1000) % 3; // 3-second loop
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    let targetY = 90;
+    let aeroY = 20;
+    let targetShake = 0;
+    let aeroScaleY = 1;
+    
+    if (isImmune) {
+      aeroY = 70;
+      // Anchor stretch at the bottom of the sprite by adjusting Y dynamically
+      const stretch = Math.sin(t * Math.PI * 2) * 0.10;
+      aeroScaleY = 1 + stretch;
+      aeroY -= (10 * stretch) / 2;
+    } else {
+      if (t < 0.5) { // Swoop down
+        aeroY = 10 + (t / 0.5) * 70;
+      } else if (t < 1.0) { // Fly up with target
+        const p = (t - 0.5) / 0.5;
+        aeroY = 80 - p * 150;
+        targetY = 90 - p * 150;
+      } else if (t < 1.5) { // Hang offscreen
+        aeroY = -100; targetY = -100;
+      } else if (t < 1.8) { // Target falls
+        const p = (t - 1.5) / 0.3;
+        targetY = -50 + p * 140;
+        aeroY = -100;
+      } else { // Crash shake
+        aeroY = -100;
+        const shakeTime = t - 1.8;
+        if (shakeTime < 0.4) {
+          const damp = 1 - (shakeTime / 0.4);
+          targetShake = 5 * Math.sin(shakeTime * Math.PI * 40) * damp;
+        }
+      }
+    }
+    
+    ctx.save();
+    ctx.translate(100 + targetShake, targetY);
+    if (imgTarget.complete) ctx.drawImage(imgTarget, -32, -64, 64, 64);
+    ctx.restore();
+    
+    ctx.save();
+    ctx.translate(100, aeroY);
+    ctx.scale(1, aeroScaleY);
+    if (imgAero.complete) ctx.drawImage(imgAero, -32, -64, 64, 64);
+    ctx.restore();
+    
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+}
+
+function startKnotAnimation(canvas, targetMon) {
+  const ctx = canvas.getContext("2d");
+  ctx.imageSmoothingEnabled = false;
+  const startTime = performance.now();
+  
+  const imgTarget = new Image(); imgTarget.src = getCanvasSpritePath(targetMon);
+  const imgVenu = new Image(); imgVenu.src = 'sprites/monstericons/3-0.png'; // Venusaur
+  const imgApe = new Image(); imgApe.src = 'sprites/monstericons/57-0.png'; // Primeape
+  
+  imgTarget.onerror = () => { imgTarget.src = 'sprites/pokemon/0.png'; };
+  imgVenu.onerror = () => { imgVenu.src = 'sprites/pokemon/0.png'; };
+  imgApe.onerror = () => { imgApe.src = 'sprites/pokemon/0.png'; };
+
+  function draw(time) {
+    if (!canvas.isConnected) return;
+    const t = ((time - startTime) / 1000) % 2; 
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    let venuX = 40;
+    let apeX = 160;
+    
+    if (t < 1) { // Venusaur attacks
+      if (t < 0.2) venuX = 40 + (t/0.2) * 40;
+      else if (t < 0.4) venuX = 80 - ((t-0.2)/0.2) * 40;
+    } else { // Primeape attacks
+      const tA = t - 1;
+      if (tA < 0.2) apeX = 160 - (tA/0.2) * 40;
+      else if (tA < 0.4) apeX = 120 + ((tA-0.2)/0.2) * 40;
+    }
+    
+    // Venusaur (flipped horizontally)
+    ctx.save();
+    ctx.translate(venuX, 80);
+    ctx.scale(-1, 1);
+    if (imgVenu.complete) ctx.drawImage(imgVenu, -32, -64, 64, 64);
+    ctx.restore();
+    
+    // Target
+    ctx.save();
+    ctx.translate(100, 80);
+    if (imgTarget.complete) ctx.drawImage(imgTarget, -32, -64, 64, 64);
+    ctx.restore();
+
+    // Primeape
+    ctx.save();
+    ctx.translate(apeX, 80);
+    if (imgApe.complete) ctx.drawImage(imgApe, -32, -64, 64, 64);
+    ctx.restore();
+    
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+}
+
+function startCrashAnimation(canvas, targetMon, attackerMon) {
+  const ctx = canvas.getContext("2d");
+  ctx.imageSmoothingEnabled = false;
+  const startTime = performance.now();
+  
+  const imgTarget = new Image(); 
+  imgTarget.src = getCanvasSpritePath(targetMon);
+  
+  const imgAttacker = new Image(); 
+  if (attackerMon) {
+    imgAttacker.src = getCanvasSpritePath(attackerMon);
+  }
+  
+  imgTarget.onerror = () => { imgTarget.src = 'sprites/pokemon/0.png'; };
+  imgAttacker.onerror = () => { imgAttacker.src = 'sprites/pokemon/0.png'; };
+
+  function draw(time) {
+    if (!canvas.isConnected) return;
+    const t = ((time - startTime) / 1000) % 1.5; // 1.5 second loop
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    let targetScaleY = 1;
+    let attackerY = -100;
+    
+    if (attackerMon) {
+      if (t < 0.3) { 
+        // 1. Falling
+        attackerY = 10 + (t/0.3)*80; 
+      } 
+      else if (t < 0.7) { 
+        // 2. Impact & Squish
+        attackerY = 90; 
+        targetScaleY = 0.6; 
+      } 
+      else if (t < 1.0) { 
+        // 3. Bounce off / Fly away
+        attackerY = 90 - ((t-0.7)/0.3)*150; 
+      }
+    }
+    
+    // Draw Target (Anchored to the bottom for the squish effect)
+    ctx.save();
+    ctx.translate(100, 100);
+    ctx.scale(1, targetScaleY);
+    if (imgTarget.complete) ctx.drawImage(imgTarget, -32, -64, 64, 64);
+    ctx.restore();
+    
+    // Draw Attacker
+    if (attackerMon) {
+      ctx.save();
+      ctx.translate(100, attackerY);
+      if (imgAttacker.complete) ctx.drawImage(imgAttacker, -32, -64, 64, 64);
+      ctx.restore();
+    }
+    
+    canvas.animId = requestAnimationFrame(draw);
+  }
+  
+  // Cancel any existing animation loop on this canvas before starting a new one
   if (canvas.animId) cancelAnimationFrame(canvas.animId);
   canvas.animId = requestAnimationFrame(draw);
 }

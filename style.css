@@ -3732,6 +3732,31 @@ body.pory-full #poryBackground {
   color: var(--muted);
 }
 
+.catch-summary-override-btn {
+  background: color-mix(in srgb, var(--panel) 80%, transparent);
+  border: 1px solid color-mix(in srgb, var(--muted) 40%, transparent);
+  border-radius: 4px;
+  color: var(--muted);
+  font-size: 0.6rem;
+  font-weight: bold;
+  padding: 2px 4px;
+  margin-left: 2px;
+  cursor: pointer;
+  line-height: 1;
+  transition: all 0.15s ease;
+}
+
+.catch-summary-override-btn:hover {
+  border-color: var(--text);
+  color: var(--text);
+}
+
+.catch-summary-override-btn.active {
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .catch-summary-meta {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
@@ -3912,7 +3937,7 @@ body.pory-full #poryBackground {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 10px;
-  max-height: clamp(100px, 80vh, 500px);
+  max-height: clamp(100px, 120vh, 600px);
   overflow: scroll;
   
 }
@@ -3992,6 +4017,10 @@ body.pory-full #poryBackground {
 .catch-summary-note {
   font-size: 0.85rem;
   color: var(--muted);
+}
+
+.catch-summary-note {
+  margin-top: auto;
 }
 
 .catch-summary-overlay {
@@ -4795,4 +4824,34 @@ body.pory-full #poryBackground {
   border-left: 1px dashed var(--muted);
   height: 80%;
   align-self: center;
+}
+
+/* =============================================================
+   UNIFIED BODY MOVES PANEL STYLES
+============================================================= */
+
+.move-anim-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px dashed var(--muted);
+}
+
+.move-anim-row:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.move-canvas {
+  background: color-mix(in srgb, var(--bg) 50%, transparent);
+  border-radius: 8px;
+  border: 1px solid var(--muted);
+  flex-shrink: 0;
+}
+
+.move-info {
+  flex: 1;
 }
