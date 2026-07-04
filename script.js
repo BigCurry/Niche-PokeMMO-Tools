@@ -5728,16 +5728,18 @@ const PokedexTool = (() => {
       // Toggle state
       state.alphaEnabled = !state.alphaEnabled;
       
-      // Update UI elements
+      // Update UI elements (Main Image)
       const img = $("#mainImage");
       if (img) img.classList.toggle("alpha", state.alphaEnabled);
-      alphaToggle.classList.toggle("active", state.alphaEnabled);
+      
+      // Sync ALL instances of this toggle (main image button + catch filter button)
+      document.querySelectorAll(`.alpha-glow-toggle[data-target-id="${monId}"]`).forEach(btn => {
+        btn.classList.toggle("active", state.alphaEnabled);
+      });
 
       // Sync with the Catch Summary tool if it exists in the DOM
       const catchCard = document.querySelector(`.summary-catch-card[data-target-id="${monId}"]`);
       if (catchCard) {
-        const toggleCb = catchCard.querySelector(".catch-alpha-toggle");
-        if (toggleCb) toggleCb.checked = state.alphaEnabled;
         updateCatchSummaryCard(catchCard);
       }
       
@@ -6210,11 +6212,8 @@ const PokedexTool = (() => {
     return `
       <label class="catch-summary-ball-toggle ${statusClass} ${compatClass}${isSelected ? " is-selected" : ""}" data-ball-key="${escapeHtml(ball.key)}" data-default-enabled="${ball.enabledByDefault ? "true" : "false"}">
         <input type="checkbox" data-ball-toggle="${escapeHtml(ball.key)}" ${enabled ? "checked" : ""}>
+        <span class="catch-summary-ball-toggle-name">${escapeHtml(ball.label)}</span>
         <span class="catch-summary-ball-toggle-icon">${fetchItemImage(ball.label)}</span>
-        <span class="catch-summary-ball-toggle-text">
-          <span class="catch-summary-ball-toggle-name">${escapeHtml(ball.label)}</span>
-          <span class="catch-summary-ball-toggle-state">${enabled ? "Enabled" : "Disabled"}</span>
-        </span>
       </label>
     `;
   }
@@ -6272,7 +6271,18 @@ const PokedexTool = (() => {
         <div class="catch-summary-meta">
           <div class="catch-summary-stat">
             <span>Catch rate</span>
-            <b>${entry?.alpha && state.alphaEnabled ? 10 : getCatchRate(mon) ?? "?"}</b>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <b class="catch-rate-value" style="color: ${entry?.alpha && state.alphaEnabled ? 'var(--danger)' : 'inherit'};">
+                ${entry?.alpha && state.alphaEnabled ? 10 : getCatchRate(mon) ?? "?"}
+              </b>
+              <button type="button" 
+                      class="alpha-glow-toggle catch-alpha-toggle-btn ${entry?.alpha ? '' : 'disabled'} ${state.alphaEnabled ? 'active' : ''}" 
+                      ${entry?.alpha ? '' : 'disabled'} 
+                      aria-label="Toggle Alpha Catch Rate"
+                      data-target-id="${mon.id}">
+                <img src="sprites/assets/alpha.png" alt="Alpha Toggle">
+              </button>
+            </div>
           </div>
           <div class="catch-summary-stat">
             <span>Enabled balls</span>
@@ -6329,13 +6339,6 @@ const PokedexTool = (() => {
             </label>
           ` : ""}
         </div>
-
-        ${entry?.alpha ? `
-          <label class="catch-summary-alpha-toggle">
-            <input type="checkbox" class="catch-alpha-toggle" ${state.alphaEnabled ? "checked" : ""}>
-            <span>Use <img src="sprites/assets/alpha.png" style="height: 15px" alt="alpha"> catch rate (10)</span>
-          </label>
-        ` : ""}
 
         <div class="catch-summary-ball-controls">
           ${ballOptions.map(ball => getCatchBallToggleMarkup(ball, state, normalizeCatchQuery(state.ballSearch))).join("")}
@@ -6482,7 +6485,7 @@ const PokedexTool = (() => {
 
     balls.forEach(ball => {
       const statuses = getCatchStatuses(ball.key);
-      const ballMultiplier = getBallMultiplier(ball.key, context);
+      let ballMultiplier = getBallMultiplier(ball.key, context);
       const isOverridden = state?.ballOverrides?.[ball.key];
       if (isOverridden && typeof BALL_CATCHRATES[ball.key] === 'object') {
         ballMultiplier = BALL_CATCHRATES[ball.key].max.rate;
@@ -6513,7 +6516,7 @@ const PokedexTool = (() => {
   }
 
   function buildCatchSummaryBars({ catchRate, balls, hpPercent, context, state }) {
-    const rawRows = getCatchSummaryRows({ catchRate, balls, hpPercent, context });
+    const rawRows = getCatchSummaryRows({ catchRate, balls, hpPercent, context, state });
     const collapsedMap = new Map();
 
     rawRows.forEach(row => {
@@ -6649,9 +6652,9 @@ const PokedexTool = (() => {
     const sleepTurnsSlider = card.querySelector(".catch-sleep-turns-slider");
     const targetLevelSlider = card.querySelector(".catch-target-level-slider");
     const streakSlider = card.querySelector(".catch-streak-slider");
-    const alphaToggle = card.querySelector(".catch-alpha-toggle");
     const searchInputEl = card.querySelector(".catch-summary-search");
-    const searchDropdown = card.querySelector(".catch-summary-search-dropdown");
+    const catchRateValueEl = card.querySelector(".catch-rate-value");
+    const catchAlphaBtn = card.querySelector(".catch-alpha-toggle-btn");    const searchDropdown = card.querySelector(".catch-summary-search-dropdown");
     const searchEnableBtn = card.querySelector(".catch-summary-search-enable");
     const overlay = card.querySelector(".catch-summary-overlay");
     const bars = card.querySelector(".catch-summary-bars");
@@ -6665,15 +6668,42 @@ const PokedexTool = (() => {
 
     if (!catchRate || !hpSlider || !best || !bars) return;
 
+    const ballToggles = card.querySelectorAll(".catch-summary-ball-toggle");
+    ballToggles.forEach(toggle => {
+      const ballKey = toggle.dataset.ballKey;
+      const isEnabled = Boolean(state.ballEnabled[ballKey]);
+      
+      // Update the classes that control the visual styling
+      toggle.classList.toggle("is-enabled", isEnabled);
+      toggle.classList.toggle("is-disabled", !isEnabled);
+      
+      // Keep the hidden checkbox synced
+      const checkbox = toggle.querySelector("input[type='checkbox']");
+      if (checkbox) {
+        checkbox.checked = isEnabled;
+      }
+    });
 
     if (hpSlider) hpSlider.value = state.hpPercent;
     if (battleTurnSlider) battleTurnSlider.value = state.battleTurn;
     if (sleepTurnsSlider) sleepTurnsSlider.value = state.sleepTurns;
     if (targetLevelSlider) targetLevelSlider.value = state.targetLevel;
     if (streakSlider) streakSlider.value = state.catchStreak;
-    if (alphaToggle) alphaToggle.checked = state.alphaEnabled;
     if (searchInputEl && document.activeElement !== searchInputEl) searchInputEl.value = state.ballSearch;
 
+    if (catchAlphaBtn) {
+      const canBeAlpha = entry?.alpha === true;
+      catchAlphaBtn.disabled = !canBeAlpha;
+      catchAlphaBtn.classList.toggle("disabled", !canBeAlpha);
+      catchAlphaBtn.classList.toggle("active", state.alphaEnabled);
+    }
+    if (catchRateValueEl) {
+      const isAlphaActive = entry?.alpha && state.alphaEnabled;
+      catchRateValueEl.textContent = isAlphaActive ? 10 : getCatchRate(mon) ?? "?";
+      catchRateValueEl.style.color = isAlphaActive ? "var(--danger)" : "inherit";
+    }
+
+    
     const hpPercent = state.hpPercent / 100;
     if (hpValue) hpValue.textContent = `${state.hpPercent}%`;
 
@@ -6776,6 +6806,8 @@ const PokedexTool = (() => {
           card.querySelector('#hp-slider').value = target.value;
         }
 
+        if (target.type === "checkbox") return;
+        
         // 2. SYNC STATE FROM DOM
         if (target.matches(".catch-hp-slider, #hp-input")) state.hpPercent = Math.max(1, Math.min(100, Number(target.value) || 100));
         if (target.matches(".catch-battle-turn-slider")) state.battleTurn = Math.max(1, Number(target.value) || 1);
@@ -6795,18 +6827,6 @@ const PokedexTool = (() => {
         const target = event.target;
         const state = getState();
         if (!state) return;
-
-        if (target.matches(".catch-alpha-toggle")) {
-          state.alphaEnabled = target.checked;
-          updateURL(currentModalMon, { replace: true, immediate: true })
-
-          const img = $("#mainImage");
-          const alphaBtn = $(".alpha-glow-toggle");
-          if (img) img.classList.toggle("alpha", state.alphaEnabled);
-          if (alphaBtn) alphaBtn.classList.toggle("active", state.alphaEnabled);
-
-          return;
-        }
 
         if (target.matches("[data-ball-toggle]")) {
           state.ballEnabled[target.dataset.ballToggle] = target.checked;
@@ -6853,7 +6873,7 @@ const PokedexTool = (() => {
           return;
         }
 
-        if (target.closest(".catch-summary-search-dropdown") || target.closest(".catch-summary-search") || target.closest(".catch-summary-search-enable")) {
+        if (target.closest(".catch-summary-search-enable") || target.closest(".catch-summary-search-dropdown") || target.closest(".catch-summary-search") ) {
           state.searchActive = true;
           if (searchInputEl) searchInputEl.focus();
         }
@@ -7023,14 +7043,6 @@ function buildBodySummary(mon) {
                 </div>
                 <div id="crash-result" class="body-summary-result"></div>
               </div>
-              <div class="mechanic-description">Damage dealt depends on the weight ratio:</div>
-              <ul class="crash-multiplier-list">
-                <li>120 BP: Target is ≤ 20% of user's weight</li>
-                <li>100 BP: Target is ≤ 25% of user's weight</li>
-                <li>80 BP: Target is ≤ 33.3% of user's weight</li>
-                <li>60 BP: Target is ≤ 50% of user's weight</li>
-                <li>40 BP: Target is > 50% of user's weight</li>
-              </ul>
             </div>
           </div>
 
