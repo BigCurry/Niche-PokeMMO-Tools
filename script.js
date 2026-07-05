@@ -2015,6 +2015,9 @@ const PokedexTool = (() => {
     let currentModalLocationFiltersOpen = false;
     let currentGridFiltersOpen = false;
     let isShinyActive = false;
+    let currentCosmeticIndex = 0;
+    let isCosmeticCyclerExpanded = false;
+
     let isHydrating = false;
     let modalLocationFilterState = {
         region: {},
@@ -2023,6 +2026,7 @@ const PokedexTool = (() => {
         time: {}
       };
     let modalLocationApplyFiltersFn = null;
+    let modalLocationSelectedKey = null;
     let urlUpdateTimer = null;
     let isMountingModal = false;
 
@@ -2499,6 +2503,17 @@ const PokedexTool = (() => {
           }
         }
       },
+      {
+        key: "cosmetic",
+        serialize: () => currentCosmeticIndex > 0 ? String(currentCosmeticIndex) : null,
+        deserialize: (val) => {
+           const idx = Number(val);
+           if (!isNaN(idx) && currentModalMon) {
+             currentCosmeticIndex = idx;
+             updateImage(currentModalMon);
+           }
+        }
+      },
     ],
 
     modal_moves: [
@@ -2523,6 +2538,11 @@ const PokedexTool = (() => {
     ],
 
     modal_locations: [
+      {
+        key: "loc_selected",
+        serialize: () => modalLocationSelectedKey || null,
+        deserialize: (val) => { modalLocationSelectedKey = val; }
+      },
       {
         key: "loc_search",
         serialize: () => $("#modalLocationSearch")?.value || null,
@@ -5490,6 +5510,8 @@ const PokedexTool = (() => {
 
   function showModal(mon, routeState = {}) {
     isMountingModal = true;
+    currentCosmeticIndex = 0;
+    isCosmeticCyclerExpanded = false;
 
     disconnectSummaryEvolutionTree();
     cleanupModalLocationMap();
@@ -5561,11 +5583,18 @@ const PokedexTool = (() => {
   function buildLeftPanel(mon) {
     const forms = getAlternateForms(mon);
     const held = getHeldItems(mon);
+    const cosmetics = getCosmetics(mon);
+    const hasCosmetics = cosmetics.length > 1;
 
     const entry = getCompatibilityEntry(mon);
     const canBeAlpha = entry?.alpha === true;
     const state = getCatchSummaryState(mon);
     const isAlphaActive = canBeAlpha && state?.alphaEnabled === true;
+
+    const initialSrc = (currentCosmeticIndex > 0 && hasCosmetics)
+        ? `sprites/pokemon/cosmetics/${mon.id}_${cosmetics[currentCosmeticIndex].cosmetic_id}_${isShinyActive ? 1 : 0}.webp`
+        : (isShinyActive ? getAnimatedShinySprite(mon.id) : getAnimatedSprite(mon.id));
+
     return `
       <div class="pokedex-left">
 
@@ -5589,7 +5618,21 @@ const PokedexTool = (() => {
                     data-target-id="${mon.id}">
               <img src="sprites/assets/shiny.png" alt="Shiny Toggle">
             </button>
+
+            ${hasCosmetics ? `
+              <div class="cosmetic-ui-wrapper">
+                <button type="button" class="cosmetic-toggle ${currentCosmeticIndex > 0 ? 'active' : ''}" aria-label="Toggle Cosmetics">
+                  <img src="sprites/assets/cosmetics.png" alt="Cosmetic Toggle">
+                </button>
+                <div class="cosmetic-cycler ${isCosmeticCyclerExpanded ? 'expanded' : ''}">
+                  <button type="button" class="cosmetic-prev" aria-label="Previous Cosmetic">&lt;</button>
+                  <span class="cosmetic-fraction">${currentCosmeticIndex + 1}/${cosmetics.length}</span>
+                  <button type="button" class="cosmetic-next" aria-label="Next Cosmetic">&gt;</button>
+                </div>
+              </div>
+            ` : ""}
           </div>
+
           <div class="pokedex-modal-image-wrapper">
             <img id="mainImage"
                 class="pokedex-modal-image-main ${isAlphaActive ? 'alpha' : ''} ${isShinyActive ? 'shiny' : ''}"
@@ -5705,16 +5748,38 @@ const PokedexTool = (() => {
       if (!mon) return;
 
       isShinyActive = !isShinyActive;
-      
-      const img = $("#mainImage");
-      if (img) {
-        img.classList.toggle("shiny", isShinyActive);
-        img.src = isShinyActive ? getAnimatedShinySprite(mon.id) : getAnimatedSprite(mon.id);
-      }
-      shinyToggle.classList.toggle("active", isShinyActive);
-
+      updateImage(mon);
+      updateURL(currentModalMon, { replace: true, immediate: true });
       return;
     }
+
+    // --- Cosmetic Toggles ---
+    const cosmeticToggle = event.target.closest(".cosmetic-toggle");
+    if (cosmeticToggle) {
+      isCosmeticCyclerExpanded = !isCosmeticCyclerExpanded;
+      $(".cosmetic-cycler")?.classList.toggle("expanded", isCosmeticCyclerExpanded);
+      return;
+    }
+
+    const cosmeticPrev = event.target.closest(".cosmetic-prev");
+    if (cosmeticPrev) {
+      const cosmetics = getCosmetics(currentModalMon);
+      if (cosmetics.length <= 1) return;
+      currentCosmeticIndex = (currentCosmeticIndex - 1 + cosmetics.length) % cosmetics.length;
+      updateImage(currentModalMon);
+      updateURL(currentModalMon, { replace: true, immediate: true });
+      return;
+    }
+
+    const cosmeticNext = event.target.closest(".cosmetic-next");
+    if (cosmeticNext) {
+      const cosmetics = getCosmetics(currentModalMon);
+      if (cosmetics.length <= 1) return;
+      currentCosmeticIndex = (currentCosmeticIndex + 1) % cosmetics.length;
+      updateImage(currentModalMon);
+      updateURL(currentModalMon, { replace: true, immediate: true });
+      return;
+    } 
     //Alpha Glow
     const alphaToggle = event.target.closest(".alpha-glow-toggle");
     if (alphaToggle && !alphaToggle.classList.contains("disabled")) {
@@ -5876,10 +5941,27 @@ const PokedexTool = (() => {
     el.textContent = mon.name + (hasForms ? " ▼" : "");
   }
 
+  function getCosmetics(mon) {
+    const entry = getCompatibilityEntry(mon);
+    if (!entry || !entry.cosmetics || entry.cosmetics.length === 0) return [];
+    return [{ cosmetic_id: 0, cosmetic_name: "Default" }, ...entry.cosmetics];
+  }
+
   function updateImage(mon) {
     const img = $("#mainImage");
-    img.src = isShinyActive ? getAnimatedShinySprite(mon.id) : getAnimatedSprite(mon.id);
-    img.onerror = () => img.src = `sprites/pokemon/${mon.id}.png`;
+    if (!img) return;
+
+    const cosmetics = getCosmetics(mon);
+    const hasCosmetics = cosmetics.length > 1;
+
+    // 🔥 Cast boolean to 1 or 0
+    if (currentCosmeticIndex > 0 && hasCosmetics) {
+      const cosmetic = cosmetics[currentCosmeticIndex];
+      img.src = `sprites/pokemon/cosmetics/${mon.id}_${cosmetic.cosmetic_id}_${isShinyActive ? 1 : 0}.webp`;
+    } else {
+      img.src = isShinyActive ? getAnimatedShinySprite(mon.id) : getAnimatedSprite(mon.id);
+    }
+    img.onerror = () => img.src = `sprites/pokemon/0.png`;
 
     const entry = getCompatibilityEntry(mon);
     const canBeAlpha = entry?.alpha === true;
@@ -5903,9 +5985,23 @@ const PokedexTool = (() => {
       shinyBtn.dataset.targetId = mon.id;
     }
 
-    // ✅ PRELOAD THE OPPOSITE SPRITE SO THERE IS NO DELAY ON TOGGLE
+    const cosmeticToggle = $(".cosmetic-toggle");
+    if (cosmeticToggle) {
+      cosmeticToggle.classList.toggle("active", currentCosmeticIndex > 0);
+    }
+    const fraction = $(".cosmetic-fraction");
+    if (fraction) {
+      fraction.textContent = `${currentCosmeticIndex + 1}/${cosmetics.length}`;
+    }
+
+    // 🔥 Cast boolean to 1 or 0 for the opposite state as well
     const oppositeSprite = new Image();
-    oppositeSprite.src = isShinyActive ? getAnimatedSprite(mon.id) : getAnimatedShinySprite(mon.id);
+    if (currentCosmeticIndex > 0 && hasCosmetics) {
+      const cosmetic = cosmetics[currentCosmeticIndex];
+      oppositeSprite.src = `sprites/pokemon/cosmetics/${mon.id}_${cosmetic.cosmetic_id}_${!isShinyActive ? 1 : 0}.webp`;
+    } else {
+      oppositeSprite.src = isShinyActive ? getAnimatedSprite(mon.id) : getAnimatedShinySprite(mon.id);
+    }
   }
 
   function updateSections(mon) {
@@ -9106,6 +9202,11 @@ function getDirectChildBranches(branch) {
 
     const clearSelection = () => {
       selectedIndex = -1;
+      
+      if (!isMountingModal) {
+          modalLocationSelectedKey = null; 
+      }
+      
       rows.forEach(row => row.classList.remove("active"));
       modalLocationMapState?.regions?.querySelectorAll(".selected-location").forEach(el => {
         el.classList.remove("selected-location");
@@ -9141,10 +9242,18 @@ function getDirectChildBranches(branch) {
 
     const selectRow = (index, options = {}) => {
       selectedIndex = index;
+      const encounter = encounters[selectedIndex];
+      
+      modalLocationSelectedKey = encounter ? getModalLocationGroupKey(encounter) : null; 
+      
       rows.forEach(row => row.classList.toggle("active", Number(row.dataset.index) === selectedIndex));
       rows[selectedIndex]?.scrollIntoView({ block: "nearest" });
-      selectModalLocationMapEncounter(encounters[selectedIndex], options);
+      selectModalLocationMapEncounter(encounter, options);
       renderSelectedLocationInfo();
+    
+      if (!options.skipUrlUpdate && typeof updateURL === "function") {
+         updateURL(currentModalMon, { replace: true });
+      }
     };
 
     const clearLocationFiltersForMapSelection = () => {
@@ -9225,9 +9334,29 @@ function getDirectChildBranches(branch) {
 
     search.addEventListener("input", applyLocationFilters);
     applyLocationFilters();
-    renderSelectedLocationInfo();
-    if (selectedIndex >= 0) {
-      selectModalLocationMapEncounter(encounters[selectedIndex], { overview: true, syncRegion: false });
+
+    const hydrateLocationSelection = () => {
+      if (modalLocationSelectedKey) {
+        const targetIndex = encounters.findIndex(enc => getModalLocationGroupKey(enc) === modalLocationSelectedKey);
+        
+        if (targetIndex >= 0) {
+          selectRow(targetIndex, { overview: false, skipUrlUpdate: true });
+        } else {
+          modalLocationSelectedKey = null; 
+          renderSelectedLocationInfo();
+        }
+      } else {
+        renderSelectedLocationInfo();
+        if (selectedIndex >= 0) {
+          selectModalLocationMapEncounter(encounters[selectedIndex], { overview: true, syncRegion: false });
+        }
+      }
+    };
+
+    if (isMountingModal) {
+      setTimeout(hydrateLocationSelection, 150);
+    } else {
+      hydrateLocationSelection();
     }
   }
 
@@ -10305,6 +10434,8 @@ function initFormsList() {
     currentModalTab = "summary";
     currentModalLocationFiltersOpen = false;
     isShinyActive = false;
+    currentCosmeticIndex = 0;
+    isCosmeticCyclerExpanded = false;
     if (!modalBody) modalBody = $("#modalBody");
   }
 

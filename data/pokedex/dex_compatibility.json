@@ -225,7 +225,13 @@
     },
     "capture_rate": 30,
     "alpha": true,
-    "obtainable": true
+    "obtainable": true,
+    "cosmetics": [
+      {
+        "cosmetic_id": 1,
+        "cosmetic_name": "Royal Charizard"
+      }
+    ]
   },
   {
     "id": 7,

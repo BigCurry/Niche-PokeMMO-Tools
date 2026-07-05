@@ -1284,6 +1284,111 @@ body.pory-full #poryBackground {
   background: rgba(0, 0, 0, 0.2);
 }
 
+/* =============================================================
+   COSMETIC TOGGLES
+============================================================= */
+
+.cosmetic-ui-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cosmetic-toggle {
+  width: 20px;
+  height: 20px;
+  background: color-mix(in srgb, var(--panel) 85%, transparent);
+  border: 1px solid var(--muted);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  padding: 2px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.cosmetic-toggle img {
+  width: 100%;
+  height: 100%;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.cosmetic-toggle:hover {
+  background: color-mix(in srgb, var(--accent) 20%, var(--panel));
+  border-color: var(--accent);
+  transform: scale(1.05);
+}
+
+.cosmetic-toggle:hover img {
+  opacity: 1;
+}
+
+.cosmetic-toggle.active {
+  background: color-mix(in srgb, var(--altAccent) 75%, transparent);
+  border-color: var(--altAccent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--altAccent) 60%, transparent);
+}
+
+.cosmetic-toggle.active img {
+  opacity: 1;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.8));
+}
+
+.cosmetic-cycler {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: color-mix(in srgb, var(--panel) 85%, transparent);
+  border: 1px solid var(--muted);
+  border-radius: 10px;
+  padding: 0;
+  height: 20px;
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-width 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+  pointer-events: none;
+}
+
+.cosmetic-cycler.expanded {
+  max-width: 100px;
+  opacity: 1;
+  padding: 0 6px;
+  pointer-events: auto;
+}
+
+.cosmetic-cycler button {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 0 4px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease;
+}
+
+.cosmetic-cycler button:hover {
+  color: var(--accent);
+}
+
+.cosmetic-fraction {
+  font-size: 10px;
+  color: var(--text);
+  font-weight: bold;
+  user-select: none;
+  min-width: 24px;
+  text-align: center;
+}
+
 .held-item-info-panel {
   position: fixed;
   top: clamp(56px, 25%, 200px);
