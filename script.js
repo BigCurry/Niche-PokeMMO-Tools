@@ -216,7 +216,7 @@ function setModalLocationFilterButtonState(button, state) {
     if (!box.dataset.iconHtml) box.dataset.iconHtml = box.innerHTML;
     box.innerHTML = box.dataset.iconHtml;
   } else {
-        box.textContent = state === "none" ? "?" : state === "include" ? "?" : "?";
+    box.textContent = state === "none" ? "\u25ef" : state === "include" ? "\u2713" : "\u00d7";
   }
 }
 
@@ -5954,7 +5954,7 @@ const PokedexTool = (() => {
           </div>
         </div>
 
-        ${buildQuickCatchOptions(mon)}
+        <!--Need to fix before adding ${buildQuickCatchOptions(mon)}-->
 
         ${forms.length ? `
           <div class="forms-list">
@@ -9411,6 +9411,8 @@ function getDirectChildBranches(branch) {
           timeLabel: entry.time || "",
           rarityLabel: entry.chance || "",
           rarityValues: [entry.chance || ""].filter(Boolean),
+          seasonLabels: [entry.season || info.seasonLabel || "Any"].filter(Boolean),
+          timeLabels: [entry.time || "Any"].filter(Boolean),
           hordeLabel: info.hordeLabel,
           hordeMultiplier: info.hordeMultiplier,
           searchText: [
@@ -9455,6 +9457,37 @@ function getDirectChildBranches(branch) {
 
     return [...groups.values()].map(group => {
       group.variants.sort(compareModalLocationVariants);
+
+      // Timing rows with the same encounter properties are one displayed
+      // variation. Their season/time labels are merged instead of creating
+      // duplicate rows for each timing entry.
+      const variantGroups = new Map();
+      group.variants.forEach(variant => {
+        const key = [
+          variant.loc.type || "",
+          variant.rarityLabel || "",
+          variant.loc.min_level ?? "",
+          variant.loc.max_level ?? "",
+          variant.hordeMultiplier || 0
+        ].join("|");
+        const existing = variantGroups.get(key);
+        if (existing) {
+          existing.seasonLabels = getUniqueModalLocationLabels(
+            [existing, variant], item => item.seasonLabels
+          );
+          existing.timeLabels = getUniqueModalLocationLabels(
+            [existing, variant], item => item.timeLabels
+          );
+        } else {
+          variantGroups.set(key, {
+            ...variant,
+            seasonLabels: [...(variant.seasonLabels || [])],
+            timeLabels: [...(variant.timeLabels || [])]
+          });
+        }
+      });
+      group.variants = [...variantGroups.values()];
+
       group.region = group.loc.region_name || "";
       group.location = group.locationName || group.baseName || "";
       group.locationAreas = getUniqueModalLocationLabels(group.variants, variant => [variant.locationFullName || variant.fullName || ""].filter(Boolean));
@@ -9463,8 +9496,10 @@ function getDirectChildBranches(branch) {
         ? group.locationFullName
         : group.location || group.locationFullName || "Unknown Location";
       group.locationLabel = getLocationDisplayLabel(group);
-      group.seasons = getUniqueModalLocationLabels(group.variants, variant => variant.seasonLabels);
-      group.times = getUniqueModalLocationLabels(group.variants, variant => variant.timeLabels);
+      group.seasons = getUniqueModalLocationLabels(group.variants, variant => variant.seasonLabels)
+        .filter(value => String(value).toLowerCase() !== "any");
+      group.times = getUniqueModalLocationLabels(group.variants, variant => variant.timeLabels)
+        .filter(value => String(value).toLowerCase() !== "any");
       group.rarities = [...new Set(group.variants.flatMap(variant => variant.rarityValues || []).filter(Boolean))];
       group.types = [...new Set(group.variants.map(variant => variant.loc.type).filter(Boolean))];
       group.minLevel = getModalLocationMinLevel(group.variants);
@@ -9747,7 +9782,7 @@ function getDirectChildBranches(branch) {
       button.classList.toggle("include", state === "include");
       button.classList.toggle("exclude", state === "exclude");
       if (box) {
-            box.textContent = state === "none" ? "?" : state === "include" ? "?" : "?";
+        box.textContent = state === "none" ? "\u25ef" : state === "include" ? "\u2713" : "\u00d7";
       }
     };
 
@@ -9843,7 +9878,6 @@ function getDirectChildBranches(branch) {
     };
 
     const getFilterValues = (group, state) => Object.entries(modalLocationFilterState[group] || {})
-      .filter(([value]) => !(group === "rarity" && value === "percentage"))
       .filter(([, value]) => value === state)
       .map(([value]) => value);
 
@@ -9851,8 +9885,20 @@ function getDirectChildBranches(branch) {
       const included = getFilterValues(group, "include");
       const excluded = getFilterValues(group, "exclude");
 
-      if (included.length && !values.some(value => included.includes(value))) return false;
-      if (excluded.length && values.every(value => excluded.includes(value))) return false;
+      if (group === "rarity") {
+        const hasPercentage = values.some(value => parseModalLocationRarityPercent(value) !== null);
+        const percentageState = modalLocationFilterState.rarity?.percentage || "none";
+        if (percentageState === "include" && !hasPercentage) return false;
+        if (percentageState === "exclude" && hasPercentage) return false;
+      }
+
+      const includedValues = included.filter(value => !(group === "rarity" && value === "percentage"));
+      const excludedValues = excluded.filter(value => !(group === "rarity" && value === "percentage"));
+      const isWildcard = (group === "season" || group === "time")
+        && (!values.length || values.some(value => String(value).toLowerCase() === "any"));
+
+      if (includedValues.length && !isWildcard && !values.some(value => includedValues.includes(value))) return false;
+      if (excludedValues.length && !isWildcard && values.every(value => excludedValues.includes(value))) return false;
       return true;
     };
 
@@ -9932,13 +9978,13 @@ function getDirectChildBranches(branch) {
 
       const variationRows = [...table.querySelectorAll(".modal-location-variation-row")];
       variationRows.forEach(row => {
-        const season = row.dataset.season || "";
-        const time = row.dataset.time || "";
+        const seasons = row.dataset.season ? row.dataset.season.split("|").filter(Boolean) : [];
+        const times = row.dataset.time ? row.dataset.time.split("|").filter(Boolean) : [];
         const rarity = row.dataset.rarity || "";
         const visible = rowMatchesFilterGroup([rarity].filter(Boolean), "rarity")
           && rowMatchesRarityRange([rarity].filter(Boolean))
-          && rowMatchesFilterGroup([season].filter(Boolean), "season")
-          && rowMatchesFilterGroup([time].filter(Boolean), "time");
+          && rowMatchesFilterGroup(seasons, "season")
+          && rowMatchesFilterGroup(times, "time");
         row.classList.toggle("hidden", !visible);
       });
 
@@ -10820,8 +10866,12 @@ function getDirectChildBranches(branch) {
       const rowTimes = row.dataset.time ? row.dataset.time.split("|").filter(Boolean) : [];
 
       // Check if the row contains at least one of the active highlights
-      const seasonMatch = !hasSeasonHighlight || rowSeasons.some(s => activeSeasons.has(s));
-      const timeMatch = !hasTimeHighlight || rowTimes.some(t => activeTimes.has(t));
+      const seasonMatch = !hasSeasonHighlight
+        || !rowSeasons.length
+        || rowSeasons.some(s => String(s).toLowerCase() === "any" || activeSeasons.has(s));
+      const timeMatch = !hasTimeHighlight
+        || !rowTimes.length
+        || rowTimes.some(t => String(t).toLowerCase() === "any" || activeTimes.has(t));
 
       // Darken if it fails the match
       row.classList.toggle("dimmed-row", !(seasonMatch && timeMatch));
@@ -10860,8 +10910,10 @@ function getDirectChildBranches(branch) {
   function buildModalLocationVariationRows(variants) {
     return variants.map(variant => {
       const type = variant.loc.type || "Unknown";
-      const season = variant.seasonLabel || "Any";
-      const time = variant.timeLabel || "Any";
+      const seasons = variant.seasonLabels?.length ? variant.seasonLabels : [variant.seasonLabel || "Any"];
+      const times = variant.timeLabels?.length ? variant.timeLabels : [variant.timeLabel || "Any"];
+      const season = seasons.join(" / ");
+      const time = times.join(" / ");
       const rarity = variant.rarityLabel || "Unknown";
       const levels = variant.loc.min_level === variant.loc.max_level
         ? `Lv ${variant.loc.min_level || "?"}`
@@ -10878,12 +10930,12 @@ function getDirectChildBranches(branch) {
 
       return `
         <tr class="modal-location-variation-row"
-          data-season="${escapeHtml(season)}"
-          data-time="${escapeHtml(time)}"
+          data-season="${escapeHtml(seasons.join("|"))}"
+          data-time="${escapeHtml(times.join("|"))}"
           data-rarity="${escapeHtml(rarity)}">
           <td><img src="sprites/assets/${type.toLowerCase()}.webp" alt="${escapeHtml(type)}" class="pokedex-modal-location-variation-type-img" onerror="this.onerror=null;this.src='sprites/pokemon/0.png';"></td>
-          <td>${renderSeasonSymbol(season)}</td>
-          <td>${renderTimeSymbol(time)}</td>
+          <td>${seasons.map(renderSeasonSymbol).join(" ")}</td>
+          <td>${times.map(renderTimeSymbol).join(" ")}</td>
           <td>${escapeHtml(rarity)}</td>
           <td>${escapeHtml(levels)}</td>
           <td>${escapeHtml(exp)}${hordeIcon ? ` ${hordeIcon}` : ""}</td>
@@ -11311,7 +11363,7 @@ function hydrateFromURL(queryParams, context = 'grid') {
              btn.classList.toggle("include", state === "include");
              btn.classList.toggle("exclude", state === "exclude");
              const box = btn.querySelector(".filter-box");
-             if (box)     box.textContent = state === "none" ? "?" : state === "include" ? "?" : "?";
+             if (box)     box.textContent = state === "none" ? "\u25ef" : state === "include" ? "\u2713" : "\u00d7";
            });
            modalLocationApplyFiltersFn();
         }
