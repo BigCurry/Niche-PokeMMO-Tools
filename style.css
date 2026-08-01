@@ -320,7 +320,8 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
 }
 
 .encounter-filter-pill,
-.encounter-column-pill {
+.encounter-column-pill,
+.timing-pill {
   background: linear-gradient(90deg, var(--accentT) 0%, var(--altAccentT) 100%);
   border-radius: 999px;
   color: var(--text);
@@ -333,6 +334,16 @@ body{background:var(--bg);color:var(--text);overflow-x:hidden}
 
 .encounter-filter-pill.include,
 .encounter-column-pill:has(input:checked) {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--accent) 70%, var(--panel)) 0%,
+    color-mix(in srgb, var(--altAccent) 70%, var(--panel)) 100%
+  );
+  filter: drop-shadow(0 0 3px var(--text));
+  transform: scale(1.03);
+}
+
+.timing-pill.active {
   background: linear-gradient(
     90deg,
     color-mix(in srgb, var(--accent) 70%, var(--panel)) 0%,
@@ -1543,6 +1554,53 @@ body.pory-full #poryBackground {
   }
 }
 
+
+/* =============================================================
+   QUICK CATCH COMPONENT (LEFT PANEL)
+============================================================= */
+
+.quick-catch-panel {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: var(--panel);
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 8px; /* Separates the component from pokedex-stats */
+}
+
+.quick-catch-scenario {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  text-align: center;
+}
+
+.quick-catch-symbol {
+  font-size: 1.1rem;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.quick-catch-ball img {
+  width: 28px;
+  height: 28px;
+  image-rendering: crisp-edges;
+}
+
+.quick-catch-name {
+  font-size: 0.7rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.quick-catch-chance {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text);
+}
 /* =============================================================
    FORMS DROPDOWN
 ============================================================= */
@@ -1922,17 +1980,169 @@ body.pory-full #poryBackground {
 
 .modal-location-filters-grid {
   display: grid;
-  gap: 10px;
+  gap: 12px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .modal-location-filters-panel .dex-filter-group {
+  background: color-mix(in srgb, var(--panel) 76%, var(--accentT));
+  border: 1px solid color-mix(in srgb, var(--accent) 42%, transparent);
+  border-radius: 14px;
+  display: grid;
+  gap: 8px;
+  padding: 10px;
   min-width: 0;
 }
 
 .modal-location-clear-filters {
-  justify-self: start;
-  margin-top: 2px;
+  justify-self: stretch;
+  margin-top: 4px;
+}
+
+.modal-location-rarity-range {
+  border-top: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  display: grid;
+  gap: 7px;
+  padding-top: 9px;
+}
+
+.modal-location-rarity-range-heading {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.modal-location-rarity-range-sliders {
+  background: color-mix(in srgb, var(--muted) 30%, transparent);
+  border-radius: 999px;
+  height: 22px;
+  position: relative;
+}
+
+.modal-location-rarity-slider {
+  accent-color: transparent;
+  background: transparent;
+  cursor: pointer;
+  height: 22px;
+  margin: 0;
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+}
+
+.modal-location-rarity-slider::-webkit-slider-runnable-track {
+  background: transparent;
+}
+
+.modal-location-rarity-slider::-moz-range-track {
+  background: transparent;
+}
+
+.modal-location-rarity-slider::-webkit-slider-thumb {
+  appearance: none;
+  background: var(--accent);
+  border: 2px solid var(--panel);
+  border-radius: 50%;
+  cursor: grab;
+  height: 17px;
+  pointer-events: auto;
+  width: 17px;
+}
+
+.modal-location-rarity-slider::-moz-range-thumb {
+  background: var(--accent);
+  border: 2px solid var(--panel);
+  border-radius: 50%;
+  cursor: grab;
+  height: 13px;
+  pointer-events: auto;
+  width: 13px;
+}
+
+.modal-location-rarity-slider[data-rarity-range-max] {
+  z-index: 2;
+}
+
+.modal-location-rarity-slider[data-rarity-range-max]::-webkit-slider-thumb {
+  background: var(--altAccent);
+}
+
+.modal-location-rarity-selectors {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.modal-location-rarity-selectors label {
+  color: var(--muted);
+  display: grid;
+  font-size: 0.7rem;
+  font-weight: 700;
+  gap: 4px;
+  text-transform: uppercase;
+}
+
+.modal-location-rarity-select {
+  background: var(--panel);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 7px;
+  color: var(--text);
+  min-width: 0;
+  padding: 5px 6px;
+}
+
+.modal-location-timing-controls {
+  display: grid;
+  gap: 10px;
+}
+
+.modal-location-timing-control-group {
+  display: grid;
+  gap: 6px;
+}
+
+.modal-location-timing-control-label {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.modal-location-timing-pills {
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.modal-location-filter-icon {
+  min-width: 36px;
+  padding: 5px;
+  justify-content: center;
+}
+
+.dimmed-row {
+  opacity: 0.3;
+  filter: grayscale(80%);
+  pointer-events: none;
+  transition: opacity 0.2s ease, filter 0.2s ease;
+}
+
+.modal-location-filter-icon .filter-box {
+  align-items: center;
+  display: inline-flex;
+  height: 24px;
+  justify-content: center;
+  width: 24px;
+}
+
+.timing-icon-cluster {
+  display: inline-block;
+  height: 24px;
+  position: relative;
+  width: 24px;
 }
 
 .modal-location-body {
@@ -2125,6 +2335,10 @@ body.pory-full #poryBackground {
   text-align: left;
 }
 
+.modal-location-variation-row.hidden {
+  display: none;
+}
+
 .modal-location-variations-table tbody tr:nth-child(even) td {
   background: color-mix(in srgb, var(--panel) 78%, var(--bg));
 }
@@ -2161,6 +2375,12 @@ body.pory-full #poryBackground {
   vertical-align: middle;
   display: inline-block;
   border-radius: 999px;
+}
+
+.horde-icon {
+  height: 18px;
+  vertical-align: middle;
+  width: 18px;
 }
 
 .modal-location-evs {

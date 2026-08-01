@@ -64,6 +64,268 @@ function buildDexRoute({ view = "grid", slug = "", id = null, tab = "summary", q
   return qs ? `${path}?${qs}` : path;
 }
 
+const MONSTER_DATA_URLS = ["./new data/monsters.json"];
+
+async function fetchJsonWithFallback(urls) {
+  let lastError = null;
+
+  for (const url of urls) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) {
+        lastError = new Error(`Failed to load ${url}: ${res.status} ${res.statusText}`);
+        continue;
+      }
+
+      return await res.json();
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError || new Error("Failed to load JSON data");
+}
+
+function parseLegacyLocationTiming(label) {
+  const text = String(label || "").trim();
+  const out = {
+    clean: text,
+    seasonTokens: [],
+    timeTokens: []
+  };
+
+  const match = text.match(/\(([^)]+)\)$/);
+  if (!match) return out;
+
+  match[1].split("/").forEach(token => {
+    const normalized = token.trim().toUpperCase();
+    if (normalized.startsWith("SEASON")) {
+      out.seasonTokens.push(normalized);
+    } else if (["MORNING", "DAY", "NIGHT"].includes(normalized)) {
+      out.timeTokens.push(normalized);
+    }
+  });
+
+  out.clean = text.replace(/\s*\([^)]+\)$/, "");
+  return out;
+}
+
+function formatLegacySeasonToken(token) {
+  return {
+    SEASON0: "Spring",
+    SEASON1: "Summer",
+    SEASON2: "Fall",
+    SEASON3: "Winter"
+  }[String(token || "").toUpperCase()] || token || "";
+}
+
+function formatLegacyTimeToken(token) {
+  return {
+    MORNING: "Morning",
+    DAY: "Day",
+    NIGHT: "Night"
+  }[String(token || "").toUpperCase()] || token || "";
+}
+
+function formatSeasonLabel(season) {
+  return {
+    Spring: "Spring",
+    Summer: "Summer",
+    Autumn: "Fall",
+    Fall: "Fall",
+    Winter: "Winter"
+  }[String(season || "").trim()] || String(season || "").trim();
+}
+
+function normalizeModalLocationSeasonValue(value) {
+  const normalized = String(value || "").trim();
+  return normalized === "Autumn" ? "Fall" : normalized;
+}
+
+function parseModalLocationRarityPercent(value) {
+  const match = String(value || "").trim().match(/^(\d+(?:\.\d+)?)\s*%$/);
+  return match ? Number(match[1]) : null;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+const LOCATION_TIMING_ICONS_PLACEHOLDER = {
+  morning: "☀",
+  day: "◐",
+  night: "☾"
+};
+
+function renderSeasonSymbol(season) {
+  const normalized = String(season || "").trim();
+  const assetName = {
+    Spring: "spring",
+    Summer: "summer",
+    Autumn: "autumn",
+    Fall: "autumn",
+    Winter: "winter"
+  }[normalized];
+
+  if (!assetName || normalized.toLowerCase() === "any") {
+    return `<img src="sprites/assets/allseasons.png" alt="${escapeHtml(normalized || "All seasons")}" class="season-icon season-icon-all" loading="lazy">`;
+  }
+
+  return `<img src="sprites/assets/${assetName}.png" alt="${escapeHtml(normalized)}" class="season-icon season-icon-${assetName}" loading="lazy">`;
+}
+
+const LOCATION_TIMING_ICONS = {
+  morning: `<svg fill="currentColor" class="timing-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23,16a1,1,0,0,1-1,1H2a1,1,0,0,1,0-2H22A1,1,0,0,1,23,16Zm-5,5a1,1,0,0,0,0-2H6a1,1,0,0,0,0,2ZM7,12a1,1,0,0,0,2,0,3,3,0,0,1,6,0,1,1,0,0,0,2,0A5,5,0,0,0,7,12Zm4-7a1,1,0,0,0,2,0V4a1,1,0,0,0-2,0Zm7,7a1,1,0,0,0,1,1h1a1,1,0,0,0,0-2H19A1,1,0,0,0,18,12ZM4,11a1,1,0,0,0,0,2H5a1,1,0,0,0,0-2ZM5.636,5.636a1,1,0,0,0,0,1.414l.707.707A1,1,0,0,0,7.757,6.343L7.05,5.636A1,1,0,0,0,5.636,5.636Zm11.314,0-.707.707a1,1,0,1,0,1.414,1.414l.707-.707A1,1,0,1,0,16.95,5.636Z"/></svg>`,
+  day: `<svg fill="currentColor" class="timing-icon" viewBox="0 0 240 240" version="1.1" xmlns="http://www.w3.org/2000/svg"><g><path d="M58.57,25.81c-2.13-3.67-0.87-8.38,2.8-10.51c3.67-2.13,8.38-0.88,10.51,2.8l9.88,17.1c2.13,3.67,0.87,8.38-2.8,10.51 c-3.67,2.13-8.38,0.88-10.51-2.8L58.57,25.81L58.57,25.81z M120,51.17c19.01,0,36.21,7.7,48.67,20.16 C181.12,83.79,188.83,101,188.83,120c0,19.01-7.7,36.21-20.16,48.67c-12.46,12.46-29.66,20.16-48.67,20.16 c-19.01,0-36.21-7.7-48.67-20.16C58.88,156.21,51.17,139.01,51.17,120c0-19.01,7.7-36.21,20.16-48.67 C83.79,58.88,101,51.17,120,51.17L120,51.17z M158.27,81.73c-9.79-9.79-23.32-15.85-38.27-15.85c-14.95,0-28.48,6.06-38.27,15.85 c-9.79,9.79-15.85,23.32-15.85,38.27c0,14.95,6.06,28.48,15.85,38.27c9.79,9.79,23.32,15.85,38.27,15.85 c14.95,0,28.48-6.06,38.27-15.85c9.79-9.79,15.85-23.32,15.85-38.27C174.12,105.05,168.06,91.52,158.27,81.73L158.27,81.73z M113.88,7.71c0-4.26,3.45-7.71,7.71-7.71c4.26,0,7.71,3.45,7.71,7.71v19.75c0,4.26-3.45,7.71-7.71,7.71 c-4.26,0-7.71-3.45-7.71-7.71V7.71L113.88,7.71z M170.87,19.72c2.11-3.67,6.8-4.94,10.48-2.83c3.67,2.11,4.94,6.8,2.83,10.48 l-9.88,17.1c-2.11,3.67-6.8,4.94-10.48,2.83c-3.67-2.11-4.94-6.8-2.83-10.48L170.87,19.72L170.87,19.72z M214.19,58.57 c3.67-2.13,8.38-0.87,10.51,2.8c2.13,3.67,0.88,8.38-2.8,10.51l-17.1,9.88c-3.67,2.13-8.38,0.87-10.51-2.8 c-2.13-3.67-0.88-8.38,2.8-10.51L214.19,58.57L214.19,58.57z M232.29,113.88c4.26,0,7.71,3.45,7.71,7.71 c0,4.26-3.45,7.71-7.71,7.71h-19.75c-4.26,0-7.71-3.45-7.71-7.71c0-4.26,3.45-7.71,7.71-7.71H232.29L232.29,113.88z M220.28,170.87 c3.67,2.11,4.94,6.8,2.83,10.48c-2.11,3.67-6.8,4.94-10.48,2.83l-17.1-9.88c-3.67-2.11-4.94-6.8-2.83-10.48 c2.11-3.67,6.8-4.94,10.48-2.83L220.28,170.87L220.28,170.87z M181.43,214.19c2.13,3.67,0.87,8.38-2.8,10.51 c-3.67,2.13-8.38,0.88-10.51-2.8l-9.88-17.1c-2.13-3.67-0.87-8.38,2.8-10.51c3.67-2.13,8.38-0.88,10.51,2.8L181.43,214.19 L181.43,214.19z M126.12,232.29c0,4.26-3.45,7.71-7.71,7.71c-4.26,0-7.71-3.45-7.71-7.71v-19.75c0-4.26,3.45-7.71,7.71-7.71 c4.26,0,7.71,3.45,7.71,7.71V232.29L126.12,232.29z M69.13,220.28c-2.11,3.67-6.8,4.94-10.48,2.83c-3.67-2.11-4.94-6.8-2.83-10.48 l9.88-17.1c2.11-3.67,6.8-4.94,10.48-2.83c3.67,2.11,4.94,6.8,2.83,10.48L69.13,220.28L69.13,220.28z M25.81,181.43 c-3.67,2.13-8.38,0.87-10.51-2.8c-2.13-3.67-0.88-8.38,2.8-10.51l17.1-9.88c3.67-2.13,8.38-0.87,10.51,2.8 c2.13,3.67,0.88,8.38-2.8,10.51L25.81,181.43L25.81,181.43z M7.71,126.12c-4.26,0-7.71-3.45-7.71-7.71c0-4.26,3.45-7.71,7.71-7.71 h19.75c4.26,0,7.71,3.45,7.71,7.71c0,4.26-3.45,7.71-7.71,7.71H7.71L7.71,126.12z M19.72,69.13c-3.67-2.11-4.94-6.8-2.83-10.48 c2.11-3.67,6.8-4.94,10.48-2.83l17.1,9.88c3.67,2.11,4.94,6.8,2.83,10.48c-2.11,3.67-6.8,4.94-10.48,2.83L19.72,69.13L19.72,69.13z"/></g></svg>`,
+  night: `<svg class="timing-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.5739 1.11056L13.7826 2.69316C13.7632 2.73186 13.7319 2.76325 13.6932 2.7826L12.1106 3.5739C11.9631 3.64761 11.9631 3.85797 12.1106 3.93167L13.6932 4.72297C13.7319 4.74233 13.7632 4.77371 13.7826 4.81241L14.5739 6.39502C14.6476 6.54243 14.858 6.54243 14.9317 6.39502L15.723 4.81241C15.7423 4.77371 15.7737 4.74232 15.8124 4.72297L17.395 3.93167C17.5424 3.85797 17.5424 3.64761 17.395 3.5739L15.8124 2.7826C15.7737 2.76325 15.7423 2.73186 15.723 2.69316L14.9317 1.11056C14.858 0.963147 14.6476 0.963148 14.5739 1.11056Z\" fill=\"currentColor\"/><path d=\"M19.2419 5.07223L18.4633 7.40815C18.4434 7.46787 18.3965 7.51474 18.3368 7.53464L16.0009 8.31328C15.8185 8.37406 15.8185 8.63198 16.0009 8.69276L18.3368 9.4714C18.3965 9.4913 18.4434 9.53817 18.4633 9.59789L19.2419 11.9338C19.3027 12.1161 19.5606 12.1161 19.6214 11.9338L20.4 9.59789C20.42 9.53817 20.4668 9.4913 20.5265 9.4714L22.8625 8.69276C23.0448 8.63198 23.0448 8.37406 22.8625 8.31328L20.5265 7.53464C20.4668 7.51474 20.42 7.46787 20.4 7.40815L19.6214 5.07223C19.5606 4.88989 19.3027 4.88989 19.2419 5.07223Z\" fill=\"currentColor\"/><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M10.4075 13.6642C13.2348 16.4915 17.6517 16.7363 20.6641 14.3703C20.7014 14.341 20.7385 14.3113 20.7754 14.2812C20.9148 14.1674 21.051 14.0479 21.1837 13.9226C21.2376 13.8718 21.2909 13.8201 21.3436 13.7674C21.8557 13.2552 22.9064 13.5578 22.7517 14.2653C22.6983 14.5098 22.6365 14.7517 22.5667 14.9905C22.5253 15.1321 22.4811 15.2727 22.4341 15.4122C22.4213 15.4502 22.4082 15.4883 22.395 15.5262C20.8977 19.8142 16.7886 23.0003 12 23.0003C5.92487 23.0003 1 18.0754 1 12.0003C1 7.13315 4.29086 2.98258 8.66889 1.54252L8.72248 1.52504C8.8185 1.49401 8.91503 1.46428 9.01205 1.43587C9.26959 1.36046 9.5306 1.29438 9.79466 1.23801C10.5379 1.07934 10.8418 2.19074 10.3043 2.72815C10.251 2.78147 10.1987 2.83539 10.1473 2.88989C10.0456 2.99777 9.94766 3.10794 9.8535 3.22023C9.83286 3.24485 9.8124 3.26957 9.79212 3.29439C7.32966 6.30844 7.54457 10.8012 10.4075 13.6642ZM8.99331 15.0784C11.7248 17.8099 15.6724 18.6299 19.0872 17.4693C17.4281 19.6024 14.85 21.0003 12 21.0003C7.02944 21.0003 3 16.9709 3 12.0003C3 9.09163 4.45653 6.47161 6.66058 4.81846C5.41569 8.27071 6.2174 12.3025 8.99331 15.0784Z\" fill=\"currentColor\"/></svg>`
+};
+
+function renderTimeSymbol(time) {
+  const key = String(time || "").trim().toLowerCase();
+  return LOCATION_TIMING_ICONS[key] || escapeHtml(String(time || ""));
+}
+
+function renderAllTimeSymbol() {
+  return `
+    <span class="timing-icon-cluster" aria-hidden="true">
+      <span class="timing-icon-cluster-item timing-icon-cluster-item-morning">${LOCATION_TIMING_ICONS.morning}</span>
+      <span class="timing-icon-cluster-item timing-icon-cluster-item-day">${LOCATION_TIMING_ICONS.day}</span>
+      <span class="timing-icon-cluster-item timing-icon-cluster-item-night">${LOCATION_TIMING_ICONS.night}</span>
+    </span>
+  `;
+}
+
+function setModalLocationFilterButtonState(button, state) {
+  if (!button) return;
+
+  const box = button.querySelector(".filter-box");
+  const preserveIcon = button.classList.contains("modal-location-filter-icon") || button.classList.contains("modal-location-filter-all");
+
+  button.dataset.state = state;
+  button.classList.toggle("include", state === "include");
+  button.classList.toggle("exclude", state === "exclude");
+
+  if (!box) return;
+
+  if (preserveIcon) {
+    if (!box.dataset.iconHtml) box.dataset.iconHtml = box.innerHTML;
+    box.innerHTML = box.dataset.iconHtml;
+  } else {
+        box.textContent = state === "none" ? "?" : state === "include" ? "?" : "?";
+  }
+}
+
+function getLocationChanceEntries(loc) {
+  const entries = [
+    { season: formatSeasonLabel(loc?.season), time: "Morning", chance: loc?.rarity_morning },
+    { season: formatSeasonLabel(loc?.season), time: "Day", chance: loc?.rarity_day },
+    { season: formatSeasonLabel(loc?.season), time: "Night", chance: loc?.rarity_night }
+  ];
+
+  const filtered = entries.filter(entry => {
+    const chance = String(entry.chance ?? "").trim();
+    return chance && chance !== "--";
+  }).map(entry => ({
+    ...entry,
+    chance: String(entry.chance).trim()
+  }));
+
+  if (filtered.length) return filtered;
+
+  const legacyChance = String(loc?.rarity || "").trim();
+  return legacyChance ? [{
+    season: formatSeasonLabel(loc?.season),
+    time: "Any",
+    chance: legacyChance
+  }] : [];
+}
+
+function getEncounterLocationInfo(loc) {
+  const legacy = parseLegacyLocationTiming(loc?.location);
+  const hasNewSchema = Boolean(
+    loc && (
+      Object.prototype.hasOwnProperty.call(loc, "location_name") ||
+      Object.prototype.hasOwnProperty.call(loc, "location_name_full") ||
+      Object.prototype.hasOwnProperty.call(loc, "season") ||
+      Object.prototype.hasOwnProperty.call(loc, "rarity_morning") ||
+      Object.prototype.hasOwnProperty.call(loc, "rarity_day") ||
+      Object.prototype.hasOwnProperty.call(loc, "rarity_night") ||
+      Object.prototype.hasOwnProperty.call(loc, "is_horde_3x") ||
+      Object.prototype.hasOwnProperty.call(loc, "is_horde_5x")
+    )
+  );
+
+  const baseName = String(
+    hasNewSchema ? (loc?.location_name || legacy.clean) : legacy.clean
+  ).trim();
+  const fullName = String(
+    hasNewSchema ? (loc?.location_name_full || loc?.location_name || legacy.clean) : legacy.clean
+  ).trim();
+  const displayName = fullName || baseName || legacy.clean || "";
+  const seasonLabel = formatSeasonLabel(loc?.season);
+  const seasonLabels = hasNewSchema
+    ? (seasonLabel && seasonLabel.toLowerCase() !== "any" ? [seasonLabel] : [])
+    : legacy.seasonTokens.map(formatLegacySeasonToken).filter(Boolean);
+  const timeChanceEntries = [
+    ["Morning", loc?.rarity_morning],
+    ["Day", loc?.rarity_day],
+    ["Night", loc?.rarity_night]
+  ].filter(([, chance]) => {
+    const value = String(chance ?? "").trim();
+    return value && value !== "--";
+  });
+  const timeLabels = hasNewSchema
+    ? [...new Set(timeChanceEntries.map(([time]) => time))]
+    : legacy.timeTokens.map(formatLegacyTimeToken).filter(Boolean);
+  const rarityValues = hasNewSchema
+    ? [...new Set(timeChanceEntries.map(([, chance]) => String(chance).trim()))]
+    : (loc?.rarity ? [String(loc.rarity).trim()] : []);
+  const rarityLabel = hasNewSchema
+    ? (timeChanceEntries.length
+      ? (rarityValues.length === 1
+        ? rarityValues[0]
+        : timeChanceEntries.map(([time, chance]) => `${time} ${chance}`).join(" / "))
+      : String(loc?.rarity || "").trim())
+    : String(loc?.rarity || "").trim();
+  const hordeMultiplier = loc?.is_horde_5x ? 5 : loc?.is_horde_3x ? 3 : 0;
+  const hordeLabel = loc?.is_horde_5x ? "5x" : loc?.is_horde_3x ? "3x" : String(loc?.rarity || "").toLowerCase() === "horde" ? "Horde" : "";
+  const timingEntries = hasNewSchema
+    ? timeChanceEntries.map(([time, chance]) => ({
+        season: seasonLabel,
+        time,
+        chance: String(chance || "").trim()
+      }))
+    : [];
+
+  return {
+    baseName,
+    fullName,
+    displayName,
+    seasonLabel,
+    seasonLabels,
+    timeLabels,
+    rarityValues,
+    rarityLabel,
+    timingEntries,
+    hordeMultiplier,
+    hordeLabel,
+    searchText: [
+      displayName,
+      baseName,
+      fullName,
+      seasonLabels.join(" "),
+      timeLabels.join(" "),
+      rarityValues.join(" "),
+      hordeLabel
+    ].filter(Boolean).join(" ").toLowerCase()
+  };
+}
+
 function getRouteData() {
   const fullHash = window.location.hash.replace(/^#/, "");
   const [path, queryString] = fullHash.split("?"); // Split path from params
@@ -524,9 +786,7 @@ const MoveChecker = (()=>{
 
   async function load(){
     try{
-      const res=await fetch("./data/pokedex/monsters.json");
-      if(!res.ok) throw new Error("Failed to load monsters.json");
-      pokedex=await res.json();
+      pokedex=await fetchJsonWithFallback(MONSTER_DATA_URLS);
       indexMoves();
       buildMoveList();
       populateTypes();
@@ -789,7 +1049,7 @@ const EncounterTool = (() => {
   const ROW_HEIGHT = 60; // Approximate row height for virtualization
 
   async function load() {
-    data = await (await fetch("./data/pokedex/monsters.json")).json();
+    data = await fetchJsonWithFallback(MONSTER_DATA_URLS);
     buildFilters();
     buildColumnFilters();
     buildColumnPresetUI()
@@ -858,16 +1118,16 @@ const EncounterTool = (() => {
   function buildFilters() {
     const rarity = new Set(), region = new Set(), seasons = new Set(), times = new Set();
     data.forEach(mon => mon.locations?.forEach(loc => {
-      rarity.add(loc.rarity);
+      const info = getEncounterLocationInfo(loc);
+      info.rarityValues.forEach(value => rarity.add(value));
       region.add(loc.region_name);
-      const p = parseSeasonTime(loc.location);
-      p.seasons.forEach(s => seasons.add(s));
-      p.times.forEach(t => times.add(t));
+      info.seasonLabels.forEach(season => seasons.add(season));
+      info.timeLabels.forEach(time => times.add(time));
     }));
     tri("#rarityFilters", rarity, "rarity");
     tri("#regionFilters", region, "region");
-    tri("#seasonFilters", [...seasons].map(s => SEASON_MAP[s] || s), "season");
-    tri("#timeFilters", [...times].map(t => TIME_MAP[t] || t), "time");
+    tri("#seasonFilters", [...seasons], "season");
+    tri("#timeFilters", [...times], "time");
   }
 
   function tri(el, vals, key) {
@@ -978,9 +1238,9 @@ const EncounterTool = (() => {
   function buildCachedRows() {
     cachedRows = [];
     data.forEach(mon => mon.locations?.forEach(loc => {
-      const parsed = parseSeasonTime(loc.location);
+      const info = getEncounterLocationInfo(loc);
       const exp = calcExp(mon.yields.exp, loc.min_level, mon.id);
-      const isHorde = loc.rarity?.toLowerCase() === "horde";
+      const isHorde = info.hordeMultiplier > 0 || info.hordeLabel === "Horde";
       const evs = {
         hp: mon.yields.ev_hp,
         attack: mon.yields.ev_attack,
@@ -996,11 +1256,20 @@ const EncounterTool = (() => {
         pokemon: mon,
         pokemonLower: mon.name.toLowerCase(),
         loc,
-        parsed,
-        seasonTokens: [...parsed.seasons].map(s => SEASON_MAP[s] || s).map(s => s.toUpperCase()),
-        timeTokens: [...parsed.times].map(t => TIME_MAP[t] || t).map(t => t.toUpperCase()),
+        locationDisplayName: info.displayName,
+        locationSearchText: info.searchText,
+        seasonLabels: info.seasonLabels,
+        timeLabels: info.timeLabels,
+        rarityValues: info.rarityValues,
+        rarityLabel: info.rarityLabel || "—",
+        hordeLabel: info.hordeLabel,
+        hordeMultiplier: info.hordeMultiplier,
         exp,
-        horde: isHorde ? `${exp * 3} / ${exp * 5}` : "—",
+        horde: isHorde
+          ? (info.hordeMultiplier
+            ? `${info.hordeLabel} Horde (${exp * info.hordeMultiplier})`
+            : info.hordeLabel || "Horde")
+          : "—",
         moves: getMoves(mon, loc.max_level),
         evs,
         evTotal
@@ -1013,7 +1282,7 @@ const EncounterTool = (() => {
 
     visibleRows = cachedRows.filter(r => {
       if (searchMode === "pokemon" && !r.pokemonLower.includes(q)) return false;
-      if (searchMode === "location" && !r.loc.location.toLowerCase().includes(q)) return false;
+      if (searchMode === "location" && !r.locationSearchText.includes(q)) return false;
 
       // Season filter
       // SEASON FILTER (include > exclude)
@@ -1027,11 +1296,11 @@ const EncounterTool = (() => {
 
       if (includedSeasons.length) {
         // Include takes priority: show row if it contains ANY included season
-        if (!r.seasonTokens.some(s => includedSeasons.includes(s))) return false;
+        if (!r.seasonLabels.some(s => includedSeasons.includes(s.toUpperCase()))) return false;
       } else if (excludedSeasons.length) {
         // Exclude only if no includes exist
         // Show row if it contains ANY season that is NOT excluded
-        if (r.seasonTokens.every(s => excludedSeasons.includes(s))) return false;
+        if (r.seasonLabels.every(s => excludedSeasons.includes(s.toUpperCase()))) return false;
       }
 
       // TIME FILTER (include > exclude)
@@ -1046,11 +1315,11 @@ const EncounterTool = (() => {
       if (includedTimes.length) {
         // Include takes priority
         // Row is shown if it contains any included time
-        if (!r.timeTokens.some(t => includedTimes.includes(t))) return false;
+        if (!r.timeLabels.some(t => includedTimes.includes(t.toUpperCase()))) return false;
       } else if (excludedTimes.length) {
         // Only exclude tokens if no include exists
         // Row is shown if it contains ANY token that is NOT excluded
-        if (r.timeTokens.every(t => excludedTimes.includes(t))) return false;
+        if (r.timeLabels.every(t => excludedTimes.includes(t.toUpperCase()))) return false;
       }
 
 
@@ -1058,8 +1327,8 @@ const EncounterTool = (() => {
 
       const includedRarity = Object.entries(filters.rarity).filter(([,v]) => v === "include").map(([k]) => k);
       const excludedRarity = Object.entries(filters.rarity).filter(([,v]) => v === "exclude").map(([k]) => k);
-      if (includedRarity.length && !includedRarity.includes(r.loc.rarity)) return false;
-      if (excludedRarity.includes(r.loc.rarity)) return false;
+      if (includedRarity.length && !r.rarityValues.some(value => includedRarity.includes(value))) return false;
+      if (excludedRarity.some(value => r.rarityValues.includes(value))) return false;
 
       const includedRegion = Object.entries(filters.region).filter(([,v]) => v === "include").map(([k]) => k);
       const excludedRegion = Object.entries(filters.region).filter(([,v]) => v === "exclude").map(([k]) => k);
@@ -1075,11 +1344,11 @@ const EncounterTool = (() => {
         switch (sort.key) {
           case "pokemon": va = a.pokemon.name; vb = b.pokemon.name; break;
           case "region": va = a.loc.region_name; vb = b.loc.region_name; break;
-          case "route": va = a.loc.location; vb = b.loc.location; break;
+          case "route": va = a.locationDisplayName; vb = b.locationDisplayName; break;
           case "type": va = a.loc.type; vb = b.loc.type; break;
-          case "rarity": va = a.loc.rarity; vb = b.loc.rarity; break;
+          case "rarity": va = a.rarityLabel; vb = b.rarityLabel; break;
           case "exp": va = a.exp; vb = b.exp; break;
-          case "horde": va = a.loc.is_horde ? a.exp : 0; vb = b.loc.is_horde ? b.exp : 0; break;
+          case "horde": va = a.hordeMultiplier ? a.exp * a.hordeMultiplier : 0; vb = b.hordeMultiplier ? b.exp * b.hordeMultiplier : 0; break;
           case "ev_total": va = a.evTotal; vb = b.evTotal; break;
           case "ev_hp": va = a.evs.hp; vb = b.evs.hp; break;
           case "ev_attack": va = a.evs.attack; vb = b.evs.attack; break;
@@ -1159,8 +1428,8 @@ const EncounterTool = (() => {
     // Visible rows
     for (let i = start; i < end; i++) {
       const r = visibleRows[i];
-      const seasonLabel = r.seasonTokens.map(s => s[0] + s.slice(1).toLowerCase()).join("/");
-      const timeLabel = r.timeTokens.map(t => t[0] + t.slice(1).toLowerCase()).join("/");
+      const seasonLabel = r.seasonLabels.join("/");
+      const timeLabel = r.timeLabels.join("/");
 
       const suffix = (seasonLabel || timeLabel)
         ? ` (${[seasonLabel, timeLabel].filter(Boolean).join(" / ")})`
@@ -1179,9 +1448,9 @@ const EncounterTool = (() => {
         </td>
         <td data-col="level">${r.loc.min_level} - ${r.loc.max_level}</td>
         <td data-col="region">${r.loc.region_name}</td>
-        <td data-col="route">${r.parsed.clean}${suffix}</td>
+        <td data-col="route">${r.locationDisplayName}${suffix}</td>
         <td data-col="type">${r.loc.type}</td>
-        <td data-col="rarity">${r.loc.rarity}</td>
+        <td data-col="rarity">${r.rarityLabel}</td>
         <td data-col="moves">${r.moves}</td>
         <td data-col="exp">${r.exp}</td>
         <td data-col="horde">${r.horde}</td>
@@ -1221,8 +1490,8 @@ const EncounterTool = (() => {
     const frag = document.createDocumentFragment();
 
     visibleRows.forEach(r => {
-      const seasonLabel = r.seasonTokens.map(s => s[0] + s.slice(1).toLowerCase()).join("/");
-      const timeLabel = r.timeTokens.map(t => t[0] + t.slice(1).toLowerCase()).join("/");
+      const seasonLabel = r.seasonLabels.join("/");
+      const timeLabel = r.timeLabels.join("/");
 
       const suffix = (seasonLabel || timeLabel)
         ? ` (${[seasonLabel, timeLabel].filter(Boolean).join(" / ")})`
@@ -1239,9 +1508,9 @@ const EncounterTool = (() => {
         </td>
         <td data-col="level">${r.loc.min_level} - ${r.loc.max_level}</td>
         <td data-col="region">${r.loc.region_name}</td>
-        <td data-col="route">${r.parsed.clean}${suffix}</td>
+        <td data-col="route">${r.locationDisplayName}${suffix}</td>
         <td data-col="type">${r.loc.type}</td>
-        <td data-col="rarity">${r.loc.rarity}</td>
+        <td data-col="rarity">${r.rarityLabel}</td>
         <td data-col="moves">${r.moves}</td>
         <td data-col="exp">${r.exp}</td>
         <td data-col="horde">${r.horde}</td>
@@ -2002,6 +2271,10 @@ const PokedexTool = (() => {
     let modalLocationMapState = null;
     let modalLocationMapCleanup = null;
     let modalLocationMapToggleButton;
+    let modalLocationHighlightState = {
+      seasons: new Set(),
+      times: new Set()
+    };
     let modalMoveNoticeTimer = null;
     let modalMoveTabPulseTimer = null;
     let modalMoveSelectionState = null;
@@ -2025,6 +2298,11 @@ const PokedexTool = (() => {
         season: {},
         time: {}
       };
+    let modalLocationRarityRangeState = {
+      min: null,
+      max: null,
+      values: []
+    };
     let modalLocationApplyFiltersFn = null;
     let modalLocationSelectedKey = null;
     let urlUpdateTimer = null;
@@ -2562,14 +2840,28 @@ const PokedexTool = (() => {
         deserialize: (val) => deserializeModalLocFilter("rarity", val)
       },
       {
+        key: "loc_rarity_min",
+        serialize: () => modalLocationRarityRangeState.min === null ? null : String(modalLocationRarityRangeState.min),
+        deserialize: (val) => { modalLocationRarityRangeState.min = Number(val); }
+      },
+      {
+        key: "loc_rarity_max",
+        serialize: () => modalLocationRarityRangeState.max === null ? null : String(modalLocationRarityRangeState.max),
+        deserialize: (val) => { modalLocationRarityRangeState.max = Number(val); }
+      },
+{
         key: "loc_season",
-        serialize: () => serializeModalLocFilter("season"),
-        deserialize: (val) => deserializeModalLocFilter("season", val)
+        serialize: () => modalLocationHighlightState.seasons.size ? [...modalLocationHighlightState.seasons].join("_") : null,
+        deserialize: (val) => { 
+          modalLocationHighlightState.seasons = new Set(val ? val.split("_") : []); 
+        }
       },
       {
         key: "loc_time",
-        serialize: () => serializeModalLocFilter("time"),
-        deserialize: (val) => deserializeModalLocFilter("time", val)
+        serialize: () => modalLocationHighlightState.times.size ? [...modalLocationHighlightState.times].join("_") : null,
+        deserialize: (val) => { 
+          modalLocationHighlightState.times = new Set(val ? val.split("_") : []); 
+        }
       }
     ]
   };
@@ -2620,7 +2912,7 @@ const PokedexTool = (() => {
 
   async function loadData() {
     const [monRes, compatRes, locRes, abilityRes, moveRes, chainRes, itemRes] = await Promise.all([
-      fetch("./data/pokedex/monsters.json"),
+      fetchJsonWithFallback(MONSTER_DATA_URLS),
       fetch("./data/pokedex/dex_compatibility.json"),
       fetch("./data/pokedex/locations.json"),
       fetch("./data/pokedex/abilities.json"),
@@ -2629,7 +2921,7 @@ const PokedexTool = (() => {
       fetch("./data/pokedex/items.json")
     ]);
 
-    data = await monRes.json();
+    data = monRes;
     compat = await compatRes.json();
     LOCATION_DATA = await locRes.json();
     ABILITY_DATA = await abilityRes.json();
@@ -5510,6 +5802,10 @@ const PokedexTool = (() => {
 
   function showModal(mon, routeState = {}) {
     isMountingModal = true;
+    modalLocationHighlightState = { seasons: new Set(), times: new Set() };
+    modalLocationRarityRangeState = { min: null, max: null, values: [] };
+    modalLocationFilterState = { region: {}, rarity: {}, season: {}, time: {} };
+    modalLocationSelectedKey = null;
     currentCosmeticIndex = 0;
     isCosmeticCyclerExpanded = false;
 
@@ -5658,6 +5954,8 @@ const PokedexTool = (() => {
           </div>
         </div>
 
+        ${buildQuickCatchOptions(mon)}
+
         ${forms.length ? `
           <div class="forms-list">
             ${forms.map(f => `
@@ -5735,6 +6033,90 @@ const PokedexTool = (() => {
         </div>
 
         <div class="held-item-info-description">${formatItemDescription(item.description)}</div>
+      </div>
+    `;
+  }
+
+  function buildQuickCatchOptions(mon) {
+    const state = getCatchSummaryState(mon);
+    if (!state) return "";
+    
+    const catchRate = getEffectiveCatchRate(mon, state);
+    if (!catchRate) return "";
+
+    const ballOptions = getCatchBallOptions(mon);
+    const enabledBalls = ballOptions.filter(ball => state.ballEnabled[ball.key]);
+    if (!enabledBalls.length) return "";
+
+    // Establish baseline context similar to standard catch tool calculation
+    const context = {
+      battleTurn: 1,
+      battleTurnManual: false,
+      sleepTurns: 2, 
+      targetLevel: state.targetLevel || 50,
+      catchStreak: state.catchStreak || 0,
+      weightKg: getWeightKg(mon)
+    };
+
+    // Scenarios using symbols instead of writing text out
+    const scenarios = [
+      { label: "100% HP", hp: 1, status: "none", symbol: "🟢" },
+      { label: "100% HP + Sleep", hp: 1, status: "sleep", symbol: "🟢💤" },
+      { label: "1% HP", hp: 0.01, status: "none", symbol: "🔴" },
+      { label: "1% HP + Sleep", hp: 0.01, status: "sleep", symbol: "🔴💤" },
+    ];
+
+    const scenarioHtml = scenarios.map(scen => {
+      let bestChance = -1;
+      let bestBall = null;
+
+      enabledBalls.forEach(ball => {
+        let ballMultiplier = getBallMultiplier(ball.key, context);
+        
+        if (state.ballOverrides?.[ball.key] && typeof BALL_CATCHRATES[ball.key] === 'object') {
+          ballMultiplier = BALL_CATCHRATES[ball.key].max.rate;
+        }
+
+        // Quick Ball calculates effectively as 100% HP
+        const effectiveHpPercent = ball.key === "quick" ? 1 : scen.hp;
+        
+        let statusMultiplier = 1;
+        if (scen.status === "sleep") {
+          const validStatuses = getCatchStatuses(ball.key);
+          const hasSleep = validStatuses.some(s => s.key === "sleep");
+          if (hasSleep) {
+            statusMultiplier = STATUS_EFFECTS_CATCHRATES.sleep; // Resolves to 2 for Sleep
+          }
+        }
+
+        const chance = getCatchChance({
+          catchRate,
+          hpPercent: effectiveHpPercent,
+          ballMultiplier,
+          statusMultiplier
+        });
+
+        if (chance > bestChance) {
+          bestChance = chance;
+          bestBall = ball;
+        }
+      });
+
+      if (!bestBall) return "";
+
+      return `
+        <div class="quick-catch-scenario" title="${scen.label}">
+          <div class="quick-catch-symbol">${scen.symbol}</div>
+          <div class="quick-catch-ball">${fetchItemImage(bestBall.label)}</div>
+          <div class="quick-catch-name">${escapeHtml(bestBall.label)}</div>
+          <div class="quick-catch-chance">${formatChance(bestChance)}</div>
+        </div>
+      `;
+    }).join("");
+
+    return `
+      <div class="quick-catch-panel">
+        ${scenarioHtml}
       </div>
     `;
   }
@@ -5821,6 +6203,35 @@ const PokedexTool = (() => {
 
     if (event.target.closest("#heldItemInfoBackdrop")) {
       hideHeldItemInfo();
+      return;
+    }
+
+    // --- Location Info Panel & List Highlighting ---
+    const highlightBtn = event.target.closest(".timing-pill");
+    if (highlightBtn) {
+      event.preventDefault(); 
+      
+      const type = highlightBtn.dataset.type; 
+      const value = highlightBtn.dataset.value;
+      
+      const stateSet = type === "season" 
+        ? modalLocationHighlightState.seasons 
+        : modalLocationHighlightState.times;
+      const normalizedValue = type === "season" ? normalizeModalLocationSeasonValue(value) : value;
+
+      if (stateSet.has(normalizedValue)) {
+        stateSet.delete(normalizedValue);
+      } else {
+        stateSet.add(normalizedValue);
+      }
+
+      // Universally apply visual updates
+      syncLocationInfoHighlights();
+      
+      // Update URL parameters
+      if (typeof updateURL === "function") {
+        updateURL(currentModalMon, { replace: true, immediate: true });
+      }
       return;
     }
 
@@ -8798,6 +9209,10 @@ function getDirectChildBranches(branch) {
     const encounters = getModalLocationEncounters(mon);
     const regions = getModalLocationFilterValues(encounters, encounter => encounter.region);
     const rarities = getModalLocationFilterValues(encounters, encounter => encounter.rarities);
+    const percentageRarities = rarities
+      .filter(value => parseModalLocationRarityPercent(value) !== null)
+      .sort((a, b) => parseModalLocationRarityPercent(a) - parseModalLocationRarityPercent(b));
+    const namedRarities = rarities.filter(value => parseModalLocationRarityPercent(value) === null);
     const seasons = sortModalLocationFilterValues(
       getModalLocationFilterValues(encounters, encounter => encounter.seasons),
       "season"
@@ -8842,12 +9257,41 @@ function getDirectChildBranches(branch) {
                   <label>Rarity</label>
                 </div>
                 <div class="mc-filters encounter-filter-pills">
-                  ${rarities.map(rarity => `
+                  ${namedRarities.map(rarity => `
                     <button type="button" class="encounter-filter-pill modal-location-filter" data-filter="rarity" data-value="${rarity}">
                       <span class="filter-box">◯</span> ${rarity}
                     </button>
                   `).join("")}
+                  ${percentageRarities.length ? `
+                    <button type="button" class="encounter-filter-pill modal-location-filter" data-filter="rarity" data-value="percentage">
+                      <span class="filter-box">◯</span> % chance
+                    </button>
+                  ` : ""}
                 </div>
+                ${percentageRarities.length ? `
+                  <div class="modal-location-rarity-range hidden" data-rarity-range>
+                    <div class="modal-location-rarity-range-heading">Percentage range</div>
+                    <div class="modal-location-rarity-range-sliders">
+                      <input type="range" class="modal-location-rarity-slider" data-rarity-range-min min="0" max="${percentageRarities.length - 1}" step="1" value="0" list="modalLocationRaritySteps" aria-label="Minimum rarity percentage">
+                      <input type="range" class="modal-location-rarity-slider" data-rarity-range-max min="0" max="${percentageRarities.length - 1}" step="1" value="${percentageRarities.length - 1}" list="modalLocationRaritySteps" aria-label="Maximum rarity percentage">
+                    </div>
+                    <datalist id="modalLocationRaritySteps">
+                      ${percentageRarities.map((rarity, index) => `<option value="${index}" label="${rarity}"></option>`).join("")}
+                    </datalist>
+                    <div class="modal-location-rarity-selectors">
+                      <label>Min
+                        <select class="modal-location-rarity-select" data-rarity-range-select-min>
+                          ${percentageRarities.map((rarity, index) => `<option value="${index}">${rarity}</option>`).join("")}
+                        </select>
+                      </label>
+                      <label>Max
+                        <select class="modal-location-rarity-select" data-rarity-range-select-max>
+                          ${percentageRarities.map((rarity, index) => `<option value="${index}">${rarity}</option>`).join("")}
+                        </select>
+                      </label>
+                    </div>
+                  </div>
+                ` : ""}
               </div>
 
               <div class="dex-filter-group">
@@ -8940,29 +9384,54 @@ function getDirectChildBranches(branch) {
 
   function getRawModalLocationEncounters(mon) {
     return (mon.locations || [])
-      .map(loc => {
-        const parsed = parseModalLocationSeasonTime(loc.location || "");
+      .flatMap(loc => {
+        const info = getEncounterLocationInfo(loc);
         const evs = getModalLocationEvs(mon);
         const evTotal = Object.values(evs).reduce((sum, val) => sum + val, 0);
         const exp = calcModalLocationExp(mon.yields?.exp || 0, loc.min_level || 0, mon.id);
-        const isHorde = String(loc.rarity || "").toLowerCase() === "horde";
+        const isHorde = info.hordeMultiplier > 0 || info.hordeLabel === "Horde";
         const moveNames = getEncounterMovesForLevelList(mon, loc.max_level);
+        const timingEntries = info.timingEntries.length
+          ? info.timingEntries
+          : [{
+            season: info.seasonLabel || "Any",
+            time: "Any",
+            chance: String(info.rarityLabel || "").trim()
+          }].filter(entry => entry.chance);
 
-        return {
+        return timingEntries.map(entry => ({
           mon,
           loc,
-          parsed,
-          seasonLabels: [...parsed.seasons].map(formatEncounterSeasonToken),
-          timeLabels: [...parsed.times].map(formatEncounterTimeToken),
+          baseName: info.baseName,
+          fullName: info.fullName,
+          locationName: info.baseName,
+          locationFullName: info.fullName,
+          locationDisplayName: info.displayName,
+          seasonLabel: entry.season || info.seasonLabel || "",
+          timeLabel: entry.time || "",
+          rarityLabel: entry.chance || "",
+          rarityValues: [entry.chance || ""].filter(Boolean),
+          hordeLabel: info.hordeLabel,
+          hordeMultiplier: info.hordeMultiplier,
+          searchText: [
+            info.displayName,
+            info.baseName,
+            info.fullName,
+            entry.season,
+            entry.time,
+            entry.chance,
+            info.hordeLabel
+          ].filter(Boolean).join(" ").toLowerCase(),
           exp,
-          expLabel: isHorde ? `${exp * 3} / ${exp * 5}` : `${exp}`,
-          expKey: isHorde ? `${exp * 3} / ${exp * 5}` : String(exp),
+          expLabel: isHorde && info.hordeMultiplier ? `${exp * info.hordeMultiplier}` : `${exp}`,
+          expKey: isHorde && info.hordeMultiplier ? `${exp * info.hordeMultiplier}` : String(exp),
           evs,
           evTotal,
           moveNames,
           moves: moveNames.join(", "),
-          movesKey: moveNames.join(" | ")
-        };
+          movesKey: moveNames.join(" | "),
+          timingLabel: [entry.season || info.seasonLabel, entry.time].filter(Boolean).join(" / ")
+        }));
       });
   }
 
@@ -8987,11 +9456,16 @@ function getDirectChildBranches(branch) {
     return [...groups.values()].map(group => {
       group.variants.sort(compareModalLocationVariants);
       group.region = group.loc.region_name || "";
-      group.location = group.parsed.clean || "";
+      group.location = group.locationName || group.baseName || "";
+      group.locationAreas = getUniqueModalLocationLabels(group.variants, variant => [variant.locationFullName || variant.fullName || ""].filter(Boolean));
+      group.locationFullName = getUniformModalLocationValue(group.variants, variant => variant.locationFullName || variant.fullName || "");
+      group.locationDisplayName = group.locationFullName && group.locationFullName !== group.location
+        ? group.locationFullName
+        : group.location || group.locationFullName || "Unknown Location";
       group.locationLabel = getLocationDisplayLabel(group);
       group.seasons = getUniqueModalLocationLabels(group.variants, variant => variant.seasonLabels);
       group.times = getUniqueModalLocationLabels(group.variants, variant => variant.timeLabels);
-      group.rarities = [...new Set(group.variants.map(variant => variant.loc.rarity).filter(Boolean))];
+      group.rarities = [...new Set(group.variants.flatMap(variant => variant.rarityValues || []).filter(Boolean))];
       group.types = [...new Set(group.variants.map(variant => variant.loc.type).filter(Boolean))];
       group.minLevel = getModalLocationMinLevel(group.variants);
       group.maxLevel = getModalLocationMaxLevel(group.variants);
@@ -9002,12 +9476,12 @@ function getDirectChildBranches(branch) {
   function getModalLocationGroupKey(encounter) {
     return [
       encounter.loc.region_name || "",
-      encounter.parsed.clean || ""
+      encounter.locationFullName || encounter.fullName || encounter.baseName || encounter.locationName || ""
     ].map(value => String(value).toLowerCase()).join("|");
   }
 
   function getLocationDisplayLabel(encounter) {
-    const location = encounter.parsed.clean || "Unknown Location";
+    const location = encounter.locationDisplayName || encounter.location || encounter.baseName || "Unknown Location";
     const tags = [
       ...(encounter.seasons || encounter.seasonLabels || []),
       ...(encounter.times || encounter.timeLabels || [])
@@ -9021,7 +9495,8 @@ function getDirectChildBranches(branch) {
     const labels = [];
 
     items.forEach(item => {
-      getter(item).forEach(label => {
+      const values = getter(item);
+      (Array.isArray(values) ? values : values ? [values] : []).forEach(label => {
         if (seen.has(label)) return;
         seen.add(label);
         labels.push(label);
@@ -9033,8 +9508,9 @@ function getDirectChildBranches(branch) {
 
   function compareModalLocationVariants(a, b) {
     return (a.loc.type || "").localeCompare(b.loc.type || "")
-      || (a.loc.rarity || "").localeCompare(b.loc.rarity || "")
-      || getModalLocationTimingSortValue(a).localeCompare(getModalLocationTimingSortValue(b))
+      || (a.rarityLabel || "").localeCompare(b.rarityLabel || "")
+      || (a.seasonLabel || "").localeCompare(b.seasonLabel || "")
+      || (a.timeLabel || "").localeCompare(b.timeLabel || "")
       || (a.loc.min_level || 0) - (b.loc.min_level || 0)
       || (a.loc.max_level || 0) - (b.loc.max_level || 0);
   }
@@ -9050,15 +9526,18 @@ function getDirectChildBranches(branch) {
   }
 
   function getUniformModalLocationValue(variants, getter) {
-    const values = [...new Set(variants.map(getter))];
+    const values = [...new Set(variants.flatMap(variant => {
+      const value = getter(variant);
+      return Array.isArray(value) ? value : (value ? [value] : []);
+    }))];
     return values.length === 1 ? values[0] : "See variations below";
   }
 
   function getModalLocationTimingSortValue(encounter) {
-    const seasonOrder = ["Spring", "Summer", "Fall", "Winter"];
+    const seasonOrder = ["Spring", "Summer", "Fall", "Winter", "Any"];
     const timeOrder = ["Morning", "Day", "Night"];
-    const seasonIndexes = encounter.seasonLabels.map(label => seasonOrder.indexOf(label)).filter(index => index >= 0);
-    const timeIndexes = encounter.timeLabels.map(label => timeOrder.indexOf(label)).filter(index => index >= 0);
+    const seasonIndexes = [encounter.seasonLabel, ...(encounter.seasonLabels || [])].map(label => seasonOrder.indexOf(label)).filter(index => index >= 0);
+    const timeIndexes = [encounter.timeLabel, ...(encounter.timeLabels || [])].map(label => timeOrder.indexOf(label)).filter(index => index >= 0);
     const season = seasonIndexes.length ? Math.min(...seasonIndexes) : 99;
     const time = timeIndexes.length ? Math.min(...timeIndexes) : 99;
 
@@ -9067,7 +9546,7 @@ function getDirectChildBranches(branch) {
 
   function compareModalLocationEncounters(a, b) {
     return (a.loc.region_name || "").localeCompare(b.loc.region_name || "")
-      || a.parsed.clean.localeCompare(b.parsed.clean);
+      || (a.locationDisplayName || a.location || a.baseName || "").localeCompare(b.locationDisplayName || b.location || b.baseName || "");
   }
 
   function getModalLocationFilterValues(encounters, getter) {
@@ -9101,22 +9580,23 @@ function getDirectChildBranches(branch) {
 
   function buildModalLocationRow(encounter, index) {
     const variantCount = encounter.variants?.length || 1;
-    const regionName = encounter.region || encounter.loc.region_name || "Unknown Region";
-    const regionImage = `maps/${encodeURI(regionName)}.png`;
+  const regionName = encounter.region || encounter.loc.region_name || "Unknown Region";
+    const regionImage = `maps/${encodeURIComponent(regionName)}.png`;
+    const locationName = encounter.locationDisplayName || encounter.location || encounter.baseName || "Unknown Location";
 
     return `
       <button type="button"
         class="modal-move-row modal-location-row"
         data-index="${index}"
         data-region="${regionName}"
-        data-rarity="${(encounter.rarities || [encounter.loc.rarity || ""]).filter(Boolean).join("|")}"
+        data-rarity="${(encounter.rarities || []).filter(Boolean).join("|")}"
         data-season="${(encounter.seasons || []).join("|")}"
         data-time="${(encounter.times || []).join("|")}"
-        data-name="${[regionName, encounter.location].filter(Boolean).join(" ").toLowerCase()}">
+        data-name="${[regionName, locationName, encounter.locationName, encounter.locationFullName].filter(Boolean).join(" ").toLowerCase()}">
         <span class="modal-location-row-region">
           <img src="${regionImage}" alt="${regionName}" loading="lazy">
         </span>
-        <span class="modal-move-name">${encounter.parsed.clean || encounter.locationLabel || "Unknown Location"}</span>
+        <span class="modal-move-name">${escapeHtml(locationName)}</span>
         ${variantCount > 1 ? `<span class="modal-location-variation-badge" aria-label="${variantCount} variations">${variantCount}</span>` : ""}
       </button>
     `;
@@ -9136,6 +9616,10 @@ function getDirectChildBranches(branch) {
     filtersPanel.classList.toggle("collapsed", !currentModalLocationFiltersOpen);
 
     const encounters = getModalLocationEncounters(mon);
+    const percentageRarityValues = getModalLocationFilterValues(encounters, encounter => encounter.rarities)
+      .map(parseModalLocationRarityPercent)
+      .filter(value => value !== null)
+      .sort((a, b) => a - b);
     const rows = [...container.querySelectorAll(".modal-location-row")];
     const emptyState = container.querySelector(".modal-location-empty");
     const filterGroups = {
@@ -9144,17 +9628,112 @@ function getDirectChildBranches(branch) {
       season: [...container.querySelectorAll('.modal-location-filter[data-filter="season"]')],
       time: [...container.querySelectorAll('.modal-location-filter[data-filter="time"]')]
     };
+
+    const refreshFilterGroups = () => {
+      filterGroups.region = [
+        ...container.querySelectorAll('.modal-location-filter[data-filter="region"]'),
+        ...info.querySelectorAll('.modal-location-filter[data-filter="region"]')
+      ];
+      filterGroups.rarity = [
+        ...container.querySelectorAll('.modal-location-filter[data-filter="rarity"]'),
+        ...info.querySelectorAll('.modal-location-filter[data-filter="rarity"]')
+      ];
+      filterGroups.season = [
+        ...container.querySelectorAll('.modal-location-filter[data-filter="season"]'),
+        ...info.querySelectorAll('.modal-location-filter[data-filter="season"]')
+      ];
+      filterGroups.time = [
+        ...container.querySelectorAll('.modal-location-filter[data-filter="time"]'),
+        ...info.querySelectorAll('.modal-location-filter[data-filter="time"]')
+      ];
+    };
     
     let selectedIndex = -1;
     let applyLocationFilters = () => {};
     
     modalLocationApplyFiltersFn = applyLocationFilters;
+    Object.keys(modalLocationFilterState).forEach(group => {
+      Object.keys(modalLocationFilterState[group] || {}).forEach(value => {
+        modalLocationFilterState[group][value] = "none";
+      });
+    });
+
+    modalLocationRarityRangeState.values = percentageRarityValues;
+
+    const getRarityRangeIndex = value => {
+      if (value === null || !modalLocationRarityRangeState.values.length) return null;
+      const index = modalLocationRarityRangeState.values.indexOf(Number(value));
+      return index >= 0 ? index : null;
+    };
+
+    const syncRarityRangeControls = () => {
+      const range = container.querySelector("[data-rarity-range]");
+      if (!range || !modalLocationRarityRangeState.values.length) return;
+
+      const isIncluded = modalLocationFilterState.rarity.percentage === "include";
+      range.classList.toggle("hidden", !isIncluded);
+
+      let minIndex = getRarityRangeIndex(modalLocationRarityRangeState.min);
+      let maxIndex = getRarityRangeIndex(modalLocationRarityRangeState.max);
+      if (minIndex === null) minIndex = 0;
+      if (maxIndex === null) maxIndex = modalLocationRarityRangeState.values.length - 1;
+      if (minIndex > maxIndex) [minIndex, maxIndex] = [maxIndex, minIndex];
+
+      range.querySelector("[data-rarity-range-min]").value = String(minIndex);
+      range.querySelector("[data-rarity-range-max]").value = String(maxIndex);
+      range.querySelector("[data-rarity-range-select-min]").value = String(minIndex);
+      range.querySelector("[data-rarity-range-select-max]").value = String(maxIndex);
+    };
+
+    const updateRarityRange = (minIndex, maxIndex) => {
+      const lastIndex = modalLocationRarityRangeState.values.length - 1;
+      minIndex = Math.max(0, Math.min(lastIndex, Number(minIndex)));
+      maxIndex = Math.max(0, Math.min(lastIndex, Number(maxIndex)));
+      if (minIndex > maxIndex) [minIndex, maxIndex] = [maxIndex, minIndex];
+
+      modalLocationRarityRangeState.min = modalLocationRarityRangeState.values[minIndex];
+      modalLocationRarityRangeState.max = modalLocationRarityRangeState.values[maxIndex];
+      syncRarityRangeControls();
+      applyLocationFilters();
+    };
+
+    const bindRarityRangeControls = () => {
+      const range = container.querySelector("[data-rarity-range]");
+      if (!range || !modalLocationRarityRangeState.values.length) return;
+
+      const minInput = range.querySelector("[data-rarity-range-min]");
+      const maxInput = range.querySelector("[data-rarity-range-max]");
+      const minSelect = range.querySelector("[data-rarity-range-select-min]");
+      const maxSelect = range.querySelector("[data-rarity-range-select-max]");
+
+      minInput.addEventListener("input", () => updateRarityRange(minInput.value, maxInput.value));
+      maxInput.addEventListener("input", () => updateRarityRange(minInput.value, maxInput.value));
+      minSelect.addEventListener("change", () => updateRarityRange(minSelect.value, maxSelect.value));
+      maxSelect.addEventListener("change", () => updateRarityRange(minSelect.value, maxSelect.value));
+      syncRarityRangeControls();
+    };
+
+    const rowMatchesRarityRange = values => {
+      if (modalLocationFilterState.rarity.percentage !== "include") return true;
+      const min = modalLocationRarityRangeState.min ?? modalLocationRarityRangeState.values[0];
+      const max = modalLocationRarityRangeState.max ?? modalLocationRarityRangeState.values[modalLocationRarityRangeState.values.length - 1];
+      return values.some(value => {
+        const percent = parseModalLocationRarityPercent(value);
+        return percent !== null && percent >= min && percent <= max;
+      });
+    };
+
     const renderSelectedLocationInfo = () => {
       const encounter = encounters[selectedIndex];
       info.innerHTML = encounter
         ? buildModalLocationInfo(encounter)
         : `<div class="modal-move-info-empty">Select a location to inspect encounter details.</div>`;
       if (encounter) renderModalLocationInfoMap(encounter);
+      refreshFilterGroups();
+      info.querySelectorAll(".modal-location-filter").forEach(bindFilterButton);
+      syncMasterFilterButtons();
+      syncSelectedLocationVariationRows();
+      syncLocationInfoHighlights();
       info.querySelectorAll(".modal-location-move-btn").forEach(button => {
         button.addEventListener("click", () => {
           openModalMoveFromLocation(button.dataset.moveName || button.textContent || "");
@@ -9168,26 +9747,103 @@ function getDirectChildBranches(branch) {
       button.classList.toggle("include", state === "include");
       button.classList.toggle("exclude", state === "exclude");
       if (box) {
-        box.textContent = state === "none" ? "◯" : state === "include" ? "✔" : "✖";
+            box.textContent = state === "none" ? "?" : state === "include" ? "?" : "?";
       }
+    };
+
+    const getGroupStateSummary = (group) => {
+      const values = Object.keys(modalLocationFilterState[group] || {});
+      if (!values.length) return "none";
+
+      const states = values.map(value => modalLocationFilterState[group][value] || "none");
+      if (states.every(state => state === "include")) return "include";
+      if (states.every(state => state === "exclude")) return "exclude";
+      if (states.every(state => state === "none")) return "none";
+      return "mixed";
+    };
+
+    const syncMasterFilterButtons = () => {
+      [
+        ...container.querySelectorAll(".modal-location-filter[data-all-group]"),
+        ...info.querySelectorAll(".modal-location-filter[data-all-group]")
+      ].forEach(button => {
+        const group = button.dataset.allGroup;
+        const state = getGroupStateSummary(group);
+        button.dataset.state = state;
+        button.classList.toggle("include", state === "include");
+        button.classList.toggle("exclude", state === "exclude");
+      });
+    };
+
+    const bindFilterButton = (button) => {
+      if (!button || button.dataset.bound === "true") return;
+
+      const group = button.dataset.filter;
+      const value = button.dataset.value;
+      const allGroup = button.dataset.allGroup;
+      if (!group) return;
+
+      button.dataset.bound = "true";
+
+      if (allGroup) {
+        setModalLocationFilterButtonState(button, getGroupStateSummary(allGroup));
+        button.addEventListener("click", () => {
+          const current = getGroupStateSummary(allGroup);
+          const next = current === "include" ? "none" : "include";
+          setAllFilterGroupStates(allGroup, next);
+          applyLocationFilters();
+        });
+        return;
+      }
+
+      if (!value) return;
+
+      if (!modalLocationFilterState[group]) modalLocationFilterState[group] = {};
+      modalLocationFilterState[group][value] = modalLocationFilterState[group][value] || "none";
+      setModalLocationFilterButtonState(button, modalLocationFilterState[group][value]);
+
+      button.addEventListener("click", () => {
+        const current = modalLocationFilterState[group][value] || "none";
+        const next = current === "none" ? "include" : current === "include" ? "exclude" : "none";
+        setFilterGroupState(group, value, next);
+        applyLocationFilters();
+      });
     };
 
     const setFilterGroupState = (group, value, state) => {
       if (!modalLocationFilterState[group]) return;
       modalLocationFilterState[group][value] = state;
+      if (group === "rarity" && value === "percentage" && state !== "include") {
+        modalLocationRarityRangeState.min = null;
+        modalLocationRarityRangeState.max = null;
+      }
       filterGroups[group]
         ?.filter(button => button.dataset.value === value)
-        .forEach(button => setFilterButtonState(button, state));
+        .forEach(button => setModalLocationFilterButtonState(button, state));
+      syncMasterFilterButtons();
+      syncRarityRangeControls();
     };
 
     const resetFilterGroup = (group) => {
       Object.keys(modalLocationFilterState[group] || {}).forEach(value => {
         modalLocationFilterState[group][value] = "none";
       });
-      filterGroups[group]?.forEach(button => setFilterButtonState(button, "none"));
+      filterGroups[group]?.forEach(button => setModalLocationFilterButtonState(button, "none"));
+      syncMasterFilterButtons();
+    };
+
+    const setAllFilterGroupStates = (group, state) => {
+      Object.keys(modalLocationFilterState[group] || {}).forEach(value => {
+        modalLocationFilterState[group][value] = state;
+        filterGroups[group]
+          ?.filter(button => button.dataset.value === value)
+          .forEach(button => setModalLocationFilterButtonState(button, state));
+      });
+      syncMasterFilterButtons();
     };
 
     const getFilterValues = (group, state) => Object.entries(modalLocationFilterState[group] || {})
+      .filter(([value]) => !(group === "rarity" && value === "percentage"))
       .filter(([, value]) => value === state)
       .map(([value]) => value);
 
@@ -9256,25 +9912,54 @@ function getDirectChildBranches(branch) {
       }
     };
 
+    refreshFilterGroups();
+
     const clearLocationFiltersForMapSelection = () => {
       search.value = "";
       Object.keys(modalLocationFilterState).forEach(resetFilterGroup);
+      modalLocationRarityRangeState.min = null;
+      modalLocationRarityRangeState.max = null;
+      syncRarityRangeControls();
       if (modalLocationMapState?.regionSelect) modalLocationMapState.regionSelect.value = "";
       if (modalLocationMapState?.zoomSlider) modalLocationMapState.zoomSlider.value = "0";
       applyLocationFilters();
     };
 
+    function syncSelectedLocationVariationRows() {
+      const table = info.querySelector(".modal-location-variations-table");
+      const empty = info.querySelector(".modal-location-variations-empty");
+      if (!table) return;
+
+      const variationRows = [...table.querySelectorAll(".modal-location-variation-row")];
+      variationRows.forEach(row => {
+        const season = row.dataset.season || "";
+        const time = row.dataset.time || "";
+        const rarity = row.dataset.rarity || "";
+        const visible = rowMatchesFilterGroup([rarity].filter(Boolean), "rarity")
+          && rowMatchesRarityRange([rarity].filter(Boolean))
+          && rowMatchesFilterGroup([season].filter(Boolean), "season")
+          && rowMatchesFilterGroup([time].filter(Boolean), "time");
+        row.classList.toggle("hidden", !visible);
+      });
+
+      if (empty) {
+        empty.classList.toggle("hidden", variationRows.some(row => !row.classList.contains("hidden")));
+      }
+    }
+
     applyLocationFilters = () => {
       const q = search.value.trim().toLowerCase();
       const visibleEncounterIndices = [];
+      syncRarityRangeControls();
 
       rows.forEach(row => {
         const matchesSearch = !q || row.dataset.name.includes(q);
         const rowSeasons = row.dataset.season ? row.dataset.season.split("|").filter(Boolean) : [];
         const rowTimes = row.dataset.time ? row.dataset.time.split("|").filter(Boolean) : [];
-        const visible = matchesSearch
+      const visible = matchesSearch
           && rowMatchesFilterGroup([row.dataset.region].filter(Boolean), "region")
           && rowMatchesFilterGroup([row.dataset.rarity].filter(Boolean), "rarity")
+          && rowMatchesRarityRange([row.dataset.rarity].filter(Boolean))
           && rowMatchesFilterGroup(rowSeasons, "season")
           && rowMatchesFilterGroup(rowTimes, "time");
 
@@ -9289,8 +9974,13 @@ function getDirectChildBranches(branch) {
 
       syncModalLocationMapResults(modalLocationMapState, visibleEncounterIndices);
       refreshModalLocationMapViewport();
+      syncMasterFilterButtons();
+      syncSelectedLocationVariationRows();
 
       emptyState?.classList.toggle("hidden", rows.some(row => !row.classList.contains("hidden")));
+
+      // Re-apply universal highlighting when visibility changes
+      syncLocationInfoHighlights();
 
       updateURL(currentModalMon, { replace: true });
     };
@@ -9302,26 +9992,16 @@ function getDirectChildBranches(branch) {
     clearFiltersBtn.addEventListener("click", () => {
       search.value = "";
       Object.keys(modalLocationFilterState).forEach(resetFilterGroup);
+      modalLocationRarityRangeState.min = null;
+      modalLocationRarityRangeState.max = null;
+      syncRarityRangeControls();
       if (modalLocationMapState?.regionSelect) modalLocationMapState.regionSelect.value = "";
       if (modalLocationMapState?.zoomSlider) modalLocationMapState.zoomSlider.value = "0";
       applyLocationFilters();
     });
 
-    container.querySelectorAll(".modal-location-filter").forEach(button => {
-      const group = button.dataset.filter;
-      const value = button.dataset.value;
-      if (!group || !value) return;
-
-      modalLocationFilterState[group][value] = "none";
-      setFilterButtonState(button, "none");
-
-      button.addEventListener("click", () => {
-        const current = modalLocationFilterState[group][value] || "none";
-        const next = current === "none" ? "include" : current === "include" ? "exclude" : "none";
-        setFilterGroupState(group, value, next);
-        applyLocationFilters();
-      });
-    });
+    container.querySelectorAll(".modal-location-filter").forEach(bindFilterButton);
+    bindRarityRangeControls();
 
     modalLocationMapCleanup = initModalLocationMap(encounters, index => {
       clearLocationFiltersForMapSelection();
@@ -9333,6 +10013,7 @@ function getDirectChildBranches(branch) {
     });
 
     search.addEventListener("input", applyLocationFilters);
+    
     applyLocationFilters();
 
     const hydrateLocationSelection = () => {
@@ -9725,7 +10406,7 @@ function getDirectChildBranches(branch) {
     if (!encounter) return [];
 
     const region = normalizeLocationMapText(encounter.loc.region_name);
-    const name = normalizeLocationMapText(encounter.parsed.clean);
+    const name = normalizeLocationMapText(encounter.locationName || encounter.baseName || encounter.location || encounter.locationDisplayName);
 
     return LOCATION_DATA.filter(loc =>
       normalizeLocationMapText(loc.region) === region &&
@@ -9860,13 +10541,20 @@ function getDirectChildBranches(branch) {
     const hasVariations = variants.length > 1;
     const variationTitle = hasVariations ? "Encounter Variations" : "Encounter Details";
     const tableRows = buildModalLocationVariationRows(variants);
+    const locationTitle = encounter.locationDisplayName || encounter.location || encounter.baseName || "Unknown Location";
+    const secondaryTitle = encounter.locationAreas?.length > 1
+      ? encounter.locationAreas.join(" / ")
+      : (encounter.location && encounter.locationDisplayName && encounter.location !== encounter.locationDisplayName
+        ? encounter.location
+        : "");
 
     return `
       <div class="move-box modal-location-detail">
         <div class="move-header">
-          <div class="move-title">${encounter.parsed.clean || encounter.locationLabel || "Unknown Location"}</div>
+          <div class="move-title">${escapeHtml(locationTitle)}</div>
           <div class="move-header-right">
-            ${encounter.rarities?.length ? `<span class="icon mod">${encounter.rarities.join(" / ")}</span>` : ""}
+            ${secondaryTitle ? `<span class="icon mod">${escapeHtml(secondaryTitle)}</span>` : ""}
+            ${encounter.rarities?.length ? `<span class="icon mod">${escapeHtml(encounter.rarities.join(" / "))}</span>` : ""}
           </div>
         </div>
 
@@ -9881,15 +10569,53 @@ function getDirectChildBranches(branch) {
         </div>
 
         <div class="modal-location-subsection">
+          <div class="modal-location-subtitle">Timing Filters</div>
+          <div class="modal-location-timing-controls">
+            <div class="modal-location-timing-control-group" data-filter-group="season">
+              <span class="modal-location-timing-control-label">Season</span>
+              <div class="modal-location-timing-pills">
+                ${["Spring", "Summer", "Autumn", "Winter"].map(season => `
+                  <button type="button"
+                    class="timing-pill modal-location-filter-icon"
+                    data-type="season"
+                    data-value="${season}"
+                    aria-label="${season}"
+                    title="${season}">
+                    <span class="filter-box">${renderSeasonSymbol(season)}</span>
+                  </button>
+                `).join("")}
+              </div>
+            </div>
+
+            <div class="modal-location-timing-control-group" data-filter-group="time">
+              <span class="modal-location-timing-control-label">Time</span>
+              <div class="modal-location-timing-pills">
+                ${["Morning", "Day", "Night"].map(time => `
+                  <button type="button"
+                    class="timing-pill modal-location-filter-icon"
+                    data-type="time"
+                    data-value="${time}"
+                    aria-label="${time}"
+                    title="${time}">
+                    <span class="filter-box">${renderTimeSymbol(time)}</span>
+                  </button>
+                `).join("")}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-location-subsection">
           <div class="modal-location-subtitle">${variationTitle}</div>
           <div class="modal-location-variations-table-wrap">
             <table class="modal-location-variations-table">
               <thead>
                 <tr>
                   <th>Type</th>
+                  <th>Season</th>
+                  <th>Time</th>
                   <th>Rarity</th>
                   <th>Levels</th>
-                  <th>Timing</th>
                   <th>EXP</th>
                   <th>Moves</th>
                 </tr>
@@ -9898,6 +10624,7 @@ function getDirectChildBranches(branch) {
                 ${tableRows}
               </tbody>
             </table>
+            <div class="modal-location-variations-empty hidden">No matching variations</div>
           </div>
         </div>
       </div>
@@ -9963,15 +10690,22 @@ function getDirectChildBranches(branch) {
   }
 
   function buildModalLocationVariation(variant) {
-    const timing = getModalLocationTimingLabel(variant) || "Any time";
+    const season = variant.seasonLabel || "Any";
+    const time = variant.timeLabel || "Any";
+    const rarity = variant.rarityLabel || "Unknown";
+    const hordeIcon = variant.hordeMultiplier === 5
+      ? `<img src="sprites/assets/horde5.png" alt="5x Horde" class="horde-icon" loading="lazy">`
+      : variant.hordeMultiplier === 3
+        ? `<img src="sprites/assets/horde3.png" alt="3x Horde" class="horde-icon" loading="lazy">`
+        : "";
 
     return `
       <div class="modal-location-variation">
-        <div class="modal-location-variation-time">${timing}</div>
+        <div class="modal-location-variation-time">${renderSeasonSymbol(season)} ${renderTimeSymbol(time)} ${escapeHtml(rarity)}</div>
         <div class="modal-location-variation-meta">
           <span>Lv ${variant.loc.min_level || "?"}-${variant.loc.max_level || "?"}</span>
           <span>EXP ${variant.exp || "Unknown"}</span>
-          ${variant.horde ? `<span>Horde ${variant.horde}</span>` : ""}
+          ${hordeIcon ? `<span>${hordeIcon}</span>` : ""}
           ${variant.moves ? `<span>${variant.moves}</span>` : ""}
         </div>
       </div>
@@ -10055,6 +10789,45 @@ function getDirectChildBranches(branch) {
     }[token] || token;
   }
 
+  function syncLocationInfoHighlights() {
+    const activeSeasons = new Set([...modalLocationHighlightState.seasons].map(normalizeModalLocationSeasonValue));
+    const activeTimes = modalLocationHighlightState.times;
+    const hasSeasonHighlight = activeSeasons.size > 0;
+    const hasTimeHighlight = activeTimes.size > 0;
+
+    // 1. Sync the active state on all pill buttons (Main list + Info panel)
+    document.querySelectorAll(".timing-pill").forEach(pill => {
+      const { type, value } = pill.dataset;
+      const isActive = type === "season"
+        ? activeSeasons.has(normalizeModalLocationSeasonValue(value))
+        : activeTimes.has(value);
+      pill.classList.toggle("active", isActive);
+    });
+
+    // 2. Dim only the timing rows; location buttons must remain clickable
+    const allRows = document.querySelectorAll(".modal-location-variation-row");
+    
+    allRows.forEach(row => {
+      // If no filters are active, clear all dimming
+      if (!hasSeasonHighlight && !hasTimeHighlight) {
+        row.classList.remove("dimmed-row");
+        return;
+      }
+
+      const rowSeasons = row.dataset.season
+        ? row.dataset.season.split("|").filter(Boolean).map(normalizeModalLocationSeasonValue)
+        : [];
+      const rowTimes = row.dataset.time ? row.dataset.time.split("|").filter(Boolean) : [];
+
+      // Check if the row contains at least one of the active highlights
+      const seasonMatch = !hasSeasonHighlight || rowSeasons.some(s => activeSeasons.has(s));
+      const timeMatch = !hasTimeHighlight || rowTimes.some(t => activeTimes.has(t));
+
+      // Darken if it fails the match
+      row.classList.toggle("dimmed-row", !(seasonMatch && timeMatch));
+    });
+  }
+
   function getModalLocationTimingLabel(encounter) {
     return [
       ...(encounter.seasonLabels || encounter.seasons || []),
@@ -10085,66 +10858,39 @@ function getDirectChildBranches(branch) {
   }
 
   function buildModalLocationVariationRows(variants) {
-    // 1. Initial mapping to extract row raw data
-    const rawRows = variants.map(variant => ({
-      type: variant.loc.type || "Unknown",
-      rarity: variant.loc.rarity || "Unknown",
-      levels: variant.loc.min_level === variant.loc.max_level
+    return variants.map(variant => {
+      const type = variant.loc.type || "Unknown";
+      const season = variant.seasonLabel || "Any";
+      const time = variant.timeLabel || "Any";
+      const rarity = variant.rarityLabel || "Unknown";
+      const levels = variant.loc.min_level === variant.loc.max_level
         ? `Lv ${variant.loc.min_level || "?"}`
-        : `Lv ${variant.loc.min_level || "?"}-${variant.loc.max_level || "?"}`,
-      timing: getModalLocationTimingLabel(variant) || "Any time",
-      exp: variant.expLabel || `EXP ${variant.exp || 0}`,
-      expKey: variant.expKey || String(variant.exp || 0),
-      moveNames: variant.moveNames || [],
-      moves: variant.moves || "",
-      movesKey: variant.movesKey || ""
-    }));
+        : `Lv ${variant.loc.min_level || "?"}-${variant.loc.max_level || "?"}`;
+      const exp = variant.expLabel || `EXP ${variant.exp || 0}`;
+      const moveMarkup = variant.moveNames?.length
+        ? `<div class="modal-location-moves-list">${variant.moveNames.map(move => renderModalLocationMoveButton(move)).join("")}</div>`
+        : "—";
+      const hordeIcon = variant.hordeMultiplier === 5
+        ? `<img src="sprites/assets/horde5.png" alt="5x Horde" class="horde-icon" loading="lazy">`
+        : variant.hordeMultiplier === 3
+          ? `<img src="sprites/assets/horde3.png" alt="3x Horde" class="horde-icon" loading="lazy">`
+          : "";
 
-    // 2. Aggregate rows that are identical except for their seasonal timing
-    const aggregatedRows = [];
-
-    rawRows.forEach(currentRow => {
-      // Look for an existing row that matches every single property except possibly timing
-      const match = aggregatedRows.find(existingRow => 
-        existingRow.type === currentRow.type &&
-        existingRow.rarity === currentRow.rarity &&
-        existingRow.levels === currentRow.levels &&
-        existingRow.expKey === currentRow.expKey &&
-        existingRow.movesKey === currentRow.movesKey &&
-        // Ensure day/night/morning sub-timings match if they exist in the string
-        getTimingTimeComponent(existingRow.timing) === getTimingTimeComponent(currentRow.timing)
-      );
-
-      if (match) {
-        // Combine timings if they aren't already identical
-        if (match.timing !== currentRow.timing) {
-          match.timing = combineSeasonalTimings(match.timing, currentRow.timing);
-        }
-      } else {
-        // Deep copy or clone to avoid mutating original references mid-loop
-        aggregatedRows.push({ ...currentRow });
-      }
-    });
-
-    // 3. Compute rowspans on the collapsed dataset
-    const typeSpans = computeModalLocationRowspans(aggregatedRows, row => row.type);
-    const raritySpans = computeModalLocationRowspans(aggregatedRows, row => row.rarity);
-    const levelsSpans = computeModalLocationRowspans(aggregatedRows, row => row.levels);
-    const timingSpans = computeModalLocationRowspans(aggregatedRows, row => row.timing);
-    const expSpans = computeModalLocationRowspans(aggregatedRows, row => row.expKey);
-    const movesSpans = computeModalLocationRowspans(aggregatedRows, row => row.movesKey);
-
-    // 4. Render HTML from the aggregated rows
-    return aggregatedRows.map((row, index) => `
-      <tr>
-        ${typeSpans.has(index) ? `<td rowspan="${typeSpans.get(index)}"><img src="sprites/assets/${row.type.toLowerCase()}.webp" alt="${row.type}" class="pokedex-modal-location-variation-type-img" onerror="this.onerror=null;this.src='sprites/pokemon/0.png';"></td>` : ""}
-        ${raritySpans.has(index) ? `<td rowspan="${raritySpans.get(index)}">${row.rarity}</td>` : ""}
-        ${levelsSpans.has(index) ? `<td rowspan="${levelsSpans.get(index)}">${row.levels}</td>` : ""}
-        ${timingSpans.has(index) ? `<td rowspan="${timingSpans.get(index)}">${renderTimingAndSeasonIcons(row.timing)}</td>` : ""}
-        ${expSpans.has(index) ? `<td rowspan="${expSpans.get(index)}">${row.exp}</td>` : ""}
-        ${movesSpans.has(index) ? `<td rowspan="${movesSpans.get(index)}">${row.moveNames.length ? `<div class="modal-location-moves-list">${row.moveNames.map(move => renderModalLocationMoveButton(move)).join("")}</div>` : "—"}</td>` : ""}
-      </tr>
-    `).join("");
+      return `
+        <tr class="modal-location-variation-row"
+          data-season="${escapeHtml(season)}"
+          data-time="${escapeHtml(time)}"
+          data-rarity="${escapeHtml(rarity)}">
+          <td><img src="sprites/assets/${type.toLowerCase()}.webp" alt="${escapeHtml(type)}" class="pokedex-modal-location-variation-type-img" onerror="this.onerror=null;this.src='sprites/pokemon/0.png';"></td>
+          <td>${renderSeasonSymbol(season)}</td>
+          <td>${renderTimeSymbol(time)}</td>
+          <td>${escapeHtml(rarity)}</td>
+          <td>${escapeHtml(levels)}</td>
+          <td>${escapeHtml(exp)}${hordeIcon ? ` ${hordeIcon}` : ""}</td>
+          <td>${moveMarkup}</td>
+        </tr>
+      `;
+    }).join("");
   }
 
   function getTimingTimeComponent(timingLabel) {
@@ -10380,6 +11126,8 @@ function initFormsList() {
     `sprites/assets/held-item.png`,
     `sprites/assets/hiddenability.png`,
     `sprites/assets/honey tree.webp`,
+    `sprites/assets/horde3.png`,
+    `sprites/assets/horde5.png`,
     `sprites/assets/inside.webp`,
     `sprites/assets/none.png`,
     `sprites/assets/old rod.webp`,
@@ -10394,6 +11142,7 @@ function initFormsList() {
     `sprites/assets/spring.png`,
     `sprites/assets/summer.png`,
     `sprites/assets/super rod.webp`,
+    `sprites/assets/sweet scent.webp`,
     `sprites/assets/water.webp`,
     `sprites/assets/winter.png`,
     `maps/World Map.png`,
@@ -10531,6 +11280,18 @@ function hydrateFromURL(queryParams, context = 'grid') {
       applyFilters(); // Always render the grid, regardless of query params
       updateResetButtons();
     } else if (context === 'modal') {
+      if (currentModalTab === 'locations' && modalLocationApplyFiltersFn) {
+        document.querySelectorAll(".modal-location-filter").forEach(btn => {
+          const grp = btn.dataset.filter;
+          const val = btn.dataset.value;
+          const state = modalLocationFilterState[grp]?.[val] || "none";
+          setModalLocationFilterButtonState(btn, state);
+        });
+        modalLocationApplyFiltersFn();
+        isHydrating = false;
+        return;
+      }
+
       if (currentModalTab === 'summary') {
         modalBody.querySelectorAll(".summary-catch-card").forEach(updateCatchSummaryCard);
       } 
@@ -10550,7 +11311,7 @@ function hydrateFromURL(queryParams, context = 'grid') {
              btn.classList.toggle("include", state === "include");
              btn.classList.toggle("exclude", state === "exclude");
              const box = btn.querySelector(".filter-box");
-             if (box) box.textContent = state === "none" ? "◯" : state === "include" ? "✔" : "✖";
+             if (box)     box.textContent = state === "none" ? "?" : state === "include" ? "?" : "?";
            });
            modalLocationApplyFiltersFn();
         }
@@ -10592,3 +11353,4 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
 });
+
