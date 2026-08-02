@@ -5028,6 +5028,85 @@ body.pory-full #poryBackground {
   color: #000;
 }
 
+
+/* Button Cycling Logic */
+.pill-cycle-container {
+  display: grid; /* Grid naturally sizes to the largest element, keeping button width constant */
+  align-items: center;
+  justify-content: center;
+}
+
+.pill-cycle-set {
+  grid-area: 1 / 1; /* Stacks both sets on the exact same grid cell */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pill-cycle-set.set-1 {
+  animation: cycleFade1 8s infinite;
+}
+
+.pill-cycle-set.set-2 {
+  animation: cycleFade2 8s infinite;
+}
+
+/* BP Bar Styles */
+.bp-bar-container {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  background: var(--surface-3, rgba(120, 120, 120, 0.3));
+  border-radius: 4px;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: flex-end;
+  vertical-align: middle;
+  border: 1px solid var(--border, rgba(0,0,0,0.1));
+}
+
+.bp-bar-fill {
+  width: 100%;
+  transition: height 0.3s ease, background-color 0.3s ease;
+}
+
+.bp-bar-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 0.6rem;
+  font-weight: 900;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8), -1px -1px 2px rgba(0,0,0,0.8);
+  z-index: 2;
+}
+
+/* Move Name Cycling (Keeps Spacing Constant) */
+.move-cycle-wrapper {
+  display: grid;
+  align-items: center;
+  justify-items: start; /* Locks text alignment */
+}
+
+.move-cycle-1, .move-cycle-2 {
+  grid-area: 1 / 1; /* Stacks text in the exact same footprint */
+}
+
+.move-cycle-1 { animation: cycleFade1 8s infinite; }
+.move-cycle-2 { animation: cycleFade2 8s infinite; }
+
+@keyframes cycleFade1 {
+  0%, 49.9% { opacity: 1; pointer-events: auto; }
+  50%, 100% { opacity: 0; pointer-events: none; }
+}
+
+@keyframes cycleFade2 {
+  0%, 49.9% { opacity: 0; pointer-events: none; }
+  50%, 100% { opacity: 1; pointer-events: auto; }
+}
 /* --- Size Comparison Panel --- */
 .body-measure-grid {
   margin-bottom: 16px;

@@ -7474,6 +7474,10 @@ function buildBodySummary(mon) {
   const lowKickPower = getWeightTierPower(baseWeight);
   const lowKickFontWeight = getFontWeightFromBP(lowKickPower);
 
+  // Heavy Slam / Heat Crash Logic (Using 360kg Attacker as requested)
+  const heavySlamPower = getWeightRatioPower(360, baseWeight);
+  const heavySlamFontWeight = getFontWeightFromBP(lowKickPower);
+
   // Sky Drop Logic
   const tooHeavy = baseWeight >= 200;
   const isFlying = (mon.types || []).some(type => type.toLowerCase() === "flying");
@@ -7489,12 +7493,36 @@ function buildBodySummary(mon) {
           <b>Compare Size</b>
         </button>
 
-        <button type="button" class="body-pill" data-target="panel-bodymoves">
-          <span style="color: ${immuneToSkyDrop ? '#55BE6D' : '#FB7171'}; font-weight: bold;">Sky Drop</span>
-          <span style="margin: 0 6px; color: var(--muted);">|</span>
-          <span style="font-weight: ${lowKickFontWeight};">Grass Knot & Low Kick</span>
-          <span style="margin: 0 6px; color: var(--muted);">|</span>
-          <span id="pill-crash-text" style="font-weight: 400;">Heavy Slam & Heat Crash</span>
+        <button type="button" class="body-pill" data-target="panel-bodymoves" style="display: flex; align-items: center; gap: 8px;">
+          
+          <!-- Sky Drop Module -->
+          <div style="display: flex; align-items: center; gap: 6px;">
+            ${getIndicatorHtml(immuneToSkyDrop ? 0 : 60, immuneToSkyDrop)}
+            <span style="color: ${immuneToSkyDrop ? '#55BE6D' : '#FB7171'}; font-weight: bold;">Sky Drop</span>
+          </div>
+
+          <span style="color: var(--muted);">|</span>
+
+          <!-- Grass Knot & Low Kick Module -->
+          <div style="display: flex; align-items: center; gap: 6px;">
+            ${getIndicatorHtml(lowKickPower, null)}
+            <div class="move-cycle-wrapper">
+              <span class="move-cycle-1" style="font-weight: ${lowKickFontWeight};">Grass Knot</span>
+              <span class="move-cycle-2" style="font-weight: ${lowKickFontWeight};">Low Kick</span>
+            </div>
+          </div>
+
+          <span style="color: var(--muted);">|</span>
+
+          <!-- Heavy Slam & Heat Crash Module -->
+          <div style="display: flex; align-items: center; gap: 6px;">
+            ${getIndicatorHtml(heavySlamPower, null)}
+            <div class="move-cycle-wrapper">
+              <span class="move-cycle-1" style="font-weight: ${heavySlamFontWeight};">Heavy Slam</span>
+              <span class="move-cycle-2" style="font-weight: ${heavySlamFontWeight};">Heat Crash</span>
+            </div>
+          </div>
+
         </button>
       </div>
 
@@ -7533,7 +7561,7 @@ function buildBodySummary(mon) {
             <canvas class="move-canvas" id="canvas-knot" width="200" height="100"></canvas>
             <div class="move-info">
               <b>Grass Knot / Low Kick:</b>
-              <div class="mechanic-description">Base power against this Pokemon is <b style="font-weight: ${lowKickFontWeight}">${lowKickPower} BP</b> due to its ${formatKg(baseWeight)} weight.</div>
+              <div class="mechanic-description">Base power against this Pokemon is <b style="font-weight: ${lowKickFontWeight}">${lowKickPower} BP</b> due to its ${formatKg(baseWeight)} weight. Heavier pokemon take more damage.</div>
             </div>
           </div>
 
@@ -7557,6 +7585,44 @@ function buildBodySummary(mon) {
       </div>
     </div>
   `;
+}
+
+function getIndicatorHtml(bp, isImmune) {
+  if (isImmune === true || bp === 0) {
+    return `
+      <div class="bp-bar-container">
+        <div class="bp-bar-overlay">
+          <span style="font-size: 14px; color: #55BE6D;" title="Immune / 0 Damage">🛡️</span>
+        </div>
+      </div>`;
+  }
+
+  if (isImmune === false) {
+    return `
+      <div class="bp-bar-container">
+        <div class="bp-bar-fill" style="height: 100%; background-color: hsl(0, 80%, 50%);"></div>
+        <div class="bp-bar-overlay">
+          <span>${bp}</span>
+        </div>
+      </div>`;
+  }
+
+  const clampedBP = Math.max(0, Math.min(120, bp));
+  const isMax = clampedBP === 120;
+  const fillPct = (clampedBP / 120) * 100;
+  
+  // Interpolate Hue: 40 BP -> Green (120 Hue), 120 BP -> Red (0 Hue)
+  const ratio = clampedBP <= 40 ? 1 : Math.max(0, (120 - clampedBP) / 80);
+  const hue = isMax ? 0 : Math.round(ratio * 120);
+  const color = `hsl(${hue}, 80%, 50%)`;
+
+  return `
+    <div class="bp-bar-container">
+      <div class="bp-bar-fill" style="height: ${fillPct}%; background-color: ${color};"></div>
+      <div class="bp-bar-overlay">
+        <span>${bp}</span>
+      </div>
+    </div>`;
 }
 
 function bindBodySummaryTools() {
@@ -7724,7 +7790,7 @@ function bindBodySummaryTools() {
           </span>`;
           
         // Start animation with the newly selected attacker
-        startCrashAnimation(canvasCrash, targetMon, attacker);
+        startCrashAnimation(canvasCrash, targetMon, attacker, power);
       };
 
       attachAutocomplete(crashInput, crashLearnerNames, (val) => {
@@ -8080,13 +8146,34 @@ function startSkyDropAnimation(canvas, targetMon, isImmune) {
     let aeroY = 20;
     let targetShake = 0;
     let aeroScaleY = 1;
+    let targetScaleY = 1; // Added for the immune rubberband stretch
     
     if (isImmune) {
-      aeroY = 70;
-      // Anchor stretch at the bottom of the sprite by adjusting Y dynamically
-      const stretch = Math.sin(t * Math.PI * 2) * 0.10;
-      aeroScaleY = 1 + stretch;
-      aeroY -= (10 * stretch) / 2;
+      if (t < 0.5) { 
+        // Swoop down to grab
+        aeroY = 10 + (t / 0.5) * 70;
+      } else if (t < 1.5) { 
+        // Pull up, stretching the target
+        const p = (t - 0.5) / 1.0;
+        const stretch = 0.4 * Math.sin(p * Math.PI / 2); // Eases from 0 to 0.4
+        targetScaleY = 1 + stretch;
+        // The sprite is 64px tall. As it stretches, the top moves up by 64 * stretch.
+        aeroY = 80 - (64 * stretch); 
+      } else if (t < 2.2) { 
+        // Target rubberbands, Aero lets go
+        const p = (t - 1.5) / 0.7; 
+        // Damped cosine wave to simulate a rubberband bounce
+        const stretch = 0.4 * Math.cos(p * Math.PI * 5) * (1 - p);
+        targetScaleY = 1 + stretch;
+        
+        // Aero lets go and retreats back up to its starting Y (10)
+        // It detached at Y = 54.4 (80 - 64 * 0.4)
+        aeroY = 54.4 - Math.sin(p * Math.PI / 2) * 44.4; 
+      } else { 
+        // Idle/reset before the loop repeats
+        targetScaleY = 1;
+        aeroY = 10;
+      }
     } else {
       if (t < 0.5) { // Swoop down
         aeroY = 10 + (t / 0.5) * 70;
@@ -8112,6 +8199,7 @@ function startSkyDropAnimation(canvas, targetMon, isImmune) {
     
     ctx.save();
     ctx.translate(100 + targetShake, targetY);
+    ctx.scale(1, targetScaleY); // Applies vertical stretch to the target
     if (imgTarget.complete) ctx.drawImage(imgTarget, -32, -64, 64, 64);
     ctx.restore();
     
@@ -8147,13 +8235,34 @@ function startKnotAnimation(canvas, targetMon) {
     let venuX = 40;
     let apeX = 160;
     
+    // Target modifier variables
+    let targetOffsetX = 0;
+    let targetOffsetY = 0;
+    let targetScaleX = 1;
+    let targetScaleY = 1;
+    
     if (t < 1) { // Venusaur attacks
       if (t < 0.2) venuX = 40 + (t/0.2) * 40;
       else if (t < 0.4) venuX = 80 - ((t-0.2)/0.2) * 40;
+      
+      // Target vibration (t=0.2 is the exact moment of impact)
+      if (t >= 0.2 && t < 0.6) {
+        const intensity = 1 - (t - 0.2) / 0.4;
+        targetOffsetX = (Math.random() - 0.5) * 10 * intensity;
+        targetOffsetY = (Math.random() - 0.5) * 10 * intensity;
+      }
     } else { // Primeape attacks
       const tA = t - 1;
       if (tA < 0.2) apeX = 160 - (tA/0.2) * 40;
       else if (tA < 0.4) apeX = 120 + ((tA-0.2)/0.2) * 40;
+      
+      // Target abrupt contraction (impact at tA=0.2 / t=1.2)
+      if (tA >= 0.2 && tA < 0.5) {
+        const recovery = (tA - 0.2) / 0.3; // Progresses from 0 to 1
+        // Contracts horizontally and balloons slightly vertically to emphasize a side-hit
+        targetScaleX = 0.5 + 0.5 * recovery; 
+        targetScaleY = 1.2 - 0.2 * recovery; 
+      }
     }
     
     // Venusaur (flipped horizontally)
@@ -8165,7 +8274,8 @@ function startKnotAnimation(canvas, targetMon) {
     
     // Target
     ctx.save();
-    ctx.translate(100, 80);
+    ctx.translate(100 + targetOffsetX, 80 + targetOffsetY);
+    ctx.scale(targetScaleX, targetScaleY);
     if (imgTarget.complete) ctx.drawImage(imgTarget, -32, -64, 64, 64);
     ctx.restore();
 
@@ -8175,12 +8285,66 @@ function startKnotAnimation(canvas, targetMon) {
     if (imgApe.complete) ctx.drawImage(imgApe, -32, -64, 64, 64);
     ctx.restore();
     
+    // --- SPECIAL EFFECTS ---
+    
+    // Venusaur Effect: Falling Leaves
+    if (t >= 0.2 && t < 0.8) {
+      const leafT = (t - 0.2) / 0.6; // Normalizes effect time from 0 to 1
+      ctx.fillStyle = 'rgba(76, 175, 80, ' + (1 - leafT) + ')'; // Fades out as they fall
+      
+      for (let i = 0; i < 5; i++) {
+        // Space them out slightly above the target
+        const startX = 100 + (i - 2) * 15; 
+        const startY = 30 + (i % 2) * 10;
+        
+        // Give them a tumbling, wavy path downward
+        const x = startX + Math.sin(leafT * Math.PI * 4 + i) * 12;
+        const y = startY + leafT * 60;
+        
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(leafT * Math.PI * 4 + i);
+        ctx.beginPath();
+        // Draw a simple leaf shape using an ellipse
+        ctx.ellipse(0, 0, 7, 3, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+    
+    // Primeape Effect: Physical Hit
+    if (t >= 1.2 && t < 1.4) {
+      const impactT = (t - 1.2) / 0.2; // Normalizes effect time from 0 to 1
+      const sparkSize = 10 * (1 - impactT); // Shrinks quickly
+      
+      ctx.save();
+      ctx.translate(110, 64); // Target's visual center
+      
+      // Draw an 8-pointed star burst
+      ctx.fillStyle = 'rgba(255, 165, 0, ' + (1 - impactT) + ')'; // Orange fading out
+      ctx.beginPath();
+      for (let i = 0; i < 8; i++) {
+        const angle = (i * Math.PI) / 4;
+        const radius = i % 2 === 0 ? sparkSize : sparkSize / 2.5; // Alternate point length
+        ctx.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+      }
+      ctx.closePath();
+      ctx.fill();
+      
+      // Add a smaller white inner spark for "punch"
+      ctx.fillStyle = 'rgba(255, 255, 255, ' + (1 - impactT) + ')';
+      ctx.scale(0.5, 0.5);
+      ctx.fill();
+      
+      ctx.restore();
+    }
+    
     requestAnimationFrame(draw);
   }
   requestAnimationFrame(draw);
 }
 
-function startCrashAnimation(canvas, targetMon, attackerMon) {
+function startCrashAnimation(canvas, targetMon, attackerMon, power = 40) {
   const ctx = canvas.getContext("2d");
   ctx.imageSmoothingEnabled = false;
   const startTime = performance.now();
@@ -8196,6 +8360,14 @@ function startCrashAnimation(canvas, targetMon, attackerMon) {
   imgTarget.onerror = () => { imgTarget.src = 'sprites/pokemon/0.png'; };
   imgAttacker.onerror = () => { imgAttacker.src = 'sprites/pokemon/0.png'; };
 
+  // Normalize power (40 to 120) down to a 0.0 to 1.0 ratio
+  const clampedPower = Math.max(40, Math.min(120, power));
+  const powerRatio = (clampedPower - 40) / 80;
+  
+  // Calculate maximum squish based on power. 
+  // Power 40 = 0.8 scale, Power 120 = 0.3 scale
+  const targetSquishScale = 0.8 - (powerRatio * 0.5);
+
   function draw(time) {
     if (!canvas.isConnected) return;
     const t = ((time - startTime) / 1000) % 1.5; // 1.5 second loop
@@ -8204,6 +8376,12 @@ function startCrashAnimation(canvas, targetMon, attackerMon) {
     let targetScaleY = 1;
     let attackerY = -100;
     
+    // Impact indicator variables
+    let shakeX = 0;
+    let shakeY = 0;
+    let shockwaveRadius = 0;
+    let shockwaveAlpha = 0;
+    
     if (attackerMon) {
       if (t < 0.3) { 
         // 1. Falling
@@ -8211,18 +8389,45 @@ function startCrashAnimation(canvas, targetMon, attackerMon) {
       } 
       else if (t < 0.7) { 
         // 2. Impact & Squish
-        attackerY = 90; 
-        targetScaleY = 0.6; 
+        targetScaleY = targetSquishScale;
+        // Sink the attacker lower so it touches the top of the squished target
+        attackerY = 80 + ((1 - targetSquishScale) * 32); 
+        
+        // Impact Indicator Calculations
+        const impactTime = t - 0.3; // ranges from 0 to 0.4
+        const damp = 1 - (impactTime / 0.4); // fades from 1 down to 0
+        
+        // Shake intensity scales with power
+        const shakeIntensity = (2 + 5 * powerRatio) * damp;
+        shakeX = (Math.random() - 0.5) * 2 * shakeIntensity;
+        shakeY = (Math.random() - 0.5) * 2 * shakeIntensity;
+        
+        // Shockwave radius scales with power
+        shockwaveRadius = (15 + 70 * powerRatio) * (impactTime / 0.4);
+        shockwaveAlpha = damp/2;
       } 
       else if (t < 1.0) { 
         // 3. Bounce off / Fly away
-        attackerY = 90 - ((t-0.7)/0.3)*150; 
+        attackerY = 80 - ((t-0.7)/0.3)*150; 
       }
+    }
+    
+    // Draw Impact Shockwave (behind target)
+    if (shockwaveAlpha > 0) {
+      ctx.save();
+      ctx.translate(100 + shakeX, 100 + shakeY);
+      ctx.scale(1, 0.4); // Flatten out to look like a perspective ground ring
+      ctx.beginPath();
+      ctx.arc(0, 0, shockwaveRadius, 0, Math.PI * 2);
+      ctx.lineWidth = 3 + 2 * powerRatio; // Thicker line for higher power
+      ctx.strokeStyle = `rgba(255, 170, 50, ${shockwaveAlpha})`;
+      ctx.stroke();
+      ctx.restore();
     }
     
     // Draw Target (Anchored to the bottom for the squish effect)
     ctx.save();
-    ctx.translate(100, 100);
+    ctx.translate(100 + shakeX, 100 + shakeY);
     ctx.scale(1, targetScaleY);
     if (imgTarget.complete) ctx.drawImage(imgTarget, -32, -64, 64, 64);
     ctx.restore();
@@ -8230,7 +8435,7 @@ function startCrashAnimation(canvas, targetMon, attackerMon) {
     // Draw Attacker
     if (attackerMon) {
       ctx.save();
-      ctx.translate(100, attackerY);
+      ctx.translate(100 + shakeX, attackerY + shakeY);
       if (imgAttacker.complete) ctx.drawImage(imgAttacker, -32, -64, 64, 64);
       ctx.restore();
     }
