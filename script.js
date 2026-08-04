@@ -6910,6 +6910,27 @@ const PokedexTool = (() => {
   }
 
   function getCatchChance({ catchRate, hpPercent, ballMultiplier, statusMultiplier }) {
+    // Based on the Vukooo info on forums (https://forums.pokemmo.com/index.php?/topic/199873-catch-formula-updated-to-gen-6/#findComment-2237979)
+    // Calculate modified catch rate 'a'
+    const hpFactor = (3 - 2 * hpPercent) / 3 ;
+    const a = Math.floor(Math.floor(hpFactor * catchRate * ballMultiplier) * statusMultiplier);
+
+    // If 'a' > 255, capture is guaranteed
+    if (a > 255) return 1;
+
+    // Calculate shake probability 'b'
+    const val = 255 / a;
+    const fourthrt = Math.pow(val, 0.25);
+    const b = Math.floor(65535 / fourthrt);
+
+    // Each check succeeds if a random number [0, 65535] < b.
+    // Probability of one check succeeding: p = b / 65536
+    // Probability of 4 checks succeeding: p^4
+    const shakeSuccessProb = Math.min(b, 65535) / 65536;
+    return Math.pow(shakeSuccessProb, 4);
+  }
+
+  function getCatchChanceOld({ catchRate, hpPercent, ballMultiplier, statusMultiplier }) {
     // Based on the bulbapedia info for gen 3/4 (https://bulbapedia.bulbagarden.net/wiki/Catch_rate#Capture_method_(Generation_III-IV))
     // Calculate modified catch rate 'a'
     const hpFactor = (3 - 2 * hpPercent) / 3 ;
@@ -6927,7 +6948,7 @@ const PokedexTool = (() => {
 
     // The Pokémon is caught if all 4 shake checks succeed.
     // Each check succeeds if a random number [0, 65535] < b.
-    // Probability of one check succeeding: p = b / 65535
+    // Probability of one check succeeding: p = b / 65536
     // Probability of 4 checks succeeding: p^4
     const shakeSuccessProb = Math.min(b, 65535) / 65536;
     return Math.pow(shakeSuccessProb, 4);
@@ -7476,7 +7497,7 @@ function buildBodySummary(mon) {
 
   // Heavy Slam / Heat Crash Logic (Using 360kg Attacker as requested)
   const heavySlamPower = getWeightRatioPower(360, baseWeight);
-  const heavySlamFontWeight = getFontWeightFromBP(lowKickPower);
+  const heavySlamFontWeight = getFontWeightFromBP(heavySlamPower);
 
   // Sky Drop Logic
   const tooHeavy = baseWeight >= 200;
