@@ -3065,7 +3065,7 @@ const PokedexTool = (() => {
   function matchEgg(mon) {
     if (!filters.eggGroups.length) return true;
 
-    return filters.eggGroups.some(e => mon.egg_groups?.includes(e));
+    return filters.eggGroups.every(e => mon.egg_groups?.includes(e));
   }
 
   function matchAbility(mon) {
@@ -3138,7 +3138,7 @@ const PokedexTool = (() => {
       mon._moveSet = new Set((mon.moves || []).map(m => m.name.toLowerCase()));
       mon._abilities = new Set((mon.abilities || []).map(a => a.name));
       mon._locations = (mon.locations || []).map(l => ({
-        name: (l.location || "").toLowerCase(),
+        name: (l.location_name || "").toLowerCase(),
         region: (l.region_name || "").toLowerCase()
       }));
     });
