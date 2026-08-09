@@ -2273,6 +2273,7 @@ const PokedexTool = (() => {
     let mapZoomSlider;
     let mapZoomValue;
     let mapRegionSelect;
+    let mapSelectedRegions = new Set();
     let mapViewportToggleButton;
     let mapScale = 1;
     let mapX = 0;
@@ -4146,15 +4147,17 @@ const PokedexTool = (() => {
 
     $("#filterLocation").value = `${name} (${region})`;
 
-    syncMapRegionSelect(region);
-
     filters.location = {
       name: name.toLowerCase(),
       region: region.toLowerCase()
     };
 
     highlightLocations(matches);
-    zoomMapToLocations(matches);
+    if (!locationsAreVisible(viewport, mapX, mapY, mapScale, matches)) {
+      mapSelectedRegions = new Set([region]);
+      renderRegionToggle(mapRegionSelect, mapSelectedRegions);
+      zoomMapToRegions(mapSelectedRegions);
+    }
 
     applyFilters();
   }
@@ -4164,24 +4167,18 @@ const PokedexTool = (() => {
     if (!mapRegionSelect) return;
 
     const regions = [...new Set(LOCATION_DATA.map(loc => loc.region).filter(Boolean))].sort();
-    mapRegionSelect.innerHTML = `
-      <option value="">All regions</option>
-      ${regions.map(region => `<option value="${region}">${region}</option>`).join("")}
-    `;
-
-    mapRegionSelect.addEventListener("change", () => {
-      if (mapRegionSelect.value) {
-        zoomMapToRegion(mapRegionSelect.value);
-      } else {
-        setMapZoomPercent(0);
-      }
+    mapSelectedRegions = new Set(regions);
+    setupRegionToggle(mapRegionSelect, regions, mapSelectedRegions, selected => {
+      mapSelectedRegions = selected;
+      zoomMapToRegions(mapSelectedRegions);
     });
   }
 
   function syncMapRegionSelect(region) {
     mapRegionSelect = mapRegionSelect || document.getElementById("mapRegionSelect");
     if (!mapRegionSelect) return;
-    mapRegionSelect.value = region || "";
+    mapSelectedRegions = region ? new Set([region]) : new Set(LOCATION_DATA.map(loc => loc.region).filter(Boolean));
+    renderRegionToggle(mapRegionSelect, mapSelectedRegions);
   }
 
   function refreshMainMapViewport() {
@@ -4199,8 +4196,8 @@ const PokedexTool = (() => {
       return;
     }
 
-    if (mapRegionSelect?.value) {
-      zoomMapToRegion(mapRegionSelect.value);
+    if (mapSelectedRegions.size) {
+      zoomMapToRegions(mapSelectedRegions);
       return;
     }
 
@@ -4551,6 +4548,74 @@ const PokedexTool = (() => {
 
     syncMapRegionSelect(region);
     updateMapTransform();
+  }
+
+  function unionRegionBounds(regions) {
+    const bounds = { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity };
+    [...(regions || [])].forEach(region => {
+      const next = getFixedMapRegionBounds(region);
+      if (!next) return;
+      bounds.minX = Math.min(bounds.minX, next.minX); bounds.maxX = Math.max(bounds.maxX, next.maxX);
+      bounds.minY = Math.min(bounds.minY, next.minY); bounds.maxY = Math.max(bounds.maxY, next.maxY);
+    });
+    return Number.isFinite(bounds.minX) ? bounds : null;
+  }
+
+  function zoomMapToRegions(regions) {
+    const bounds = unionRegionBounds(regions);
+    if (!bounds || !viewport) return;
+    const rect = viewport.getBoundingClientRect();
+    if (!hasUsableRect(rect)) return;
+    const fit = applyViewportRegionFit(mapSvgEl, rect, bounds, 0.08);
+    if (!fit) return;
+    mapScale = fit.scale; mapX = fit.x; mapY = fit.y;
+    updateMapTransform();
+  }
+
+  function locationsAreVisible(mapViewport, x, y, scale, locations) {
+    if (!mapViewport || !locations?.length) return false;
+    const rect = mapViewport.getBoundingClientRect();
+    const bounds = getLocationsBounds(locations);
+    if (!hasUsableRect(rect) || !bounds) return false;
+    const sx = rect.width / MAP_WORLD_WIDTH, sy = rect.height / MAP_WORLD_HEIGHT;
+    const left = x + bounds.minX * sx * scale, right = x + bounds.maxX * sx * scale;
+    const top = y + bounds.minY * sy * scale, bottom = y + bounds.maxY * sy * scale;
+    return right >= 0 && left <= rect.width && bottom >= 0 && top <= rect.height;
+  }
+
+  function setupRegionToggle(element, regions, selected, onChange) {
+    if (!element) return;
+    element.innerHTML = `<button type="button" class="region-toggle-button" aria-haspopup="true" aria-expanded="false"></button><div class="region-toggle-menu hidden" role="menu"></div>`;
+    const menu = element.querySelector(".region-toggle-menu");
+    menu.innerHTML = regions.map(region => `<button type="button" class="region-toggle-option" data-region="${escapeHtml(region)}" role="menuitemcheckbox"><img src="maps/${escapeHtml(region)}.png" alt=""><span>${escapeHtml(region)}</span><span class="region-toggle-check">✓</span></button>`).join("");
+    element._selectedRegions = selected;
+    renderRegionToggle(element, selected);
+    const button = element.querySelector(".region-toggle-button");
+    button.addEventListener("click", e => { e.stopPropagation(); menu.classList.toggle("hidden"); button.setAttribute("aria-expanded", String(!menu.classList.contains("hidden"))); });
+    menu.addEventListener("click", e => {
+      const option = e.target.closest(".region-toggle-option"); if (!option) return;
+      const next = new Set(element._selectedRegions);
+      next.has(option.dataset.region) ? next.delete(option.dataset.region) : next.add(option.dataset.region);
+      element._selectedRegions = next; renderRegionToggle(element, next); onChange(next);
+    });
+  }
+
+  function renderRegionToggle(element, selected) {
+    if (!element) return;
+    element._selectedRegions = selected;
+    const button = element.querySelector(".region-toggle-button");
+    if (button) {
+      const regions = [...selected];
+      button.innerHTML = regions.length
+        ? regions.map(region => `<img class="region-toggle-selected-image" src="maps/${escapeHtml(region)}.png" alt="${escapeHtml(region)}" title="${escapeHtml(region)}">`).join("")
+        : `<span class="region-toggle-empty">No regions</span>`;
+      button.setAttribute("aria-label", regions.length ? regions.join(", ") : "No regions selected");
+      button.title = regions.join(", ");
+    }
+    element.querySelectorAll(".region-toggle-option").forEach(option => {
+      const active = selected.has(option.dataset.region);
+      option.classList.toggle("selected", active); option.setAttribute("aria-checked", String(active));
+    });
   }
 
   function zoomMapToLocations(locations) {
@@ -10226,9 +10291,8 @@ function getDirectChildBranches(branch) {
         setFilterGroupState("region", nextRegion, "include");
       }
 
-      if (state.regionSelect) {
-        state.regionSelect.value = nextRegion === "all" ? "" : nextRegion;
-      }
+      state.selectedRegions = nextRegion === "all" ? new Set() : new Set([nextRegion]);
+      renderRegionToggle(state.regionSelect, state.selectedRegions);
 
       if (zoom) {
         if (nextRegion === "all") {
@@ -10259,14 +10323,18 @@ function getDirectChildBranches(branch) {
 
     refreshFilterGroups();
 
-    const clearLocationFiltersForMapSelection = () => {
+    const clearLocationFiltersForMapSelection = index => {
+      const targetRow = rows[index];
+      if (targetRow?.dataset.region) {
+        expandedLocationRegions.add(targetRow.dataset.region);
+        selectedIndex = index;
+      }
       search.value = "";
       Object.keys(modalLocationFilterState).forEach(resetFilterGroup);
       modalLocationRarityRangeState.min = null;
       modalLocationRarityRangeState.max = null;
       syncRarityRangeControls();
-      if (modalLocationMapState?.regionSelect) modalLocationMapState.regionSelect.value = "";
-      if (modalLocationMapState?.zoomSlider) modalLocationMapState.zoomSlider.value = "0";
+      if (modalLocationMapState) modalLocationMapState.skipNextViewportRefresh = true;
       applyLocationFilters();
     };
 
@@ -10352,7 +10420,10 @@ function getDirectChildBranches(branch) {
       modalLocationRarityRangeState.min = null;
       modalLocationRarityRangeState.max = null;
       syncRarityRangeControls();
-      if (modalLocationMapState?.regionSelect) modalLocationMapState.regionSelect.value = "";
+      if (modalLocationMapState?.regionSelect) {
+        modalLocationMapState.selectedRegions = new Set();
+        renderRegionToggle(modalLocationMapState.regionSelect, modalLocationMapState.selectedRegions);
+      }
       if (modalLocationMapState?.zoomSlider) modalLocationMapState.zoomSlider.value = "0";
       applyLocationFilters();
     });
@@ -10371,8 +10442,8 @@ function getDirectChildBranches(branch) {
     }
 
     modalLocationMapCleanup = initModalLocationMap(encounters, index => {
-      clearLocationFiltersForMapSelection();
-      selectRow(index, { syncRegion: false });
+      clearLocationFiltersForMapSelection(index);
+      selectRow(index, { syncRegion: false, fromMapClick: true });
     });
 
     rows.forEach(row => {
@@ -10439,11 +10510,10 @@ function getDirectChildBranches(branch) {
       pin?.classList.toggle("hidden", !visible);
     });
 
-    if (state.regionSelect?.value) {
-      const regionVisible = state.renderedLocations.some(loc => loc.region === state.regionSelect.value);
-      if (!regionVisible) {
-        state.regionSelect.value = "";
-      }
+    if (state.selectedRegions?.size) {
+      const visibleRegions = new Set(state.renderedLocations.map(loc => loc.region));
+      state.selectedRegions = new Set([...state.selectedRegions].filter(region => visibleRegions.has(region)));
+      renderRegionToggle(state.regionSelect, state.selectedRegions);
     }
   }
 
@@ -10453,9 +10523,13 @@ function getDirectChildBranches(branch) {
 
     requestAnimationFrame(() => {
       if (modalLocationMapState !== state) return;
+      if (state.skipNextViewportRefresh) {
+        state.skipNextViewportRefresh = false;
+        return;
+      }
 
-      if (state.regionSelect?.value) {
-        zoomScopedMapToRegion(state, state.regionSelect.value);
+      if (state.selectedRegions?.size) {
+        zoomScopedMapToRegions(state, state.selectedRegions);
         return;
       }
 
@@ -10491,6 +10565,7 @@ function getDirectChildBranches(branch) {
       locationsByEncounterIndex: new Map(),
       locationElementsByKey: new Map(),
       renderedLocations: [],
+      skipNextViewportRefresh: false,
       cleanup: []
     };
 
@@ -10499,7 +10574,11 @@ function getDirectChildBranches(branch) {
     modalLocationMapState = state;
     if (state.regionSelect) {
       const regions = [...new Set(encounters.map(encounter => encounter.region || encounter.loc?.region_name).filter(Boolean))].sort();
-      state.regionSelect.innerHTML = `<option value="">All regions</option>${regions.map(region => `<option value="${escapeHtml(region)}">${escapeHtml(region)}</option>`).join("")}`;
+      state.selectedRegions = new Set(regions);
+      setupRegionToggle(state.regionSelect, regions, state.selectedRegions, selected => {
+        state.selectedRegions = selected;
+        zoomScopedMapToRegions(state, selected);
+      });
     }
     modalLocationMapToggleButton = $("#modalLocationMapToggle");
     const modalLocationMapCollapseButton = $("#modalLocationMapCollapse");
@@ -10533,14 +10612,17 @@ function getDirectChildBranches(branch) {
 
     const onZoomInput = () => {
       setScopedMapZoomPercent(state, Number(state.zoomSlider.value));
-      if (Number(state.zoomSlider.value) === 0 && state.regionSelect) state.regionSelect.value = "";
+      if (Number(state.zoomSlider.value) === 0 && state.regionSelect) {
+        state.selectedRegions = new Set();
+        renderRegionToggle(state.regionSelect, state.selectedRegions);
+      }
     };
     state.zoomSlider?.addEventListener("input", onZoomInput);
     if (state.zoomSlider) state.cleanup.push(() => state.zoomSlider.removeEventListener("input", onZoomInput));
 
     const onRegionChange = () => {
-      if (state.regionSelect.value) {
-        zoomScopedMapToRegion(state, state.regionSelect.value);
+      if (state.selectedRegions?.size) {
+        zoomScopedMapToRegions(state, state.selectedRegions);
       } else {
         zoomScopedMapToLocations(state, state.renderedLocations);
       }
@@ -10658,7 +10740,10 @@ function getDirectChildBranches(branch) {
     update();
 
     requestAnimationFrame(() => {
-      if (modalLocationMapState === state) zoomScopedMapToLocations(state, state.renderedLocations);
+      if (modalLocationMapState === state) {
+        if (state.selectedRegions?.size) zoomScopedMapToRegions(state, state.selectedRegions);
+        else zoomScopedMapToLocations(state, state.renderedLocations);
+      }
     });
 
     return () => {
@@ -10767,14 +10852,10 @@ function getDirectChildBranches(branch) {
       el.classList.toggle("selected-location", selectedKeys.has(key));
     });
 
-    if (options.overview) {
-      zoomScopedMapToLocations(state, state.renderedLocations);
-    } else if (locations.length) {
-      zoomScopedMapToLocations(state, locations);
-    }
-
-    if (state.regionSelect && options.syncRegion !== false) {
-      state.regionSelect.value = locations.length === 1 ? locations[0].region : "";
+    if (!options.overview && !options.fromMapClick && locations.length && !locationsAreVisible(state.viewport, state.x, state.y, state.scale, locations)) {
+      state.selectedRegions = new Set([locations[0].region]);
+      renderRegionToggle(state.regionSelect, state.selectedRegions);
+      zoomScopedMapToRegions(state, state.selectedRegions);
     }
   }
 
@@ -10864,6 +10945,17 @@ function getDirectChildBranches(branch) {
     state.x = fit.x;
     state.y = fit.y;
 
+    updateScopedMapTransform(state);
+  }
+
+  function zoomScopedMapToRegions(state, regions) {
+    const bounds = unionRegionBounds(regions);
+    if (!state.viewport || !bounds) return;
+    const rect = state.viewport.getBoundingClientRect();
+    if (!hasUsableRect(rect)) return;
+    const fit = applyViewportRegionFit(state.svg, rect, bounds, 0.08);
+    if (!fit) return;
+    state.scale = fit.scale; state.x = fit.x; state.y = fit.y;
     updateScopedMapTransform(state);
   }
 
@@ -10963,7 +11055,7 @@ function getDirectChildBranches(branch) {
           <div class="move-title modal-location-search-title"><input id="modalLocationSearch" class="dex-input modal-move-search modal-location-search-input" placeholder="Search locations..." value="${escapeHtml(locationTitle)}"><div class="modal-location-autocomplete hidden" role="listbox"></div></div>
         </div>
         <div class="map-viewport modal-location-map-viewport" id="modalLocationMapViewport">
-          <div class="map-controls modal-location-map-controls"><button type="button" class="map-controls-handle" aria-label="Move map controls">::</button><select id="modalLocationMapRegionSelect" class="dex-input map-region-select" aria-label="Location map region"><option value="">All regions</option></select><label class="map-zoom-control"><span>Zoom</span><input id="modalLocationMapZoomSlider" type="range" min="0" max="500" step="1" value="0"><output id="modalLocationMapZoomValue">0%</output></label></div>
+          <div class="map-controls modal-location-map-controls"><button type="button" class="map-controls-handle" aria-label="Move map controls">::</button><div id="modalLocationMapRegionSelect" class="map-region-select region-toggle" aria-label="Location map region"></div><label class="map-zoom-control"><span>Zoom</span><input id="modalLocationMapZoomSlider" type="range" min="0" max="500" step="1" value="0"><output id="modalLocationMapZoomValue">0%</output></label></div>
           <svg id="modalLocationMapSvg" viewBox="0 0 1662 1174" preserveAspectRatio="xMidYMid meet"><image href="maps/World Map.png" x="0" y="0" width="1662" height="1174"/><g id="modalLocationMapRegions"></g><g id="modalLocationMapPins"></g></svg>
         </div>
         <div class="modal-location-card-body"><div class="modal-location-card-types">${types.map((type, index) => `<button type="button" class="modal-location-type-btn${index === 0 ? " active" : ""}" data-type="${escapeHtml(type)}"><img src="sprites/assets/${escapeHtml(type.toLowerCase())}.webp" alt="${escapeHtml(type)}" onerror="this.onerror=null;this.src='sprites/pokemon/0.png';">${escapeHtml(type)}</button>`).join("")}</div><div class="modal-location-card-variants">${variantRows}</div></div>
