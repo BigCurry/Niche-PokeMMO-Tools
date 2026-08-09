@@ -1836,6 +1836,7 @@ body.pory-full #poryBackground {
 
 .modal-move-name {
   font-weight: 700;
+  margin-right: 40px;
 }
 
 .modal-move-meta {
@@ -1878,8 +1879,8 @@ body.pory-full #poryBackground {
   align-items: center;
   column-gap: 10px;
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
-  padding-right: 34px;
+  grid-template-columns: 34px minmax(0, 1fr) auto auto;
+  padding-right: 10px;
   position: relative;
 }
 
@@ -1898,6 +1899,28 @@ body.pory-full #poryBackground {
   width: 100%;
 }
 
+.modal-location-see-more {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  gap: 8px;
+  justify-content: flex-start;
+  padding: 6px 10px 6px 44px;
+  text-align: left;
+}
+.modal-location-see-more:hover,
+.modal-location-see-more:focus-visible {
+  color: var(--text);
+}
+.modal-location-see-more img {
+  height: 24px;
+  object-fit: contain;
+  width: 24px;
+}
+
 .modal-location-variation-badge {
   align-items: center;
   background: var(--accent);
@@ -1906,10 +1929,9 @@ body.pory-full #poryBackground {
   display: inline-flex;
   font-size: 0.75rem;
   font-weight: 800;
-  height: 24px;
   justify-content: center;
-  min-width: 24px;
-  padding: 0 7px;
+  min-width: 30px;
+  padding: 1px 0px;
   position: absolute;
   right: 8px;
   top: 8px;
@@ -2169,8 +2191,6 @@ body.pory-full #poryBackground {
 }
 
 .modal-location-list {
-  grid-column: 1;
-  grid-row: 2;
   align-self: stretch;
   justify-self: stretch;
   width: 100%;
@@ -2199,7 +2219,15 @@ body.pory-full #poryBackground {
 }
 
 .modal-location-map-viewport {
-  max-width: none;
+  aspect-ratio: 1662 / 1174; 
+  display: block; 
+  height: auto; 
+  min-height: 0; 
+  width: 100%; 
+  border-radius: 8px; 
+  margin-bottom: 10px;
+  max-width: 80vmin;
+  margin: 0 auto;
   border-radius: 8px;
 }
 
@@ -2214,11 +2242,65 @@ body.pory-full #poryBackground {
   justify-self: center;
 }
 
+.legacy-map-shell { display: none !important; }
+.modal-location-info { display: block; height: auto; min-height: 0; width: 100%; max-width: none; border-radius: 8px; margin-bottom: 10px; }
+.modal-location-encounter-name { color: var(--muted); font-size: .78rem; }
+.modal-location-horde-indicator { align-items: center; display: inline-flex; }
+.modal-location-type-btn { align-items: center; background: transparent; border: 1px solid transparent; border-radius: 6px; color: var(--muted); cursor: pointer; display: inline-flex; gap: 5px; padding: 4px 7px; }
+.modal-location-type-btn:hover, .modal-location-type-btn.active { background: var(--accentT); border-color: var(--accent); color: var(--text); }
+.modal-location-card-body { display: grid; gap: 10px; padding-top: 10px; }
+.modal-location-card-types { display: flex; flex-wrap: wrap; gap: 8px; }
+.modal-location-card-types span { align-items: center; display: inline-flex; gap: 5px; color: var(--muted); font-size: .78rem; }
+.modal-location-card-types img { height: 22px; object-fit: contain; width: 22px; }
+.modal-location-card-variants { display: grid; gap: 7px; }
+.modal-location-card-variant { border: 1px solid color-mix(in srgb, var(--muted) 28%, transparent); border-radius: 7px; display: grid; gap: 10px; grid-template-columns: minmax(120px, .8fr) minmax(0, 1.8fr); padding: 8px; }
+.modal-location-card-variant.hidden { display: none; }
+.modal-location-card-timing { display: grid; gap: 6px; font-size: .82rem; }
+.modal-location-card-seasons, .modal-location-card-time-rarity { align-items: center; display: flex; flex-wrap: wrap; gap: 5px; }
+.modal-location-card-seasons { font-weight: 600; font-size: xx-small;}
+.modal-location-card-time-rarity { color: var(--muted); font-size: .78rem; }
+.modal-location-card-time-rarity strong { color: var(--text); }
+.modal-location-card-stats { display: grid; gap: 10px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.modal-location-card-stats > div { display: grid; gap: 2px; }
+.modal-location-card-stats span { color: var(--muted); font-size: .7rem; text-transform: uppercase; }
+.modal-location-card-stats strong { font-size: .82rem; font-weight: 600; }
+.modal-location-card-moves { min-width: 0; }
+.modal-location-card-moves .modal-location-move-btn { margin: 2px 4px 0 0; }
+.modal-location-muted { color: var(--muted); }
+.modal-location-row-hordes { align-items: center; display: inline-flex; gap: 2px;   position: absolute; right: 40px; top: 8px;}
+.modal-location-search-title { position: relative; }
+.modal-location-search-input {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0 0 3px;
+  transition: border-color 0.15s ease;
+}
+.modal-location-search-input:focus {
+  border-bottom-color: var(--accent);
+  outline: none;
+}
+.modal-location-search-input::placeholder { color: var(--muted); opacity: 1; }
+.modal-location-autocomplete { background: var(--panel); border: 1px solid color-mix(in srgb, var(--muted) 35%, transparent); border-radius: 6px; box-shadow: 0 8px 18px rgba(0,0,0,.28); left: 0; max-height: 250px; overflow-y: auto; position: absolute; top: calc(100% + 4px); width: min(320px, 90vw); z-index: 20; }
+.modal-location-autocomplete.hidden { display: none; }
+.modal-location-autocomplete-option { background: transparent; border: 0; color: var(--text); cursor: pointer; display: flex; justify-content: space-between; padding: 7px 9px; text-align: left; width: 100%; }
+.modal-location-autocomplete-option:hover { background: var(--accentT); }
+.modal-location-autocomplete-option small { color: var(--muted); margin-left: 10px; }
+@media (max-width: 760px) {
+  .modal-location-card-variant { grid-template-columns: 1fr; }
+}
+
 .modal-location-info-map-svg {
   width: 100%;
   height: 100%;
   transform-origin: 0 0;
 }
+
+#modalLocationMapSvg { preserveAspectRatio: xMidYMid meet; }
 
 #modalLocationMapSvg {
   width: 100%;
@@ -2271,15 +2353,23 @@ body.pory-full #poryBackground {
   stroke-width: 2;
   paint-order: stroke fill;
   vector-effect: non-scaling-stroke;
-  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.45));
+  filter: drop-shadow(0 2px 2px rgba(0,0,0));
 }
 
 .modal-location-info-map-pin.selected-location,
 .modal-location-map-pin.selected-location {
-  fill: #ff2b2b;
-  stroke: #ffe766;
-  stroke-width: 3;
+  fill: var(--accent);
+  stroke-width: 2;
+  transform: scale(1.5);
+  transform-box: fill-box;
+  transform-origin: center;
 }
+
+@keyframes modal-location-pin-pulse {
+  0%, 100% { filter: drop-shadow(0 1px 1px rgba(0,0,0,1)); }
+  50% { filter: drop-shadow(0 1px 2px rgba(0,0,0,1)); }
+}
+.modal-location-map-pin.selected-location { animation: modal-location-pin-pulse 2s ease-out infinite; }
 
 .modal-location-row.hidden {
   display: none;
@@ -3266,7 +3356,7 @@ body.pory-full #poryBackground {
 
 .map-viewport {
   width: 100%;
-  max-width: clamp(1000px, 80vmin, 5000px);
+  max-width: clamp(100px, 80vmin, 5000px);
   align-items: center;
   aspect-ratio: 1662 / 1174; /* ✅ keeps correct proportions */
   overflow: hidden;

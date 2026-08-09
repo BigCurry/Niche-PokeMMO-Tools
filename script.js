@@ -147,6 +147,16 @@ function parseModalLocationRarityPercent(value) {
   return match ? Number(match[1]) : null;
 }
 
+function formatModalLocationHordeRarity(value) {
+  const raw = String(value || "").trim();
+  const percent = parseModalLocationRarityPercent(raw);
+  if (percent === null) return raw;
+
+  const normalized = Math.min(100, percent * 20);
+  const normalizedLabel = Number.isInteger(normalized) ? normalized : normalized.toFixed(1).replace(/\.0$/, "");
+  return `${raw} (${normalizedLabel}%)`;
+}
+
 function escapeHtml(value) {
   return String(value ?? "")
     .replace(/&/g, "&amp;")
@@ -9454,7 +9464,6 @@ function getDirectChildBranches(branch) {
       <div class="modal-locations">
         <div class="modal-location-filter-box">
           <div class="modal-moves-toolbar modal-location-toolbar">
-            <input id="modalLocationSearch" class="dex-input modal-move-search" placeholder="Search locations...">
             <button type="button" id="modalLocationFiltersBtn" class="btn btn--gradient modal-location-filters-btn">
               <svg width="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
@@ -9553,35 +9562,23 @@ function getDirectChildBranches(branch) {
 
         <div class="modal-location-body">
           <div class="modal-location-map-shell">
-            <button type="button" id="modalLocationMapToggle" class="map-toggle-button map-viewport-toggle modal-location-map-toggle" aria-controls="modalLocationMapViewport" aria-expanded="false">
-              <span class="sr-only">Open map</span>
-              
-              <span class="map-toggle-icon">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M18 20.75H12C11.8011 20.75 11.6103 20.671 11.4697 20.5303C11.329 20.3897 11.25 20.1989 11.25 20C11.25 19.8011 11.329 19.6103 11.4697 19.4697C11.6103 19.329 11.8011 19.25 12 19.25H18C18.3315 19.25 18.6495 19.1183 18.8839 18.8839C19.1183 18.6495 19.25 18.3315 19.25 18V6C19.25 5.66848 19.1183 5.35054 18.8839 5.11612C18.6495 4.8817 18.3315 4.75 18 4.75H6C5.66848 4.75 5.35054 4.8817 5.11612 5.11612C4.8817 5.35054 4.75 5.66848 4.75 6V12C4.75 12.1989 4.67098 12.3897 4.53033 12.5303C4.38968 12.671 4.19891 12.75 4 12.75C3.80109 12.75 3.61032 12.671 3.46967 12.5303C3.32902 12.3897 3.25 12.1989 3.25 12V6C3.25 5.27065 3.53973 4.57118 4.05546 4.05546C4.57118 3.53973 5.27065 3.25 6 3.25H18C18.7293 3.25 19.4288 3.53973 19.9445 4.05546C20.4603 4.57118 20.75 5.27065 20.75 6V18C20.75 18.7293 20.4603 19.4288 19.9445 19.9445C19.4288 20.4603 18.7293 20.75 18 20.75Z" fill="currentColor"/>
-                  <path d="M16 12.75C15.8019 12.7474 15.6126 12.6676 15.4725 12.5275C15.3324 12.3874 15.2526 12.1981 15.25 12V8.75H12C11.8011 8.75 11.6103 8.67098 11.4697 8.53033C11.329 8.38968 11.25 8.19891 11.25 8C11.25 7.80109 11.329 7.61032 11.4697 7.46967C11.6103 7.32902 11.8011 7.25 12 7.25H16C16.1981 7.25259 16.3874 7.33244 16.5275 7.47253C16.6676 7.61263 16.7474 7.80189 16.75 8V12C16.7474 12.1981 16.6676 12.3874 16.5275 12.5275C16.3874 12.6676 16.1981 12.7474 16 12.75Z" fill="currentColor"/>
-                  <path d="M11.5 13.25C11.3071 13.2352 11.1276 13.1455 11 13C10.877 12.8625 10.809 12.6845 10.809 12.5C10.809 12.3155 10.877 12.1375 11 12L15.5 7.5C15.6422 7.36752 15.8302 7.29539 16.0245 7.29882C16.2188 7.30225 16.4042 7.38096 16.5416 7.51838C16.679 7.65579 16.7578 7.84117 16.7612 8.03548C16.7646 8.22978 16.6925 8.41782 16.56 8.56L12 13C11.8724 13.1455 11.6929 13.2352 11.5 13.25Z" fill="currentColor"/>
-                  <path d="M8 20.75H5C4.53668 20.7474 4.09309 20.5622 3.76546 20.2345C3.43784 19.9069 3.25263 19.4633 3.25 19V16C3.25263 15.5367 3.43784 15.0931 3.76546 14.7655C4.09309 14.4378 4.53668 14.2526 5 14.25H8C8.46332 14.2526 8.90691 14.4378 9.23454 14.7655C9.56216 15.0931 9.74738 15.5367 9.75 16V19C9.74738 19.4633 9.56216 19.9069 9.23454 20.2345C8.90691 20.5622 8.46332 20.7474 8 20.75ZM5 15.75C4.9337 15.75 4.87011 15.7763 4.82322 15.8232C4.77634 15.8701 4.75 15.9337 4.75 16V19C4.75 19.0663 4.77634 19.1299 4.82322 19.1768C4.87011 19.2237 4.9337 19.25 5 19.25H8C8.0663 19.25 8.12989 19.2237 8.17678 19.1768C8.22366 19.1299 8.25 19.0663 8.25 19V16C8.25 15.9337 8.22366 15.8701 8.17678 15.8232C8.12989 15.7763 8.0663 15.75 8 15.75H5Z" fill="currentColor"/>
-                </svg>
-              </span>
-            </button>
-            <div class="map-viewport modal-location-map-viewport hidden" id="modalLocationMapViewport">
+            <div class="map-viewport modal-location-map-viewport hidden legacy-map-shell" id="modalLocationMapViewportLegacy">
               <div class="map-controls modal-location-map-controls">
                 <button type="button" class="map-controls-handle" aria-label="Move map controls" title="Move controls">::</button>
-                <select id="modalLocationMapRegionSelect" class="dex-input map-region-select" aria-label="Location map region">
+                <select id="modalLocationMapRegionSelectLegacy" class="dex-input map-region-select" aria-label="Location map region">
                   <option value="">All regions</option>
                   ${regions.map(region => `<option value="${region}">${region}</option>`).join("")}
                 </select>
                 <label class="map-zoom-control">
                   <span>Zoom</span>
-                  <input id="modalLocationMapZoomSlider" type="range" min="0" max="500" step="1" value="0">
-                  <output id="modalLocationMapZoomValue" for="modalLocationMapZoomSlider">0%</output>
+                  <input id="modalLocationMapZoomSliderLegacy" type="range" min="0" max="500" step="1" value="0">
+                  <output id="modalLocationMapZoomValueLegacy" for="modalLocationMapZoomSliderLegacy">0%</output>
                 </label>
               </div>
-              <svg id="modalLocationMapSvg" viewBox="0 0 1662 1174" preserveAspectRatio="none">
+              <svg id="modalLocationMapSvgLegacy" viewBox="0 0 1662 1174" preserveAspectRatio="none">
                 <image href="maps/World Map.png" x="0" y="0" width="1662" height="1174"/>
-                <g id="modalLocationMapRegions"></g>
-                <g id="modalLocationMapPins"></g>
+                <g id="modalLocationMapRegionsLegacy"></g>
+                <g id="modalLocationMapPinsLegacy"></g>
               </svg>
               <button type="button" id="modalLocationMapCollapse" class="map-viewport-collapse" aria-label="Hide map" title="Hide map">
                   <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -9593,11 +9590,15 @@ function getDirectChildBranches(branch) {
             </div>
 
           <div class="modal-move-list modal-location-list" role="list">
-            ${encounters.map((encounter, index) => buildModalLocationRow(encounter, index)).join("")}
+            ${buildModalLocationListMarkup(encounters)}
             <div class="modal-move-empty modal-location-empty hidden">No matching locations</div>
           </div>
 
-          <div id="modalLocationInfo" class="modal-move-info modal-location-info"></div>
+          <div id="modalLocationInfo" class="modal-move-info modal-location-info">
+            <div class="move-box modal-location-detail modal-location-empty-info">
+              <div class="move-header"><div class="move-title"><input id="modalLocationSearch" class="dex-input modal-move-search modal-location-search-input" placeholder="Search locations..."></div></div>
+            </div>
+          </div>
         </div>
       </div>
     `;
@@ -9614,8 +9615,13 @@ function getDirectChildBranches(branch) {
         const info = getEncounterLocationInfo(loc);
         const evs = getModalLocationEvs(mon);
         const evTotal = Object.values(evs).reduce((sum, val) => sum + val, 0);
-        const exp = calcModalLocationExp(mon.yields?.exp || 0, loc.min_level || 0, mon.id);
         const isHorde = info.hordeMultiplier > 0 || info.hordeLabel === "Horde";
+        const minLevel = Number(loc.min_level) || 0;
+        const maxLevel = Number(loc.max_level) || minLevel;
+        const expMultiplier = isHorde && info.hordeMultiplier ? info.hordeMultiplier : 1;
+        const minExp = calcModalLocationExp(mon.yields?.exp || 0, minLevel, mon.id) * expMultiplier;
+        const maxExp = calcModalLocationExp(mon.yields?.exp || 0, maxLevel, mon.id) * expMultiplier;
+        const expLabel = minExp === maxExp ? `${minExp}` : `${minExp}-${maxExp}`;
         const moveNames = getEncounterMovesForLevelList(mon, loc.max_level);
         const timingEntries = info.timingEntries.length
           ? info.timingEntries
@@ -9635,7 +9641,7 @@ function getDirectChildBranches(branch) {
           locationDisplayName: info.displayName,
           seasonLabel: entry.season || info.seasonLabel || "",
           timeLabel: entry.time || "",
-          rarityLabel: entry.chance || "",
+          rarityLabel: isHorde ? formatModalLocationHordeRarity(entry.chance) : (entry.chance || ""),
           rarityValues: [entry.chance || ""].filter(Boolean),
           seasonLabels: [entry.season || info.seasonLabel || "Any"].filter(Boolean),
           timeLabels: [entry.time || "Any"].filter(Boolean),
@@ -9650,9 +9656,11 @@ function getDirectChildBranches(branch) {
             entry.chance,
             info.hordeLabel
           ].filter(Boolean).join(" ").toLowerCase(),
-          exp,
-          expLabel: isHorde && info.hordeMultiplier ? `${exp * info.hordeMultiplier}` : `${exp}`,
-          expKey: isHorde && info.hordeMultiplier ? `${exp * info.hordeMultiplier}` : String(exp),
+          exp: minExp,
+          minExp,
+          maxExp,
+          expLabel,
+          expKey: expLabel,
           evs,
           evTotal,
           moveNames,
@@ -9694,7 +9702,10 @@ function getDirectChildBranches(branch) {
           variant.rarityLabel || "",
           variant.loc.min_level ?? "",
           variant.loc.max_level ?? "",
-          variant.hordeMultiplier || 0
+          variant.hordeMultiplier || 0,
+          // Keep a season with a different time/rarity relationship in its
+          // own card instead of creating a misleading cross-combination.
+          variant.timeLabel || ""
         ].join("|");
         const existing = variantGroups.get(key);
         if (existing) {
@@ -9768,10 +9779,11 @@ function getDirectChildBranches(branch) {
   }
 
   function compareModalLocationVariants(a, b) {
+    const timeOrder = { Morning: 0, Day: 1, Night: 2, Any: 3 };
     return (a.loc.type || "").localeCompare(b.loc.type || "")
-      || (a.rarityLabel || "").localeCompare(b.rarityLabel || "")
       || (a.seasonLabel || "").localeCompare(b.seasonLabel || "")
-      || (a.timeLabel || "").localeCompare(b.timeLabel || "")
+      || (timeOrder[a.timeLabel] ?? 99) - (timeOrder[b.timeLabel] ?? 99)
+      || (a.rarityLabel || "").localeCompare(b.rarityLabel || "")
       || (a.loc.min_level || 0) - (b.loc.min_level || 0)
       || (a.loc.max_level || 0) - (b.loc.max_level || 0);
   }
@@ -9839,17 +9851,40 @@ function getDirectChildBranches(branch) {
     });
   }
 
-  function buildModalLocationRow(encounter, index) {
+  function buildModalLocationListMarkup(encounters) {
+    const regions = new Map();
+    encounters.forEach((encounter, index) => {
+      const region = encounter.region || encounter.loc?.region_name || "Unknown Region";
+      if (!regions.has(region)) regions.set(region, []);
+      regions.get(region).push({ encounter, index });
+    });
+
+    return [...regions.entries()].map(([region, entries]) => {
+      const collapsedEntries = entries.slice(4);
+      return [
+        ...entries.slice(0, 4).map(({ encounter, index }) => buildModalLocationRow(encounter, index)),
+        ...collapsedEntries.map(({ encounter, index }) => buildModalLocationRow(encounter, index, true)),
+        collapsedEntries.length
+          ? `<button type="button" class="modal-location-see-more" data-region="${escapeHtml(region)}" aria-expanded="false"><img src="maps/${encodeURIComponent(region)}.png" alt="${escapeHtml(region)}" loading="lazy"><span>See more (${collapsedEntries.length})</span></button>`
+          : ""
+      ].join("");
+    }).join("");
+  }
+
+  function buildModalLocationRow(encounter, index, collapsed = false) {
     const variantCount = encounter.variants?.length || 1;
+    const hordes = [...new Set((encounter.variants || [encounter]).map(variant => Number(variant.hordeMultiplier)).filter(Boolean))].sort((a, b) => a - b);
+    const hordeMarkup = hordes.map(multiplier => `<img src="sprites/assets/horde${multiplier === 5 ? 5 : 3}.png" alt="${multiplier}x Horde" class="horde-icon modal-location-row-horde">`).join("");
   const regionName = encounter.region || encounter.loc.region_name || "Unknown Region";
     const regionImage = `maps/${encodeURIComponent(regionName)}.png`;
     const locationName = encounter.locationDisplayName || encounter.location || encounter.baseName || "Unknown Location";
 
     return `
       <button type="button"
-        class="modal-move-row modal-location-row"
+        class="modal-move-row modal-location-row${collapsed ? " modal-location-row-collapsed" : ""}"
         data-index="${index}"
         data-region="${regionName}"
+        data-collapsed="${collapsed}"
         data-rarity="${(encounter.rarities || []).filter(Boolean).join("|")}"
         data-season="${(encounter.seasons || []).join("|")}"
         data-time="${(encounter.times || []).join("|")}"
@@ -9858,6 +9893,7 @@ function getDirectChildBranches(branch) {
           <img src="${regionImage}" alt="${regionName}" loading="lazy">
         </span>
         <span class="modal-move-name">${escapeHtml(locationName)}</span>
+        <span class="modal-location-row-hordes">${hordeMarkup}</span>
         ${variantCount > 1 ? `<span class="modal-location-variation-badge" aria-label="${variantCount} variations">${variantCount}</span>` : ""}
       </button>
     `;
@@ -9867,7 +9903,7 @@ function getDirectChildBranches(branch) {
     cleanupModalLocationMap();
 
     const container = $("#locations");
-    const search = $("#modalLocationSearch");
+    let search = $("#modalLocationSearch");
     const info = $("#modalLocationInfo");
     const filtersBtn = $("#modalLocationFiltersBtn");
     const filtersPanel = $("#modalLocationFiltersPanel");
@@ -9882,6 +9918,8 @@ function getDirectChildBranches(branch) {
       .filter(value => value !== null)
       .sort((a, b) => a - b);
     const rows = [...container.querySelectorAll(".modal-location-row")];
+    const expandedLocationRegions = new Set();
+    const seeMoreButtons = [...container.querySelectorAll(".modal-location-see-more")];
     const emptyState = container.querySelector(".modal-location-empty");
     const filterGroups = {
       region: [...container.querySelectorAll('.modal-location-filter[data-filter="region"]')],
@@ -9986,10 +10024,13 @@ function getDirectChildBranches(branch) {
 
     const renderSelectedLocationInfo = () => {
       const encounter = encounters[selectedIndex];
+      const existingMap = info.querySelector("#modalLocationMapViewport");
       info.innerHTML = encounter
         ? buildModalLocationInfo(encounter)
         : `<div class="modal-move-info-empty">Select a location to inspect encounter details.</div>`;
-      if (encounter) renderModalLocationInfoMap(encounter);
+      const nextMap = info.querySelector("#modalLocationMapViewport");
+      if (existingMap && nextMap) nextMap.replaceWith(existingMap);
+      search = info.querySelector("#modalLocationSearch") || search;
       refreshFilterGroups();
       info.querySelectorAll(".modal-location-filter").forEach(bindFilterButton);
       syncMasterFilterButtons();
@@ -10000,6 +10041,38 @@ function getDirectChildBranches(branch) {
           openModalMoveFromLocation(button.dataset.moveName || button.textContent || "");
         });
       });
+      const variantRows = [...info.querySelectorAll(".modal-location-card-variant")];
+      const typeButtons = [...info.querySelectorAll(".modal-location-type-btn")];
+      const updateCardVariants = () => {
+        const activeType = info.querySelector(".modal-location-type-btn.active")?.dataset.type;
+        variantRows.forEach(row => {
+          const typeMatch = !activeType || row.dataset.type === activeType;
+          row.classList.toggle("hidden", !typeMatch);
+        });
+      };
+      typeButtons.forEach(button => {
+        button.addEventListener("click", () => {
+          typeButtons.forEach(item => item.classList.remove("active"));
+          button.classList.add("active");
+          updateCardVariants();
+        });
+      });
+      const autocomplete = info.querySelector(".modal-location-autocomplete");
+      const renderAutocomplete = () => {
+        const query = search.value.trim().toLowerCase();
+        if (!query) { autocomplete?.classList.add("hidden"); return; }
+        const matches = encounters.filter(item => [item.locationDisplayName, item.location, item.region, item.locationFullName].filter(Boolean).join(" ").toLowerCase().includes(query)).slice(0, 8);
+        if (!autocomplete) return;
+        autocomplete.innerHTML = matches.map(item => `<button type="button" class="modal-location-autocomplete-option" data-location-key="${escapeHtml(getModalLocationGroupKey(item))}">${escapeHtml(item.locationDisplayName || item.location)}<small>${escapeHtml(item.region || "")}</small></button>`).join("");
+        autocomplete.classList.toggle("hidden", !matches.length);
+        autocomplete.querySelectorAll("[data-location-key]").forEach(option => option.addEventListener("click", () => {
+          const index = encounters.findIndex(item => getModalLocationGroupKey(item) === option.dataset.locationKey);
+          if (index >= 0) selectRow(index, { skipUrlUpdate: true });
+          autocomplete.classList.add("hidden");
+        }));
+      };
+      search.addEventListener("input", renderAutocomplete);
+      updateCardVariants();
     };
 
     const setFilterButtonState = (button, state) => {
@@ -10220,23 +10293,35 @@ function getDirectChildBranches(branch) {
     }
 
     applyLocationFilters = () => {
-      const q = search.value.trim().toLowerCase();
       const visibleEncounterIndices = [];
       syncRarityRangeControls();
 
       rows.forEach(row => {
-        const matchesSearch = !q || row.dataset.name.includes(q);
         const rowSeasons = row.dataset.season ? row.dataset.season.split("|").filter(Boolean) : [];
         const rowTimes = row.dataset.time ? row.dataset.time.split("|").filter(Boolean) : [];
-      const visible = matchesSearch
-          && rowMatchesFilterGroup([row.dataset.region].filter(Boolean), "region")
+        const matchesFilters = rowMatchesFilterGroup([row.dataset.region].filter(Boolean), "region")
           && rowMatchesFilterGroup([row.dataset.rarity].filter(Boolean), "rarity")
           && rowMatchesRarityRange([row.dataset.rarity].filter(Boolean))
           && rowMatchesFilterGroup(rowSeasons, "season")
           && rowMatchesFilterGroup(rowTimes, "time");
 
-        row.classList.toggle("hidden", !visible);
-        if (visible) visibleEncounterIndices.push(Number(row.dataset.index));
+        const expanded = expandedLocationRegions.has(row.dataset.region);
+        row.dataset.filterMatch = String(matchesFilters);
+        row.classList.toggle("hidden", !matchesFilters || (row.dataset.collapsed === "true" && !expanded));
+        if (matchesFilters) visibleEncounterIndices.push(Number(row.dataset.index));
+      });
+
+      seeMoreButtons.forEach(button => {
+        const region = button.dataset.region;
+        const matchingExtras = rows.filter(row =>
+          row.dataset.region === region
+          && row.dataset.collapsed === "true"
+          && row.dataset.filterMatch === "true"
+        ).length;
+        button.classList.toggle("hidden", expandedLocationRegions.has(region) || matchingExtras === 0);
+        button.setAttribute("aria-expanded", String(expandedLocationRegions.has(region)));
+        const label = button.querySelector("span");
+        if (label) label.textContent = `See more (${matchingExtras})`;
       });
 
       const selectedRow = selectedIndex >= 0 ? rows.find(row => Number(row.dataset.index) === selectedIndex) : null;
@@ -10275,6 +10360,16 @@ function getDirectChildBranches(branch) {
     container.querySelectorAll(".modal-location-filter").forEach(bindFilterButton);
     bindRarityRangeControls();
 
+    // The first encounter is the default location view. Its name also seeds
+    // the relocated search field so the list and card start in sync.
+    if (encounters.length && !search.value) search.value = encounters[0].locationDisplayName || encounters[0].location || "";
+    if (encounters.length) {
+      selectedIndex = 0;
+      modalLocationSelectedKey = getModalLocationGroupKey(encounters[0]);
+      rows[0]?.classList.add("active");
+      renderSelectedLocationInfo();
+    }
+
     modalLocationMapCleanup = initModalLocationMap(encounters, index => {
       clearLocationFiltersForMapSelection();
       selectRow(index, { syncRegion: false });
@@ -10284,8 +10379,13 @@ function getDirectChildBranches(branch) {
       row.addEventListener("click", () => selectRow(Number(row.dataset.index)));
     });
 
-    search.addEventListener("input", applyLocationFilters);
-    
+    seeMoreButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        expandedLocationRegions.add(button.dataset.region);
+        applyLocationFilters();
+      });
+    });
+
     applyLocationFilters();
 
     const hydrateLocationSelection = () => {
@@ -10397,6 +10497,10 @@ function getDirectChildBranches(branch) {
     if (!state.viewport || !state.svg || !state.regions) return null;
 
     modalLocationMapState = state;
+    if (state.regionSelect) {
+      const regions = [...new Set(encounters.map(encounter => encounter.region || encounter.loc?.region_name).filter(Boolean))].sort();
+      state.regionSelect.innerHTML = `<option value="">All regions</option>${regions.map(region => `<option value="${escapeHtml(region)}">${escapeHtml(region)}</option>`).join("")}`;
+    }
     modalLocationMapToggleButton = $("#modalLocationMapToggle");
     const modalLocationMapCollapseButton = $("#modalLocationMapCollapse");
     initDraggableMapControls(state.viewport, state.controls, state.cleanup);
@@ -10810,95 +10914,59 @@ function getDirectChildBranches(branch) {
 
   function buildModalLocationInfo(encounter) {
     const variants = encounter.variants || [encounter];
-    const hasVariations = variants.length > 1;
-    const variationTitle = hasVariations ? "Encounter Variations" : "Encounter Details";
-    const tableRows = buildModalLocationVariationRows(variants);
     const locationTitle = encounter.locationDisplayName || encounter.location || encounter.baseName || "Unknown Location";
-    const secondaryTitle = encounter.locationAreas?.length > 1
-      ? encounter.locationAreas.join(" / ")
-      : (encounter.location && encounter.locationDisplayName && encounter.location !== encounter.locationDisplayName
-        ? encounter.location
-        : "");
+    const types = encounter.types?.length ? encounter.types : [encounter.loc?.type || "Unknown"];
+    const hordeIndicator = multiplier => {
+      const asset = multiplier === 5 ? "horde5.png" : "horde3.png";
+      return `<span class="modal-location-horde-indicator" aria-label="${multiplier}x Horde" title="${multiplier}x Horde"><img src="sprites/assets/${asset}" alt="${multiplier}x Horde" class="horde-icon"></span>`;
+    };
+    const renderCardSeasons = seasonLabels => {
+      const normalized = new Set(seasonLabels.map(season => String(season).toLowerCase()).map(season => season === "fall" ? "autumn" : season));
+      if (normalized.has("any") || ["spring", "summer", "autumn", "winter"].every(season => normalized.has(season))) {
+        return `<span class="modal-location-all-seasons"><img src="sprites/assets/allseasons.png" alt="All Seasons" class="season-icon"> All Seasons</span>`;
+      }
+      return seasonLabels.map(season => `<span title="${escapeHtml(season)}">${renderSeasonSymbol(season)} ${escapeHtml(season)}</span>`).join("");
+    };
+    const cardGroups = new Map();
+    variants.forEach(variant => {
+      const seasonLabels = variant.seasonLabels?.length ? variant.seasonLabels : [variant.seasonLabel || "Any"];
+      const key = [variant.loc.type || "Unknown", Number(variant.hordeMultiplier) || 0, seasonLabels.join("|"), variant.loc.min_level || "", variant.loc.max_level || "", variant.expLabel || variant.exp || "", (variant.moveNames || []).join("|")].join("::");
+      if (!cardGroups.has(key)) cardGroups.set(key, { variant, variants: [] });
+      cardGroups.get(key).variants.push(variant);
+    });
+    const variantRows = [...cardGroups.values()].map((card, index) => {
+      const variant = card.variant;
+      const seasonLabels = variant.seasonLabels?.length ? variant.seasonLabels : [variant.seasonLabel || "Any"];
+      const level = variant.loc.min_level === variant.loc.max_level
+        ? `Lv ${variant.loc.min_level || "?"}`
+        : `Lv ${variant.loc.min_level || "?"}-${variant.loc.max_level || "?"}`;
+      const moves = variant.moveNames?.length
+        ? variant.moveNames.map(move => renderModalLocationMoveButton(move)).join("")
+        : "<span class=\"modal-location-muted\">—</span>";
+      const horde = Number(variant.hordeMultiplier) || 0;
+      const timingRows = card.variants.map(timingVariant => {
+        const times = timingVariant.timeLabels?.length ? timingVariant.timeLabels : [timingVariant.timeLabel || "Any"];
+        return `<div class="modal-location-card-time-rarity">${times.map(time => `<span title="${escapeHtml(time)}">${renderTimeSymbol(time)} :</span>`).join("")} <strong>${escapeHtml(timingVariant.rarityLabel || "0%")}</strong></div>`;
+      }).join("");
+      return `<div class="modal-location-card-variant" data-variant-index="${index}" data-type="${escapeHtml(variant.loc.type || "Unknown")}" data-season="${escapeHtml(seasonLabels.join("|"))}" data-horde="${horde}">
+        <div class="modal-location-card-timing">
+          <div class="modal-location-card-seasons">${horde ? hordeIndicator(horde) : ""}${renderCardSeasons(seasonLabels)}</div>
+          ${timingRows}
+        </div>
+        <div class="modal-location-card-stats"><div><span>Level Range</span><strong>${escapeHtml(level)}</strong></div><div><span>EXP</span><strong>${escapeHtml(variant.expLabel || variant.exp || "0")}</strong></div><div class="modal-location-card-moves"><span>Move Pool</span><div>${moves}</div></div></div>
+      </div>`;
+    }).join("");
 
     return `
       <div class="move-box modal-location-detail">
         <div class="move-header">
-          <div class="move-title">${escapeHtml(locationTitle)}</div>
-          <div class="move-header-right">
-            ${secondaryTitle ? `<span class="icon mod">${escapeHtml(secondaryTitle)}</span>` : ""}
-            ${encounter.rarities?.length ? `<span class="icon mod">${escapeHtml(encounter.rarities.join(" / "))}</span>` : ""}
-          </div>
+          <div class="move-title modal-location-search-title"><input id="modalLocationSearch" class="dex-input modal-move-search modal-location-search-input" placeholder="Search locations..." value="${escapeHtml(locationTitle)}"><div class="modal-location-autocomplete hidden" role="listbox"></div></div>
         </div>
-
-        <div class="modal-location-subsection">
-          <div class="modal-location-subtitle">Region Map</div>
-          <div class="modal-location-info-map-viewport">
-            <svg class="modal-location-info-map-svg" viewBox="0 0 1662 1174" preserveAspectRatio="none">
-              <image href="maps/World Map.png" x="0" y="0" width="1662" height="1174"/>
-              <g class="modal-location-info-map-pins"></g>
-            </svg>
-          </div>
+        <div class="map-viewport modal-location-map-viewport" id="modalLocationMapViewport">
+          <div class="map-controls modal-location-map-controls"><button type="button" class="map-controls-handle" aria-label="Move map controls">::</button><select id="modalLocationMapRegionSelect" class="dex-input map-region-select" aria-label="Location map region"><option value="">All regions</option></select><label class="map-zoom-control"><span>Zoom</span><input id="modalLocationMapZoomSlider" type="range" min="0" max="500" step="1" value="0"><output id="modalLocationMapZoomValue">0%</output></label></div>
+          <svg id="modalLocationMapSvg" viewBox="0 0 1662 1174" preserveAspectRatio="xMidYMid meet"><image href="maps/World Map.png" x="0" y="0" width="1662" height="1174"/><g id="modalLocationMapRegions"></g><g id="modalLocationMapPins"></g></svg>
         </div>
-
-        <div class="modal-location-subsection">
-          <div class="modal-location-subtitle">Timing Filters</div>
-          <div class="modal-location-timing-controls">
-            <div class="modal-location-timing-control-group" data-filter-group="season">
-              <span class="modal-location-timing-control-label">Season</span>
-              <div class="modal-location-timing-pills">
-                ${["Spring", "Summer", "Autumn", "Winter"].map(season => `
-                  <button type="button"
-                    class="timing-pill modal-location-filter-icon"
-                    data-type="season"
-                    data-value="${season}"
-                    aria-label="${season}"
-                    title="${season}">
-                    <span class="filter-box">${renderSeasonSymbol(season)}</span>
-                  </button>
-                `).join("")}
-              </div>
-            </div>
-
-            <div class="modal-location-timing-control-group" data-filter-group="time">
-              <span class="modal-location-timing-control-label">Time</span>
-              <div class="modal-location-timing-pills">
-                ${["Morning", "Day", "Night"].map(time => `
-                  <button type="button"
-                    class="timing-pill modal-location-filter-icon"
-                    data-type="time"
-                    data-value="${time}"
-                    aria-label="${time}"
-                    title="${time}">
-                    <span class="filter-box">${renderTimeSymbol(time)}</span>
-                  </button>
-                `).join("")}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="modal-location-subsection">
-          <div class="modal-location-subtitle">${variationTitle}</div>
-          <div class="modal-location-variations-table-wrap">
-            <table class="modal-location-variations-table">
-              <thead>
-                <tr>
-                  <th>Type</th>
-                  <th>Season</th>
-                  <th>Time</th>
-                  <th>Rarity</th>
-                  <th>Levels</th>
-                  <th>EXP</th>
-                  <th>Moves</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${tableRows}
-              </tbody>
-            </table>
-            <div class="modal-location-variations-empty hidden">No matching variations</div>
-          </div>
-        </div>
+        <div class="modal-location-card-body"><div class="modal-location-card-types">${types.map((type, index) => `<button type="button" class="modal-location-type-btn${index === 0 ? " active" : ""}" data-type="${escapeHtml(type)}"><img src="sprites/assets/${escapeHtml(type.toLowerCase())}.webp" alt="${escapeHtml(type)}" onerror="this.onerror=null;this.src='sprites/pokemon/0.png';">${escapeHtml(type)}</button>`).join("")}</div><div class="modal-location-card-variants">${variantRows}</div></div>
       </div>
     `;
   }
@@ -10929,7 +10997,7 @@ function getDirectChildBranches(branch) {
     if (pin) pinsLayer.appendChild(pin);
   }
 
-  function createMapPinElement(center, classNames = ["modal-location-map-pin"]) {
+  function createMapPinElement(center, classNames = ["modal-location-map-pin"], scale = 0.5) {
     if (!center) return null;
 
     const pinGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -10941,9 +11009,9 @@ function getDirectChildBranches(branch) {
     const pinPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
     const pathData = `
         M ${center.x} ${center.y}
-        C ${center.x - 12} ${center.y - 14} ${center.x - 14} ${center.y - 22} ${center.x - 14} ${center.y - 28}
-        A 14 14 0 1 1 ${center.x + 14} ${center.y - 28}
-        C ${center.x + 14} ${center.y - 22} ${center.x + 12} ${center.y - 14} ${center.x} ${center.y}
+        C ${center.x - 12*scale} ${center.y - 14*scale} ${center.x - 14*scale} ${center.y - 22*scale} ${center.x - 14*scale} ${center.y - 28*scale}
+        A ${14*scale} ${14*scale} 0 1 1 ${center.x + 14*scale} ${center.y - 28*scale}
+        C ${center.x + 14*scale} ${center.y - 22*scale} ${center.x + 12*scale} ${center.y - 14*scale} ${center.x} ${center.y}
         Z
     `.replace(/\s+/g, " ").trim();
 
@@ -10951,8 +11019,8 @@ function getDirectChildBranches(branch) {
 
     const pinCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     pinCircle.setAttribute("cx", center.x);
-    pinCircle.setAttribute("cy", center.y - 28);
-    pinCircle.setAttribute("r", "5.5");
+    pinCircle.setAttribute("cy", center.y - 28*scale);
+    pinCircle.setAttribute("r", 5.5*scale);
     pinCircle.setAttribute("fill", "#ffffff");
 
     pinGroup.appendChild(pinPath);
@@ -11209,10 +11277,15 @@ function getDirectChildBranches(branch) {
   }
   function getModalLocationVariationNotes(variant) {
     const notes = [];
-    const exp = calcModalLocationExp(variant.mon.yields?.exp || 0, variant.loc.min_level || 0, variant.mon.id);
+    const minLevel = Number(variant.loc.min_level) || 0;
+    const maxLevel = Number(variant.loc.max_level) || minLevel;
+    const expMultiplier = variant.hordeMultiplier || 1;
+    const minExp = calcModalLocationExp(variant.mon.yields?.exp || 0, minLevel, variant.mon.id) * expMultiplier;
+    const maxExp = calcModalLocationExp(variant.mon.yields?.exp || 0, maxLevel, variant.mon.id) * expMultiplier;
+    const exp = minExp === maxExp ? `${minExp}` : `${minExp}-${maxExp}`;
     const moves = getEncounterMovesForLevel(variant.mon, variant.loc.max_level);
 
-    if (Number.isFinite(exp)) notes.push(`EXP ${exp}`);
+    if (Number.isFinite(minExp) && Number.isFinite(maxExp)) notes.push(`EXP ${exp}`);
     if (moves) notes.push(moves);
     return notes.join(" | ") || " ";
   }
