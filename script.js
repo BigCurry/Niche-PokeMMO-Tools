@@ -2298,6 +2298,11 @@ const PokedexTool = (() => {
     let currentModalTab = "summary";
     let currentModalLocationFiltersOpen = false;
     let currentGridFiltersOpen = false;
+    let pokedexSearchMode = "pokemon";
+    let locationFilterGroup = null;
+    let locationSearchFilters = { rarity: new Set(), season: new Set(), time: new Set(), horde: new Set(), type: new Set() };
+    let locationHighlightState = { pokemonId: null, minRarity: null, maxRarity: null, rangeEnabled: false };
+    let locationEncounterInfoIndices = new Map();
     let isShinyActive = false;
     let currentCosmeticIndex = 0;
     let isCosmeticCyclerExpanded = false;
@@ -2643,6 +2648,11 @@ const PokedexTool = (() => {
   const URLRegistry = {
     grid: [
       {
+        key: "mode",
+        serialize: () => pokedexSearchMode === "location" ? "location" : null,
+        deserialize: (val) => setPokedexSearchMode(val === "location" ? "location" : "pokemon")
+      },
+      {
         key: "search",
         serialize: () => searchInput.value || null,
         deserialize: (val) => { searchInput.value = val; }
@@ -2719,6 +2729,61 @@ const PokedexTool = (() => {
            filters.stats = { hp: parts[0]||0, attack: parts[1]||0, defense: parts[2]||0, sp_attack: parts[3]||0, sp_defense: parts[4]||0, speed: parts[5]||0 };
            syncInputs();
         }
+      },
+      {
+        key: "loc_rarity",
+        serialize: () => locationSearchFilters.rarity.size ? [...locationSearchFilters.rarity].join("_") : null,
+        deserialize: (val) => deserializeLocationSet("rarity", val)
+      },
+      {
+        key: "loc_season",
+        serialize: () => locationSearchFilters.season.size ? [...locationSearchFilters.season].join("_") : null,
+        deserialize: (val) => deserializeLocationSet("season", val)
+      },
+      {
+        key: "loc_time",
+        serialize: () => locationSearchFilters.time.size ? [...locationSearchFilters.time].join("_") : null,
+        deserialize: (val) => deserializeLocationSet("time", val)
+      },
+      {
+        key: "loc_horde",
+        serialize: () => locationSearchFilters.horde.size ? [...locationSearchFilters.horde].join("_") : null,
+        deserialize: (val) => deserializeLocationSet("horde", val)
+      },
+      {
+        key: "loc_type",
+        serialize: () => locationSearchFilters.type.size ? [...locationSearchFilters.type].join("_") : null,
+        deserialize: (val) => deserializeLocationSet("type", val)
+      },
+      {
+        key: "loc_range",
+        serialize: () => locationHighlightState.rangeEnabled ? "true" : null,
+        deserialize: (val) => { locationHighlightState.rangeEnabled = val === "true"; }
+      },
+      {
+        key: "loc_pokemon",
+        serialize: () => locationHighlightState.pokemonId ? String(locationHighlightState.pokemonId) : null,
+        deserialize: (val) => {
+          locationHighlightState.pokemonId = Number(val) || null;
+          const mon = data.find(item => item.id === locationHighlightState.pokemonId);
+          const input = $("#pokedexLocationPokemonSearch");
+          if (input) input.value = mon?.name || "";
+        }
+      },
+      {
+        key: "loc_min",
+        serialize: () => !locationHighlightState.rangeEnabled || locationHighlightState.minRarity === null ? null : String(locationHighlightState.minRarity),
+        deserialize: (val) => { locationHighlightState.minRarity = Number(val); }
+      },
+      {
+        key: "loc_max",
+        serialize: () => !locationHighlightState.rangeEnabled || locationHighlightState.maxRarity === null ? null : String(locationHighlightState.maxRarity),
+        deserialize: (val) => { locationHighlightState.maxRarity = Number(val); }
+      },
+      {
+        key: "loc_filters",
+        serialize: () => $("#pokedexLocationFiltersPanel")?.classList.contains("collapsed") ? null : "true",
+        deserialize: (val) => $("#pokedexLocationFiltersPanel")?.classList.toggle("collapsed", val !== "true")
       }
     ],
 
@@ -2897,6 +2962,130 @@ const PokedexTool = (() => {
       }
     });
   }
+
+  function deserializeLocationSet(kind, val) {
+    const set = locationSearchFilters[kind];
+    if (!set) return;
+    set.clear();
+    val.split("_").filter(Boolean).forEach(value => set.add(value));
+    document.querySelectorAll(`[data-location-filter="${kind}"]`).forEach(button => {
+      button.classList.toggle("active", set.has(button.dataset.value));
+    });
+  }
+
+  function ensureLocationFilterControls() {
+    const groups = {
+      pokemon: $("#pokedexLocationPokemonSearch")?.closest(".dex-filter-group"),
+      rarity: $("#pokedexLocationRarityFilters")?.closest(".dex-filter-group"),
+      horde: $("#pokedexLocationHordeFilters")?.closest(".dex-filter-group"),
+      type: $("#pokedexLocationTypeFilters")?.closest(".dex-filter-group"),
+      season: $("#pokedexLocationSeasonFilters")?.closest(".dex-filter-group"),
+      time: $("#pokedexLocationTimeFilters")?.closest(".dex-filter-group")
+    };
+    Object.entries(groups).forEach(([kind, group]) => {
+      const label = group?.querySelector(".dex-filter-group-label");
+      if (!label || label.querySelector(`[data-location-reset="${kind}"]`)) return;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "reset-btn hidden";
+      button.dataset.locationReset = kind;
+      button.textContent = "âŸ³";
+      button.addEventListener("click", () => resetLocationFilter(kind));
+      label.appendChild(button);
+    });
+  }
+
+  function isLocationFilterActive(kind) {
+    if (kind === "pokemon") return Boolean(locationHighlightState.pokemonId);
+    if (kind === "rarity") return locationSearchFilters.rarity.size > 0 || locationHighlightState.rangeEnabled;
+    return Boolean(locationSearchFilters[kind]?.size);
+  }
+
+  function updateLocationFilterControls() {
+    document.querySelectorAll("[data-location-reset]").forEach(button => {
+      button.classList.toggle("hidden", !isLocationFilterActive(button.dataset.locationReset));
+    });
+    const hasActive = ["pokemon", "rarity", "horde", "type", "season", "time"].some(isLocationFilterActive);
+    $("#pokedexLocationResetAllBtn")?.classList.toggle("hidden", !hasActive);
+    $("#pokedexLocationFiltersBtn")?.classList.toggle("location-filters-active", hasActive);
+  }
+
+  function resetLocationFilter(kind) {
+    if (kind === "pokemon") {
+      locationHighlightState.pokemonId = null;
+      $("#pokedexLocationPokemonSearch").value = "";
+    } else if (kind === "rarity") {
+      locationSearchFilters.rarity.clear();
+      locationHighlightState.rangeEnabled = false;
+      locationHighlightState.minRarity = null;
+      locationHighlightState.maxRarity = null;
+    } else {
+      locationSearchFilters[kind]?.clear();
+    }
+    document.querySelectorAll(`[data-location-filter]`).forEach(button => {
+      if (button.dataset.locationFilter === kind) button.classList.remove("active");
+    });
+    renderLocationSearchFilters();
+    renderLocationResults();
+    updateLocationFilterControls();
+    updateURL(null, { replace: true });
+  }
+
+  function resetAllLocationFilters() {
+    ["rarity", "season", "time", "horde", "type"].forEach(kind => locationSearchFilters[kind].clear());
+    locationHighlightState = { pokemonId: null, minRarity: null, maxRarity: null, rangeEnabled: false };
+    $("#pokedexLocationPokemonSearch").value = "";
+    renderLocationSearchFilters();
+    renderLocationResults();
+    updateLocationFilterControls();
+    updateURL(null, { replace: true });
+  }
+
+  function syncLocationRarityRangeFromState() {
+    const range = $("#pokedexLocationRarityRange");
+    if (!range || locationHighlightState.minRarity === null || locationHighlightState.maxRarity === null) return;
+    const percentages = [...new Set(data.flatMap(mon => (mon.locations || []).flatMap(loc => {
+      const info = getEncounterLocationInfo(loc);
+      return (info.rarityValues || [loc.rarity]).map(parseModalLocationRarityPercent);
+    })).filter(value => value !== null))].sort((a, b) => a - b);
+    const min = percentages.indexOf(locationHighlightState.minRarity);
+    const max = percentages.indexOf(locationHighlightState.maxRarity);
+    const minInput = range.querySelector("[data-location-rarity-min]");
+    const maxInput = range.querySelector("[data-location-rarity-max]");
+    if (min >= 0 && max >= 0 && minInput && maxInput) {
+      minInput.value = String(min);
+      maxInput.value = String(max);
+      const minSelect = range.querySelector("[data-location-rarity-select-min]");
+      const maxSelect = range.querySelector("[data-location-rarity-select-max]");
+      if (minSelect) minSelect.value = String(min);
+      if (maxSelect) maxSelect.value = String(max);
+      updateLocationRarityRangeControls();
+    }
+  }
+
+  function updateLocationRarityRangeControls() {
+    const range = $("#pokedexLocationRarityRange");
+    if (!range) return;
+    range.classList.toggle("hidden", !locationHighlightState.rangeEnabled);
+    const minInput = range.querySelector("[data-location-rarity-min]");
+    const maxInput = range.querySelector("[data-location-rarity-max]");
+    if (!minInput || !maxInput) return;
+    const maxIndex = Number(maxInput.max) || 0;
+    let minIndex = Math.max(0, Math.min(maxIndex, Number(minInput.value) || 0));
+    let upperIndex = Math.max(0, Math.min(maxIndex, Number(maxInput.value) || maxIndex));
+    if (minIndex > upperIndex) [minIndex, upperIndex] = [upperIndex, minIndex];
+    minInput.value = String(minIndex);
+    maxInput.value = String(upperIndex);
+    const minSelect = range.querySelector("[data-location-rarity-select-min]");
+    const maxSelect = range.querySelector("[data-location-rarity-select-max]");
+    if (minSelect) minSelect.value = String(minIndex);
+    if (maxSelect) maxSelect.value = String(upperIndex);
+    const fill = range.querySelector("[data-location-rarity-fill]");
+    if (fill) {
+      fill.style.left = `${maxIndex ? (minIndex / maxIndex) * 100 : 0}%`;
+      fill.style.width = `${maxIndex ? ((upperIndex - minIndex) / maxIndex) * 100 : 100}%`;
+    }
+  }
   /* =============================================================
      INIT
   ============================================================= */
@@ -2978,6 +3167,165 @@ const PokedexTool = (() => {
       ["types","egg","location","moves","ability","stats"]
         .forEach(resetFilter);
     };
+
+    const modeToggle = $("#pokedexSearchModeToggle");
+    modeToggle?.addEventListener("click", () => {
+      setPokedexSearchMode(pokedexSearchMode === "pokemon" ? "location" : "pokemon");
+      updateURL(null, { replace: true });
+    });
+    $("#pokedexLocationFiltersBtn")?.addEventListener("click", () => {
+      $("#pokedexLocationFiltersPanel")?.classList.toggle("collapsed");
+      updateURL(null, { replace: true });
+    });
+    $("#pokedexLocationResetAllBtn")?.addEventListener("click", resetAllLocationFilters);
+    initPokedexLocationMode();
+  }
+
+  function initPokedexLocationMode() {
+    locationFilterGroup = $("#filterLocation")?.closest(".dex-filter-group");
+    const moveInfo = $("#moveInfoContainer");
+    if (moveInfo && moveInfo.parentElement !== document.body) document.body.appendChild(moveInfo);
+    if (!$("#locationMoveInfoBackdrop")) {
+      const backdrop = document.createElement("div");
+      backdrop.id = "locationMoveInfoBackdrop";
+      backdrop.className = "location-move-info-backdrop";
+      backdrop.addEventListener("click", hideLocationMoveInfo);
+      document.body.appendChild(backdrop);
+    }
+    renderLocationSearchFilters();
+  }
+
+  function showLocationMoveInfo(moveName) {
+    const container = $("#moveInfoContainer");
+    if (!container || !moveName) return;
+    container.innerHTML = buildMoveInfoBox(moveName, { contextMon: currentModalMon });
+    container.classList.remove("hidden");
+    container.classList.add("location-move-info-open");
+    $("#locationMoveInfoBackdrop")?.classList.add("is-open");
+    bindBodyMoveTools(container);
+    container.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function hideLocationMoveInfo() {
+    const container = $("#moveInfoContainer");
+    container?.classList.remove("location-move-info-open");
+    container?.classList.add("hidden");
+    if (container) container.innerHTML = "";
+    $("#locationMoveInfoBackdrop")?.classList.remove("is-open");
+  }
+
+  function setPokedexSearchMode(mode) {
+    pokedexSearchMode = mode;
+    const isLocation = mode === "location";
+    const toggle = $("#pokedexSearchModeToggle");
+    const locationMode = $("#pokedexLocationMode");
+    const pokemonControls = $(".pokedex-controls > .dex-top");
+    toggle?.setAttribute("aria-pressed", String(isLocation));
+    toggle?.setAttribute("aria-label", isLocation ? "Switch to Pokémon-based search" : "Switch to location-based search");
+    locationMode?.classList.toggle("hidden", !isLocation);
+    locationMode?.setAttribute("aria-hidden", String(!isLocation));
+    pokemonControls?.classList.toggle("hidden", isLocation);
+    grid?.classList.toggle("hidden", isLocation);
+    if (locationFilterGroup) {
+      const target = isLocation ? $("#pokedexLocationHost") : $("#dexfiltersPanel");
+      target?.appendChild(locationFilterGroup);
+    }
+    if (isLocation) {
+      renderLocationResults();
+      if (viewport && mapViewportToggleButton && viewport.classList.contains("hidden")) mapViewportToggleButton.click();
+    }
+    else applyFilters();
+  }
+
+  function renderLocationSearchFilters() {
+    ensureLocationFilterControls();
+    const encounters = data.flatMap(mon => (mon.locations || []).map(loc => ({ mon, loc, info: getEncounterLocationInfo(loc) })));
+    const values = {
+      rarity: [...new Set(encounters.flatMap(({loc, info}) => info.rarityValues?.length ? info.rarityValues : [loc.rarity]).filter(Boolean).filter(value => parseModalLocationRarityPercent(value) === null))],
+      season: [...new Set(encounters.flatMap(({info}) => info.seasonLabels || []).filter(Boolean))],
+      time: [...new Set(encounters.flatMap(({info}) => info.timeLabels || []).filter(Boolean))],
+      horde: [{ value: "0", label: "Single", icon: "hordeno.png" }, { value: "3", label: "3x Horde", icon: "horde3.png" }, { value: "5", label: "5x Horde", icon: "horde5.png" }],
+      type: [...new Map(encounters.map(({loc}) => String(loc.type || "Unknown").trim()).filter(Boolean).map(type => [type.toLowerCase(), type])).values()]
+    };
+    const ids = {rarity:"pokedexLocationRarityFilters",season:"pokedexLocationSeasonFilters",time:"pokedexLocationTimeFilters",horde:"pokedexLocationHordeFilters",type:"pokedexLocationTypeFilters"};
+    Object.entries(values).forEach(([kind, list]) => {
+      const container = $("#" + ids[kind]);
+      if (!container) return;
+      const sorted = kind === "horde" || kind === "type" ? list : list.sort((a,b) => String(a).localeCompare(String(b)));
+      container.innerHTML = sorted.map(item => {
+        const value = typeof item === "string" ? item : item.value;
+        const label = typeof item === "string" ? item : item.label;
+        const icon = kind === "type" ? `sprites/assets/${escapeHtml(value.toLowerCase())}.webp` : (kind === "horde" ? `sprites/assets/${item.icon}` : "");
+        return `<button type="button" class="encounter-filter-pill location-highlight-filter" data-location-filter="${kind}" data-value="${escapeHtml(value)}">${icon ? `<img class="location-filter-icon" src="${icon}" alt="">` : ""}<span>${escapeHtml(label)}</span></button>`;
+      }).join("");
+      if (kind === "rarity") {
+        const rangeToggle = document.createElement("button");
+        rangeToggle.type = "button";
+        rangeToggle.className = "encounter-filter-pill location-range-toggle";
+        rangeToggle.textContent = "% chance range";
+        rangeToggle.classList.toggle("active", locationHighlightState.rangeEnabled);
+        rangeToggle.addEventListener("click", () => {
+          locationHighlightState.rangeEnabled = !locationHighlightState.rangeEnabled;
+          if (!locationHighlightState.rangeEnabled) {
+            locationHighlightState.minRarity = null;
+            locationHighlightState.maxRarity = null;
+          }
+          updateLocationRarityRangeControls();
+          renderLocationResults();
+          updateLocationFilterControls();
+          updateURL(null, { replace: true });
+        });
+        container.appendChild(rangeToggle);
+      }
+      container.querySelectorAll("[data-location-filter]").forEach(button => button.addEventListener("click", () => {
+        const set = locationSearchFilters[kind];
+        set.has(button.dataset.value) ? set.delete(button.dataset.value) : set.add(button.dataset.value);
+        button.classList.toggle("active", set.has(button.dataset.value));
+        renderLocationResults();
+        updateLocationFilterControls();
+        updateURL(null, { replace: true });
+      }));
+    });
+
+    const percentages = [...new Set(encounters.flatMap(({loc, info}) => (info.rarityValues || [loc.rarity]).map(parseModalLocationRarityPercent)).filter(value => value !== null))].sort((a, b) => a - b);
+    const range = $("#pokedexLocationRarityRange");
+    if (range && percentages.length) {
+      range.innerHTML = `<div class="modal-location-rarity-range-heading">Percentage range</div><div class="modal-location-rarity-range-sliders"><div class="modal-location-rarity-range-fill" data-location-rarity-fill></div><input type="range" class="modal-location-rarity-slider" data-location-rarity-min min="0" max="${percentages.length - 1}" step="1" value="0" aria-label="Minimum rarity percentage"><input type="range" class="modal-location-rarity-slider" data-location-rarity-max min="0" max="${percentages.length - 1}" step="1" value="${percentages.length - 1}" aria-label="Maximum rarity percentage"></div><div class="modal-location-rarity-selectors"><label>Min<select class="modal-location-rarity-select" data-location-rarity-select-min>${percentages.map((rarity, index) => `<option value="${index}">${rarity}%</option>`).join("")}</select></label><label>Max<select class="modal-location-rarity-select" data-location-rarity-select-max>${percentages.map((rarity, index) => `<option value="${index}">${rarity}%</option>`).join("")}</select></label></div>`;
+      const update = () => {
+        let min = Number(range.querySelector("[data-location-rarity-min]").value), max = Number(range.querySelector("[data-location-rarity-max]").value);
+        if (min > max) [min, max] = [max, min];
+        locationHighlightState.minRarity = percentages[min]; locationHighlightState.maxRarity = percentages[max];
+        updateLocationRarityRangeControls();
+        renderLocationResults();
+        updateURL(null, { replace: true });
+      };
+      range.querySelectorAll("input").forEach(input => input.addEventListener("input", update));
+      range.querySelector("[data-location-rarity-select-min]").addEventListener("change", event => { range.querySelector("[data-location-rarity-min]").value = event.target.value; update(); });
+      range.querySelector("[data-location-rarity-select-max]").addEventListener("change", event => { range.querySelector("[data-location-rarity-max]").value = event.target.value; update(); });
+      updateLocationRarityRangeControls();
+    } else if (range) {
+      range.classList.add("hidden");
+    }
+
+    const pokemonInput = $("#pokedexLocationPokemonSearch");
+    const pokemonDropdown = $("#pokedexLocationPokemonDropdown");
+    if (pokemonInput && pokemonDropdown) {
+      const pokemonOptions = data.filter(isEligible).sort((a, b) => a.name.localeCompare(b.name));
+      const renderPokemonOptions = () => {
+        const query = pokemonInput.value.trim().toLowerCase();
+        if (!query) { pokemonDropdown.classList.add("hidden"); return; }
+        const matches = pokemonOptions.filter(mon => mon.name.toLowerCase().includes(query)).slice(0, 50);
+        pokemonDropdown.innerHTML = matches.map(mon => `<div class="autocomplete-item" data-pokemon-id="${mon.id}"><img class="autocomplete-item-img" src="sprites/monstericons/${mon.id}-0.png" alt="" onerror="this.onerror=null;this.src='sprites/monstericons/0-0.png';"><span class="autocomplete-item-text">${escapeHtml(mon.name)}</span></div>`).join("");
+        pokemonDropdown.classList.toggle("hidden", !matches.length);
+        pokemonDropdown.querySelectorAll("[data-pokemon-id]").forEach(option => option.addEventListener("click", () => {
+          const mon = data.find(item => item.id === Number(option.dataset.pokemonId));
+          locationHighlightState.pokemonId = mon?.id || null; pokemonInput.value = mon?.name || ""; pokemonDropdown.classList.add("hidden"); renderLocationResults(); updateURL(null, { replace: true });
+        }));
+      };
+      pokemonInput.addEventListener("input", () => { locationHighlightState.pokemonId = null; renderPokemonOptions(); renderLocationResults(); updateURL(null, { replace: true }); });
+      pokemonInput.addEventListener("keydown", event => { if (event.key === "Escape") pokemonDropdown.classList.add("hidden"); });
+    }
+    updateLocationFilterControls();
   }
 
   /* =============================================================
@@ -3239,6 +3587,8 @@ const PokedexTool = (() => {
   
   function renderMoveInfo() {
     const container = $("#moveInfoContainer");
+    container.classList.remove("hidden", "location-move-info-open");
+    $("#locationMoveInfoBackdrop")?.classList.remove("is-open");
 
     const activeMoves = filters.moves.filter(Boolean);
 
@@ -4159,7 +4509,9 @@ const PokedexTool = (() => {
       zoomMapToRegions(mapSelectedRegions);
     }
 
-    applyFilters();
+    if (pokedexSearchMode === "location") renderLocationResults();
+    else applyFilters();
+    updateURL(null, { replace: true });
   }
 
   function buildMapRegionSelect() {
@@ -5682,6 +6034,10 @@ const PokedexTool = (() => {
   }
 
   function renderGrid() {
+    if (pokedexSearchMode === "location") {
+      renderLocationResults();
+      return;
+    }
     grid.innerHTML = "";
     browserFindHighlightedCard = null;
     const frag = document.createDocumentFragment();
@@ -5692,6 +6048,202 @@ const PokedexTool = (() => {
     });
 
     grid.appendChild(frag);
+  }
+
+  function renderLocationResults() {
+    const container = $("#pokedexLocationResults");
+    if (!container) return;
+    const selected = filters.location;
+    if (!selected?.name || !selected?.region) {
+      container.innerHTML = `<div class="pokedex-location-empty">Select a location to see its Pokémon encounters.</div>`;
+      return;
+    }
+    const rows = [];
+    data.filter(isEligible).forEach(mon => {
+      const encounters = getModalLocationEncounters(mon).filter(encounter => {
+        const loc = encounter.loc || {};
+        const info = getEncounterLocationInfo(loc);
+        const locationName = String(info.baseName || info.fullName || "").toLowerCase();
+        if (String(loc.region_name || "").toLowerCase() !== selected.region || locationName !== selected.name) return false;
+        return true;
+      });
+      if (encounters.length) rows.push({ mon, encounters });
+    });
+    if (!rows.length) {
+      container.innerHTML = `<div class="pokedex-location-empty">No Pokémon encounters match the selected location and filters.</div>`;
+      return;
+    }
+    const seasons = ["Spring", "Summer", "Autumn", "Winter"];
+    const body = rows.map(({mon, encounters}) => {
+      const hordeGroups = new Map();
+      encounters.flatMap(encounter => encounter.variants || [encounter]).forEach(variant => {
+        const type = String(variant.loc?.type || "Unknown").trim() || "Unknown";
+        const typeKey = type.toLowerCase();
+        const horde = Number(variant.hordeMultiplier) || 0;
+        if (!hordeGroups.has(horde)) hordeGroups.set(horde, new Map());
+        const typeGroups = hordeGroups.get(horde);
+        if (!typeGroups.has(typeKey)) typeGroups.set(typeKey, { type, group: [] });
+        typeGroups.get(typeKey).group.push(variant);
+      });
+      const encounterRows = [0, 3, 5].flatMap(horde => {
+        const typeGroups = hordeGroups.get(horde);
+        if (!typeGroups) return [];
+        const hordeRows = [...typeGroups.values()].map(({type, group}) => ({ type, horde, group }));
+        return hordeRows.map((row, hordeRowIndex) => ({
+          ...row,
+          hordeRowIndex,
+          hordeRowspan: hordeRows.length
+        }));
+      });
+      return encounterRows.map(({type, horde, group, hordeRowIndex, hordeRowspan}, rowIndex) => {
+        const hordeMarker = horde ? `horde${horde === 5 ? 5 : 3}.png` : "hordeno.png";
+        const label = horde === 5 ? "Horde 5" : horde === 3 ? "Horde 3" : "Single";
+        const typeImage = type.toLowerCase();
+        const hasActiveFilter = locationSearchFilters.rarity.size || locationSearchFilters.season.size || locationSearchFilters.time.size || locationSearchFilters.horde.size || locationSearchFilters.type.size || locationHighlightState.pokemonId || locationHighlightState.rangeEnabled;
+        const variants = group;
+        const infoGroups = [...new Map(variants.map(variant => {
+          const fullName = String(variant.locationFullName || variant.fullName || variant.locationName || "").trim();
+          return [fullName.toLowerCase(), { fullName, variants: [] }];
+        })).values()];
+        variants.forEach(variant => {
+          const fullName = String(variant.locationFullName || variant.fullName || variant.locationName || "").trim();
+          infoGroups.find(info => info.fullName.toLowerCase() === fullName.toLowerCase())?.variants.push(variant);
+        });
+        const cycleKey = `${mon.id}|${horde}|${type.toLowerCase()}`;
+        const infoIndex = infoGroups.length ? (locationEncounterInfoIndices.get(cycleKey) || 0) % infoGroups.length : 0;
+        const activeVariants = infoGroups[infoIndex]?.variants || variants;
+        const matches = (wanted, getter) => !wanted.size || variants.some(variant => getter(variant).some(value => wanted.has(String(value))));
+        const rarityMatch = (!locationSearchFilters.rarity.size && (!locationHighlightState.rangeEnabled || locationHighlightState.minRarity === null)) || variants.some(variant => {
+          const values = variant.rarityValues || getEncounterLocationInfo(variant.loc).rarityValues || [variant.loc.rarity].filter(Boolean);
+          const named = !locationSearchFilters.rarity.size || values.some(value => locationSearchFilters.rarity.has(String(value)));
+          const percentages = values.map(parseModalLocationRarityPercent).filter(value => value !== null);
+          return named && (!locationHighlightState.rangeEnabled || locationHighlightState.minRarity === null || percentages.some(value => value >= locationHighlightState.minRarity && value <= locationHighlightState.maxRarity));
+        });
+        const rowMatches = (!locationHighlightState.pokemonId || locationHighlightState.pokemonId === mon.id)
+          && rarityMatch
+          && matches(locationSearchFilters.season, variant => variant.seasonLabels || getEncounterLocationInfo(variant.loc).seasonLabels || ["Any"])
+          && matches(locationSearchFilters.time, variant => variant.timeLabels || getEncounterLocationInfo(variant.loc).timeLabels || ["Any"])
+          && (!locationSearchFilters.horde.size || locationSearchFilters.horde.has(String(horde)))
+          && (!locationSearchFilters.type.size || locationSearchFilters.type.has(type.toLowerCase()));
+        const rowClass = hasActiveFilter ? (rowMatches ? " location-highlighted-row" : " location-dimmed-row") : "";
+        group.splice(0, group.length, ...activeVariants);
+        const level = activeVariants.map(item => item.loc.min_level === item.loc.max_level ? `Lv ${item.loc.min_level || "?"}` : `Lv ${item.loc.min_level || "?"}-${item.loc.max_level || "?"}`).filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(" / ");
+        const exp = group.map(item => item.expLabel || "—").filter((v,i,a)=>a.indexOf(v)===i).join(" / ");
+        const moves = [...new Set(activeVariants.flatMap(item => item.moveNames || []))];
+        const moveMarkup = moves.length ? moves.map(move => `<button type="button" class="location-move-link" data-move="${escapeHtml(move)}">${escapeHtml(move)}</button>`).join(" ") : "—";
+        return `<tr class="${rowClass.trim()}" data-pokemon-row-id="${mon.id}" data-location-row-match="${rowMatches}">
+          ${rowIndex === 0 ? `<td class="location-pokemon-cell" rowspan="${encounterRows.length}"><button type="button" class="pokedex-location-pokemon" data-pokemon-id="${mon.id}"><img src="${getAnimatedSprite(mon.id)}" alt="${escapeHtml(mon.name)}"><span>${escapeHtml(mon.name)}</span></button></td>` : ""}
+          <td class="location-encounter-kind-horde"><img class="location-horde-marker" src="sprites/assets/${hordeMarker}" alt="${label}"></td>
+          <td class="location-encounter-type"><img class="location-type-marker" src="sprites/assets/${escapeHtml(typeImage)}.webp" alt="${escapeHtml(type)}" onerror="this.onerror=null;this.src='sprites/pokemon/0.png';"></td>
+          <td class="location-rarity-chart">${buildLocationRarityChart(activeVariants, seasons, infoGroups.length > 1 ? { key: cycleKey, index: infoIndex, labels: infoGroups.map(info => getLocationEncounterInfoLabel(info.fullName)) } : null)}</td>
+          <td>${escapeHtml(level || "—")}</td><td>${escapeHtml(exp || "—")}</td><td class="location-moves-cell">${moveMarkup}</td>
+        </tr>`;
+      }).join("");
+    }).join("");
+    container.innerHTML = `<table class="pokedex-location-table"><thead><tr><th colspan="3">Pokedex</th><th>Rarities</th><th>Level</th><th>EXP</th><th>Moves</th></tr></thead><tbody>${body}</tbody></table>`;
+    container.querySelectorAll(".location-pokemon-cell").forEach(cell => {
+      const pokemonId = cell.querySelector("[data-pokemon-id]")?.dataset.pokemonId;
+      const hasMatch = [...container.querySelectorAll(`[data-pokemon-row-id="${pokemonId}"]`)].some(row => row.dataset.locationRowMatch === "true");
+      const hasActive = locationSearchFilters.rarity.size || locationSearchFilters.season.size || locationSearchFilters.time.size || locationSearchFilters.horde.size || locationSearchFilters.type.size || locationHighlightState.pokemonId || locationHighlightState.rangeEnabled;
+      cell.classList.toggle("location-pokemon-highlighted", Boolean(hasActive && hasMatch));
+      cell.classList.toggle("location-pokemon-dimmed", Boolean(hasActive && !hasMatch));
+    });
+    container.querySelectorAll("[data-pokemon-id]").forEach(button => button.addEventListener("click", () => {
+      const mon = data.find(item => item.id === Number(button.dataset.pokemonId));
+      if (mon) openModal(button, mon);
+    }));
+    container.querySelectorAll(".location-move-link").forEach(button => button.addEventListener("click", event => {
+      event.stopPropagation();
+      showLocationMoveInfo(button.dataset.move);
+    }));
+    container.querySelectorAll("[data-location-cycle]").forEach(button => button.addEventListener("click", () => {
+      const key = decodeURIComponent(button.dataset.locationCycleKey);
+      const count = Number(button.dataset.locationCycleCount);
+      const current = locationEncounterInfoIndices.get(key) || 0;
+      const direction = button.dataset.locationCycle === "next" ? 1 : -1;
+      locationEncounterInfoIndices.set(key, (current + direction + count) % count);
+      renderLocationResults();
+    }));
+  }
+
+  function getLocationEncounterInfoLabel(fullName) {
+    const match = String(fullName || "").match(/\(([^()]*)\)/);
+    return match?.[1]?.trim() || "Main";
+  }
+
+  function buildLocationRarityChart(encounters, seasons, cycle = null) {
+    const times = ["Morning", "Day", "Night"];
+    const values = times.map(time => seasons.map(season => getLocationChartValue(encounters, season, time, true)));
+    const used = values.map(row => row.map(() => false));
+    const cells = [];
+
+    values.forEach((row, rowIndex) => row.forEach((value, columnIndex) => {
+      if (used[rowIndex][columnIndex]) return;
+
+      let colspan = 1;
+      while (
+        columnIndex + colspan < seasons.length
+        && !used[rowIndex][columnIndex + colspan]
+        && values[rowIndex][columnIndex + colspan] === value
+      ) colspan++;
+
+      let rowspan = 1;
+      while (rowIndex + rowspan < times.length) {
+        const canExtend = Array.from({ length: colspan }, (_, offset) => {
+          const nextColumn = columnIndex + offset;
+          return !used[rowIndex + rowspan][nextColumn] && values[rowIndex + rowspan][nextColumn] === value;
+        }).every(Boolean);
+        if (!canExtend) break;
+        rowspan++;
+      }
+
+      for (let rowOffset = 0; rowOffset < rowspan; rowOffset++) {
+        for (let columnOffset = 0; columnOffset < colspan; columnOffset++) {
+          used[rowIndex + rowOffset][columnIndex + columnOffset] = true;
+        }
+      }
+      cells.push({ rowIndex, columnIndex, colspan, rowspan, value });
+    }));
+
+    const rows = times.map((time, rowIndex) => {
+      const rowCells = cells
+        .filter(cell => cell.rowIndex === rowIndex)
+        .sort((a, b) => a.columnIndex - b.columnIndex)
+        .map(cell => `<td${cell.colspan > 1 ? ` colspan="${cell.colspan}"` : ""}${cell.rowspan > 1 ? ` rowspan="${cell.rowspan}"` : ""}>${cell.value}</td>`)
+        .join("");
+      return `<tr><th>${renderTimeSymbol(time)}<span class="sr-only">${time}</span></th>${rowCells}</tr>`;
+    }).join("");
+
+    const controls = cycle ? `<div class="location-encounter-cycler"><button type="button" data-location-cycle="previous" data-location-cycle-key="${encodeURIComponent(cycle.key)}" data-location-cycle-count="${cycle.labels.length}" aria-label="Previous encounter info">&#8592;</button><span>${escapeHtml(cycle.labels[cycle.index])}</span><button type="button" data-location-cycle="next" data-location-cycle-key="${encodeURIComponent(cycle.key)}" data-location-cycle-count="${cycle.labels.length}" aria-label="Next encounter info">&#8594;</button></div>` : "";
+    return `<table class="location-rarity-mini"><thead><tr><th>${controls}</th>${seasons.map(season => `<th>${renderSeasonSymbol(season)}<span class="sr-only">${season}</span></th>`).join("")}</tr></thead><tbody>${rows}</tbody></table>`;
+  }
+
+  function getLocationChartValue(encounters, season, time, rarityOnly = false) {
+    const values = encounters.flatMap(encounter => (encounter.variants || [encounter]).filter(variant => {
+      const seasons = variant.seasonLabels?.length ? variant.seasonLabels : ["Any"];
+      const timesForVariant = variant.timeLabels?.length ? variant.timeLabels : ["Any"];
+      const seasonMatch = seasons.some(value => String(value).toLowerCase() === "any" || String(value).toLowerCase() === season.toLowerCase() || (season === "Autumn" && String(value).toLowerCase() === "fall"));
+      const timeMatch = timesForVariant.some(value => String(value).toLowerCase() === "any" || String(value).toLowerCase() === time.toLowerCase());
+      return seasonMatch && timeMatch;
+    }).map(variant => {
+      if (rarityOnly) return variant.rarityLabel || "—";
+      const level = variant.loc.min_level === variant.loc.max_level ? `Lv ${variant.loc.min_level || "?"}` : `Lv ${variant.loc.min_level || "?"}-${variant.loc.max_level || "?"}`;
+      const moves = variant.moveNames?.length ? variant.moveNames.join(", ") : "—";
+      return `${variant.rarityLabel || "—"} · ${level} · EXP ${variant.expLabel || "—"} · ${moves}`;
+    }));
+    return [...new Set(values)].join("<br>") || "—";
+  }
+
+  function mergeAdjacentLocationCells(values) {
+    const cells = [];
+    let start = 0;
+    while (start < values.length) {
+      let end = start + 1;
+      while (end < values.length && values[end] === values[start]) end++;
+      cells.push(`<td class="location-encounter-cell" colspan="${end - start}">${values[start]}</td>`);
+      start = end;
+    }
+    return cells.join("");
   }
 
   function syncBrowserFindHighlight() {
@@ -11717,6 +12269,11 @@ function hydrateFromURL(queryParams, context = 'grid') {
           param.deserialize(value);
         }
       });
+    }
+
+    if (context === "grid") {
+      syncLocationRarityRangeFromState();
+      updateLocationFilterControls();
     }
 
     if (context === 'grid') {

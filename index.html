@@ -396,6 +396,11 @@
   <section id="pokedexTool" class="toolSection" style="display:none;">
 
     <div class="encounter-controls pokedex-controls">
+      <button id="pokedexSearchModeToggle" class="dex-mode-toggle" type="button" aria-pressed="false" aria-label="Switch to location-based search">
+        <span class="dex-mode-toggle-icon dex-mode-toggle-icon-pokemon"><img src="sprites/assets/hordeno.png" alt="Pokémon search"></span>
+        <span class="dex-mode-toggle-track"><span class="dex-mode-toggle-thumb"></span></span>
+        <span class="dex-mode-toggle-icon dex-mode-toggle-icon-location"><img src="maps/Sinnoh.png" alt="Location search"></span>
+      </button>
       <div class="dex-top">
         <!-- Row 1 -->
         <div class="dex-top-1">
@@ -542,6 +547,27 @@
 
       </div>
 
+    </div>
+
+    <div id="pokedexLocationMode" class="pokedex-location-mode hidden" aria-hidden="true">
+      <div class="pokedex-location-toolbar">
+        <div id="pokedexLocationHost"></div>
+        <div class="pokedex-location-search-row">
+          <button id="pokedexLocationFiltersBtn" class="btn btn--gradient" type="button">Filters</button>
+          <button id="pokedexLocationResetAllBtn" class="reset-all-btn hidden" type="button" aria-label="Reset location filters">âŸ³</button>
+        </div>
+        <div id="pokedexLocationFiltersPanel" class="dex-filters-panel collapsed">
+          <div class="pokedex-location-filter-groups">
+            <div class="dex-filter-group"><div class="dex-filter-group-label"><label>Pokémon</label></div><div class="pokedex-location-pokemon-filter autocomplete-wrapper"><input id="pokedexLocationPokemonSearch" class="dex-input dex-search-mon-bar" placeholder="Search Pokémon..." autocomplete="off"><div id="pokedexLocationPokemonDropdown" class="autocomplete-dropdown hidden"></div></div></div>
+            <div class="dex-filter-group"><div class="dex-filter-group-label"><label>Rarity</label></div><div id="pokedexLocationRarityFilters" class="mc-filters encounter-filter-pills"></div><div id="pokedexLocationRarityRange" class="modal-location-rarity-range hidden" data-rarity-range></div></div>
+            <div class="dex-filter-group"><div class="dex-filter-group-label"><label>Encounter Size</label></div><div id="pokedexLocationHordeFilters" class="mc-filters encounter-filter-pills"></div></div>
+            <div class="dex-filter-group"><div class="dex-filter-group-label"><label>Encounter Type</label></div><div id="pokedexLocationTypeFilters" class="mc-filters encounter-filter-pills"></div></div>
+            <div class="dex-filter-group"><div class="dex-filter-group-label"><label>Season</label></div><div id="pokedexLocationSeasonFilters" class="mc-filters encounter-filter-pills"></div></div>
+            <div class="dex-filter-group"><div class="dex-filter-group-label"><label>Time of Day</label></div><div id="pokedexLocationTimeFilters" class="mc-filters encounter-filter-pills"></div></div>
+          </div>
+        </div>
+      </div>
+      <div id="pokedexLocationResults" class="pokedex-location-results"><div class="pokedex-location-empty">Select a location to see its Pokémon encounters.</div></div>
     </div>
 
     <div id="pokedexGrid" class="pokedex-grid"></div>
