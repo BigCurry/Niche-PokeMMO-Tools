@@ -923,16 +923,18 @@ body.pory-full #poryBackground {
 .pokedex-location-table .location-encounter-kind-horde { min-width:20px; white-space:nowrap; padding: 1px;}
 .pokedex-location-table .location-encounter-type { min-width:28px; padding: 1px; }
 .pokedex-location-table .location-rarity-chart { max-width:500px; padding: 0;}
-.location-rarity-mini { table-layout: fixed; border-collapse:collapse; font-size:.7rem; width:100%; min-width: 200px; border: 5px solid color-mix(in srgb, var(--altAccent) 5%, transparent) }
+.pokedex-location-table .location-rarity-level {font-size: clamp(0.5rem, 1cqw, 1.2rem);}
+.pokedex-location-table .location-rarity-EXP {font-size: clamp(0.5rem, 0.8cqw, 1.2rem);}
+.location-rarity-mini { table-layout: fixed; border-collapse:collapse; width:100%; min-width: 200px; border: 5px solid color-mix(in srgb, var(--altAccent) 5%, transparent) }
 .location-rarity-mini tr th:first-child {width: 20%;}
 .location-rarity-mini tr th:not(:first-child), .location-rarity-mini tr td {width: 20%;}
-.location-rarity-mini-timing-width th {min-width: 0; max-width:10px;};
-.location-rarity-mini th,.location-rarity-mini td { border:1px solid color-mix(in srgb,var(--muted) 22%,transparent); padding:3px; text-align:center; }
-.location-rarity-mini th { background:transparent; }
-.location-encounter-cycler { align-items:center; display:flex; gap:3px; justify-content:center; white-space:nowrap; }
+.location-rarity-mini-timing-width th {min-width: 0; max-width:10px;}
+.location-rarity-mini td { font-size: clamp(0.7rem, 1cqw, 1.2rem); }
+.location-rarity-mini th { background:color-mix(in srgb, var(--altAccent) 5%, transparent); border:3px solid color-mix(in srgb,var(--muted) 22%,transparent); padding:3px; text-align:center; }
+.location-encounter-cycler { width: 100%; align-items:center; display:flex; gap:3px; justify-content:center; }
 .location-encounter-cycler button { background:transparent; border:0; color:var(--text); cursor:pointer; font-size:.85rem; line-height:1; padding:1px 2px; }
 .location-encounter-cycler button:hover { color:var(--accent); }
-.location-encounter-cycler span { font-size:.65rem; overflow:hidden; text-overflow:ellipsis; }
+.location-encounter-cycler span { font-size: clamp(0.4rem, 1cqw, 1.2rem); white-space: normal;word-break: normal;overflow-wrap: break-word; text-align: center;}
 .location-rarity-mini .season-icon,.location-rarity-mini .timing-icon { height:16px; width:16px; }
 .location-moves-cell { line-height:1.7; min-width:160px; }
 .location-move-info-backdrop { background:rgba(0,0,0,.62); inset:0; opacity:0; pointer-events:none; position:fixed; transition:opacity .18s ease; z-index:19999; }

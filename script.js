@@ -6136,7 +6136,9 @@ const PokedexTool = (() => {
           <td class="location-encounter-kind-horde"><img class="location-horde-marker" src="sprites/assets/${hordeMarker}" alt="${label}"></td>
           <td class="location-encounter-type"><img class="location-type-marker" src="sprites/assets/${escapeHtml(typeImage)}.webp" alt="${escapeHtml(type)}" onerror="this.onerror=null;this.src='sprites/pokemon/0.png';"></td>
           <td class="location-rarity-chart">${buildLocationRarityChart(activeVariants, seasons, infoGroups.length > 1 ? { key: cycleKey, index: infoIndex, labels: infoGroups.map(info => getLocationEncounterInfoLabel(info.fullName)) } : null)}</td>
-          <td>${escapeHtml(level || "—")}</td><td>${escapeHtml(exp || "—")}</td><td class="location-moves-cell">${moveMarkup}</td>
+          <td class="location-rarity-level">${escapeHtml(level || "—")}</td>
+          <td class="location-rarity-EXP">${escapeHtml(exp || "—")}</td>
+          <td class="location-moves-cell">${moveMarkup}</td>
         </tr>`;
       }).join("");
     }).join("");
