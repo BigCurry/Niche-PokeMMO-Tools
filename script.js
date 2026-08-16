@@ -16,7 +16,7 @@ linkToggle.addEventListener("click", () => {
 });
 
 document.addEventListener("click", (e) => {
-  if (!e.target.closest(".linkMenu")) {
+  if (!e.target.closest(".link-menu")) {
     linkDropdown.classList.remove("open");
   }
 });
@@ -441,7 +441,7 @@ function initToolsSwitcher() {
 function showTool(tool) {
   document.dispatchEvent(new Event("about:unmount"));
 
-  $$(".toolSection").forEach(s => s.style.display = "none");
+  $$(".tool-section").forEach(s => s.style.display = "none");
   document.getElementById(tool).style.display = "block";
 
   if (tool === "aboutPage") {
@@ -543,7 +543,7 @@ function initAboutPage() {
   }
 
   // Jump buttons
-  $$(".jumpTool").forEach(btn => {
+  $$(".jump-tool").forEach(btn => {
     btn.addEventListener("click", () => {
       navigateToTool(btn.dataset.tool);
     });
@@ -619,19 +619,19 @@ const ColorTextTool = (() => {
 
   const Lines = {
     getRows() {
-      return Array.from(lineContainerEl.querySelectorAll(".lineRow"));
+      return Array.from(lineContainerEl.querySelectorAll(".line-row"));
     },
 
     add(text = "", color = CONFIG.defaultColor) {
       const clone = templateEl.content.cloneNode(true);
-      const wrapper = clone.querySelector(".lineRow");
+      const wrapper = clone.querySelector(".line-row");
 
       wrapper.dataset.color = color;
 
-      const textInput = wrapper.querySelector(".lineText");
+      const textInput = wrapper.querySelector(".line-text");
       const pickrButton = wrapper.querySelector(".pickrButton");
       const removeBtn = wrapper.querySelector(".removeBtn");
-      const dragHandle = wrapper.querySelector(".dragHandle");
+      const dragHandle = wrapper.querySelector(".drag-handle");
 
       textInput.value = text;
       wrapper.textInput = textInput;
@@ -2303,6 +2303,8 @@ const PokedexTool = (() => {
     let locationSearchFilters = { rarity: new Set(), season: new Set(), time: new Set(), horde: new Set(), type: new Set() };
     let locationHighlightState = { pokemonId: null, minRarity: null, maxRarity: null, rangeEnabled: false };
     let locationEncounterInfoIndices = new Map();
+    let locationHordeSelections = new Map();
+    let locationChartState = { season: "Spring", time: "Morning", locationKey: null, hiddenSegments: new Set(), hiddenTypes: new Set(), allHidden: false };
     let isShinyActive = false;
     let currentCosmeticIndex = 0;
     let isCosmeticCyclerExpanded = false;
@@ -6052,9 +6054,11 @@ const PokedexTool = (() => {
 
   function renderLocationResults() {
     const container = $("#pokedexLocationResults");
+    const chart = $("#pokedexLocationEncounterChart");
     if (!container) return;
     const selected = filters.location;
     if (!selected?.name || !selected?.region) {
+      if (chart) chart.innerHTML = "";
       container.innerHTML = `<div class="pokedex-location-empty">Select a location to see its Pokémon encounters.</div>`;
       return;
     }
@@ -6070,8 +6074,13 @@ const PokedexTool = (() => {
       if (encounters.length) rows.push({ mon, encounters });
     });
     if (!rows.length) {
+      if (chart) chart.innerHTML = "";
       container.innerHTML = `<div class="pokedex-location-empty">No Pokémon encounters match the selected location and filters.</div>`;
       return;
+    }
+    const locationKey = `${selected.region}|${selected.name}`;
+    if (locationChartState.locationKey !== locationKey) {
+      locationChartState = { ...locationChartState, locationKey, hiddenSegments: new Set(), hiddenTypes: new Set(), allHidden: false };
     }
     const seasons = ["Spring", "Summer", "Autumn", "Winter"];
     const body = rows.map(({mon, encounters}) => {
@@ -6079,39 +6088,38 @@ const PokedexTool = (() => {
       encounters.flatMap(encounter => encounter.variants || [encounter]).forEach(variant => {
         const type = String(variant.loc?.type || "Unknown").trim() || "Unknown";
         const typeKey = type.toLowerCase();
-        const horde = Number(variant.hordeMultiplier) || 0;
-        if (!hordeGroups.has(horde)) hordeGroups.set(horde, new Map());
-        const typeGroups = hordeGroups.get(horde);
-        if (!typeGroups.has(typeKey)) typeGroups.set(typeKey, { type, group: [] });
-        typeGroups.get(typeKey).group.push(variant);
+        if (!hordeGroups.has(typeKey)) hordeGroups.set(typeKey, { type, group: [] });
+        hordeGroups.get(typeKey).group.push(variant);
       });
-      const encounterRows = [0, 3, 5].flatMap(horde => {
-        const typeGroups = hordeGroups.get(horde);
-        if (!typeGroups) return [];
-        const hordeRows = [...typeGroups.values()].map(({type, group}) => ({ type, horde, group }));
-        return hordeRows.map((row, hordeRowIndex) => ({
-          ...row,
-          hordeRowIndex,
-          hordeRowspan: hordeRows.length
-        }));
-      });
-      return encounterRows.map(({type, horde, group, hordeRowIndex, hordeRowspan}, rowIndex) => {
-        const hordeMarker = horde ? `horde${horde === 5 ? 5 : 3}.png` : "hordeno.png";
-        const label = horde === 5 ? "Horde 5" : horde === 3 ? "Horde 3" : "Single";
+      const encounterRows = [...hordeGroups.values()].map(({type, group}) => ({ type, group }));
+      return encounterRows.map(({type, group}, rowIndex) => {
         const typeImage = type.toLowerCase();
         const hasActiveFilter = locationSearchFilters.rarity.size || locationSearchFilters.season.size || locationSearchFilters.time.size || locationSearchFilters.horde.size || locationSearchFilters.type.size || locationHighlightState.pokemonId || locationHighlightState.rangeEnabled;
         const variants = group;
-        const infoGroups = [...new Map(variants.map(variant => {
+        const hordeOptions = [...new Set(variants.map(variant => Number(variant.hordeMultiplier) || 0))].sort((a, b) => a - b);
+        const hordeKey = `${mon.id}|${type.toLowerCase()}`;
+        const selectedHorde = hordeOptions.includes(locationHordeSelections.get(hordeKey)) ? locationHordeSelections.get(hordeKey) : hordeOptions[0];
+        locationHordeSelections.set(hordeKey, selectedHorde);
+        const hordeVariants = variants.filter(variant => (Number(variant.hordeMultiplier) || 0) === selectedHorde);
+        const infoGroupMap = new Map();
+        hordeVariants.forEach(variant => {
           const fullName = String(variant.locationFullName || variant.fullName || variant.locationName || "").trim();
-          return [fullName.toLowerCase(), { fullName, variants: [] }];
-        })).values()];
-        variants.forEach(variant => {
-          const fullName = String(variant.locationFullName || variant.fullName || variant.locationName || "").trim();
-          infoGroups.find(info => info.fullName.toLowerCase() === fullName.toLowerCase())?.variants.push(variant);
+          const locationId = variant.loc?.location_id ?? variant.loc?.locationId ?? "";
+          const key = `${fullName.toLowerCase()}|${locationId}`;
+          if (!infoGroupMap.has(key)) infoGroupMap.set(key, { fullName, baseName: String(variant.locationName || variant.baseName || "").trim(), locationId, variants: [] });
+          infoGroupMap.get(key).variants.push(variant);
         });
-        const cycleKey = `${mon.id}|${horde}|${type.toLowerCase()}`;
+        const infoGroups = [...infoGroupMap.values()];
+        const idsByFullName = new Map();
+        infoGroups.forEach(info => {
+          const key = info.fullName.toLowerCase();
+          if (!idsByFullName.has(key)) idsByFullName.set(key, new Set());
+          idsByFullName.get(key).add(String(info.locationId));
+        });
+        infoGroups.forEach(info => { info.label = idsByFullName.get(info.fullName.toLowerCase()).size > 1 ? String(info.locationId || "Unknown ID") : getLocationEncounterInfoLabel(info.fullName, info.baseName); });
+        const cycleKey = `${mon.id}|${type.toLowerCase()}|${selectedHorde}`;
         const infoIndex = infoGroups.length ? (locationEncounterInfoIndices.get(cycleKey) || 0) % infoGroups.length : 0;
-        const activeVariants = infoGroups[infoIndex]?.variants || variants;
+        const activeVariants = infoGroups[infoIndex]?.variants || hordeVariants;
         const matches = (wanted, getter) => !wanted.size || variants.some(variant => getter(variant).some(value => wanted.has(String(value))));
         const rarityMatch = (!locationSearchFilters.rarity.size && (!locationHighlightState.rangeEnabled || locationHighlightState.minRarity === null)) || variants.some(variant => {
           const values = variant.rarityValues || getEncounterLocationInfo(variant.loc).rarityValues || [variant.loc.rarity].filter(Boolean);
@@ -6123,7 +6131,7 @@ const PokedexTool = (() => {
           && rarityMatch
           && matches(locationSearchFilters.season, variant => variant.seasonLabels || getEncounterLocationInfo(variant.loc).seasonLabels || ["Any"])
           && matches(locationSearchFilters.time, variant => variant.timeLabels || getEncounterLocationInfo(variant.loc).timeLabels || ["Any"])
-          && (!locationSearchFilters.horde.size || locationSearchFilters.horde.has(String(horde)))
+          && (!locationSearchFilters.horde.size || variants.some(variant => locationSearchFilters.horde.has(String(Number(variant.hordeMultiplier) || 0))))
           && (!locationSearchFilters.type.size || locationSearchFilters.type.has(type.toLowerCase()));
         const rowClass = hasActiveFilter ? (rowMatches ? " location-highlighted-row" : " location-dimmed-row") : "";
         group.splice(0, group.length, ...activeVariants);
@@ -6131,21 +6139,28 @@ const PokedexTool = (() => {
         const exp = group.map(item => item.expLabel || "—").filter((v,i,a)=>a.indexOf(v)===i).join(" / ");
         const moves = [...new Set(activeVariants.flatMap(item => item.moveNames || []))];
         const moveMarkup = moves.length ? moves.map(move => `<button type="button" class="location-move-link" data-move="${escapeHtml(move)}">${escapeHtml(move)}</button>`).join(" ") : "—";
-        return `<tr class="${rowClass.trim()}" data-pokemon-row-id="${mon.id}" data-location-row-match="${rowMatches}">
+        const chartTypeKey = type.toLowerCase();
+        const segmentKeys = [...new Set(hordeVariants.map(variant => getLocationSegmentKey(mon.id, chartTypeKey, Number(variant.hordeMultiplier) || 0)))];
+        const chartVisible = !locationChartState.allHidden && !locationChartState.hiddenTypes.has(chartTypeKey) && segmentKeys.some(key => !locationChartState.hiddenSegments.has(key));
+        const hordeMarkers = hordeOptions.map(horde => `<button type="button" class="location-horde-choice${horde === selectedHorde ? " selected" : ""}" data-location-horde="${horde}" data-location-horde-key="${escapeHtml(hordeKey)}" aria-label="${horde ? `${horde}x Horde` : "Single"}"><img class="location-horde-marker" src="sprites/assets/${horde ? `horde${horde}.png` : "hordeno.png"}" alt="${horde ? `${horde}x Horde` : "Single"}"></button>`).join("");
+        return `<tr class="${rowClass.trim()}${chartVisible ? "" : " location-chart-hidden-row"}" data-pokemon-row-id="${mon.id}" data-location-row-match="${rowMatches}" data-chart-type-key="${escapeHtml(chartTypeKey)}">
           ${rowIndex === 0 ? `<td class="location-pokemon-cell" rowspan="${encounterRows.length}"><button type="button" class="pokedex-location-pokemon" data-pokemon-id="${mon.id}"><img src="${getAnimatedSprite(mon.id)}" alt="${escapeHtml(mon.name)}"><span>${escapeHtml(mon.name)}</span></button></td>` : ""}
-          <td class="location-encounter-kind-horde"><img class="location-horde-marker" src="sprites/assets/${hordeMarker}" alt="${label}"></td>
+          <td class="location-encounter-kind-horde">${hordeMarkers}</td>
           <td class="location-encounter-type"><img class="location-type-marker" src="sprites/assets/${escapeHtml(typeImage)}.webp" alt="${escapeHtml(type)}" onerror="this.onerror=null;this.src='sprites/pokemon/0.png';"></td>
-          <td class="location-rarity-chart">${buildLocationRarityChart(activeVariants, seasons, infoGroups.length > 1 ? { key: cycleKey, index: infoIndex, labels: infoGroups.map(info => getLocationEncounterInfoLabel(info.fullName)) } : null)}</td>
+          <td class="location-rarity-chart">${buildLocationRarityChart(activeVariants, seasons, infoGroups.length > 1 ? { key: cycleKey, index: infoIndex, labels: infoGroups.map(info => info.label) } : null)}</td>
           <td class="location-rarity-level">${escapeHtml(level || "—")}</td>
           <td class="location-rarity-EXP">${escapeHtml(exp || "—")}</td>
           <td class="location-moves-cell">${moveMarkup}</td>
         </tr>`;
       }).join("");
     }).join("");
+    renderLocationEncounterChart(rows);
     container.innerHTML = `<table class="pokedex-location-table"><thead><tr><th colspan="3">Pokedex</th><th>Rarities</th><th>Level</th><th>EXP</th><th>Moves</th></tr></thead><tbody>${body}</tbody></table>`;
     container.querySelectorAll(".location-pokemon-cell").forEach(cell => {
       const pokemonId = cell.querySelector("[data-pokemon-id]")?.dataset.pokemonId;
-      const hasMatch = [...container.querySelectorAll(`[data-pokemon-row-id="${pokemonId}"]`)].some(row => row.dataset.locationRowMatch === "true");
+      const pokemonRows = [...container.querySelectorAll(`[data-pokemon-row-id="${pokemonId}"]` )];
+      const hasMatch = pokemonRows.some(row => row.dataset.locationRowMatch === "true");
+      cell.classList.toggle("location-chart-pokemon-hidden", !pokemonRows.some(row => !row.classList.contains("location-chart-hidden-row")));
       const hasActive = locationSearchFilters.rarity.size || locationSearchFilters.season.size || locationSearchFilters.time.size || locationSearchFilters.horde.size || locationSearchFilters.type.size || locationHighlightState.pokemonId || locationHighlightState.rangeEnabled;
       cell.classList.toggle("location-pokemon-highlighted", Boolean(hasActive && hasMatch));
       cell.classList.toggle("location-pokemon-dimmed", Boolean(hasActive && !hasMatch));
@@ -6166,11 +6181,192 @@ const PokedexTool = (() => {
       locationEncounterInfoIndices.set(key, (current + direction + count) % count);
       renderLocationResults();
     }));
+    container.querySelectorAll("[data-location-horde]").forEach(button => button.addEventListener("click", event => {
+      event.stopPropagation();
+      locationHordeSelections.set(button.dataset.locationHordeKey, Number(button.dataset.locationHorde));
+      renderLocationResults();
+    }));
   }
 
-  function getLocationEncounterInfoLabel(fullName) {
+  function locationVariantMatchesChart(variant) {
+    const season = String(locationChartState.season).toLowerCase();
+    const time = String(locationChartState.time).toLowerCase();
+    const seasons = variant.seasonLabels?.length ? variant.seasonLabels : ["Any"];
+    const times = variant.timeLabels?.length ? variant.timeLabels : ["Any"];
+    const seasonMatches = seasons.some(value => String(value).toLowerCase() === "any" || String(value).toLowerCase() === season || (season === "autumn" && String(value).toLowerCase() === "fall"));
+    const timeMatches = times.some(value => time === "any" || String(value).toLowerCase() === "any" || String(value).toLowerCase() === time);
+    return seasonMatches && timeMatches;
+  }
+
+  function getLocationSegmentKey(monId, typeKey, horde) {
+    return `${locationChartState.season}|${locationChartState.time}|${monId}|${typeKey}|${Number(horde) || 0}`;
+  }
+
+  function isLocationSegmentVisible(monId, typeKey, horde) {
+    return !locationChartState.allHidden
+      && !locationChartState.hiddenTypes.has(typeKey)
+      && !locationChartState.hiddenSegments.has(getLocationSegmentKey(monId, typeKey, horde));
+  }
+
+  function isLocationPokemonVisible(item, typeKey) {
+    const keys = [...new Set(item.allVariants.map(variant => getLocationSegmentKey(item.mon.id, typeKey, variant.hordeMultiplier)))];
+    return keys.length > 0
+      && !locationChartState.allHidden
+      && !locationChartState.hiddenTypes.has(typeKey)
+      && keys.every(key => !locationChartState.hiddenSegments.has(key));
+  }
+
+  function getLocationVariantCategory(variant) {
+    const values = [ ...(variant.rarityValues || []), variant.rarityLabel, variant.loc?.rarity ]
+      .map(value => String(value || "").toLowerCase());
+    if (values.some(value => value.includes("lure"))) return "lure";
+    if (values.some(value => value.includes("???") || value.includes("question"))) return "unknown";
+    if (values.some(value => value.includes("special"))) return "special";
+    return null;
+  }
+
+  function renderLocationEncounterChart(rows) {
+    const chart = $("#pokedexLocationEncounterChart");
+    if (!chart) return;
+    const types = new Map();
+    rows.forEach(({ mon, encounters }) => encounters.flatMap(encounter => encounter.variants || [encounter]).forEach(variant => {
+      const type = String(variant.loc?.type || "Unknown").trim() || "Unknown";
+      const key = type.toLowerCase();
+      if (!types.has(key)) types.set(key, { key, type, mons: new Map() });
+      const group = types.get(key);
+      if (!group.mons.has(mon.id)) group.mons.set(mon.id, { mon, variants: [], allVariants: [], categories: new Map() });
+      group.mons.get(mon.id).allVariants.push(variant);
+      const item = group.mons.get(mon.id);
+      const category = getLocationVariantCategory(variant);
+      if (category) {
+        if (!item.categories.has(category)) item.categories.set(category, []);
+        item.categories.get(category).push(variant);
+      } else if (locationVariantMatchesChart(variant)) item.variants.push(variant);
+    }));
+    const chartLocationOptions = getLocationVariantOptions([...types.values()].flatMap(group => [...group.mons.values()].flatMap(item => item.allVariants)));
+    const chartLocationCycleKey = "chart|location";
+    const chartLocationIndex = chartLocationOptions.length
+      ? (locationEncounterInfoIndices.get(chartLocationCycleKey) || 0) % chartLocationOptions.length
+      : 0;
+    const chartSelectedLocationKey = chartLocationOptions[chartLocationIndex]?.key || null;
+    types.forEach(group => {
+      group.mons.forEach(item => {
+        item.hasSelectedLocation = item.allVariants.some(variant => getLocationVariantOptionKey(variant) === chartSelectedLocationKey);
+        item.categories = new Map();
+        item.allVariants.filter(variant => getLocationVariantOptionKey(variant) === chartSelectedLocationKey).forEach(variant => {
+          const category = getLocationVariantCategory(variant);
+          if (!category) return;
+          if (!item.categories.has(category)) item.categories.set(category, []);
+          item.categories.get(category).push(variant);
+        });
+        item.variants = item.allVariants.filter(variant =>
+          (!chartSelectedLocationKey || getLocationVariantOptionKey(variant) === chartSelectedLocationKey)
+          && !getLocationVariantCategory(variant)
+          && locationVariantMatchesChart(variant)
+        );
+      });
+    });
+    const allSegments = [...types.values()].flatMap(group => [...group.mons.values()].flatMap(item => item.allVariants.map(variant => getLocationSegmentKey(item.mon.id, group.key, variant.hordeMultiplier))));
+    const allSelected = !locationChartState.allHidden && allSegments.every(key => !locationChartState.hiddenSegments.has(key)) && [...types.keys()].every(key => !locationChartState.hiddenTypes.has(key));
+    const seasons = ["Spring", "Summer", "Autumn", "Winter"];
+    const times = ["Morning", "Day", "Night"];
+    const buttonGroup = (label, values, selected, attr) => `<div class="location-chart-choice-group"><span>${label}</span>${values.map(value => `<button type="button" class="location-chart-choice${String(value).toLowerCase() === String(selected).toLowerCase() ? " selected" : ""}" data-chart-${attr}="${value}">${attr === "season" ? renderSeasonSymbol(value) : value === "Any" ? renderAllTimeSymbol() : renderTimeSymbol(value)}<b>${value}</b></button>`).join("")}</div>`;
+    const sidePresence = ["lure", "unknown", "special"].map(category => [...types.values()].some(group => [...group.mons.values()].some(item => item.categories.has(category))));
+    sidePresence.push([...types.values()].some(group => [...group.mons.values()].some(item => !item.variants.length && !item.categories.size && item.allVariants.length)));
+    const rowsHtml = [...types.values()].map(group => {
+      const segments = [...group.mons.values()].flatMap(item => item.variants.map(variant => {
+        const chance = [ ...(variant.rarityValues || []), variant.rarityLabel, variant.loc?.rarity ].map(parseModalLocationRarityPercent).find(Number.isFinite) || 0;
+        return { item, variant, chance, horde: Number(variant.hordeMultiplier) || 0 };
+      })).filter(segment => segment.chance > 0).sort((a, b) => b.chance - a.chance || a.item.mon.name.localeCompare(b.item.mon.name));
+      const sideGroups = ["lure", "unknown", "special"].map(category => [...group.mons.values()].filter(item => item.categories.has(category)));
+      const offSeason = [...group.mons.values()].filter(item => item.hasSelectedLocation && !item.variants.length && !sideGroups.some(items => items.includes(item)));
+      const typeSelected = !locationChartState.allHidden && !locationChartState.hiddenTypes.has(group.key) && segments.every(segment => isLocationSegmentVisible(segment.item.mon.id, group.key, segment.horde));
+      const side = (items, muted = false) => items.map(item => `<button type="button" class="location-chart-side-pokemon${muted ? " muted" : ""}${isLocationPokemonVisible(item, group.key) ? " selected" : ""}" data-chart-pokemon="${item.mon.id}" data-chart-type-key="${escapeHtml(group.key)}" title="${escapeHtml(item.mon.name)}"><img src="sprites/monstericons/${item.mon.id}-0.png" alt="${escapeHtml(item.mon.name)}"></button>`).join("");
+      const beforeBar = sideGroups.map((items, index) => sidePresence[index] ? `<div class="location-chart-side-column">${side(items)}</div>` : "").join("");
+      const afterBar = sidePresence[3] ? `<div class="location-chart-side-column">${side(offSeason, true)}</div>` : "";
+      return `<div class="location-chart-type-row"><div class="location-chart-type-wrap"><button type="button" aria-label="Toggle ${escapeHtml(group.type)} encounters" class="location-chart-type${typeSelected ? " selected" : ""}" data-chart-type="${escapeHtml(group.key)}"><img src="sprites/assets/${escapeHtml(group.type.toLowerCase())}.webp" alt="" onerror="this.onerror=null;this.src='sprites/pokemon/0.png';"></button></div>${beforeBar}<div class="location-chart-bar" role="list">${segments.map(segment => `<button type="button" class="location-chart-segment${isLocationSegmentVisible(segment.item.mon.id, group.key, segment.horde) ? " selected" : ""}" style="--segment-size:${segment.chance}" data-chart-segment="${escapeHtml(getLocationSegmentKey(segment.item.mon.id, group.key, segment.horde))}" data-chart-type-key="${escapeHtml(group.key)}" title="${escapeHtml(segment.item.mon.name)} — ${segment.chance}%" role="listitem"><img src="sprites/monstericons/${segment.item.mon.id}-0.png" alt="${escapeHtml(segment.item.mon.name)}">${segment.horde ? `<img class="location-chart-horde-marker" src="sprites/assets/horde${segment.horde}.png" alt="${segment.horde}x Horde">` : ""}<span>${segment.chance}%</span></button>`).join("")}</div>${afterBar}</div>`;
+    }).join("");
+    const sideHeaders = ["Lures", "???", "Special"].filter((_, index) => sidePresence[index]).map(label => `<span class="location-chart-side-heading">${label}</span>`).join("");
+    const otherHeader = sidePresence[3] ? `<span class="location-chart-side-heading muted">Other seasons</span>` : "";
+    const hasSide = [...types.values()].some(group => [...group.mons.values()].some(item => item.categories.size || (!item.variants.length && item.allVariants.length)));
+    const chartLocationCycle = chartLocationOptions.length > 1
+      ? `<div class="location-encounter-cycler location-chart-location-cycler"><button type="button" data-chart-location-cycle="previous" data-chart-location-cycle-key="${escapeHtml(chartLocationCycleKey)}" data-chart-location-cycle-count="${chartLocationOptions.length}" aria-label="Previous location">&#8592;</button><span>${escapeHtml(chartLocationOptions[chartLocationIndex].label)}</span><button type="button" data-chart-location-cycle="next" data-chart-location-cycle-key="${escapeHtml(chartLocationCycleKey)}" data-chart-location-cycle-count="${chartLocationOptions.length}" aria-label="Next location">&#8594;</button></div>`
+      : "";
+    chart.innerHTML = `<div class="location-chart-controls">${buttonGroup("Season", seasons, locationChartState.season, "season")}${buttonGroup("Time", times, locationChartState.time, "time")}${chartLocationCycle}</div><div class="location-chart-legend"><button type="button" class="location-chart-all${allSelected ? " selected" : ""}" data-chart-all>All</button><span>Toggle encounter visibility</span></div>${hasSide ? `<div class="location-chart-side-headings"><span></span>${sideHeaders}<span class="location-chart-bar-heading">Encounters</span>${otherHeader}</div>` : ""}<div class="location-chart-row">${rowsHtml}</div>`;
+    chart.querySelectorAll("[data-chart-season]").forEach(button => button.addEventListener("click", () => { locationChartState.season = button.dataset.chartSeason; renderLocationResults(); }));
+    chart.querySelectorAll("[data-chart-time]").forEach(button => button.addEventListener("click", () => { locationChartState.time = button.dataset.chartTime; renderLocationResults(); }));
+    chart.querySelectorAll("[data-chart-location-cycle]").forEach(button => button.addEventListener("click", () => {
+      const key = button.dataset.chartLocationCycleKey;
+      const count = Number(button.dataset.chartLocationCycleCount);
+      const current = locationEncounterInfoIndices.get(key) || 0;
+      const direction = button.dataset.chartLocationCycle === "next" ? 1 : -1;
+      locationEncounterInfoIndices.set(key, (current + direction + count) % count);
+      renderLocationResults();
+    }));
+    chart.querySelector("[data-chart-all]")?.addEventListener("click", () => { locationChartState.allHidden = allSelected; locationChartState.hiddenSegments.clear(); locationChartState.hiddenTypes.clear(); renderLocationResults(); });
+    chart.querySelectorAll("[data-chart-type]").forEach(button => button.addEventListener("click", () => {
+      const key = button.dataset.chartType;
+      const group = types.get(key);
+      const selected = !locationChartState.allHidden && !locationChartState.hiddenTypes.has(key) && [...group.mons.values()].flatMap(item => item.allVariants.map(variant => getLocationSegmentKey(item.mon.id, key, variant.hordeMultiplier))).every(segmentKey => !locationChartState.hiddenSegments.has(segmentKey));
+      locationChartState.allHidden = false;
+      if (selected) locationChartState.hiddenTypes.add(key); else { locationChartState.hiddenTypes.delete(key); }
+      renderLocationResults();
+    }));
+    chart.querySelectorAll("[data-chart-segment]").forEach(button => button.addEventListener("click", () => {
+      locationChartState.allHidden = false;
+      const key = button.dataset.chartSegment;
+      locationChartState.hiddenTypes.delete(button.dataset.chartTypeKey);
+      locationChartState.hiddenSegments.has(key) ? locationChartState.hiddenSegments.delete(key) : locationChartState.hiddenSegments.add(key);
+      renderLocationResults();
+    }));
+    chart.querySelectorAll("[data-chart-pokemon]").forEach(button => button.addEventListener("click", () => {
+      locationChartState.allHidden = false;
+      const id = Number(button.dataset.chartPokemon);
+      const typeKey = button.dataset.chartTypeKey;
+      const keys = [...types.get(typeKey).mons.get(id).allVariants].map(variant => getLocationSegmentKey(id, typeKey, variant.hordeMultiplier));
+      locationChartState.hiddenTypes.delete(typeKey);
+      const hide = keys.some(key => !locationChartState.hiddenSegments.has(key));
+      keys.forEach(key => hide ? locationChartState.hiddenSegments.add(key) : locationChartState.hiddenSegments.delete(key));
+      renderLocationResults();
+    }));
+  }
+
+  function getLocationEncounterInfoLabel(fullName, baseName = "") {
     const match = String(fullName || "").match(/\(([^()]*)\)/);
-    return match?.[1]?.trim() || "Main";
+    return match?.[1]?.trim() || (fullName && fullName.toLowerCase() !== baseName.toLowerCase() ? fullName : "Main");
+  }
+
+  function getLocationVariantOptionKey(variant) {
+    const fullName = String(variant.locationFullName || variant.fullName || variant.locationName || "").trim();
+    const locationId = variant.loc?.location_id ?? variant.loc?.locationId ?? "";
+    return `${fullName.toLowerCase()}|${locationId}`;
+  }
+
+  function getLocationVariantOptions(variants) {
+    const options = new Map();
+    variants.forEach(variant => {
+      const key = getLocationVariantOptionKey(variant);
+      if (!options.has(key)) {
+        const fullName = String(variant.locationFullName || variant.fullName || variant.locationName || "").trim();
+        options.set(key, {
+          key,
+          fullName,
+          baseName: String(variant.locationName || variant.baseName || "").trim(),
+          locationId: variant.loc?.location_id ?? variant.loc?.locationId ?? ""
+        });
+      }
+    });
+    const idsByFullName = new Map();
+    options.forEach(option => {
+      if (!idsByFullName.has(option.fullName.toLowerCase())) idsByFullName.set(option.fullName.toLowerCase(), new Set());
+      idsByFullName.get(option.fullName.toLowerCase()).add(String(option.locationId));
+    });
+    return [...options.values()].map(option => ({
+      ...option,
+      label: idsByFullName.get(option.fullName.toLowerCase()).size > 1
+        ? String(option.locationId || "Unknown ID")
+        : getLocationEncounterInfoLabel(option.fullName, option.baseName)
+    }));
   }
 
   function buildLocationRarityChart(encounters, seasons, cycle = null) {
@@ -7386,7 +7582,7 @@ const PokedexTool = (() => {
           <div class="catch-summary-search-row">
             <input
               type="search"
-              class="mc-input dex-input catch-summary-search"
+              class="form-input dex-input catch-summary-search"
               placeholder="Search balls..."
               value="${escapeHtml(state.ballSearch || "")}"
               autocomplete="off"
@@ -10097,7 +10293,7 @@ function getDirectChildBranches(branch) {
                 <div class="dex-filter-group-label">
                   <label>Region</label>
                 </div>
-                <div class="mc-filters encounter-filter-pills">
+                <div class="filter-list encounter-filter-pills">
                   ${regions.map(region => `
                     <button type="button" class="encounter-filter-pill modal-location-filter" data-filter="region" data-value="${region}">
                       <span class="filter-box">◯</span> ${region}
@@ -10110,7 +10306,7 @@ function getDirectChildBranches(branch) {
                 <div class="dex-filter-group-label">
                   <label>Rarity</label>
                 </div>
-                <div class="mc-filters encounter-filter-pills">
+                <div class="filter-list encounter-filter-pills">
                   ${namedRarities.map(rarity => `
                     <button type="button" class="encounter-filter-pill modal-location-filter" data-filter="rarity" data-value="${rarity}">
                       <span class="filter-box">◯</span> ${rarity}
@@ -10152,7 +10348,7 @@ function getDirectChildBranches(branch) {
                 <div class="dex-filter-group-label">
                   <label>Season</label>
                 </div>
-                <div class="mc-filters encounter-filter-pills">
+                <div class="filter-list encounter-filter-pills">
                   ${seasons.map(season => `
                     <button type="button" class="encounter-filter-pill modal-location-filter" data-filter="season" data-value="${season}">
                       <span class="filter-box">◯</span> ${season}
@@ -10165,7 +10361,7 @@ function getDirectChildBranches(branch) {
                 <div class="dex-filter-group-label">
                   <label>Time of Day</label>
                 </div>
-                <div class="mc-filters encounter-filter-pills">
+                <div class="filter-list encounter-filter-pills">
                   ${times.map(time => `
                     <button type="button" class="encounter-filter-pill modal-location-filter" data-filter="time" data-value="${time}">
                       <span class="filter-box">◯</span> ${time}
@@ -10322,6 +10518,7 @@ function getDirectChildBranches(branch) {
           variant.loc.min_level ?? "",
           variant.loc.max_level ?? "",
           variant.hordeMultiplier || 0,
+          variant.loc.location_id ?? variant.loc.locationId ?? "",
           // Keep a season with a different time/rarity relationship in its
           // own card instead of creating a misleading cross-combination.
           variant.timeLabel || ""
@@ -10367,7 +10564,8 @@ function getDirectChildBranches(branch) {
   function getModalLocationGroupKey(encounter) {
     return [
       encounter.loc.region_name || "",
-      encounter.locationFullName || encounter.fullName || encounter.baseName || encounter.locationName || ""
+      encounter.locationFullName || encounter.fullName || encounter.baseName || encounter.locationName || "",
+      encounter.loc.location_id ?? encounter.loc.locationId ?? ""
     ].map(value => String(value).toLowerCase()).join("|");
   }
 

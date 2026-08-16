@@ -19,25 +19,25 @@
 <body>
 
 <header class="topbar">
-  <button id="menuBtn" class="menuBtn btn--ghost">☰</button>
+  <button id="menuBtn" class="menu-button btn--ghost">☰</button>
   <span class="brand">Niche PokeMMO Tools</span>
-  <div class="linkMenu">
-    <button id="linkToggle" class="btn btn--ghost linkToggle">🔗</button>
-    <div class="linkDropdown" id="linkDropdown">
+  <div class="link-menu">
+    <button id="linkToggle" class="btn btn--ghost link-toggle">🔗</button>
+    <div class="link-dropdown" id="linkDropdown">
 
-      <a href="https://mylis.github.io/pokemmo_ocr" class="porysiteImage">
+      <a href="https://mylis.github.io/pokemmo_ocr" class="porysite-link">
         <img src="site icons/mylisOCR.ico" alt="OCR Tool">
-        <span class="linkLabel">PSE OCR</span>
+        <span class="link-label">PSE OCR</span>
       </a>
 
-      <a href="https://team-porygon-pokemmo.pages.dev/" class="porysiteImage">
+      <a href="https://team-porygon-pokemmo.pages.dev/" class="porysite-link">
         <img src="site icons/porysite.webp" alt="Porysite">
-        <span class="linkLabel">Team Pory</span>
+        <span class="link-label">Team Pory</span>
       </a>
 
   </section>
   </div>
-  <button id="darkToggle" class="btn btn--ghost togglelightdark">🌙</button>
+  <button id="darkToggle" class="btn btn--ghost theme-toggle">🌙</button>
 </header>
 
 <div id="drawerOverlay" class="drawer-overlay"></div>
@@ -55,8 +55,8 @@
 </aside>
 
 <main class="content">
-  <section id="aboutPage" class="toolSection">
-    <header class="toolHeader">
+  <section id="aboutPage" class="tool-section">
+    <header class="tool-header">
       <h1>About Niche PokeMMO Tools</h1>
       <p class="muted">This site is a collection of various tools created for very niche purposes. May or may not be useful for the average PokeMMO user.</p>
     </header>
@@ -66,43 +66,43 @@
       <div class="about-card">
         <h3>📊 Encounter Info</h3>
         <p>All pokemon encounter spots tabulated. Advanced filtering for encounters, EVs, EXP, and locations.</p>
-        <button class="btn jumpTool" data-tool="encounterTool">Open →</button>
+        <button class="btn jump-tool" data-tool="encounterTool">Open →</button>
       </div>
 
       <div class="about-card">
         <h3>🎨 Color Text</h3>
         <p class="muted">Generates text that produces colored text within team chat.</p>
-        <button class="btn jumpTool" data-tool="colorTextTool">Open →</button>
+        <button class="btn jump-tool" data-tool="colorTextTool">Open →</button>
         <!-- Embed tool direcly <div class="about-tool-slot" data-tool="colorTextTool"></div> -->
       </div>
 
       <div class="about-card">
         <h3>⚔️ Move Checker</h3>
         <p class="muted">See which pokemon learn a specific move and filter by a method of interest</p>
-        <button class="btn jumpTool" data-tool="moveChecker">Open →</button>
+        <button class="btn jump-tool" data-tool="moveChecker">Open →</button>
       </div>
 
       <div class="about-card">
         <h3>🎬 Frame Extractor</h3>
         <p class="muted">Used in <a href="https://mylis.github.io/pokemmo_ocr/" style="color:var(--accent)"><img src="site icons/mylisOCR.ico" alt="OCR Tool" style="height:15px"> PSE OCR Tool by Mylis</a>. Select a region of interest and the program outputs all frames that are unique within that region.</p>
-        <button class="btn jumpTool" data-tool="videoFrameTool">Open →</button>
+        <button class="btn jump-tool" data-tool="videoFrameTool">Open →</button>
       </div>
 
       <div class="about-card">
         <h3><img src="https://archives.bulbagarden.net/media/upload/e/ea/Menu_Icon_Pokedex_Platinum.png" style="width:25px;"> Pokedex (WIP)</h3>
         <p class="muted"> View pokemon information normally seen in PokeMMO and more. Grid art by Slyfer. </p>
-        <button class="btn jumpTool" data-tool="pokedexTool">Open →</button>
+        <button class="btn jump-tool" data-tool="pokedexTool">Open →</button>
       </div>
     </div>
   </section>
   <!-- ================= TOOLS ================= -->
-  <section id="colorTextTool" class="toolSection" style="display:none;">
-    <header class="toolHeader">
+  <section id="colorTextTool" class="tool-section" style="display:none;">
+    <header class="tool-header">
       <h1>Text Color Generator</h1>
       <p class="muted">Note: Coloring text is only supported in team chat</p>
     </header>
 
-    <div class="controls">
+    <div class="tool-controls">
       <div id="lineContainer" class="line-list"></div>
       <div class="control-actions">
         <button id="addLineBtn" class="btn">➕ Add Line</button>
@@ -114,26 +114,26 @@
 
     <h3>Formatted Output</h3>
     <div class="formatted">
-      <pre id="formattedOutput" class="formatted__pre"></pre>
+      <pre id="formattedOutput" class="formatted-output"></pre>
       <button id="copyOutputBtn" class="btn">Copy</button>
     </div>
   </section>
 
-  <section id="moveChecker" class="toolSection" style="display:none;">
-    <header class="toolHeader">
+  <section id="moveChecker" class="tool-section" style="display:none;">
+    <header class="tool-header">
       <h1>Pokémon Move Checker</h1>
       <p class="muted">Find which Pokémon can learn a specific move</p>
     </header>
 
-    <div class="mc-search-wrapper">
-      <input id="moveSearch" class="mc-input" placeholder="Search move..." autocomplete="off" />
-      <div id="autocomplete" class="mc-autocomplete"></div>
+    <div class="move-search">
+      <input id="moveSearch" class="form-input" placeholder="Search move..." autocomplete="off" />
+      <div id="autocomplete" class="move-autocomplete"></div>
     </div>
 
     <button id="filtersBtn" class="btn btn--panel" style="margin-top: 8px;">🝖 Filters</button>
     <div id="filtersPanel" class="filters-panel collapsed">
       <h4>Move Filters</h4>
-      <div class="mc-filters" id="moveFilters">
+      <div class="filter-list" id="moveFilters">
         <label data-filter="level"><span class="filter-box">◯</span> Level</label>
         <label data-filter="TM??"><span class="filter-box">◯</span> TM</label>
         <label data-filter="TUTOR"><span class="filter-box">◯</span> Tutor</label>
@@ -144,7 +144,7 @@
       </div>
 
       <h4>Type Filter</h4>
-      <select id="typeFilter" class="mc-input">
+      <select id="typeFilter" class="form-input">
         <option value="">Any Type</option>
       </select>
       <button id="clearFilters" class="btn btn--tertiary" style="margin-top: 4px;margin-bottom: 4px;">Clear Filters</button>
@@ -154,15 +154,15 @@
     <div id="results"></div>
   </section>
 
-  <section id="encounterTool" class="toolSection" style="display:none;">
-    <header class="toolHeader">
+  <section id="encounterTool" class="tool-section" style="display:none;">
+    <header class="tool-header">
       <h1>Pokémon Encounter Info</h1>
     </header>
 
     <div class="encounter-top">
       <div class="encounter-top-1">
         <div class="encounter-search">
-          <input id="encounterSearch" class="mc-input" placeholder="Search..." />
+          <input id="encounterSearch" class="form-input" placeholder="Search..." />
         </div>
 
         <div class="encounter-toggle" id="encounterToggle" data-mode="pokemon">
@@ -188,7 +188,7 @@
           </span>
         </div>
         <div class="encounter-preset-row">
-          <label class="preset_label">
+          <label class="preset-label">
             Presets:
           </label>
           <div class="column-presets">
@@ -210,14 +210,14 @@
             <div class="dex-filter-group-label">
               <label>Rarity</label>
             </div>
-            <div id="rarityFilters" class="mc-filters encounter-filter-pills"></div>
+            <div id="rarityFilters" class="filter-list encounter-filter-pills"></div>
           </div>
 
           <div class="dex-filter-group">
             <div class="dex-filter-group-label">
               <label>Region</label>
             </div>
-            <div id="regionFilters" class="mc-filters encounter-filter-pills"></div>
+            <div id="regionFilters" class="filter-list encounter-filter-pills"></div>
           </div>
         </div>
 
@@ -226,14 +226,14 @@
             <div class="dex-filter-group-label">
               <label>Season</label>
             </div>
-            <div id="seasonFilters" class="mc-filters encounter-filter-pills"></div>
+            <div id="seasonFilters" class="filter-list encounter-filter-pills"></div>
           </div>
 
           <div class="dex-filter-group">
             <div class="dex-filter-group-label">
               <label>Time of Day</label>
             </div>
-            <div id="timeFilters" class="mc-filters encounter-filter-pills"></div>
+            <div id="timeFilters" class="filter-list encounter-filter-pills"></div>
           </div>
         </div>
 
@@ -241,7 +241,7 @@
           <div class="dex-filter-group-label">
             <label>Columns</label>
           </div>
-          <div id="columnFilters" class="mc-filters encounter-column-pills"></div>
+          <div id="columnFilters" class="filter-list encounter-column-pills"></div>
         </div>
 
         <button id="clearEncounterFilters" class="btn btn--tertiary encounter-clear-filters">Clear Filters</button>
@@ -249,7 +249,7 @@
     </div>
 
     <div id="encounterTableWrapper" class="scrollable-table">
-      <table class="mc-table" id="encounterTable">
+      <table class="data-table" id="encounterTable">
         <thead>
           <tr>
             <th data-col="pokemon">
@@ -335,8 +335,8 @@
     </div>
   </section>
 
-  <section id="videoFrameTool" class="toolSection" style="display:none;">
-    <header class="toolHeader">
+  <section id="videoFrameTool" class="tool-section" style="display:none;">
+    <header class="tool-header">
       <h1>Unique Frame Extractor</h1>
       <p class="muted">
         Drag on the video preview to select the text region.
@@ -346,12 +346,12 @@
     </header>
 
     <!-- File Input -->
-    <div class="toolRow">
+    <div class="tool-row">
       <input type="file" id="videoInput" accept="video/*">
     </div>
 
     <!-- Threshold Control -->
-    <div class="toolRow">
+    <div class="tool-row">
       <label for="diffThreshold">
         Difference Threshold
       </label>
@@ -372,15 +372,15 @@
     </div>
 
     <!-- Video Preview / ROI Selection -->
-    <div class="canvasWrapper">
+    <div class="canvas-wrapper">
       <canvas id="hiddenCanvas"></canvas>
     </div>
 
     <!-- Progress Window -->
-    <div id="progressWindow" class="progressWindow" ></div>
+    <div id="progressWindow" class="progress-window" ></div>
 
     <!-- Process Button -->
-    <div class="toolRow">
+    <div class="tool-row">
       <button id="processVideoBtn" class="btn" style=width:100%;>
         Process Video
       </button>
@@ -390,10 +390,10 @@
     <div id="frameStatus" class="muted"></div>
   </section>
 
-  <section id="poryBackground" class="toolSection" style="display:none;">
+  <section id="poryBackground" class="tool-section" style="display:none;">
   </section>
 
-  <section id="pokedexTool" class="toolSection" style="display:none;">
+  <section id="pokedexTool" class="tool-section" style="display:none;">
 
     <div class="encounter-controls pokedex-controls">
       <button id="pokedexSearchModeToggle" class="dex-mode-toggle" type="button" aria-pressed="false" aria-label="Switch to location-based search">
@@ -404,7 +404,7 @@
       <div class="dex-top">
         <!-- Row 1 -->
         <div class="dex-top-1">
-          <input id="pokedexSearch" class="mc-input dex-search-mon-bar dex-input" placeholder="Search Pokémon...">
+          <input id="pokedexSearch" class="form-input dex-search-mon-bar dex-input" placeholder="Search Pokémon...">
 
           <div class="filterbtn-wrapper">
             <button id="toggleFilters" class="btn btn--gradient">
@@ -552,6 +552,7 @@
     <div id="pokedexLocationMode" class="pokedex-location-mode hidden" aria-hidden="true">
       <div class="pokedex-location-toolbar">
         <div id="pokedexLocationHost"></div>
+        <div id="pokedexLocationEncounterChart" class="pokedex-location-encounter-chart" aria-label="Encounter chances"></div>
         <div class="pokedex-location-search-row">
           <button id="pokedexLocationFiltersBtn" class="btn btn--gradient" type="button">Filters</button>
           <button id="pokedexLocationResetAllBtn" class="reset-all-btn hidden" type="button" aria-label="Reset location filters">âŸ³</button>
@@ -559,11 +560,11 @@
         <div id="pokedexLocationFiltersPanel" class="dex-filters-panel collapsed">
           <div class="pokedex-location-filter-groups">
             <div class="dex-filter-group"><div class="dex-filter-group-label"><label>Pokémon</label></div><div class="pokedex-location-pokemon-filter autocomplete-wrapper"><input id="pokedexLocationPokemonSearch" class="dex-input dex-search-mon-bar" placeholder="Search Pokémon..." autocomplete="off"><div id="pokedexLocationPokemonDropdown" class="autocomplete-dropdown hidden"></div></div></div>
-            <div class="dex-filter-group"><div class="dex-filter-group-label"><label>Rarity</label></div><div id="pokedexLocationRarityFilters" class="mc-filters encounter-filter-pills"></div><div id="pokedexLocationRarityRange" class="modal-location-rarity-range hidden" data-rarity-range></div></div>
-            <div class="dex-filter-group"><div class="dex-filter-group-label"><label>Encounter Size</label></div><div id="pokedexLocationHordeFilters" class="mc-filters encounter-filter-pills"></div></div>
-            <div class="dex-filter-group"><div class="dex-filter-group-label"><label>Encounter Type</label></div><div id="pokedexLocationTypeFilters" class="mc-filters encounter-filter-pills"></div></div>
-            <div class="dex-filter-group"><div class="dex-filter-group-label"><label>Season</label></div><div id="pokedexLocationSeasonFilters" class="mc-filters encounter-filter-pills"></div></div>
-            <div class="dex-filter-group"><div class="dex-filter-group-label"><label>Time of Day</label></div><div id="pokedexLocationTimeFilters" class="mc-filters encounter-filter-pills"></div></div>
+            <div class="dex-filter-group"><div class="dex-filter-group-label"><label>Rarity</label></div><div id="pokedexLocationRarityFilters" class="filter-list encounter-filter-pills"></div><div id="pokedexLocationRarityRange" class="modal-location-rarity-range hidden" data-rarity-range></div></div>
+            <div class="dex-filter-group"><div class="dex-filter-group-label"><label>Encounter Size</label></div><div id="pokedexLocationHordeFilters" class="filter-list encounter-filter-pills"></div></div>
+            <div class="dex-filter-group"><div class="dex-filter-group-label"><label>Encounter Type</label></div><div id="pokedexLocationTypeFilters" class="filter-list encounter-filter-pills"></div></div>
+            <div class="dex-filter-group"><div class="dex-filter-group-label"><label>Season</label></div><div id="pokedexLocationSeasonFilters" class="filter-list encounter-filter-pills"></div></div>
+            <div class="dex-filter-group"><div class="dex-filter-group-label"><label>Time of Day</label></div><div id="pokedexLocationTimeFilters" class="filter-list encounter-filter-pills"></div></div>
           </div>
         </div>
       </div>
@@ -575,9 +576,9 @@
   </section>
 
   <!-- DEX DETAIL -->
-  <section id="pokedexModal" class="toolSection pokedex-modal" style="display:none;">
+  <section id="pokedexModal" class="tool-section pokedex-modal" style="display:none;">
       <div class="pokedex-modal-content">
-        <button id="closeModal" class="btn btn--panel btn--dexModal" aria-label="Close dex entry">✕</button>
+        <button id="closeModal" class="btn btn--panel btn--dex-modal" aria-label="Close dex entry">✕</button>
         <div id="modalBody"></div>
       </div>
   </section>
@@ -586,9 +587,9 @@
 
 
 <template id="lineTemplate">
-  <div class="lineRow" data-color="#00ffffff">
-    <span class="dragHandle" draggable="true">⋮⋮</span>
-    <input class="lineText" type="text" placeholder="Enter text">
+  <div class="line-row" data-color="#00ffffff">
+    <span class="drag-handle" draggable="true">⋮⋮</span>
+    <input class="line-text" type="text" placeholder="Enter text">
     <button class="pickrButton">🎨</button>
     <button class="removeBtn btn--ghost">❌</button>
   </div>
